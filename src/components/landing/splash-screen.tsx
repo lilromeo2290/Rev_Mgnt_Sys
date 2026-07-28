@@ -121,7 +121,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
         >
-          Organization
+          CLIPE CONSULT
         </motion.h1>
 
         <motion.p
@@ -130,7 +130,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.35, ease: 'easeOut' }}
         >
-          Digital Services Portal
+          DIGITAL PLATFORM
         </motion.p>
 
         {/* Progress bar */}
