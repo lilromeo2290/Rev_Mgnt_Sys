@@ -11,7 +11,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const duration = 120000; // 2 minutes
+    const duration = 60000; // 1 minute
     const interval = 50; // update every 50ms for smooth percentage
     const steps = duration / interval;
     let current = 0;
