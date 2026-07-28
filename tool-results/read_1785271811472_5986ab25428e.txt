@@ -1,0 +1,1019 @@
+     1→'use client';
+     2→
+     3→import { useState, useMemo } from 'react';
+     4→import {
+     5→  Search,
+     6→  Plus,
+     7→  ChevronLeft,
+     8→  ChevronRight,
+     9→  Eye,
+    10→  Printer,
+    11→  XCircle,
+    12→  FileText,
+    13→  Zap,
+    14→  DollarSign,
+    15→  AlertTriangle,
+    16→  Clock,
+    17→  X,
+    18→  Save,
+    19→} from 'lucide-react';
+    20→
+    21→// ─── Types ───────────────────────────────────────────────────────────────────
+    22→
+    23→interface Bill {
+    24→  id: string;
+    25→  billNumber: string;
+    26→  date: string;
+    27→  entityName: string;
+    28→  entityType: 'Business' | 'Property';
+    29→  category: string;
+    30→  revenueItem: string;
+    31→  amount: number;
+    32→  previousBalance: number;
+    33→  penalty: number;
+    34→  totalDue: number;
+    35→  status: 'Paid' | 'Partial' | 'Unpaid' | 'Overdue';
+    36→  dueDate: string;
+    37→}
+    38→
+    39→interface BillFormData {
+    40→  entityName: string;
+    41→  entityType: 'Business' | 'Property';
+    42→  revenueItem: string;
+    43→  amount: number;
+    44→  previousBalance: number;
+    45→  penalty: number;
+    46→  dueDate: string;
+    47→}
+    48→
+    49→// ─── Mock Data ───────────────────────────────────────────────────────────────
+    50→
+    51→const REVENUE_ITEMS = [
+    52→  'Business Operating Permit',
+    53→  'Property Rate',
+    54→  'Market Toll',
+    55→  'Signage Fees',
+    56→  'Building Permit Fees',
+    57→  'Environmental Fees',
+    58→  'Liquor License',
+    59→  'Food Vendor Permit',
+    60→  'Advertising Levy',
+    61→  'Development Levy',
+    62→  'Sanitation Fees',
+    63→  'Fire Safety Cert',
+    64→];
+    65→
+    66→const RATE_AMOUNTS: Record<string, number> = {
+    67→  'Business Operating Permit': 300,
+    68→  'Property Rate': 600,
+    69→  'Market Toll': 50,
+    70→  'Signage Fees': 100,
+    71→  'Building Permit Fees': 500,
+    72→  'Environmental Fees': 75,
+    73→  'Liquor License': 200,
+    74→  'Food Vendor Permit': 80,
+    75→  'Advertising Levy': 300,
+    76→  'Development Levy': 150,
+    77→  'Sanitation Fees': 60,
+    78→  'Fire Safety Cert': 350,
+    79→};
+    80→
+    81→const ENTITIES = [
+    82→  { name: 'Kumasi Pharmacy', type: 'Business' as const, category: 'Healthcare' },
+    83→  { name: 'Royal Hotel', type: 'Business' as const, category: 'Hospitality' },
+    84→  { name: 'Mama Afia Restaurant', type: 'Business' as const, category: 'Food & Beverage' },
+    85→  { name: 'Apex Manufacturing Ltd', type: 'Business' as const, category: 'Industry' },
+    86→  { name: 'Abossey Okai Supermarket', type: 'Business' as const, category: 'Retail' },
+    87→  { name: 'Osei Barbershop', type: 'Business' as const, category: 'Personal Care' },
+    88→  { name: 'Goil Fuel Station - Konongo', type: 'Business' as const, category: 'Energy' },
+    89→  { name: '14 Kejetia Lane, Kumasi', type: 'Property' as const, category: 'Residential' },
+    90→  { name: 'Plot 24 Ahodwo Roundabout', type: 'Property' as const, category: 'Commercial' },
+    91→  { name: '55 Manhyia Palace Road', type: 'Property' as const, category: 'Commercial' },
+    92→  { name: 'Block A, Dichemso Estates', type: 'Property' as const, category: 'Residential' },
+    93→  { name: 'Grace Hair Salon', type: 'Business' as const, category: 'Personal Care' },
+    94→  { name: 'Hope Medical Clinic', type: 'Business' as const, category: 'Healthcare' },
+    95→  { name: 'Good Shepherd School Complex', type: 'Business' as const, category: 'Education' },
+    96→  { name: 'St. Johns Catholic Hospital', type: 'Business' as const, category: 'Healthcare' },
+    97→];
+    98→
+    99→const initialBills: Bill[] = [
+   100→  {
+   101→    id: '1',
+   102→    billNumber: 'BILL-2024-0156',
+   103→    date: '2024-11-01',
+   104→    entityName: 'Kumasi Pharmacy',
+   105→    entityType: 'Business',
+   106→    category: 'Healthcare',
+   107→    revenueItem: 'Business Operating Permit',
+   108→    amount: 300,
+   109→    previousBalance: 0,
+   110→    penalty: 0,
+   111→    totalDue: 300,
+   112→    status: 'Paid',
+   113→    dueDate: '2024-11-30',
+   114→  },
+   115→  {
+   116→    id: '2',
+   117→    billNumber: 'BILL-2024-0157',
+   118→    date: '2024-11-01',
+   119→    entityName: 'Royal Hotel',
+   120→    entityType: 'Business',
+   121→    category: 'Hospitality',
+   122→    revenueItem: 'Business Operating Permit',
+   123→    amount: 450,
+   124→    previousBalance: 150,
+   125→    penalty: 22.5,
+   126→    totalDue: 622.5,
+   127→    status: 'Partial',
+   128→    dueDate: '2024-11-30',
+   129→  },
+   130→  {
+   131→    id: '3',
+   132→    billNumber: 'BILL-2024-0158',
+   133→    date: '2024-10-15',
+   134→    entityName: '14 Kejetia Lane, Kumasi',
+   135→    entityType: 'Property',
+   136→    category: 'Residential',
+   137→    revenueItem: 'Property Rate',
+   138→    amount: 250,
+   139→    previousBalance: 500,
+   140→    penalty: 75,
+   141→    totalDue: 825,
+   142→    status: 'Overdue',
+   143→    dueDate: '2024-10-30',
+   144→  },
+   145→  {
+   146→    id: '4',
+   147→    billNumber: 'BILL-2024-0159',
+   148→    date: '2024-11-05',
+   149→    entityName: 'Mama Afia Restaurant',
+   150→    entityType: 'Business',
+   151→    category: 'Food & Beverage',
+   152→    revenueItem: 'Food Vendor Permit',
+   153→    amount: 80,
+   154→    previousBalance: 0,
+   155→    penalty: 0,
+   156→    totalDue: 80,
+   157→    status: 'Paid',
+   158→    dueDate: '2024-12-05',
+   159→  },
+   160→  {
+   161→    id: '5',
+   162→    billNumber: 'BILL-2024-0160',
+   163→    date: '2024-11-05',
+   164→    entityName: 'Apex Manufacturing Ltd',
+   165→    entityType: 'Business',
+   166→    category: 'Industry',
+   167→    revenueItem: 'Environmental Fees',
+   168→    amount: 75,
+   169→    previousBalance: 75,
+   170→    penalty: 0,
+   171→    totalDue: 150,
+   172→    status: 'Unpaid',
+   173→    dueDate: '2024-12-05',
+   174→  },
+   175→  {
+   176→    id: '6',
+   177→    billNumber: 'BILL-2024-0161',
+   178→    date: '2024-10-20',
+   179→    entityName: 'Plot 24 Ahodwo Roundabout',
+   180→    entityType: 'Property',
+   181→    category: 'Commercial',
+   182→    revenueItem: 'Property Rate',
+   183→    amount: 1200,
+   184→    previousBalance: 0,
+   185→    penalty: 0,
+   186→    totalDue: 1200,
+   187→    status: 'Paid',
+   188→    dueDate: '2024-11-20',
+   189→  },
+   190→  {
+   191→    id: '7',
+   192→    billNumber: 'BILL-2024-0162',
+   193→    date: '2024-11-10',
+   194→    entityName: 'Abossey Okai Supermarket',
+   195→    entityType: 'Business',
+   196→    category: 'Retail',
+   197→    revenueItem: 'Signage Fees',
+   198→    amount: 100,
+   199→    previousBalance: 200,
+   200→    penalty: 30,
+   201→    totalDue: 330,
+   202→    status: 'Unpaid',
+   203→    dueDate: '2024-12-10',
+   204→  },
+   205→  {
+   206→    id: '8',
+   207→    billNumber: 'BILL-2024-0163',
+   208→    date: '2024-10-01',
+   209→    entityName: 'Osei Barbershop',
+   210→    entityType: 'Business',
+   211→    category: 'Personal Care',
+   212→    revenueItem: 'Sanitation Fees',
+   213→    amount: 60,
+   214→    previousBalance: 120,
+   215→    penalty: 18,
+   216→    totalDue: 198,
+   217→    status: 'Overdue',
+   218→    dueDate: '2024-10-31',
+   219→  },
+   220→  {
+   221→    id: '9',
+   222→    billNumber: 'BILL-2024-0164',
+   223→    date: '2024-11-12',
+   224→    entityName: 'Goil Fuel Station - Konongo',
+   225→    entityType: 'Business',
+   226→    category: 'Energy',
+   227→    revenueItem: 'Fire Safety Cert',
+   228→    amount: 350,
+   229→    previousBalance: 0,
+   230→    penalty: 0,
+   231→    totalDue: 350,
+   232→    status: 'Paid',
+   233→    dueDate: '2024-12-12',
+   234→  },
+   235→  {
+   236→    id: '10',
+   237→    billNumber: 'BILL-2024-0165',
+   238→    date: '2024-11-12',
+   239→    entityName: '55 Manhyia Palace Road',
+   240→    entityType: 'Property',
+   241→    category: 'Commercial',
+   242→    revenueItem: 'Building Permit Fees',
+   243→    amount: 500,
+   244→    previousBalance: 0,
+   245→    penalty: 0,
+   246→    totalDue: 500,
+   247→    status: 'Unpaid',
+   248→    dueDate: '2024-12-12',
+   249→  },
+   250→  {
+   251→    id: '11',
+   252→    billNumber: 'BILL-2024-0166',
+   253→    date: '2024-09-15',
+   254→    entityName: 'Block A, Dichemso Estates',
+   255→    entityType: 'Property',
+   256→    category: 'Residential',
+   257→    revenueItem: 'Development Levy',
+   258→    amount: 150,
+   259→    previousBalance: 300,
+   260→    penalty: 45,
+   261→    totalDue: 495,
+   262→    status: 'Overdue',
+   263→    dueDate: '2024-10-15',
+   264→  },
+   265→  {
+   266→    id: '12',
+   267→    billNumber: 'BILL-2024-0167',
+   268→    date: '2024-11-15',
+   269→    entityName: 'Grace Hair Salon',
+   270→    entityType: 'Business',
+   271→    category: 'Personal Care',
+   272→    revenueItem: 'Market Toll',
+   273→    amount: 50,
+   274→    previousBalance: 0,
+   275→    penalty: 0,
+   276→    totalDue: 50,
+   277→    status: 'Paid',
+   278→    dueDate: '2024-12-15',
+   279→  },
+   280→  {
+   281→    id: '13',
+   282→    billNumber: 'BILL-2024-0168',
+   283→    date: '2024-11-15',
+   284→    entityName: 'Hope Medical Clinic',
+   285→    entityType: 'Business',
+   286→    category: 'Healthcare',
+   287→    revenueItem: 'Liquor License',
+   288→    amount: 200,
+   289→    previousBalance: 200,
+   290→    penalty: 30,
+   291→    totalDue: 430,
+   292→    status: 'Partial',
+   293→    dueDate: '2024-12-15',
+   294→  },
+   295→  {
+   296→    id: '14',
+   297→    billNumber: 'BILL-2024-0169',
+   298→    date: '2024-11-18',
+   299→    entityName: 'Good Shepherd School Complex',
+   300→    entityType: 'Business',
+   301→    category: 'Education',
+   302→    revenueItem: 'Advertising Levy',
+   303→    amount: 300,
+   304→    previousBalance: 0,
+   305→    penalty: 0,
+   306→    totalDue: 300,
+   307→    status: 'Unpaid',
+   308→    dueDate: '2024-12-18',
+   309→  },
+   310→  {
+   311→    id: '15',
+   312→    billNumber: 'BILL-2024-0170',
+   313→    date: '2024-11-18',
+   314→    entityName: 'St. Johns Catholic Hospital',
+   315→    entityType: 'Business',
+   316→    category: 'Healthcare',
+   317→    revenueItem: 'Business Operating Permit',
+   318→    amount: 450,
+   319→    previousBalance: 450,
+   320→    penalty: 67.5,
+   321→    totalDue: 967.5,
+   322→    status: 'Overdue',
+   323→    dueDate: '2024-11-01',
+   324→  },
+   325→];
+   326→
+   327→// ─── Helpers ─────────────────────────────────────────────────────────────────
+   328→
+   329→function formatCurrency(amount: number): string {
+   330→  return `GH₵ ${amount.toLocaleString(undefined, { minimumFractionDigits: amount % 1 === 0 ? 0 : 2, maximumFractionDigits: 2 })}`;
+   331→}
+   332→
+   333→// ─── Component ───────────────────────────────────────────────────────────────
+   334→
+   335→export function BillingPage() {
+   336→  const [bills, setBills] = useState<Bill[]>(initialBills);
+   337→  const [searchQuery, setSearchQuery] = useState('');
+   338→  const [statusFilter, setStatusFilter] = useState<string>('All');
+   339→  const [categoryFilter, setCategoryFilter] = useState<string>('All');
+   340→  const [revenueAreaFilter, setRevenueAreaFilter] = useState<string>('All');
+   341→  const [dateFrom, setDateFrom] = useState('');
+   342→  const [dateTo, setDateTo] = useState('');
+   343→  const [currentPage, setCurrentPage] = useState(1);
+   344→  const [showModal, setShowModal] = useState(false);
+   345→  const itemsPerPage = 8;
+   346→
+   347→  // ── Form data ───────────────────────────────────────────────────────────
+   348→
+   349→  const [formData, setFormData] = useState<BillFormData>({
+   350→    entityName: '',
+   351→    entityType: 'Business',
+   352→    revenueItem: '',
+   353→    amount: 0,
+   354→    previousBalance: 0,
+   355→    penalty: 0,
+   356→    dueDate: '',
+   357→  });
+   358→
+   359→  // ── Filtering ───────────────────────────────────────────────────────────
+   360→
+   361→  const filtered = useMemo(() => {
+   362→    return bills.filter((b) => {
+   363→      const matchSearch =
+   364→        searchQuery === '' ||
+   365→        b.entityName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+   366→        b.billNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+   367→        b.revenueItem.toLowerCase().includes(searchQuery.toLowerCase());
+   368→      const matchStatus =
+   369→        statusFilter === 'All' || b.status === statusFilter;
+   370→      const matchCategory =
+   371→        categoryFilter === 'All' || b.category === categoryFilter;
+   372→      const matchRevenueArea =
+   373→        revenueAreaFilter === 'All' ||
+   374→        (b.entityType === revenueAreaFilter);
+   375→      const matchDateFrom =
+   376→        dateFrom === '' || b.date >= dateFrom;
+   377→      const matchDateTo =
+   378→        dateTo === '' || b.date <= dateTo;
+   379→      return matchSearch && matchStatus && matchCategory && matchRevenueArea && matchDateFrom && matchDateTo;
+   380→    });
+   381→  }, [bills, searchQuery, statusFilter, categoryFilter, revenueAreaFilter, dateFrom, dateTo]);
+   382→
+   383→  // ── Pagination ──────────────────────────────────────────────────────────
+   384→
+   385→  const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+   386→  const safeCurrentPage = Math.min(currentPage, totalPages);
+   387→  const startIdx = (safeCurrentPage - 1) * itemsPerPage;
+   388→  const paged = filtered.slice(startIdx, startIdx + itemsPerPage);
+   389→  const showingFrom = filtered.length === 0 ? 0 : startIdx + 1;
+   390→  const showingTo = Math.min(startIdx + itemsPerPage, filtered.length);
+   391→
+   392→  // ── Status badge ───────────────────────────────────────────────────────
+   393→
+   394→  const StatusBadge = ({ status }: { status: Bill['status'] }) => {
+   395→    const styles: Record<Bill['status'], string> = {
+   396→      Paid: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400',
+   397→      Partial: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400',
+   398→      Unpaid: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400',
+   399→      Overdue: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400',
+   400→    };
+   401→    return (
+   402→      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${styles[status]}`}>
+   403→        {status === 'Overdue' && (
+   404→          <span className="relative flex h-2 w-2">
+   405→            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+   406→            <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+   407→          </span>
+   408→        )}
+   409→        {status}
+   410→      </span>
+   411→    );
+   412→  };
+   413→
+   414→  // ── Stats ──────────────────────────────────────────────────────────────
+   415→
+   416→  const stats = useMemo(() => {
+   417→    const totalBilled = bills.reduce((sum, b) => sum + b.totalDue, 0);
+   418→    const paid = bills
+   419→      .filter((b) => b.status === 'Paid')
+   420→      .reduce((sum, b) => sum + b.totalDue, 0);
+   421→    const outstanding = totalBilled - paid;
+   422→    const overdue = bills
+   423→      .filter((b) => b.status === 'Overdue')
+   424→      .reduce((sum, b) => sum + b.totalDue, 0);
+   425→    return {
+   426→      total: bills.length,
+   427→      totalBilled,
+   428→      outstanding,
+   429→      overdue,
+   430→    };
+   431→  }, [bills]);
+   432→
+   433→  // ── Auto-fill amount when revenue item changes ──────────────────────────
+   434→
+   435→  const handleRevenueItemChange = (item: string) => {
+   436→    const amount = RATE_AMOUNTS[item] || 0;
+   437→    const penalty = Math.round(amount * 0.05 * 100) / 100;
+   438→    setFormData((p) => ({
+   439→      ...p,
+   440→      revenueItem: item,
+   441→      amount,
+   442→      penalty,
+   443→    }));
+   444→  };
+   445→
+   446→  // ── Generate bill ──────────────────────────────────────────────────────
+   447→
+   448→  const handleGenerateBill = () => {
+   449→    if (!formData.entityName || !formData.revenueItem || formData.amount <= 0) return;
+   450→
+   451→    const newBillNumber = `BILL-2024-${String(bills.length + 156).padStart(4, '0')}`;
+   452→    const totalDue = formData.amount + formData.previousBalance + formData.penalty;
+   453→
+   454→    const newBill: Bill = {
+   455→      id: String(bills.length + 1),
+   456→      billNumber: newBillNumber,
+   457→      date: new Date().toISOString().split('T')[0],
+   458→      entityName: formData.entityName,
+   459→      entityType: formData.entityType,
+   460→      category: ENTITIES.find((e) => e.name === formData.entityName)?.category ?? 'General',
+   461→      revenueItem: formData.revenueItem,
+   462→      amount: formData.amount,
+   463→      previousBalance: formData.previousBalance,
+   464→      penalty: formData.penalty,
+   465→      totalDue,
+   466→      status: 'Unpaid',
+   467→      dueDate: formData.dueDate || '',
+   468→    };
+   469→
+   470→    setBills((prev) => [newBill, ...prev]);
+   471→    setShowModal(false);
+   472→    setFormData({
+   473→      entityName: '',
+   474→      entityType: 'Business',
+   475→      revenueItem: '',
+   476→      amount: 0,
+   477→      previousBalance: 0,
+   478→      penalty: 0,
+   479→      dueDate: '',
+   480→    });
+   481→    setCurrentPage(1);
+   482→  };
+   483→
+   484→  // ── Cancel bill ────────────────────────────────────────────────────────
+   485→
+   486→  const handleCancelBill = (id: string) => {
+   487→    setBills((prev) => prev.filter((b) => b.id !== id));
+   488→  };
+   489→
+   490→  // ── CSS classes ──────────────────────────────────────────────────────────
+   491→
+   492→  const inputClass =
+   493→    'w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition';
+   494→  const labelClass =
+   495→    'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5';
+   496→  const btnPrimary =
+   497→    'inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap';
+   498→  const btnSecondary =
+   499→    'inline-flex items-center gap-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm font-medium px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap';
+   500→
+   501→  // ══════════════════════════════════════════════════════════════════════════
+   502→  //  RENDER
+   503→  // ══════════════════════════════════════════════════════════════════════════
+   504→
+   505→  return (
+   506→    <div className="space-y-6">
+   507→      {/* ── Header ──────────────────────────────────────────────────────── */}
+   508→      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+   509→        <div>
+   510→          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+   511→            Bill Management
+   512→          </h1>
+   513→          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+   514→            Generate, track, and manage revenue bills for businesses and properties.
+   515→          </p>
+   516→        </div>
+   517→        <div className="flex items-center gap-2">
+   518→          <button onClick={() => setShowModal(true)} className={btnPrimary}>
+   519→            <Plus className="w-4 h-4" />
+   520→            Generate Bill
+   521→          </button>
+   522→          <button className={btnSecondary}>
+   523→            <Zap className="w-4 h-4" />
+   524→            Bulk Generate
+   525→          </button>
+   526→        </div>
+   527→      </div>
+   528→
+   529→      {/* ── Stats Row ───────────────────────────────────────────────────── */}
+   530→      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+   531→        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
+   532→          <div className="flex items-center gap-3">
+   533→            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-900/30">
+   534→              <FileText className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+   535→            </div>
+   536→            <div>
+   537→              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Bills Generated</p>
+   538→              <p className="text-xl font-bold text-slate-900 dark:text-white">{stats.total.toLocaleString()}</p>
+   539→            </div>
+   540→          </div>
+   541→        </div>
+   542→        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
+   543→          <div className="flex items-center gap-3">
+   544→            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-900/30">
+   545→              <DollarSign className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+   546→            </div>
+   547→            <div>
+   548→              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Billed</p>
+   549→              <p className="text-xl font-bold text-slate-900 dark:text-white">{formatCurrency(stats.totalBilled)}</p>
+   550→            </div>
+   551→          </div>
+   552→        </div>
+   553→        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
+   554→          <div className="flex items-center gap-3">
+   555→            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-900/30">
+   556→              <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+   557→            </div>
+   558→            <div>
+   559→              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Outstanding</p>
+   560→              <p className="text-xl font-bold text-amber-700 dark:text-amber-400">{formatCurrency(stats.outstanding)}</p>
+   561→            </div>
+   562→          </div>
+   563→        </div>
+   564→        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
+   565→          <div className="flex items-center gap-3">
+   566→            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-red-50 dark:bg-red-900/30">
+   567→              <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
+   568→            </div>
+   569→            <div>
+   570→              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Overdue</p>
+   571→              <p className="text-xl font-bold text-red-700 dark:text-red-400">{formatCurrency(stats.overdue)}</p>
+   572→            </div>
+   573→          </div>
+   574→        </div>
+   575→      </div>
+   576→
+   577→      {/* ── Filters ────────────────────────────────────────────────────── */}
+   578→      <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
+   579→        <div className="relative flex-1 min-w-[200px]">
+   580→          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+   581→          <input
+   582→            type="text"
+   583→            placeholder="Search by bill #, entity, or revenue item..."
+   584→            value={searchQuery}
+   585→            onChange={(e) => {
+   586→              setSearchQuery(e.target.value);
+   587→              setCurrentPage(1);
+   588→            }}
+   589→            className={`${inputClass} pl-10`}
+   590→          />
+   591→        </div>
+   592→        <input
+   593→          type="date"
+   594→          value={dateFrom}
+   595→          onChange={(e) => {
+   596→            setDateFrom(e.target.value);
+   597→            setCurrentPage(1);
+   598→          }}
+   599→          className={`${inputClass} w-full sm:w-40`}
+   600→          title="From date"
+   601→        />
+   602→        <input
+   603→          type="date"
+   604→          value={dateTo}
+   605→          onChange={(e) => {
+   606→            setDateTo(e.target.value);
+   607→            setCurrentPage(1);
+   608→          }}
+   609→          className={`${inputClass} w-full sm:w-40`}
+   610→          title="To date"
+   611→        />
+   612→        <select
+   613→          value={statusFilter}
+   614→          onChange={(e) => {
+   615→            setStatusFilter(e.target.value);
+   616→            setCurrentPage(1);
+   617→          }}
+   618→          className={`${inputClass} w-full sm:w-40`}
+   619→        >
+   620→          <option value="All">All Statuses</option>
+   621→          <option value="Paid">Paid</option>
+   622→          <option value="Partial">Partial</option>
+   623→          <option value="Unpaid">Unpaid</option>
+   624→          <option value="Overdue">Overdue</option>
+   625→        </select>
+   626→        <select
+   627→          value={revenueAreaFilter}
+   628→          onChange={(e) => {
+   629→            setRevenueAreaFilter(e.target.value);
+   630→            setCurrentPage(1);
+   631→          }}
+   632→          className={`${inputClass} w-full sm:w-40`}
+   633→        >
+   634→          <option value="All">All Revenue Areas</option>
+   635→          <option value="Business">Business</option>
+   636→          <option value="Property">Property</option>
+   637→        </select>
+   638→        <select
+   639→          value={categoryFilter}
+   640→          onChange={(e) => {
+   641→            setCategoryFilter(e.target.value);
+   642→            setCurrentPage(1);
+   643→          }}
+   644→          className={`${inputClass} w-full sm:w-44`}
+   645→        >
+   646→          <option value="All">All Categories</option>
+   647→          <option value="Healthcare">Healthcare</option>
+   648→          <option value="Hospitality">Hospitality</option>
+   649→          <option value="Food & Beverage">Food & Beverage</option>
+   650→          <option value="Industry">Industry</option>
+   651→          <option value="Retail">Retail</option>
+   652→          <option value="Personal Care">Personal Care</option>
+   653→          <option value="Energy">Energy</option>
+   654→          <option value="Residential">Residential</option>
+   655→          <option value="Commercial">Commercial</option>
+   656→          <option value="Education">Education</option>
+   657→        </select>
+   658→      </div>
+   659→
+   660→      {/* ── Table ───────────────────────────────────────────────────────── */}
+   661→      <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+   662→        <div className="overflow-x-auto">
+   663→          <table className="w-full text-sm">
+   664→            <thead>
+   665→              <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700">
+   666→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   667→                  Bill #
+   668→                </th>
+   669→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   670→                  Date
+   671→                </th>
+   672→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   673→                  Entity
+   674→                </th>
+   675→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden lg:table-cell">
+   676→                  Category
+   677→                </th>
+   678→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden md:table-cell">
+   679→                  Revenue Item
+   680→                </th>
+   681→                <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   682→                  Amount
+   683→                </th>
+   684→                <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden xl:table-cell">
+   685→                  Prev. Bal.
+   686→                </th>
+   687→                <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden xl:table-cell">
+   688→                  Penalty
+   689→                </th>
+   690→                <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   691→                  Total Due
+   692→                </th>
+   693→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   694→                  Status
+   695→                </th>
+   696→                <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   697→                  Actions
+   698→                </th>
+   699→              </tr>
+   700→            </thead>
+   701→            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+   702→              {paged.length === 0 ? (
+   703→                <tr>
+   704→                  <td
+   705→                    colSpan={11}
+   706→                    className="text-center py-12 text-slate-400 dark:text-slate-500"
+   707→                  >
+   708→                    <FileText className="w-10 h-10 mx-auto mb-3 opacity-40" />
+   709→                    No bills found matching your criteria.
+   710→                  </td>
+   711→                </tr>
+   712→              ) : (
+   713→                paged.map((bill) => (
+   714→                  <tr
+   715→                    key={bill.id}
+   716→                    className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+   717→                  >
+   718→                    <td className="px-4 py-3 font-mono text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+   719→                      {bill.billNumber}
+   720→                    </td>
+   721→                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400 whitespace-nowrap">
+   722→                      {bill.date}
+   723→                    </td>
+   724→                    <td className="px-4 py-3 whitespace-nowrap">
+   725→                      <div>
+   726→                        <p className="font-medium text-slate-900 dark:text-white text-sm">
+   727→                          {bill.entityName}
+   728→                        </p>
+   729→                        <p className="text-xs text-slate-400 dark:text-slate-500">
+   730→                          {bill.entityType}
+   731→                        </p>
+   732→                      </div>
+   733→                    </td>
+   734→                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400 whitespace-nowrap hidden lg:table-cell">
+   735→                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+   736→                        {bill.category}
+   737→                      </span>
+   738→                    </td>
+   739→                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap hidden md:table-cell">
+   740→                      {bill.revenueItem}
+   741→                    </td>
+   742→                    <td className="px-4 py-3 text-right font-medium text-slate-900 dark:text-white whitespace-nowrap">
+   743→                      {formatCurrency(bill.amount)}
+   744→                    </td>
+   745→                    <td className="px-4 py-3 text-right text-slate-500 dark:text-slate-400 whitespace-nowrap hidden xl:table-cell">
+   746→                      {bill.previousBalance > 0 ? formatCurrency(bill.previousBalance) : '—'}
+   747→                    </td>
+   748→                    <td className="px-4 py-3 text-right text-red-600 dark:text-red-400 whitespace-nowrap hidden xl:table-cell">
+   749→                      {bill.penalty > 0 ? formatCurrency(bill.penalty) : '—'}
+   750→                    </td>
+   751→                    <td className="px-4 py-3 text-right font-bold text-slate-900 dark:text-white whitespace-nowrap">
+   752→                      {formatCurrency(bill.totalDue)}
+   753→                    </td>
+   754→                    <td className="px-4 py-3 whitespace-nowrap">
+   755→                      <StatusBadge status={bill.status} />
+   756→                    </td>
+   757→                    <td className="px-4 py-3 text-right whitespace-nowrap">
+   758→                      <div className="inline-flex items-center gap-1">
+   759→                        <button
+   760→                          className="p-1.5 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+   761→                          title="View Bill"
+   762→                        >
+   763→                          <Eye className="w-4 h-4" />
+   764→                        </button>
+   765→                        <button
+   766→                          className="p-1.5 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+   767→                          title="Print Bill"
+   768→                        >
+   769→                          <Printer className="w-4 h-4" />
+   770→                        </button>
+   771→                        {bill.status !== 'Paid' && (
+   772→                          <button
+   773→                            onClick={() => handleCancelBill(bill.id)}
+   774→                            className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+   775→                            title="Cancel Bill"
+   776→                          >
+   777→                            <XCircle className="w-4 h-4" />
+   778→                          </button>
+   779→                        )}
+   780→                      </div>
+   781→                    </td>
+   782→                  </tr>
+   783→                ))
+   784→              )}
+   785→            </tbody>
+   786→          </table>
+   787→        </div>
+   788→      </div>
+   789→
+   790→      {/* ── Pagination ────────────────────────────────────────────────── */}
+   791→      <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+   792→        <p className="text-xs text-slate-500 dark:text-slate-400">
+   793→          Showing {showingFrom}–{showingTo} of {filtered.length} bills
+   794→        </p>
+   795→        <div className="flex items-center gap-1">
+   796→          <button
+   797→            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+   798→            disabled={safeCurrentPage === 1}
+   799→            className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+   800→          >
+   801→            <ChevronLeft className="w-4 h-4" />
+   802→          </button>
+   803→          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+   804→            <button
+   805→              key={page}
+   806→              onClick={() => setCurrentPage(page)}
+   807→              className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${
+   808→                page === safeCurrentPage
+   809→                  ? 'bg-emerald-600 text-white'
+   810→                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700'
+   811→              }`}
+   812→            >
+   813→              {page}
+   814→            </button>
+   815→          ))}
+   816→          <button
+   817→            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+   818→            disabled={safeCurrentPage === totalPages}
+   819→            className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+   820→          >
+   821→            <ChevronRight className="w-4 h-4" />
+   822→          </button>
+   823→        </div>
+   824→      </div>
+   825→
+   826→      {/* ── Generate Bill Modal ────────────────────────────────────────── */}
+   827→      {showModal && (
+   828→        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+   829→          {/* Backdrop */}
+   830→          <div
+   831→            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+   832→            onClick={() => setShowModal(false)}
+   833→          />
+   834→
+   835→          {/* Modal */}
+   836→          <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+   837→            {/* Modal Header */}
+   838→            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-6 py-4">
+   839→              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+   840→                Generate New Bill
+   841→              </h2>
+   842→              <button
+   843→                onClick={() => setShowModal(false)}
+   844→                className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+   845→              >
+   846→                <X className="w-5 h-5" />
+   847→              </button>
+   848→            </div>
+   849→
+   850→            {/* Modal Body */}
+   851→            <div className="px-6 py-5 space-y-4">
+   852→              {/* Entity Selection */}
+   853→              <div>
+   854→                <label className={labelClass}>Business / Property</label>
+   855→                <select
+   856→                  value={formData.entityName}
+   857→                  onChange={(e) => {
+   858→                    const entity = ENTITIES.find((ent) => ent.name === e.target.value);
+   859→                    setFormData((p) => ({
+   860→                      ...p,
+   861→                      entityName: e.target.value,
+   862→                      entityType: entity?.type ?? 'Business',
+   863→                    }));
+   864→                  }}
+   865→                  className={inputClass}
+   866→                >
+   867→                  <option value="">Select entity...</option>
+   868→                  {ENTITIES.map((e) => (
+   869→                    <option key={e.name} value={e.name}>
+   870→                      {e.name} ({e.type} – {e.category})
+   871→                    </option>
+   872→                  ))}
+   873→                </select>
+   874→              </div>
+   875→
+   876→              {/* Revenue Item */}
+   877→              <div>
+   878→                <label className={labelClass}>Revenue Item</label>
+   879→                <select
+   880→                  value={formData.revenueItem}
+   881→                  onChange={(e) => handleRevenueItemChange(e.target.value)}
+   882→                  className={inputClass}
+   883→                >
+   884→                  <option value="">Select revenue item...</option>
+   885→                  {REVENUE_ITEMS.map((item) => (
+   886→                    <option key={item} value={item}>
+   887→                      {item} ({formatCurrency(RATE_AMOUNTS[item])})
+   888→                    </option>
+   889→                  ))}
+   890→                </select>
+   891→              </div>
+   892→
+   893→              {/* Amount (auto-filled) */}
+   894→              <div>
+   895→                <label className={labelClass}>Amount (GH₵)</label>
+   896→                <input
+   897→                  type="number"
+   898→                  min={0}
+   899→                  value={formData.amount || ''}
+   900→                  onChange={(e) =>
+   901→                    setFormData((p) => ({
+   902→                      ...p,
+   903→                      amount: Number(e.target.value),
+   904→                    }))
+   905→                  }
+   906→                  className={inputClass}
+   907→                />
+   908→              </div>
+   909→
+   910→              {/* Previous Balance */}
+   911→              <div>
+   912→                <label className={labelClass}>Previous Balance (GH₵)</label>
+   913→                <input
+   914→                  type="number"
+   915→                  min={0}
+   916→                  value={formData.previousBalance || ''}
+   917→                  onChange={(e) =>
+   918→                    setFormData((p) => ({
+   919→                      ...p,
+   920→                      previousBalance: Number(e.target.value),
+   921→                    }))
+   922→                  }
+   923→                  placeholder="0"
+   924→                  className={inputClass}
+   925→                />
+   926→              </div>
+   927→
+   928→              {/* Penalty (auto-calculated) */}
+   929→              <div>
+   930→                <label className={labelClass}>Penalty (GH₵)</label>
+   931→                <input
+   932→                  type="number"
+   933→                  min={0}
+   934→                  value={formData.penalty || ''}
+   935→                  onChange={(e) =>
+   936→                    setFormData((p) => ({
+   937→                      ...p,
+   938→                      penalty: Number(e.target.value),
+   939→                    }))
+   940→                  }
+   941→                  className={inputClass}
+   942→                />
+   943→                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+   944→                  Auto-calculated as 5% of amount. Adjust manually if needed.
+   945→                </p>
+   946→              </div>
+   947→
+   948→              {/* Due Date */}
+   949→              <div>
+   950→                <label className={labelClass}>Due Date</label>
+   951→                <input
+   952→                  type="date"
+   953→                  value={formData.dueDate}
+   954→                  onChange={(e) =>
+   955→                    setFormData((p) => ({
+   956→                      ...p,
+   957→                      dueDate: e.target.value,
+   958→                    }))
+   959→                  }
+   960→                  className={inputClass}
+   961→                />
+   962→              </div>
+   963→
+   964→              {/* Preview Summary */}
+   965→              {formData.revenueItem && formData.amount > 0 && (
+   966→                <div className="rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3">
+   967→                  <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400 mb-2">
+   968→                    Bill Preview
+   969→                  </p>
+   970→                  <div className="space-y-1 text-sm text-slate-600 dark:text-slate-300">
+   971→                    <div className="flex justify-between">
+   972→                      <span>Amount:</span>
+   973→                      <span className="font-medium">{formatCurrency(formData.amount)}</span>
+   974→                    </div>
+   975→                    <div className="flex justify-between">
+   976→                      <span>Previous Balance:</span>
+   977→                      <span className="font-medium">{formatCurrency(formData.previousBalance)}</span>
+   978→                    </div>
+   979→                    <div className="flex justify-between">
+   980→                      <span>Penalty:</span>
+   981→                      <span className="font-medium text-red-600 dark:text-red-400">{formatCurrency(formData.penalty)}</span>
+   982→                    </div>
+   983→                    <div className="border-t border-emerald-200 dark:border-emerald-800 pt-1 mt-1 flex justify-between">
+   984→                      <span className="font-semibold text-emerald-700 dark:text-emerald-400">Total Due:</span>
+   985→                      <span className="font-bold text-emerald-700 dark:text-emerald-400">
+   986→                        {formatCurrency(formData.amount + formData.previousBalance + formData.penalty)}
+   987→                      </span>
+   988→                    </div>
+   989→                  </div>
+   990→                </div>
+   991→              )}
+   992→            </div>
+   993→
+   994→            {/* Modal Footer */}
+   995→            <div className="flex items-center justify-end gap-3 border-t border-slate-200 dark:border-slate-700 px-6 py-4">
+   996→              <button onClick={() => setShowModal(false)} className={btnSecondary}>
+   997→                <X className="w-4 h-4" />
+   998→                Cancel
+   999→              </button>
+  1000→              <button
+  1001→                onClick={handleGenerateBill}
+  1002→                className={btnPrimary}
+  1003→                disabled={
+  1004→                  !formData.entityName ||
+  1005→                  !formData.revenueItem ||
+  1006→                  formData.amount <= 0
+  1007→                }
+  1008→              >
+  1009→                <Save className="w-4 h-4" />
+  1010→                Generate Bill
+  1011→              </button>
+  1012→            </div>
+  1013→          </div>
+  1014→        </div>
+  1015→      )}
+  1016→    </div>
+  1017→  );
+  1018→}
+  1019→
