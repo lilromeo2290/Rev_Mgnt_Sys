@@ -7,23 +7,48 @@ interface SplashScreenProps {
   onComplete: () => void;
 }
 
+const LOADING_MESSAGES = [
+  'Loading your Revenue Management System Files ...............',
+  'Loading your HR Management Files ...............',
+  'Loading your School Management Files ...............',
+  'Loading your Property Management Files ...............',
+  'Loading your Inventory System Files ...............',
+  'Loading your Visitor Management Files ...............',
+  'Loading your Help Desk Files ...............',
+  'Loading your Document Management Files ...............',
+  'Loading your CMS Community Hub Files ...............',
+];
+
 export function SplashScreen({ onComplete }: SplashScreenProps) {
   const [progress, setProgress] = useState(0);
+  const [messageIndex, setMessageIndex] = useState(0);
 
   useEffect(() => {
     const duration = 60000; // 1 minute
     const interval = 50; // update every 50ms for smooth percentage
     const steps = duration / interval;
     let current = 0;
+    const msgInterval = duration / LOADING_MESSAGES.length; // ~6.67s per message
+    let msgIndex = 0;
 
     const timer = setInterval(() => {
       current++;
-      // Smooth cubic ease-out curve
       const eased = 1 - Math.pow(1 - current / steps, 3);
       setProgress(Math.min(eased * 100, 100));
 
+      // Cycle to next message based on elapsed time
+      const newIndex = Math.min(
+      Math.floor((current * interval) / msgInterval),
+      LOADING_MESSAGES.length - 1
+      );
+      if (newIndex !== msgIndex) {
+        msgIndex = newIndex;
+        setMessageIndex(msgIndex);
+      }
+
       if (current >= steps) {
         clearInterval(timer);
+        setMessageIndex(LOADING_MESSAGES.length - 1);
         setTimeout(onComplete, 600);
       }
     }, interval);
@@ -189,14 +214,20 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
             />
           </div>
 
-          <motion.p
-            className="text-xs text-slate-500 tracking-wider"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1 }}
-          >
-            Loading your experience...
-          </motion.p>
+          <div className="h-5 flex items-center justify-center overflow-hidden w-full">
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={messageIndex}
+                className="text-[11px] sm:text-xs text-slate-400 tracking-wider whitespace-nowrap"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.35, ease: 'easeInOut' }}
+              >
+                {LOADING_MESSAGES[messageIndex]}
+              </motion.p>
+            </AnimatePresence>
+          </div>
         </motion.div>
       </motion.div>
     </AnimatePresence>
