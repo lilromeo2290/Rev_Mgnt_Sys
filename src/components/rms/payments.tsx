@@ -16,6 +16,11 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
+  Printer,
+  Copy,
+  User,
+  FileText,
+  Hash,
 } from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -198,6 +203,88 @@ export function PaymentsPage() {
     setPayments((prev) => prev.filter((p) => p.id !== id));
   };
 
+  // ─── View Payment ───────────────────────────────────────────────────────
+
+  const [viewingPayment, setViewingPayment] = useState<Payment | null>(null);
+
+  const handleViewPayment = (p: Payment) => {
+    setViewingPayment(p);
+  };
+
+  const handlePrintPayment = (p: Payment) => {
+    const printWin = window.open('', '_blank', 'width=800,height=600');
+    if (!printWin) return;
+    printWin.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Payment Receipt - ${p.receiptNo}</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; color: #1e293b; }
+          .header { text-align: center; border-bottom: 3px double #1e293b; padding-bottom: 16px; margin-bottom: 24px; }
+          .header h1 { font-size: 20px; font-weight: 700; letter-spacing: 0.05em; }
+          .header p { font-size: 12px; color: #64748b; margin-top: 4px; }
+          .receipt-title { text-align: center; font-size: 16px; font-weight: 600; margin-bottom: 20px; color: #059669; }
+          .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+          .info-item { font-size: 13px; }
+          .info-item .label { color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+          .info-item .value { font-weight: 600; margin-top: 2px; }
+          .section-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 12px; margin-top: 20px; }
+          .amount-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+          .amount-table th { text-align: left; padding: 8px 12px; background: #f8fafc; color: #64748b; font-size: 11px; text-transform: uppercase; }
+          .amount-table td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; }
+          .amount-table tr:last-child td { border-bottom: none; }
+          .total-row td { font-size: 15px; font-weight: 700; border-top: 2px solid #1e293b; background: #f8fafc; }
+          .status-badge { display: inline-block; padding: 3px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
+          .status-full { background: #d1fae5; color: #065f46; }
+          .status-partial { background: #fef3c7; color: #92400e; }
+          .status-advance { background: #dbeafe; color: #1e40af; }
+          .method-badge { display: inline-block; padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600; background: #f1f5f9; color: #475569; }
+          .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 11px; color: #94a3b8; }
+          @media print { body { padding: 20px; } }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>KUMASI METROPOLITAN ASSEMBLY</h1>
+          <p>Revenue Management System — Official Payment Receipt</p>
+        </div>
+        <div class="receipt-title">PAYMENT RECEIPT</div>
+        <div class="info-grid">
+          <div class="info-item"><div class="label">Receipt Number</div><div class="value">${p.receiptNo}</div></div>
+          <div class="info-item"><div class="label">Payment Date</div><div class="value">${p.date}</div></div>
+          <div class="info-item"><div class="label">Bill Number</div><div class="value">${p.billNo}</div></div>
+          <div class="info-item"><div class="label">Payment Status</div><div class="value"><span class="status-badge status-${p.status.toLowerCase()}">${p.status.toUpperCase()}</span></div></div>
+        </div>
+        <div class="section-title">Payment Details</div>
+        <div class="info-grid">
+          <div class="info-item"><div class="label">Business / Entity</div><div class="value">${p.business}</div></div>
+          <div class="info-item"><div class="label">Payment Method</div><div class="value"><span class="method-badge">${p.method}</span></div></div>
+          <div class="info-item"><div class="label">Reference #</div><div class="value">${p.reference || 'N/A'}</div></div>
+          <div class="info-item"><div class="label">Collector</div><div class="value">${p.collector}</div></div>
+        </div>
+        <div class="section-title">Amount Summary</div>
+        <table class="amount-table">
+          <thead><tr><th>Description</th><th style="text-align:right">Amount (GH₵)</th></tr></thead>
+          <tbody>
+            <tr><td>Amount Paid</td><td style="text-align:right">${formatCurrency(p.amount)}</td></tr>
+            <tr><td>Outstanding Balance</td><td style="text-align:right">${p.balance > 0 ? formatCurrency(p.balance) : 'GH₵ 0.00 (Settled)'}</td></tr>
+            <tr class="total-row"><td>Total Amount Paid</td><td style="text-align:right">${formatCurrency(p.amount)}</td></tr>
+          </tbody>
+        </table>
+        ${p.remarks ? `<div style="margin-top:20px"><div class="section-title">Remarks</div><p style="font-size:13px;color:#475569;">${p.remarks}</p></div>` : ''}
+        <div class="footer">
+          This is a computer-generated receipt from Kumasi Metropolitan Assembly.<br/>
+          Generated on ${new Date().toLocaleString()} | For enquiries, contact the Revenue Office.
+        </div>
+      </body>
+      </html>
+    `);
+    printWin.document.close();
+    printWin.onload = () => { printWin.print(); };
+  };
+
   // ─── Render ─────────────────────────────────────────────────────────────
 
   return (
@@ -366,6 +453,7 @@ export function PaymentsPage() {
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-center gap-1">
                           <button
+                            onClick={() => handleViewPayment(p)}
                             className="rounded-md p-1.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition cursor-pointer"
                             title="View details"
                           >
@@ -426,6 +514,131 @@ export function PaymentsPage() {
           </div>
         )}
       </div>
+
+      {/* ── View Payment Modal ─────────────────────────────────────────── */}
+      {viewingPayment && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setViewingPayment(null)} />
+          <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+            {/* Header */}
+            <div className="text-center border-b-2 border-dashed border-gray-300 dark:border-slate-600 px-6 py-5">
+              <h2 className="text-base font-bold text-gray-900 dark:text-white tracking-wider uppercase">Kumasi Metropolitan Assembly</h2>
+              <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">Revenue Management System</p>
+              <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mt-3 tracking-wide">PAYMENT RECEIPT</p>
+            </div>
+
+            {/* Receipt Info */}
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3 px-6 py-4 border-b border-gray-100 dark:border-slate-800">
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-medium">Receipt #</p>
+                <p className="text-sm font-mono font-semibold text-emerald-700 dark:text-emerald-400 mt-0.5">{viewingPayment.receiptNo}</p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-medium">Payment Date</p>
+                <p className="text-sm font-medium text-gray-700 dark:text-slate-300 mt-0.5">{viewingPayment.date}</p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-medium">Bill #</p>
+                <p className="text-sm font-mono font-medium text-gray-700 dark:text-slate-300 mt-0.5">{viewingPayment.billNo}</p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-medium">Status</p>
+                <div className="mt-1">
+                  <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${statusBadge[viewingPayment.status].bg}`}>
+                    <span className={`h-1.5 w-1.5 rounded-full ${statusBadge[viewingPayment.status].dot}`} />
+                    {statusBadge[viewingPayment.status].text}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Payment Details */}
+            <div className="px-6 py-4 border-b border-gray-100 dark:border-slate-800">
+              <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-medium mb-2">Payment Details</p>
+              <div className="space-y-2.5 text-sm">
+                <div className="flex items-center gap-2.5">
+                  <User className="w-4 h-4 text-gray-400 dark:text-slate-500 shrink-0" />
+                  <div>
+                    <p className="text-[10px] text-gray-400 dark:text-slate-500 uppercase">Business / Entity</p>
+                    <p className="font-medium text-gray-900 dark:text-white">{viewingPayment.business}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <DollarSign className="w-4 h-4 text-gray-400 dark:text-slate-500 shrink-0" />
+                  <div>
+                    <p className="text-[10px] text-gray-400 dark:text-slate-500 uppercase">Payment Method</p>
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${methodBadge[viewingPayment.method].bg}`}>
+                      {methodBadge[viewingPayment.method].text}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <Hash className="w-4 h-4 text-gray-400 dark:text-slate-500 shrink-0" />
+                  <div>
+                    <p className="text-[10px] text-gray-400 dark:text-slate-500 uppercase">Reference #</p>
+                    <p className="font-medium text-gray-700 dark:text-slate-300">{viewingPayment.reference || 'N/A'}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2.5">
+                  <FileText className="w-4 h-4 text-gray-400 dark:text-slate-500 shrink-0" />
+                  <div>
+                    <p className="text-[10px] text-gray-400 dark:text-slate-500 uppercase">Collector</p>
+                    <p className="font-medium text-gray-700 dark:text-slate-300">{viewingPayment.collector}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Amount Summary */}
+            <div className="px-6 py-4">
+              <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-medium mb-3">Amount Summary</p>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-slate-400">Amount Paid</span>
+                  <span className="font-semibold text-gray-900 dark:text-white">{formatCurrency(viewingPayment.amount)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600 dark:text-slate-400">Outstanding Balance</span>
+                  <span className={`font-medium ${viewingPayment.balance > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-green-600 dark:text-green-400'}`}>
+                    {viewingPayment.balance > 0 ? formatCurrency(viewingPayment.balance) : 'Settled'}
+                  </span>
+                </div>
+                <div className="border-t-2 border-gray-900 dark:border-slate-100 pt-2 mt-2 flex justify-between">
+                  <span className="font-bold text-gray-900 dark:text-white">Total Paid</span>
+                  <span className="font-bold text-lg text-emerald-600 dark:text-emerald-400">{formatCurrency(viewingPayment.amount)}</span>
+                </div>
+              </div>
+            </div>
+
+            {viewingPayment.remarks && (
+              <div className="px-6 pb-4">
+                <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-medium mb-1">Remarks</p>
+                <p className="text-sm text-gray-600 dark:text-slate-400">{viewingPayment.remarks}</p>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="flex items-center justify-between gap-3 border-t border-gray-200 dark:border-slate-700 px-6 py-4">
+              <button
+                onClick={() => navigator.clipboard.writeText(viewingPayment.receiptNo)}
+                className="inline-flex items-center gap-1.5 text-xs text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
+              >
+                <Copy className="w-3.5 h-3.5" />
+                Copy Receipt #
+              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setViewingPayment(null)} className="rounded-lg border border-gray-300 bg-white dark:bg-slate-800 dark:border-slate-600 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition cursor-pointer">
+                  Close
+                </button>
+                <button onClick={() => handlePrintPayment(viewingPayment)} className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 transition cursor-pointer">
+                  <Printer className="h-4 w-4" />
+                  Print
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Record Payment Modal ─────────────────────────────────────────── */}
       {modalOpen && (
