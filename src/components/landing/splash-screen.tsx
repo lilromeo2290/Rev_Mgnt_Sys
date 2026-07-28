@@ -8,15 +8,15 @@ interface SplashScreenProps {
 }
 
 const LOADING_MESSAGES = [
-  'Loading your Revenue Management System Files ...............',
-  'Loading your HR Management Files ...............',
-  'Loading your School Management Files ...............',
-  'Loading your Property Management Files ...............',
-  'Loading your Inventory System Files ...............',
-  'Loading your Visitor Management Files ...............',
-  'Loading your Help Desk Files ...............',
-  'Loading your Document Management Files ...............',
-  'Loading your CMS Community Hub Files ...............',
+  { text: 'Loading your Revenue Management System....', red: true },
+  { text: 'Loading your HR Management....', red: true },
+  { text: 'Loading your School Management....', red: true },
+  { text: 'Loading your Property Management....', red: true },
+  { text: 'Loading your Inventory System....', red: true },
+  { text: 'Loading your Visitor Management....', red: true },
+  { text: 'Loading your Help Desk....', red: true },
+  { text: 'Loading your Document Management....', red: true },
+  { text: 'Loading your CMS Community Hub Files ...............', red: false },
 ];
 
 export function SplashScreen({ onComplete }: SplashScreenProps) {
@@ -218,13 +218,17 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
             <AnimatePresence mode="wait">
               <motion.p
                 key={messageIndex}
-                className="text-[11px] sm:text-xs text-slate-400 tracking-wider whitespace-nowrap"
+                className={`text-[11px] sm:text-xs tracking-wider whitespace-nowrap font-bold ${
+                  LOADING_MESSAGES[messageIndex].red
+                    ? 'text-red-500'
+                    : 'text-slate-400'
+                }`}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.35, ease: 'easeInOut' }}
               >
-                {LOADING_MESSAGES[messageIndex]}
+                {LOADING_MESSAGES[messageIndex].text}
               </motion.p>
             </AnimatePresence>
           </div>
