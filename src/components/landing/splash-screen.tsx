@@ -11,24 +11,27 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const duration = 2200;
-    const interval = 30;
+    const duration = 120000; // 2 minutes
+    const interval = 50; // update every 50ms for smooth percentage
     const steps = duration / interval;
     let current = 0;
 
     const timer = setInterval(() => {
       current++;
+      // Smooth cubic ease-out curve
       const eased = 1 - Math.pow(1 - current / steps, 3);
       setProgress(Math.min(eased * 100, 100));
 
       if (current >= steps) {
         clearInterval(timer);
-        setTimeout(onComplete, 400);
+        setTimeout(onComplete, 600);
       }
     }, interval);
 
     return () => clearInterval(timer);
   }, [onComplete]);
+
+  const displayPercent = Math.round(progress);
 
   return (
     <AnimatePresence>
@@ -43,7 +46,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
         {/* Ambient glow orbs */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div
-            className="absolute w-[500px] h-[500px] rounded-full"
+            className="absolute w-[600px] h-[600px] rounded-full"
             style={{
               background: 'radial-gradient(circle, rgba(16,185,129,0.15) 0%, transparent 70%)',
               top: '10%',
@@ -56,7 +59,7 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
             transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
           />
           <motion.div
-            className="absolute w-[400px] h-[400px] rounded-full"
+            className="absolute w-[500px] h-[500px] rounded-full"
             style={{
               background: 'radial-gradient(circle, rgba(45,212,191,0.12) 0%, transparent 70%)',
               bottom: '15%',
@@ -70,91 +73,130 @@ export function SplashScreen({ onComplete }: SplashScreenProps) {
           />
         </div>
 
-        {/* Logo animation */}
+        {/* Logo — very bold, large */}
         <motion.div
-          className="relative mb-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
+          className="relative mb-10"
+          initial={{ opacity: 0, scale: 0.7 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
           <motion.div
-            className="w-20 h-20 rounded-2xl flex items-center justify-center relative"
+            className="relative w-36 h-36 sm:w-44 sm:h-44 flex items-center justify-center rounded-3xl overflow-hidden"
             style={{
-              background: 'linear-gradient(135deg, #10b981 0%, #2dd4bf 100%)',
-              boxShadow: '0 0 40px rgba(16,185,129,0.3), 0 0 80px rgba(16,185,129,0.1)',
+              boxShadow:
+                '0 0 60px rgba(16,185,129,0.35), 0 0 120px rgba(16,185,129,0.15), 0 25px 50px rgba(0,0,0,0.4)',
             }}
             animate={{
               boxShadow: [
-                '0 0 40px rgba(16,185,129,0.3), 0 0 80px rgba(16,185,129,0.1)',
-                '0 0 60px rgba(16,185,129,0.5), 0 0 120px rgba(16,185,129,0.2)',
-                '0 0 40px rgba(16,185,129,0.3), 0 0 80px rgba(16,185,129,0.1)',
+                '0 0 60px rgba(16,185,129,0.35), 0 0 120px rgba(16,185,129,0.15), 0 25px 50px rgba(0,0,0,0.4)',
+                '0 0 80px rgba(16,185,129,0.5), 0 0 160px rgba(16,185,129,0.25), 0 25px 50px rgba(0,0,0,0.4)',
+                '0 0 60px rgba(16,185,129,0.35), 0 0 120px rgba(16,185,129,0.15), 0 25px 50px rgba(0,0,0,0.4)',
               ],
             }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
           >
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-              <path d="M8 12L20 6L32 12V28L20 34L8 28V12Z" stroke="white" strokeWidth="2" fill="none" />
-              <path d="M20 6V34" stroke="white" strokeWidth="1.5" opacity="0.5" />
-              <path d="M8 12L32 28" stroke="white" strokeWidth="1.5" opacity="0.3" />
-              <path d="M32 12L8 28" stroke="white" strokeWidth="1.5" opacity="0.3" />
-              <circle cx="20" cy="20" r="4" fill="white" opacity="0.9" />
-            </svg>
+            <img
+              src="/logo.png"
+              alt="CLIPE CONSULT Logo"
+              className="w-full h-full object-contain p-3"
+              draggable={false}
+            />
           </motion.div>
 
-          {/* Rotating rings */}
+          {/* Rotating ring 1 */}
           <motion.div
-            className="absolute inset-[-8px] rounded-2xl border border-emerald-400/30"
+            className="absolute inset-[-10px] rounded-3xl border-2 border-emerald-400/25"
             animate={{ rotate: 360 }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
+            transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
           />
+          {/* Rotating ring 2 */}
           <motion.div
-            className="absolute inset-[-16px] rounded-2xl border border-teal-400/15"
+            className="absolute inset-[-22px] rounded-3xl border border-teal-400/12"
             animate={{ rotate: -360 }}
-            transition={{ duration: 12, repeat: Infinity, ease: 'linear' }}
+            transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+          />
+          {/* Rotating ring 3 */}
+          <motion.div
+            className="absolute inset-[-34px] rounded-3xl border border-emerald-300/8"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
           />
         </motion.div>
 
-        {/* Organization name */}
+        {/* Organization name — very bold */}
         <motion.h1
-          className="text-2xl font-bold text-white tracking-tight mb-2"
-          initial={{ opacity: 0, y: 15 }}
+          className="text-4xl sm:text-5xl font-black text-white tracking-tight mb-3"
+          style={{ textShadow: '0 0 40px rgba(16,185,129,0.3), 0 2px 8px rgba(0,0,0,0.5)' }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
+          transition={{ duration: 0.7, delay: 0.3, ease: 'easeOut' }}
         >
           CLIPE CONSULT
         </motion.h1>
 
         <motion.p
-          className="text-sm text-slate-400 mb-10 tracking-widest uppercase"
-          initial={{ opacity: 0, y: 10 }}
+          className="text-base sm:text-lg text-slate-300 mb-14 tracking-[0.35em] uppercase font-semibold"
+          initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.35, ease: 'easeOut' }}
+          transition={{ duration: 0.7, delay: 0.45, ease: 'easeOut' }}
         >
           DIGITAL PLATFORM
         </motion.p>
 
-        {/* Progress bar */}
+        {/* Percentage display */}
         <motion.div
-          className="w-64 h-[2px] bg-slate-700/50 rounded-full overflow-hidden"
+          className="flex flex-col items-center gap-4 w-72 sm:w-80"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: 0.6 }}
         >
-          <motion.div
-            className="h-full rounded-full"
+          <motion.span
+            className="text-5xl sm:text-6xl font-black tabular-nums"
             style={{
-              background: 'linear-gradient(90deg, #10b981, #2dd4bf, #10b981)',
+              background: 'linear-gradient(135deg, #10b981 0%, #2dd4bf 50%, #10b981 100%)',
               backgroundSize: '200% 100%',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              animation: 'shimmer 2s linear infinite',
+              textShadow: 'none',
+              filter: 'drop-shadow(0 0 20px rgba(16,185,129,0.4))',
             }}
-            animate={{
-              width: `${progress}%`,
-              backgroundPosition: ['0% 0%', '100% 0%', '0% 0%'],
-            }}
-            transition={{
-              width: { duration: 0.1 },
-              backgroundPosition: { duration: 2, repeat: Infinity, ease: 'linear' },
-            }}
-          />
+            key={displayPercent}
+            initial={{ scale: 1.1, opacity: 0.7 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.15 }}
+          >
+            {displayPercent}%
+          </motion.span>
+
+          {/* Progress bar */}
+          <div className="w-full h-[3px] bg-slate-700/50 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full rounded-full"
+              style={{
+                background: 'linear-gradient(90deg, #10b981, #2dd4bf, #10b981)',
+                backgroundSize: '200% 100%',
+              }}
+              animate={{
+                width: `${progress}%`,
+                backgroundPosition: ['0% 0%', '100% 0%', '0% 0%'],
+              }}
+              transition={{
+                width: { duration: 0.15 },
+                backgroundPosition: { duration: 2, repeat: Infinity, ease: 'linear' },
+              }}
+            />
+          </div>
+
+          <motion.p
+            className="text-xs text-slate-500 tracking-wider"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+          >
+            Loading your experience...
+          </motion.p>
         </motion.div>
       </motion.div>
     </AnimatePresence>
