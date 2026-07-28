@@ -214,6 +214,106 @@ export function ReceiptsPage() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  const handlePrintReceipt = (r: Receipt) => {
+    const itemsRows = r.items.map((item) => `
+              <tr>
+                <td style="padding:6px 12px;border-bottom:1px solid #f1f5f9;">${item.description}</td>
+                <td style="padding:6px 12px;border-bottom:1px solid #f1f5f9;text-align:right;">${item.quantity}</td>
+                <td style="padding:6px 12px;border-bottom:1px solid #f1f5f9;text-align:right;">${fmtCurrency(item.unitPrice)}</td>
+                <td style="padding:6px 12px;border-bottom:1px solid #f1f5f9;text-align:right;font-weight:500;">${fmtCurrency(item.amount)}</td>
+              </tr>`).join('');
+
+    const printWin = window.open('', '_blank', 'width=800,height=700');
+    if (!printWin) return;
+    printWin.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Receipt - ${r.receiptNo}</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; color: #1e293b; }
+          .header { text-align: center; border-bottom: 3px double #1e293b; padding-bottom: 16px; margin-bottom: 24px; }
+          .header h1 { font-size: 20px; font-weight: 700; letter-spacing: 0.05em; }
+          .header p { font-size: 12px; color: #64748b; margin-top: 4px; }
+          .receipt-title { text-align: center; font-size: 16px; font-weight: 600; margin-bottom: 20px; color: #059669; }
+          .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+          .info-item { font-size: 13px; }
+          .info-item .label { color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+          .info-item .value { font-weight: 600; margin-top: 2px; }
+          .section-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 12px; margin-top: 20px; }
+          .items-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+          .items-table th { text-align: left; padding: 8px 12px; background: #f8fafc; color: #64748b; font-size: 11px; text-transform: uppercase; border-bottom: 1px solid #e2e8f0; }
+          .items-table td { padding: 6px 12px; border-bottom: 1px solid #f1f5f9; }
+          .items-table tfoot td { font-size: 15px; font-weight: 700; border-top: 2px solid #1e293b; background: #f8fafc; }
+          .status-badge { display: inline-block; padding: 3px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
+          .status-valid { background: #d1fae5; color: #065f46; }
+          .status-voided { background: #fee2e2; color: #991b1b; }
+          .status-duplicate { background: #fef3c7; color: #92400e; }
+          .method-badge { display: inline-block; padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600; background: #f1f5f9; color: #475569; }
+          .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 11px; color: #94a3b8; }
+          .voided-stamp { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 48px; font-weight: 900; color: rgba(239,68,68,0.25); border: 6px solid rgba(239,68,68,0.25); padding: 8px 32px; border-radius: 12px; letter-spacing: 0.1em; text-transform: uppercase; pointer-events: none; }
+          @media print { body { padding: 20px; } }
+        </style>
+      </head>
+      <body>
+        <div style="position:relative;">
+          ${r.status === 'Voided' ? '<div class="voided-stamp">VOIDED</div>' : ''}
+          <div class="header">
+            <h1>KUMASI METROPOLITAN ASSEMBLY</h1>
+            <p>Revenue Management System — Official Receipt</p>
+          </div>
+          <div class="receipt-title">OFFICIAL RECEIPT</div>
+          <div class="info-grid">
+            <div class="info-item"><div class="label">Receipt Number</div><div class="value">${r.receiptNo}</div></div>
+            <div class="info-item"><div class="label">Receipt Date</div><div class="value">${r.date} at ${r.time}</div></div>
+            <div class="info-item"><div class="label">Bill Reference</div><div class="value">${r.billNo}</div></div>
+            <div class="info-item"><div class="label">Status</div><div class="value"><span class="status-badge status-${r.status.toLowerCase()}">${r.status.toUpperCase()}</span></div></div>
+          </div>
+          <div class="section-title">Issued To</div>
+          <div class="info-grid">
+            <div class="info-item"><div class="label">Name</div><div class="value">${r.issuedTo}</div></div>
+            <div class="info-item"><div class="label">Entity Type</div><div class="value">${r.entityType}</div></div>
+            <div class="info-item"><div class="label">Zone / Ward</div><div class="value">${r.zone} — ${r.ward}</div></div>
+            <div class="info-item"><div class="label">Collected By</div><div class="value">${r.issuedBy}</div></div>
+          </div>
+          <div class="section-title">Payment Details</div>
+          <div class="info-grid">
+            <div class="info-item"><div class="label">Revenue Item</div><div class="value">${r.revenueItem}</div></div>
+            <div class="info-item"><div class="label">Payment Method</div><div class="value"><span class="method-badge">${r.method}</span></div></div>
+            <div class="info-item"><div class="label">Transaction Reference</div><div class="value">${r.reference || 'N/A'}</div></div>
+            <div class="info-item"><div class="label">Penalty Applied</div><div class="value">${r.penalty > 0 ? fmtCurrency(r.penalty) : 'None'}</div></div>
+          </div>
+          <div class="section-title">Line Items</div>
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th style="text-align:right">Qty</th>
+                <th style="text-align:right">Unit Price</th>
+                <th style="text-align:right">Amount</th>
+              </tr>
+            </thead>
+            <tbody>${itemsRows}</tbody>
+            <tfoot>
+              <tr>
+                <td colspan="3" style="padding:8px 12px;text-align:right;">Total Paid</td>
+                <td style="padding:8px 12px;text-align:right;">${fmtCurrency(r.totalPaid)}</td>
+              </tr>
+            </tfoot>
+          </table>
+          <div class="footer">
+            This is a computer-generated receipt from Kumasi Metropolitan Assembly.<br/>
+            Generated on ${new Date().toLocaleString()} | For enquiries, contact the Revenue Office.
+          </div>
+        </div>
+      </body>
+      </html>
+    `);
+    printWin.document.close();
+    printWin.onload = () => { printWin.print(); };
+  };
+
   const totalAmount = filtered.reduce((s, r) => s + r.totalPaid, 0);
   const validCount = filtered.filter((r) => r.status === 'Valid').length;
   const voidedCount = filtered.filter((r) => r.status === 'Voided').length;
@@ -389,6 +489,7 @@ export function ReceiptsPage() {
                           <Eye className="w-4 h-4" />
                         </button>
                         <button
+                          onClick={() => handlePrintReceipt(r)}
                           className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
                           title="Print receipt"
                         >
@@ -472,11 +573,11 @@ export function ReceiptsPage() {
                   {selectedReceipt.status}
                 </span>
                 <div className="flex items-center gap-2">
-                  <button className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 text-white px-3 py-1.5 text-sm font-medium hover:bg-emerald-700 transition-colors">
+                  <button onClick={() => handlePrintReceipt(selectedReceipt)} className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 text-white px-3 py-1.5 text-sm font-medium hover:bg-emerald-700 transition-colors cursor-pointer">
                     <Printer className="w-3.5 h-3.5" />
                     Print
                   </button>
-                  <button className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1.5 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                  <button onClick={() => handlePrintReceipt(selectedReceipt)} className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 px-3 py-1.5 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors cursor-pointer">
                     <Download className="w-3.5 h-3.5" />
                     PDF
                   </button>
