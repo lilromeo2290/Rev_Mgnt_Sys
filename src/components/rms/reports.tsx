@@ -1,0 +1,552 @@
+'use client';
+
+import { useState, useMemo } from 'react';
+import {
+  BarChart3,
+  Download,
+  Filter,
+  TrendingUp,
+  TrendingDown,
+  ChevronDown,
+  Calendar,
+  Building2,
+  Home,
+  DollarSign,
+  Users,
+  Receipt,
+  PieChart,
+  Target,
+  AlertCircle,
+  CheckCircle2,
+  Clock,
+  ArrowUpRight,
+} from 'lucide-react';
+
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+interface RevenueBreakdown {
+  category: string;
+  budget: number;
+  collected: number;
+  target: number;
+  percentage: number;
+  officer: string;
+}
+
+interface ZoneReport {
+  zone: string;
+  businesses: number;
+  properties: number;
+  collected: number;
+  target: number;
+  compliance: number;
+}
+
+interface MonthlyComparison {
+  month: string;
+  currentYear: number;
+  previousYear: number;
+  change: number;
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const fmtCurrency = (n: number): string => `GH₵ ${n.toLocaleString('en-GH')}`;
+const fmtNumber = (n: number): string => n.toLocaleString('en-GH');
+
+// ─── Mock Data ────────────────────────────────────────────────────────────────
+
+const revenueBreakdown: RevenueBreakdown[] = [
+  { category: 'Business Operating Permits', budget: 2500000, collected: 2187500, target: 2300000, percentage: 95.1, officer: 'Kwame Asante' },
+  { category: 'Property Rates', budget: 3200000, collected: 2944000, target: 3000000, percentage: 98.1, officer: 'Abena Mensah' },
+  { category: 'Market Stall Fees', budget: 800000, collected: 648000, target: 720000, percentage: 90.0, officer: 'Kofi Boateng' },
+  { category: 'Building Permits', budget: 1500000, collected: 1125000, target: 1200000, percentage: 93.8, officer: 'Ama Darko' },
+  { category: 'Signage & Advertising', budget: 400000, collected: 376000, target: 380000, percentage: 98.9, officer: 'Yaw Owusu' },
+  { category: 'Food Vendor Permits', budget: 350000, collected: 315000, target: 340000, percentage: 92.6, officer: 'Efua Amponsah' },
+  { category: 'Transport Permits', budget: 600000, collected: 552000, target: 580000, percentage: 95.2, officer: 'Kwesi Nkansah' },
+  { category: 'Environmental Fees', budget: 280000, collected: 229600, target: 250000, percentage: 91.8, officer: 'Adwoa Pokuwa' },
+];
+
+const zoneReports: ZoneReport[] = [
+  { zone: 'Zone A — Central', businesses: 342, properties: 1050, collected: 1456000, target: 1500000, compliance: 97.1 },
+  { zone: 'Zone B — Kejetia', businesses: 418, properties: 890, collected: 1283000, target: 1350000, compliance: 95.0 },
+  { zone: 'Zone C — Suame', businesses: 267, properties: 1120, collected: 987000, target: 1100000, compliance: 89.7 },
+  { zone: 'Zone D — Oforikrom', businesses: 220, properties: 831, collected: 824000, target: 900000, compliance: 91.6 },
+];
+
+const monthlyComparison: MonthlyComparison[] = [
+  { month: 'Jan', currentYear: 185000, previousYear: 162000, change: 14.2 },
+  { month: 'Feb', currentYear: 210000, previousYear: 178000, change: 18.0 },
+  { month: 'Mar', currentYear: 195000, previousYear: 198000, change: -1.5 },
+  { month: 'Apr', currentYear: 230000, previousYear: 205000, change: 12.2 },
+  { month: 'May', currentYear: 260000, previousYear: 234000, change: 11.1 },
+  { month: 'Jun', currentYear: 245000, previousYear: 220000, change: 11.4 },
+  { month: 'Jul', currentYear: 275000, previousYear: 258000, change: 6.6 },
+  { month: 'Aug', currentYear: 290000, previousYear: 265000, change: 9.4 },
+  { month: 'Sep', currentYear: 255000, previousYear: 248000, change: 2.8 },
+  { month: 'Oct', currentYear: 310000, previousYear: 278000, change: 11.5 },
+  { month: 'Nov', currentYear: 340000, previousYear: 305000, change: 11.5 },
+  { month: 'Dec', currentYear: 352350, previousYear: 312000, change: 12.9 },
+];
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
+type ReportView = 'overview' | 'revenue' | 'zones' | 'monthly';
+
+export function ReportsPage() {
+  const [view, setView] = useState<ReportView>('overview');
+  const [period, setPeriod] = useState<'Monthly' | 'Quarterly' | 'Annually'>('Monthly');
+  const [zoneFilter, setZoneFilter] = useState<string>('All');
+  const [showPeriodDropdown, setShowPeriodDropdown] = useState(false);
+
+  const filteredZones = useMemo(() => {
+    if (zoneFilter === 'All') return zoneReports;
+    return zoneReports.filter((z) => z.zone.includes(zoneFilter));
+  }, [zoneFilter]);
+
+  const totalBudget = revenueBreakdown.reduce((s, r) => s + r.budget, 0);
+  const totalCollected = revenueBreakdown.reduce((s, r) => s + r.collected, 0);
+  const overallCompliance = ((totalCollected / totalBudget) * 100).toFixed(1);
+
+  const tabs: { key: ReportView; label: string; icon: React.ElementType }[] = [
+    { key: 'overview', label: 'Overview', icon: PieChart },
+    { key: 'revenue', label: 'Revenue Breakdown', icon: DollarSign },
+    { key: 'zones', label: 'Zone Reports', icon: Building2 },
+    { key: 'monthly', label: 'Monthly Comparison', icon: BarChart3 },
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Reports</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            Revenue collection performance and analytics
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <button
+              onClick={() => setShowPeriodDropdown(!showPeriodDropdown)}
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            >
+              <Calendar className="w-4 h-4" />
+              {period}
+              <ChevronDown className={`w-3 h-3 transition-transform ${showPeriodDropdown ? 'rotate-180' : ''}`} />
+            </button>
+            {showPeriodDropdown && (
+              <div className="absolute right-0 mt-1 w-36 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg z-20 py-1">
+                {(['Monthly', 'Quarterly', 'Annually'] as const).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => { setPeriod(p); setShowPeriodDropdown(false); }}
+                    className={`w-full text-left px-3 py-2 text-sm transition-colors ${
+                      p === period
+                        ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 font-medium'
+                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <button className="inline-flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+            <Download className="w-4 h-4" />
+            Export
+          </button>
+        </div>
+      </div>
+
+      {/* Tab Navigation */}
+      <div className="flex items-center gap-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-1 overflow-x-auto">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
+          const active = view === tab.key;
+          return (
+            <button
+              key={tab.key}
+              onClick={() => setView(tab.key)}
+              className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors ${
+                active
+                  ? 'bg-white dark:bg-slate-800 text-emerald-700 dark:text-emerald-400 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Icon className="w-4 h-4" />
+              <span className="hidden sm:inline">{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* ── Overview Tab ──────────────────────────────────────────────────── */}
+      {view === 'overview' && (
+        <div className="space-y-6">
+          {/* KPI Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <KpiCard
+              icon={<DollarSign className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />}
+              label="Total Collected"
+              value={fmtCurrency(totalCollected)}
+              sub={`Budget: ${fmtCurrency(totalBudget)}`}
+              trend={14.3}
+            />
+            <KpiCard
+              icon={<Target className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />}
+              label="Collection Rate"
+              value={`${overallCompliance}%`}
+              sub="Target: 95%"
+              trend={2.1}
+            />
+            <KpiCard
+              icon={<Users className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />}
+              label="Registered Entities"
+              value={fmtNumber(1247)}
+              sub="Businesses + Properties"
+              trend={8.5}
+            />
+            <KpiCard
+              icon={<Receipt className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />}
+              label="Receipts Issued"
+              value={fmtNumber(2847)}
+              sub="This fiscal year"
+              trend={12.7}
+            />
+          </div>
+
+          {/* Two-column: Top Performers + Zone Summary */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Top Revenue Categories */}
+            <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5">
+              <h2 className="text-base font-semibold text-slate-900 dark:text-white mb-4">Top Revenue Categories</h2>
+              <div className="space-y-3">
+                {revenueBreakdown.slice(0, 5).map((item) => (
+                  <CategoryBar key={item.category} item={item} />
+                ))}
+              </div>
+            </div>
+
+            {/* Zone Summary */}
+            <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5">
+              <h2 className="text-base font-semibold text-slate-900 dark:text-white mb-4">Zone Compliance Summary</h2>
+              <div className="space-y-3">
+                {zoneReports.map((zone) => (
+                  <div key={zone.zone} className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-slate-900 dark:text-white">{zone.zone}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{fmtCurrency(zone.collected)} of {fmtCurrency(zone.target)}</p>
+                    </div>
+                    <span className={`inline-flex items-center text-sm font-semibold ${
+                      zone.compliance >= 95 ? 'text-emerald-600 dark:text-emerald-400' : zone.compliance >= 90 ? 'text-amber-600 dark:text-amber-400' : 'text-red-600 dark:text-red-400'
+                    }`}>
+                      {zone.compliance}%
+                      {zone.compliance >= 95 ? <ArrowUpRight className="w-3.5 h-3.5 ml-0.5" /> : zone.compliance < 90 ? <TrendingDown className="w-3.5 h-3.5 ml-0.5" /> : null}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Revenue Breakdown Tab ──────────────────────────────────────────── */}
+      {view === 'revenue' && (
+        <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="p-5 border-b border-slate-200 dark:border-slate-700">
+            <h2 className="text-base font-semibold text-slate-900 dark:text-white">Revenue by Category</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Detailed breakdown of revenue collection across all categories</p>
+          </div>
+          <div className="overflow-x-auto max-h-96 overflow-y-auto">
+            <table className="w-full text-left">
+              <thead className="bg-slate-50 dark:bg-slate-900/50 sticky top-0 z-10">
+                <tr className="border-b border-slate-200 dark:border-slate-700">
+                  <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Category</th>
+                  <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Officer</th>
+                  <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3 text-right">Budget</th>
+                  <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3 text-right">Collected</th>
+                  <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3 text-right">Target</th>
+                  <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Progress</th>
+                  <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3 text-right">Rate</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
+                {revenueBreakdown.map((item) => (
+                  <tr key={item.category} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        {item.category.includes('Property') ? (
+                          <Home className="w-4 h-4 text-emerald-500" />
+                        ) : (
+                          <Building2 className="w-4 h-4 text-emerald-500" />
+                        )}
+                        <span className="text-sm font-medium text-slate-900 dark:text-white">{item.category}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400">{item.officer}</td>
+                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 text-right">{fmtCurrency(item.budget)}</td>
+                    <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-white text-right">{fmtCurrency(item.collected)}</td>
+                    <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-400 text-right">{fmtCurrency(item.target)}</td>
+                    <td className="px-4 py-3 w-32">
+                      <div className="w-full">
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex-1 h-2 rounded-full bg-slate-100 dark:bg-slate-700">
+                            <div
+                              className={`h-2 rounded-full transition-all ${
+                                item.percentage >= 95
+                                  ? 'bg-emerald-500'
+                                  : item.percentage >= 90
+                                  ? 'bg-amber-500'
+                                  : 'bg-red-500'
+                              }`}
+                              style={{ width: `${Math.min(item.percentage, 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <span className={`inline-flex items-center gap-0.5 text-sm font-semibold ${
+                        item.percentage >= 95
+                          ? 'text-emerald-600 dark:text-emerald-400'
+                          : item.percentage >= 90
+                          ? 'text-amber-600 dark:text-amber-400'
+                          : 'text-red-600 dark:text-red-400'
+                      }`}>
+                        {item.percentage}%
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot className="bg-slate-50 dark:bg-slate-900/50">
+                <tr className="border-t-2 border-slate-200 dark:border-slate-700">
+                  <td className="px-4 py-3 text-sm font-bold text-slate-900 dark:text-white" colSpan={2}>Total</td>
+                  <td className="px-4 py-3 text-sm font-bold text-slate-900 dark:text-white text-right">{fmtCurrency(totalBudget)}</td>
+                  <td className="px-4 py-3 text-sm font-bold text-emerald-600 dark:text-emerald-400 text-right">{fmtCurrency(totalCollected)}</td>
+                  <td className="px-4 py-3 text-sm font-bold text-slate-900 dark:text-white text-right">{fmtCurrency(revenueBreakdown.reduce((s, r) => s + r.target, 0))}</td>
+                  <td className="px-4 py-3" colSpan={2} />
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* ── Zones Tab ─────────────────────────────────────────────────────── */}
+      {view === 'zones' && (
+        <div className="space-y-4">
+          {/* Zone Filter */}
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-slate-400" />
+            <select
+              value={zoneFilter}
+              onChange={(e) => setZoneFilter(e.target.value)}
+              className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            >
+              <option value="All">All Zones</option>
+              <option value="Zone A">Zone A</option>
+              <option value="Zone B">Zone B</option>
+              <option value="Zone C">Zone C</option>
+              <option value="Zone D">Zone D</option>
+            </select>
+          </div>
+
+          {/* Zone Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filteredZones.map((zone) => (
+              <div key={zone.zone} className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-white">{zone.zone}</h3>
+                  <ComplianceBadge percentage={zone.compliance} />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <MiniStat icon={<Building2 className="w-4 h-4 text-emerald-500" />} label="Businesses" value={fmtNumber(zone.businesses)} />
+                  <MiniStat icon={<Home className="w-4 h-4 text-emerald-500" />} label="Properties" value={fmtNumber(zone.properties)} />
+                  <MiniStat icon={<DollarSign className="w-4 h-4 text-emerald-500" />} label="Collected" value={fmtCurrency(zone.collected)} />
+                  <MiniStat icon={<Target className="w-4 h-4 text-emerald-500" />} label="Target" value={fmtCurrency(zone.target)} />
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-xs text-slate-500 dark:text-slate-400">Collection Progress</span>
+                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{((zone.collected / zone.target) * 100).toFixed(1)}%</span>
+                  </div>
+                  <div className="w-full h-2.5 rounded-full bg-slate-100 dark:bg-slate-700">
+                    <div
+                      className={`h-2.5 rounded-full transition-all ${
+                        zone.compliance >= 95 ? 'bg-emerald-500' : zone.compliance >= 90 ? 'bg-amber-500' : 'bg-red-500'
+                      }`}
+                      style={{ width: `${Math.min((zone.collected / zone.target) * 100, 100)}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Monthly Comparison Tab ───────────────────────────────────────── */}
+      {view === 'monthly' && (
+        <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="p-5 border-b border-slate-200 dark:border-slate-700">
+            <h2 className="text-base font-semibold text-slate-900 dark:text-white">Year-over-Year Monthly Revenue</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Comparing 2024 vs 2023 monthly collection figures</p>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead className="bg-slate-50 dark:bg-slate-900/50">
+                <tr className="border-b border-slate-200 dark:border-slate-700">
+                  <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Month</th>
+                  <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3 text-right">2024</th>
+                  <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3 text-right">2023</th>
+                  <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3 text-right">Change</th>
+                  <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Visual</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
+                {monthlyComparison.map((m) => (
+                  <tr key={m.month} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                    <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-white">{m.month}</td>
+                    <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-white text-right">{fmtCurrency(m.currentYear)}</td>
+                    <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400 text-right">{fmtCurrency(m.previousYear)}</td>
+                    <td className="px-4 py-3 text-right">
+                      <span className={`inline-flex items-center gap-0.5 text-sm font-semibold ${
+                        m.change >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
+                      }`}>
+                        {m.change >= 0 ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+                        {Math.abs(m.change)}%
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-20 h-2 rounded-full bg-slate-100 dark:bg-slate-700 relative overflow-hidden">
+                          <div
+                            className="absolute inset-y-0 left-0 bg-slate-300 dark:bg-slate-600"
+                            style={{ width: `${(m.previousYear / 400000) * 100}%` }}
+                          />
+                          <div
+                            className="absolute inset-y-0 left-0 bg-emerald-500"
+                            style={{ width: `${(m.currentYear / 400000) * 100}%` }}
+                          />
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot className="bg-slate-50 dark:bg-slate-900/50">
+                <tr className="border-t-2 border-slate-200 dark:border-slate-700">
+                  <td className="px-4 py-3 text-sm font-bold text-slate-900 dark:text-white">Total</td>
+                  <td className="px-4 py-3 text-sm font-bold text-emerald-600 dark:text-emerald-400 text-right">
+                    {fmtCurrency(monthlyComparison.reduce((s, m) => s + m.currentYear, 0))}
+                  </td>
+                  <td className="px-4 py-3 text-sm font-bold text-slate-500 dark:text-slate-400 text-right">
+                    {fmtCurrency(monthlyComparison.reduce((s, m) => s + m.previousYear, 0))}
+                  </td>
+                  <td className="px-4 py-3 text-sm font-bold text-emerald-600 dark:text-emerald-400 text-right">
+                    +9.8%
+                  </td>
+                  <td />
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Sub-components ────────────────────────────────────────────────────────────
+
+function KpiCard({ icon, label, value, sub, trend }: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  sub: string;
+  trend: number;
+}) {
+  return (
+    <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 hover:shadow-md transition-shadow">
+      <div className="flex items-center justify-between mb-3">
+        <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/40">
+          {icon}
+        </span>
+        <span className={`inline-flex items-center gap-0.5 text-xs font-semibold px-2 py-0.5 rounded-full ${
+          trend >= 0
+            ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+            : 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+        }`}>
+          {trend >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+          {Math.abs(trend)}%
+        </span>
+      </div>
+      <p className="text-xl font-bold text-slate-900 dark:text-white">{value}</p>
+      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{sub}</p>
+    </div>
+  );
+}
+
+function CategoryBar({ item }: { item: RevenueBreakdown }) {
+  const pct = (item.collected / item.budget) * 100;
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1">
+        <p className="text-sm font-medium text-slate-700 dark:text-slate-300 truncate">{item.category}</p>
+        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">{pct.toFixed(1)}%</span>
+      </div>
+      <div className="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-700">
+        <div
+          className={`h-2 rounded-full transition-all ${
+            pct >= 95 ? 'bg-emerald-500' : pct >= 90 ? 'bg-amber-500' : 'bg-red-500'
+          }`}
+          style={{ width: `${Math.min(pct, 100)}%` }}
+        />
+      </div>
+      <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">{fmtCurrency(item.collected)} of {fmtCurrency(item.budget)}</p>
+    </div>
+  );
+}
+
+function MiniStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+  return (
+    <div className="flex items-center gap-2.5">
+      <span className="text-emerald-600 dark:text-emerald-400">{icon}</span>
+      <div>
+        <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
+        <p className="text-sm font-medium text-slate-900 dark:text-white">{value}</p>
+      </div>
+    </div>
+  );
+}
+
+function ComplianceBadge({ percentage }: { percentage: number }) {
+  if (percentage >= 95) {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+        <CheckCircle2 className="w-3 h-3" />
+        On Track
+      </span>
+    );
+  }
+  if (percentage >= 90) {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+        <Clock className="w-3 h-3" />
+        At Risk
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+      <AlertCircle className="w-3 h-3" />
+      Behind
+    </span>
+  );
+}
+
+export { ReportsPage };

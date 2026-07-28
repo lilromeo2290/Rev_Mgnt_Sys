@@ -1,0 +1,597 @@
+'use client';
+
+import { useState, useMemo } from 'react';
+import {
+  Plus,
+  Search,
+  Download,
+  Eye,
+  Trash2,
+  X,
+  Receipt,
+  DollarSign,
+  CalendarCheck,
+  Clock,
+  Filter,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
+
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+type PaymentMethod = 'Cash' | 'Mobile Money' | 'Bank' | 'POS' | 'Online';
+type PaymentStatus = 'Full' | 'Partial' | 'Advance';
+
+interface Payment {
+  id: string;
+  receiptNo: string;
+  billNo: string;
+  business: string;
+  amount: number;
+  balance: number;
+  date: string;
+  collector: string;
+  method: PaymentMethod;
+  status: PaymentStatus;
+  reference: string;
+  remarks: string;
+}
+
+interface MockBill {
+  billNo: string;
+  business: string;
+  totalAmount: number;
+  balance: number;
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const formatCurrency = (amount: number): string =>
+  `GH₵ ${amount.toLocaleString('en-GH')}`;
+
+const methodBadge: Record<PaymentMethod, { bg: string; text: string }> = {
+  Cash: { bg: 'bg-amber-100 text-amber-800', text: 'Cash' },
+  'Mobile Money': { bg: 'bg-emerald-100 text-emerald-800', text: 'MoMo' },
+  Bank: { bg: 'bg-blue-100 text-blue-800', text: 'Bank' },
+  POS: { bg: 'bg-purple-100 text-purple-800', text: 'POS' },
+  Online: { bg: 'bg-sky-100 text-sky-800', text: 'Online' },
+};
+
+const statusBadge: Record<PaymentStatus, { bg: string; text: string; dot: string }> = {
+  Full: { bg: 'bg-green-100 text-green-800', text: 'Full', dot: 'bg-green-500' },
+  Partial: { bg: 'bg-amber-100 text-amber-800', text: 'Partial', dot: 'bg-amber-500' },
+  Advance: { bg: 'bg-blue-100 text-blue-800', text: 'Advance', dot: 'bg-blue-500' },
+};
+
+// ─── Mock Data ────────────────────────────────────────────────────────────────
+
+const mockPayments: Payment[] = [
+  { id: '1', receiptNo: 'RCP-2024-0001', billNo: 'BIL-2024-0156', business: 'Kwame Asante Enterprises', amount: 245000, balance: 0, date: '2024-12-15', collector: 'Kofi Mensah', method: 'Cash', status: 'Full', reference: 'CASH-001', remarks: 'Annual property tax' },
+  { id: '2', receiptNo: 'RCP-2024-0002', billNo: 'BIL-2024-0203', business: 'Ama Osei Trading Co.', amount: 185000, balance: 65000, date: '2024-12-15', collector: 'Abena Frimpong', method: 'Mobile Money', status: 'Partial', reference: 'MTN-98374', remarks: 'Market stall fees' },
+  { id: '3', receiptNo: 'RCP-2024-0003', billNo: 'BIL-2024-0089', business: 'Nana Akufo & Sons Ltd', amount: 520000, balance: 0, date: '2024-12-14', collector: 'Kwame Boateng', method: 'Bank', status: 'Full', reference: 'GCB-TRF-44521', remarks: 'Commercial rates Q4' },
+  { id: '4', receiptNo: 'RCP-2024-0004', billNo: 'BIL-2024-0312', business: 'Efua Darko Ventures', amount: 450200, balance: 450200, date: '2024-12-14', collector: 'Kofi Mensah', method: 'Online', status: 'Advance', reference: 'PAY-ADV-7823', remarks: 'Advance payment for 2025' },
+  { id: '5', receiptNo: 'RCP-2024-0005', billNo: 'BIL-2024-0178', business: 'Kojo Annan Electronics', amount: 320000, balance: 0, date: '2024-12-14', collector: 'Ama Owusu', method: 'POS', status: 'Full', reference: 'POS-TID-00123', remarks: 'Shop lease payment' },
+  { id: '6', receiptNo: 'RCP-2024-0006', billNo: 'BIL-2024-0245', business: 'Abena Serwaa Pharmacy', amount: 95000, balance: 45000, date: '2024-12-13', collector: 'Abena Frimpong', method: 'Mobile Money', status: 'Partial', reference: 'VOD-55921', remarks: 'Health facility fees' },
+  { id: '7', receiptNo: 'RCP-2024-0007', billNo: 'BIL-2024-0401', business: 'Kwesi Nkansah Transport', amount: 178000, balance: 0, date: '2024-12-13', collector: 'Kwame Boateng', method: 'Cash', status: 'Full', reference: 'CASH-002', remarks: 'Transport permit renewal' },
+  { id: '8', receiptNo: 'RCP-2024-0008', billNo: 'BIL-2024-0187', business: 'Akosua Boateng Fabrics', amount: 210000, balance: 0, date: '2024-12-12', collector: 'Kofi Mensah', method: 'Bank', status: 'Full', reference: 'ECB-TRF-88322', remarks: 'Textile market stall fees' },
+  { id: '9', receiptNo: 'RCP-2024-0009', billNo: 'BIL-2024-0356', business: 'Yaw Adjei Construction', amount: 345000, balance: 145000, date: '2024-12-12', collector: 'Ama Owusu', method: 'POS', status: 'Partial', reference: 'POS-TID-00456', remarks: 'Building permit partial' },
+  { id: '10', receiptNo: 'RCP-2024-0010', billNo: 'BIL-2024-0299', business: 'Adwoa Pokuwa Catering', amount: 87000, balance: 0, date: '2024-12-11', collector: 'Abena Frimpong', method: 'Mobile Money', status: 'Full', reference: 'MTN-11234', remarks: 'Food vendor license' },
+  { id: '11', receiptNo: 'RCP-2024-0011', billNo: 'BIL-2024-0423', business: 'Emmanuel Tetteh Garage', amount: 156000, balance: 156000, date: '2024-12-11', collector: 'Kwame Boateng', method: 'Online', status: 'Advance', reference: 'PAY-ADV-9102', remarks: 'Advance garage license 2025' },
+  { id: '12', receiptNo: 'RCP-2024-0012', billNo: 'BIL-2024-0134', business: 'Grace Amponsah Beauty', amount: 125000, balance: 0, date: '2024-12-10', collector: 'Kofi Mensah', method: 'Cash', status: 'Full', reference: 'CASH-003', remarks: 'Salon permit renewal' },
+  { id: '13', receiptNo: 'RCP-2024-0013', billNo: 'BIL-2024-0267', business: 'Joseph Amoako Hardware', amount: 278000, balance: 78000, date: '2024-12-10', collector: 'Ama Owusu', method: 'Bank', status: 'Partial', reference: 'NMB-TRF-33215', remarks: 'Hardware store rates' },
+  { id: '14', receiptNo: 'RCP-2024-0014', billNo: 'BIL-2024-0389', business: 'Felicia Mensah Foods', amount: 198000, balance: 0, date: '2024-12-09', collector: 'Abena Frimpong', method: 'Mobile Money', status: 'Full', reference: 'AIR-66789', remarks: 'Restaurant license fee' },
+  { id: '15', receiptNo: 'RCP-2024-0015', billNo: 'BIL-2024-0501', business: 'Daniel Ofori Agro Ltd', amount: 412000, balance: 0, date: '2024-12-09', collector: 'Kwame Boateng', method: 'Cash', status: 'Full', reference: 'CASH-004', remarks: 'Agro-business property tax' },
+];
+
+const mockBills: MockBill[] = [
+  { billNo: 'BIL-2024-0512', business: 'Theresa Aidoo Fashion House', totalAmount: 180000, balance: 180000 },
+  { billNo: 'BIL-2024-0498', business: 'Samuel Okyere Logistics', totalAmount: 310000, balance: 310000 },
+  { billNo: 'BIL-2024-0475', business: 'Rebecca Addo Communications', totalAmount: 225000, balance: 225000 },
+  { billNo: 'BIL-2024-0456', business: 'Patrick Owusu-Ansah Farms', totalAmount: 450000, balance: 200000 },
+  { billNo: 'BIL-2024-0432', business: 'Lydia Agyeman Printers', totalAmount: 165000, balance: 165000 },
+  { billNo: 'BIL-2024-0398', business: 'Albert Osei Bonsu Pharmacy', totalAmount: 290000, balance: 140000 },
+  { billNo: 'BIL-2024-0376', business: 'Cynthia Tawiah Hotel & Suites', totalAmount: 580000, balance: 580000 },
+];
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
+export function PaymentsPage() {
+  const [payments, setPayments] = useState<Payment[]>(mockPayments);
+  const [search, setSearch] = useState('');
+  const [methodFilter, setMethodFilter] = useState<string>('All');
+  const [statusFilter, setStatusFilter] = useState<string>('All');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+
+  // Modal state
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedBill, setSelectedBill] = useState('');
+  const [payAmount, setPayAmount] = useState('');
+  const [payMethod, setPayMethod] = useState<PaymentMethod>('Cash');
+  const [payReference, setPayReference] = useState('');
+  const [payCollector, setPayCollector] = useState('');
+  const [payRemarks, setPayRemarks] = useState('');
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const perPage = 8;
+
+  const autoFill = useMemo(() => {
+    const bill = mockBills.find((b) => b.billNo === selectedBill);
+    if (!bill) return { business: '', balance: 0, totalAmount: 0 };
+    return { business: bill.business, balance: bill.balance, totalAmount: bill.totalAmount };
+  }, [selectedBill]);
+
+  // ─── Filtering ───────────────────────────────────────────────────────────
+
+  const filtered = useMemo(() => {
+    return payments.filter((p) => {
+      const matchSearch =
+        search === '' ||
+        p.receiptNo.toLowerCase().includes(search.toLowerCase()) ||
+        p.billNo.toLowerCase().includes(search.toLowerCase()) ||
+        p.business.toLowerCase().includes(search.toLowerCase()) ||
+        p.collector.toLowerCase().includes(search.toLowerCase());
+
+      const matchMethod = methodFilter === 'All' || p.method === methodFilter;
+      const matchStatus = statusFilter === 'All' || p.status === statusFilter;
+      const matchFrom = dateFrom === '' || p.date >= dateFrom;
+      const matchTo = dateTo === '' || p.date <= dateTo;
+
+      return matchSearch && matchMethod && matchStatus && matchFrom && matchTo;
+    });
+  }, [payments, search, methodFilter, statusFilter, dateFrom, dateTo]);
+
+  const totalPages = Math.ceil(filtered.length / perPage);
+  const paginated = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
+
+  // ─── Stats ──────────────────────────────────────────────────────────────
+
+  const totalPayments = payments.length;
+  const totalCollected = payments.reduce((sum, p) => sum + p.amount, 0);
+  const todayPayments = payments
+    .filter((p) => p.date === '2024-12-15')
+    .reduce((sum, p) => sum + p.amount, 0);
+  const totalPending = payments.reduce((sum, p) => sum + p.balance, 0);
+
+  // ─── Handlers ───────────────────────────────────────────────────────────
+
+  const openModal = () => {
+    setSelectedBill('');
+    setPayAmount('');
+    setPayMethod('Cash');
+    setPayReference('');
+    setPayCollector('');
+    setPayRemarks('');
+    setModalOpen(true);
+  };
+
+  const closeModal = () => setModalOpen(false);
+
+  const handleSave = () => {
+    if (!selectedBill || !payAmount) return;
+
+    const bill = mockBills.find((b) => b.billNo === selectedBill);
+    if (!bill) return;
+
+    const newPayment: Payment = {
+      id: String(Date.now()),
+      receiptNo: `RCP-2024-${String(payments.length + 1).padStart(4, '0')}`,
+      billNo: selectedBill,
+      business: bill.business,
+      amount: parseFloat(payAmount) || 0,
+      balance: parseFloat(payAmount) >= bill.totalAmount ? 0 : bill.balance - (parseFloat(payAmount) || 0),
+      date: new Date().toISOString().split('T')[0],
+      collector: payCollector || 'System',
+      method: payMethod,
+      status: parseFloat(payAmount) >= bill.totalAmount ? 'Full' : 'Partial',
+      reference: payReference,
+      remarks: payRemarks,
+    };
+
+    setPayments([newPayment, ...payments]);
+    closeModal();
+  };
+
+  const handleDelete = (id: string) => {
+    setPayments((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  // ─── Render ─────────────────────────────────────────────────────────────
+
+  return (
+    <div className="space-y-6">
+      {/* ── Header ──────────────────────────────────────────────────────── */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Payment Management</h1>
+          <p className="text-sm text-gray-500 mt-1">Record, track and manage all revenue payments</p>
+        </div>
+        <button
+          onClick={openModal}
+          className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 transition-colors cursor-pointer"
+        >
+          <Plus className="h-4 w-4" />
+          Record Payment
+        </button>
+      </div>
+
+      {/* ── Stats ──────────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: 'Total Payments', value: totalPayments.toLocaleString(), icon: Receipt, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+          { label: 'Total Collected', value: formatCurrency(totalCollected), icon: DollarSign, color: 'text-blue-600', bg: 'bg-blue-50' },
+          { label: 'Today', value: formatCurrency(todayPayments), icon: CalendarCheck, color: 'text-amber-600', bg: 'bg-amber-50' },
+          { label: 'Pending Balance', value: formatCurrency(totalPending), icon: Clock, color: 'text-red-600', bg: 'bg-red-50' },
+        ].map((stat) => (
+          <div
+            key={stat.label}
+            className="flex items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+          >
+            <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg ${stat.bg}`}>
+              <stat.icon className={`h-6 w-6 ${stat.color}`} />
+            </div>
+            <div>
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">{stat.label}</p>
+              <p className="text-lg font-bold text-gray-900">{stat.value}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── Filters ─────────────────────────────────────────────────────── */}
+      <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+        <div className="flex items-center gap-2 mb-3">
+          <Filter className="h-4 w-4 text-gray-500" />
+          <span className="text-sm font-semibold text-gray-700">Filters</span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          {/* Search */}
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search receipts, bills, business…"
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
+              className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-3 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition"
+            />
+          </div>
+          {/* Date From */}
+          <div className="relative">
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1); }}
+              className="w-full rounded-lg border border-gray-300 py-2 px-3 text-sm text-gray-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition"
+            />
+          </div>
+          {/* Date To */}
+          <div className="relative">
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1); }}
+              className="w-full rounded-lg border border-gray-300 py-2 px-3 text-sm text-gray-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition"
+            />
+          </div>
+          {/* Method */}
+          <div className="relative">
+            <select
+              value={methodFilter}
+              onChange={(e) => { setMethodFilter(e.target.value); setCurrentPage(1); }}
+              className="w-full appearance-none rounded-lg border border-gray-300 py-2 pl-3 pr-9 text-sm text-gray-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition cursor-pointer"
+            >
+              <option value="All">All Methods</option>
+              <option value="Cash">Cash</option>
+              <option value="Mobile Money">Mobile Money</option>
+              <option value="Bank">Bank Transfer</option>
+              <option value="POS">POS</option>
+              <option value="Online">Online</option>
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          </div>
+          {/* Status */}
+          <div className="relative">
+            <select
+              value={statusFilter}
+              onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
+              className="w-full appearance-none rounded-lg border border-gray-300 py-2 pl-3 pr-9 text-sm text-gray-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition cursor-pointer"
+            >
+              <option value="All">All Statuses</option>
+              <option value="Full">Full</option>
+              <option value="Partial">Partial</option>
+              <option value="Advance">Advance</option>
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Table ───────────────────────────────────────────────────────── */}
+      <div className="rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[1100px] text-sm">
+            <thead>
+              <tr className="border-b border-gray-200 bg-gray-50">
+                <th className="px-4 py-3 text-left font-semibold text-gray-600">Receipt #</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600">Bill #</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600">Business</th>
+                <th className="px-4 py-3 text-right font-semibold text-gray-600">Amount</th>
+                <th className="px-4 py-3 text-right font-semibold text-gray-600">Balance</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600">Date</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600">Collector</th>
+                <th className="px-4 py-3 text-center font-semibold text-gray-600">Method</th>
+                <th className="px-4 py-3 text-center font-semibold text-gray-600">Status</th>
+                <th className="px-4 py-3 text-center font-semibold text-gray-600">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {paginated.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="px-4 py-12 text-center text-gray-400">
+                    No payments found matching your filters.
+                  </td>
+                </tr>
+              ) : (
+                paginated.map((p) => {
+                  const m = methodBadge[p.method];
+                  const s = statusBadge[p.status];
+                  return (
+                    <tr
+                      key={p.id}
+                      className="hover:bg-gray-50/60 transition-colors"
+                    >
+                      <td className="px-4 py-3 font-medium text-emerald-700">{p.receiptNo}</td>
+                      <td className="px-4 py-3 text-gray-600">{p.billNo}</td>
+                      <td className="px-4 py-3 text-gray-900 font-medium max-w-[200px] truncate">{p.business}</td>
+                      <td className="px-4 py-3 text-right text-gray-900 font-semibold whitespace-nowrap">{formatCurrency(p.amount)}</td>
+                      <td className={`px-4 py-3 text-right font-medium whitespace-nowrap ${p.balance > 0 ? 'text-amber-600' : 'text-green-600'}`}>
+                        {p.balance > 0 ? formatCurrency(p.balance) : '—'}
+                      </td>
+                      <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{p.date}</td>
+                      <td className="px-4 py-3 text-gray-700">{p.collector}</td>
+                      <td className="px-4 py-3 text-center">
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${m.bg}`}>
+                          {m.text}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${s.bg}`}>
+                          <span className={`h-1.5 w-1.5 rounded-full ${s.dot}`} />
+                          {s.text}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-center gap-1">
+                          <button
+                            className="rounded-md p-1.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition cursor-pointer"
+                            title="View details"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                          <button
+                            className="rounded-md p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                            title="Delete"
+                            onClick={() => handleDelete(p.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between border-t border-gray-200 px-4 py-3 bg-gray-50/50">
+            <p className="text-xs text-gray-500">
+              Showing {(currentPage - 1) * perPage + 1}–{Math.min(currentPage * perPage, filtered.length)} of {filtered.length} payments
+            </p>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="rounded-md p-1.5 text-gray-500 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`h-8 w-8 rounded-md text-xs font-semibold transition cursor-pointer ${
+                    page === currentPage
+                      ? 'bg-emerald-600 text-white'
+                      : 'text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="rounded-md p-1.5 text-gray-500 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Record Payment Modal ─────────────────────────────────────────── */}
+      {modalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={closeModal}
+          />
+          {/* Panel */}
+          <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl animate-in fade-in zoom-in-95">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+              <div className="flex items-center gap-2">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100">
+                  <Plus className="h-5 w-5 text-emerald-600" />
+                </div>
+                <h2 className="text-lg font-bold text-gray-900">Record Payment</h2>
+              </div>
+              <button
+                onClick={closeModal}
+                className="rounded-md p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="max-h-[70vh] overflow-y-auto px-6 py-5 space-y-4">
+              {/* Bill # Select */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Bill Number <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <select
+                    value={selectedBill}
+                    onChange={(e) => setSelectedBill(e.target.value)}
+                    className="w-full appearance-none rounded-lg border border-gray-300 py-2.5 pl-3 pr-9 text-sm text-gray-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition cursor-pointer"
+                  >
+                    <option value="">Select a bill…</option>
+                    {mockBills.map((b) => (
+                      <option key={b.billNo} value={b.billNo}>
+                        {b.billNo} — {b.business} ({formatCurrency(b.balance)} due)
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                </div>
+              </div>
+
+              {/* Auto-filled Business (read-only) */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Business</label>
+                <input
+                  type="text"
+                  readOnly
+                  value={autoFill.business}
+                  placeholder="Auto-filled from bill"
+                  className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 px-3 text-sm text-gray-500 cursor-not-allowed"
+                />
+              </div>
+
+              {/* Amount & Balance row */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Amount (GH₵) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={payAmount}
+                    onChange={(e) => setPayAmount(e.target.value)}
+                    placeholder="0.00"
+                    className="w-full rounded-lg border border-gray-300 py-2.5 px-3 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Bill Balance</label>
+                  <input
+                    type="text"
+                    readOnly
+                    value={selectedBill ? formatCurrency(autoFill.balance) : '—'}
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 px-3 text-sm text-gray-500 cursor-not-allowed"
+                  />
+                </div>
+              </div>
+
+              {/* Method */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                <div className="relative">
+                  <select
+                    value={payMethod}
+                    onChange={(e) => setPayMethod(e.target.value as PaymentMethod)}
+                    className="w-full appearance-none rounded-lg border border-gray-300 py-2.5 pl-3 pr-9 text-sm text-gray-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition cursor-pointer"
+                  >
+                    <option value="Cash">Cash</option>
+                    <option value="Mobile Money">Mobile Money</option>
+                    <option value="Bank">Bank Transfer</option>
+                    <option value="POS">POS</option>
+                    <option value="Online">Online</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                </div>
+              </div>
+
+              {/* Reference & Collector row */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Reference #</label>
+                  <input
+                    type="text"
+                    value={payReference}
+                    onChange={(e) => setPayReference(e.target.value)}
+                    placeholder="e.g. MTN-12345"
+                    className="w-full rounded-lg border border-gray-300 py-2.5 px-3 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Collector</label>
+                  <input
+                    type="text"
+                    value={payCollector}
+                    onChange={(e) => setPayCollector(e.target.value)}
+                    placeholder="Collector name"
+                    className="w-full rounded-lg border border-gray-300 py-2.5 px-3 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition"
+                  />
+                </div>
+              </div>
+
+              {/* Remarks */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Remarks</label>
+                <textarea
+                  rows={3}
+                  value={payRemarks}
+                  onChange={(e) => setPayRemarks(e.target.value)}
+                  placeholder="Optional notes about this payment…"
+                  className="w-full rounded-lg border border-gray-300 py-2.5 px-3 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4">
+              <button
+                onClick={closeModal}
+                className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                disabled={!selectedBill || !payAmount}
+                className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+              >
+                <Download className="h-4 w-4" />
+                Save Payment
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

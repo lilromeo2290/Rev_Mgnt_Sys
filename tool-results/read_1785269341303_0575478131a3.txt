@@ -1,0 +1,802 @@
+     1→'use client';
+     2→
+     3→import { useState, useMemo } from 'react';
+     4→import {
+     5→  Plus,
+     6→  Pencil,
+     7→  Trash2,
+     8→  ChevronDown,
+     9→  ChevronRight,
+    10→  Search,
+    11→  Power,
+    12→  Save,
+    13→  X,
+    14→  Settings2,
+    15→} from 'lucide-react';
+    16→
+    17→// ─── Types ───────────────────────────────────────────────────────────────────
+    18→
+    19→interface SubRate {
+    20→  id: string;
+    21→  name: string;
+    22→  amount: number;
+    23→}
+    24→
+    25→interface RateType {
+    26→  id: string;
+    27→  name: string;
+    28→  category: 'Business' | 'Property';
+    29→  subRates: SubRate[];
+    30→  status: 'Active' | 'Inactive';
+    31→  effectiveDate: string;
+    32→  expiryDate: string;
+    33→  annualIncrement: number;
+    34→}
+    35→
+    36→interface RateFormData {
+    37→  id: string;
+    38→  name: string;
+    39→  category: 'Business' | 'Property';
+    40→  subRateName: string;
+    41→  amount: number;
+    42→  effectiveDate: string;
+    43→  expiryDate: string;
+    44→  status: 'Active' | 'Inactive';
+    45→  annualIncrement: number;
+    46→}
+    47→
+    48→// ─── Mock Data ───────────────────────────────────────────────────────────────
+    49→
+    50→const initialRates: RateType[] = [
+    51→  {
+    52→    id: 'RT-001',
+    53→    name: 'Business Operating Permit',
+    54→    category: 'Business',
+    55→    subRates: [
+    56→      { id: 'SR-001a', name: 'Small', amount: 150 },
+    57→      { id: 'SR-001b', name: 'Medium', amount: 300 },
+    58→      { id: 'SR-001c', name: 'Large', amount: 450 },
+    59→    ],
+    60→    status: 'Active',
+    61→    effectiveDate: '2024-01-01',
+    62→    expiryDate: '2024-12-31',
+    63→    annualIncrement: 5,
+    64→  },
+    65→  {
+    66→    id: 'RT-002',
+    67→    name: 'Property Rate',
+    68→    category: 'Property',
+    69→    subRates: [
+    70→      { id: 'SR-002a', name: 'Residential', amount: 250 },
+    71→      { id: 'SR-002b', name: 'Commercial', amount: 600 },
+    72→      { id: 'SR-002c', name: 'Industrial', amount: 1200 },
+    73→    ],
+    74→    status: 'Active',
+    75→    effectiveDate: '2024-01-01',
+    76→    expiryDate: '2024-12-31',
+    77→    annualIncrement: 10,
+    78→  },
+    79→  {
+    80→    id: 'RT-003',
+    81→    name: 'Market Toll',
+    82→    category: 'Business',
+    83→    subRates: [{ id: 'SR-003a', name: 'Standard', amount: 50 }],
+    84→    status: 'Active',
+    85→    effectiveDate: '2024-01-01',
+    86→    expiryDate: '2024-12-31',
+    87→    annualIncrement: 3,
+    88→  },
+    89→  {
+    90→    id: 'RT-004',
+    91→    name: 'Signage Fees',
+    92→    category: 'Business',
+    93→    subRates: [{ id: 'SR-004a', name: 'Per Sign', amount: 100 }],
+    94→    status: 'Active',
+    95→    effectiveDate: '2024-01-01',
+    96→    expiryDate: '2024-12-31',
+    97→    annualIncrement: 5,
+    98→  },
+    99→  {
+   100→    id: 'RT-005',
+   101→    name: 'Building Permit Fees',
+   102→    category: 'Property',
+   103→    subRates: [{ id: 'SR-005a', name: 'Per Application', amount: 500 }],
+   104→    status: 'Active',
+   105→    effectiveDate: '2024-01-01',
+   106→    expiryDate: '2024-12-31',
+   107→    annualIncrement: 7,
+   108→  },
+   109→  {
+   110→    id: 'RT-006',
+   111→    name: 'Environmental Fees',
+   112→    category: 'Business',
+   113→    subRates: [{ id: 'SR-006a', name: 'Standard', amount: 75 }],
+   114→    status: 'Active',
+   115→    effectiveDate: '2024-01-01',
+   116→    expiryDate: '2024-12-31',
+   117→    annualIncrement: 4,
+   118→  },
+   119→  {
+   120→    id: 'RT-007',
+   121→    name: 'Liquor License',
+   122→    category: 'Business',
+   123→    subRates: [{ id: 'SR-007a', name: 'Per License', amount: 200 }],
+   124→    status: 'Active',
+   125→    effectiveDate: '2024-01-01',
+   126→    expiryDate: '2024-12-31',
+   127→    annualIncrement: 6,
+   128→  },
+   129→  {
+   130→    id: 'RT-008',
+   131→    name: 'Food Vendor Permit',
+   132→    category: 'Business',
+   133→    subRates: [{ id: 'SR-008a', name: 'Per Vendor', amount: 80 }],
+   134→    status: 'Active',
+   135→    effectiveDate: '2024-01-01',
+   136→    expiryDate: '2024-12-31',
+   137→    annualIncrement: 3,
+   138→  },
+   139→  {
+   140→    id: 'RT-009',
+   141→    name: 'Advertising Levy',
+   142→    category: 'Business',
+   143→    subRates: [{ id: 'SR-009a', name: 'Standard', amount: 300 }],
+   144→    status: 'Inactive',
+   145→    effectiveDate: '2024-01-01',
+   146→    expiryDate: '2024-06-30',
+   147→    annualIncrement: 5,
+   148→  },
+   149→  {
+   150→    id: 'RT-010',
+   151→    name: 'Development Levy',
+   152→    category: 'Property',
+   153→    subRates: [{ id: 'SR-010a', name: 'Per Plot', amount: 150 }],
+   154→    status: 'Active',
+   155→    effectiveDate: '2024-01-01',
+   156→    expiryDate: '2024-12-31',
+   157→    annualIncrement: 8,
+   158→  },
+   159→  {
+   160→    id: 'RT-011',
+   161→    name: 'Sanitation Fees',
+   162→    category: 'Business',
+   163→    subRates: [{ id: 'SR-011a', name: 'Monthly', amount: 60 }],
+   164→    status: 'Active',
+   165→    effectiveDate: '2024-01-01',
+   166→    expiryDate: '2024-12-31',
+   167→    annualIncrement: 5,
+   168→  },
+   169→  {
+   170→    id: 'RT-012',
+   171→    name: 'Fire Safety Cert',
+   172→    category: 'Property',
+   173→    subRates: [{ id: 'SR-012a', name: 'Per Certificate', amount: 350 }],
+   174→    status: 'Active',
+   175→    effectiveDate: '2024-01-01',
+   176→    expiryDate: '2024-12-31',
+   177→    annualIncrement: 6,
+   178→  },
+   179→];
+   180→
+   181→// ─── Helpers ─────────────────────────────────────────────────────────────────
+   182→
+   183→function formatCurrency(amount: number): string {
+   184→  return `GH₵ ${amount.toLocaleString()}`;
+   185→}
+   186→
+   187→// ─── Component ───────────────────────────────────────────────────────────────
+   188→
+   189→export function RateConfigPage() {
+   190→  const [rates, setRates] = useState<RateType[]>(initialRates);
+   191→  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+   192→  const [searchQuery, setSearchQuery] = useState('');
+   193→  const [categoryFilter, setCategoryFilter] = useState<string>('All');
+   194→  const [statusFilter, setStatusFilter] = useState<string>('All');
+   195→  const [showModal, setShowModal] = useState(false);
+   196→  const [editingRate, setEditingRate] = useState<RateType | null>(null);
+   197→  const [formData, setFormData] = useState<RateFormData>({
+   198→    id: '',
+   199→    name: '',
+   200→    category: 'Business',
+   201→    subRateName: '',
+   202→    amount: 0,
+   203→    effectiveDate: '',
+   204→    expiryDate: '',
+   205→    status: 'Active',
+   206→    annualIncrement: 0,
+   207→  });
+   208→
+   209→  // ── Filtering ───────────────────────────────────────────────────────────
+   210→
+   211→  const filtered = useMemo(() => {
+   212→    return rates.filter((r) => {
+   213→      const matchSearch =
+   214→        searchQuery === '' ||
+   215→        r.name.toLowerCase().includes(searchQuery.toLowerCase());
+   216→      const matchCategory =
+   217→        categoryFilter === 'All' || r.category === categoryFilter;
+   218→      const matchStatus =
+   219→        statusFilter === 'All' || r.status === statusFilter;
+   220→      return matchSearch && matchCategory && matchStatus;
+   221→    });
+   222→  }, [rates, searchQuery, categoryFilter, statusFilter]);
+   223→
+   224→  // ── Toggle expand ───────────────────────────────────────────────────────
+   225→
+   226→  const toggleExpand = (id: string) => {
+   227→    setExpandedRows((prev) => {
+   228→      const next = new Set(prev);
+   229→      if (next.has(id)) {
+   230→        next.delete(id);
+   231→      } else {
+   232→        next.add(id);
+   233→      }
+   234→      return next;
+   235→    });
+   236→  };
+   237→
+   238→  // ── Toggle status ──────────────────────────────────────────────────────
+   239→
+   240→  const toggleStatus = (id: string) => {
+   241→    setRates((prev) =>
+   242→      prev.map((r) =>
+   243→        r.id === id
+   244→          ? { ...r, status: r.status === 'Active' ? 'Inactive' : 'Active' }
+   245→          : r
+   246→      )
+   247→    );
+   248→  };
+   249→
+   250→  // ── Delete ──────────────────────────────────────────────────────────────
+   251→
+   252→  const handleDelete = (id: string) => {
+   253→    setRates((prev) => prev.filter((r) => r.id !== id));
+   254→  };
+   255→
+   256→  // ── Modal open for Add ──────────────────────────────────────────────────
+   257→
+   258→  const openAddModal = () => {
+   259→    setEditingRate(null);
+   260→    setFormData({
+   261→      id: '',
+   262→      name: '',
+   263→      category: 'Business',
+   264→      subRateName: '',
+   265→      amount: 0,
+   266→      effectiveDate: '',
+   267→      expiryDate: '',
+   268→      status: 'Active',
+   269→      annualIncrement: 0,
+   270→    });
+   271→    setShowModal(true);
+   272→  };
+   273→
+   274→  // ── Modal open for Edit ─────────────────────────────────────────────────
+   275→
+   276→  const openEditModal = (rate: RateType) => {
+   277→    setEditingRate(rate);
+   278→    setFormData({
+   279→      id: rate.id,
+   280→      name: rate.name,
+   281→      category: rate.category,
+   282→      subRateName: rate.subRates[0]?.name ?? '',
+   283→      amount: rate.subRates[0]?.amount ?? 0,
+   284→      effectiveDate: rate.effectiveDate,
+   285→      expiryDate: rate.expiryDate,
+   286→      status: rate.status,
+   287→      annualIncrement: rate.annualIncrement,
+   288→    });
+   289→    setShowModal(true);
+   290→  };
+   291→
+   292→  // ── Save ────────────────────────────────────────────────────────────────
+   293→
+   294→  const handleSave = () => {
+   295→    if (!formData.name.trim() || !formData.subRateName.trim() || formData.amount <= 0) return;
+   296→
+   297→    if (editingRate) {
+   298→      // Update existing rate
+   299→      setRates((prev) =>
+   300→        prev.map((r) =>
+   301→          r.id === editingRate.id
+   302→            ? {
+   303→                ...r,
+   304→                name: formData.name,
+   305→                category: formData.category,
+   306→                subRates: [{ id: r.subRates[0]?.id ?? `${r.id}-sub`, name: formData.subRateName, amount: formData.amount }],
+   307→                effectiveDate: formData.effectiveDate,
+   308→                expiryDate: formData.expiryDate,
+   309→                status: formData.status,
+   310→                annualIncrement: formData.annualIncrement,
+   311→              }
+   312→            : r
+   313→        )
+   314→      );
+   315→    } else {
+   316→      // Add new rate
+   317→      const newId = `RT-${String(rates.length + 1).padStart(3, '0')}`;
+   318→      const newRate: RateType = {
+   319→        id: newId,
+   320→        name: formData.name,
+   321→        category: formData.category,
+   322→        subRates: [{ id: `${newId}-sub`, name: formData.subRateName, amount: formData.amount }],
+   323→        effectiveDate: formData.effectiveDate,
+   324→        expiryDate: formData.expiryDate,
+   325→        status: formData.status,
+   326→        annualIncrement: formData.annualIncrement,
+   327→      };
+   328→      setRates((prev) => [...prev, newRate]);
+   329→    }
+   330→
+   331→    setShowModal(false);
+   332→  };
+   333→
+   334→  // ── CSS classes ──────────────────────────────────────────────────────────
+   335→
+   336→  const inputClass =
+   337→    'w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition';
+   338→  const labelClass =
+   339→    'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5';
+   340→  const btnPrimary =
+   341→    'inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap';
+   342→  const btnSecondary =
+   343→    'inline-flex items-center gap-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm font-medium px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap';
+   344→
+   345→  // ── Compute display amount from sub-rates ────────────────────────────────
+   346→
+   347→  const getDisplayAmount = (rate: RateType) => {
+   348→    if (rate.subRates.length === 1) return formatCurrency(rate.subRates[0].amount);
+   349→    const min = Math.min(...rate.subRates.map((s) => s.amount));
+   350→    const max = Math.max(...rate.subRates.map((s) => s.amount));
+   351→    return `${formatCurrency(min)} – ${formatCurrency(max)}`;
+   352→  };
+   353→
+   354→  // ══════════════════════════════════════════════════════════════════════════
+   355→  //  RENDER
+   356→  // ══════════════════════════════════════════════════════════════════════════
+   357→
+   358→  return (
+   359→    <div className="space-y-6">
+   360→      {/* ── Header ──────────────────────────────────────────────────────── */}
+   361→      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+   362→        <div>
+   363→          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+   364→            Rate Configuration
+   365→          </h1>
+   366→          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+   367→            Manage revenue rate types, sub-rates, and fee structures.
+   368→          </p>
+   369→        </div>
+   370→        <button onClick={openAddModal} className={btnPrimary}>
+   371→          <Plus className="w-4 h-4" />
+   372→          Add New Rate Type
+   373→        </button>
+   374→      </div>
+   375→
+   376→      {/* ── Filters ────────────────────────────────────────────────────── */}
+   377→      <div className="flex flex-col sm:flex-row gap-3">
+   378→        <div className="relative flex-1">
+   379→          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+   380→          <input
+   381→            type="text"
+   382→            placeholder="Search rate types..."
+   383→            value={searchQuery}
+   384→            onChange={(e) => setSearchQuery(e.target.value)}
+   385→            className={`${inputClass} pl-10`}
+   386→          />
+   387→        </div>
+   388→        <select
+   389→          value={categoryFilter}
+   390→          onChange={(e) => setCategoryFilter(e.target.value)}
+   391→          className={`${inputClass} w-full sm:w-44`}
+   392→        >
+   393→          <option value="All">All Categories</option>
+   394→          <option value="Business">Business</option>
+   395→          <option value="Property">Property</option>
+   396→        </select>
+   397→        <select
+   398→          value={statusFilter}
+   399→          onChange={(e) => setStatusFilter(e.target.value)}
+   400→          className={`${inputClass} w-full sm:w-44`}
+   401→        >
+   402→          <option value="All">All Statuses</option>
+   403→          <option value="Active">Active</option>
+   404→          <option value="Inactive">Inactive</option>
+   405→        </select>
+   406→      </div>
+   407→
+   408→      {/* ── Table ───────────────────────────────────────────────────────── */}
+   409→      <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+   410→        <div className="overflow-x-auto">
+   411→          <table className="w-full text-sm">
+   412→            <thead>
+   413→              <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700">
+   414→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap w-10" />
+   415→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   416→                  Rate Name
+   417→                </th>
+   418→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   419→                  Category
+   420→                </th>
+   421→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   422→                  Amount
+   423→                </th>
+   424→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   425→                  Status
+   426→                </th>
+   427→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden md:table-cell">
+   428→                  Effective Date
+   429→                </th>
+   430→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden md:table-cell">
+   431→                  Expiry Date
+   432→                </th>
+   433→                <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   434→                  Actions
+   435→                </th>
+   436→              </tr>
+   437→            </thead>
+   438→            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+   439→              {filtered.length === 0 ? (
+   440→                <tr>
+   441→                  <td
+   442→                    colSpan={8}
+   443→                    className="text-center py-12 text-slate-400 dark:text-slate-500"
+   444→                  >
+   445→                    <Settings2 className="w-10 h-10 mx-auto mb-3 opacity-40" />
+   446→                    No rate types found matching your criteria.
+   447→                  </td>
+   448→                </tr>
+   449→              ) : (
+   450→                filtered.map((rate) => {
+   451→                  const isExpanded = expandedRows.has(rate.id);
+   452→                  return (
+   453→                    <>
+   454→                      {/* Parent row */}
+   455→                      <tr
+   456→                        key={rate.id}
+   457→                        className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
+   458→                      >
+   459→                        <td
+   460→                          className="px-4 py-3 text-slate-400"
+   461→                          onClick={() => toggleExpand(rate.id)}
+   462→                        >
+   463→                          {rate.subRates.length > 1 ? (
+   464→                            isExpanded ? (
+   465→                              <ChevronDown className="w-4 h-4" />
+   466→                            ) : (
+   467→                              <ChevronRight className="w-4 h-4" />
+   468→                            )
+   469→                          ) : (
+   470→                            <span className="w-4 h-4 inline-block" />
+   471→                          )}
+   472→                        </td>
+   473→                        <td
+   474→                          className="px-4 py-3 font-medium text-slate-900 dark:text-white whitespace-nowrap"
+   475→                          onClick={() => toggleExpand(rate.id)}
+   476→                        >
+   477→                          {rate.name}
+   478→                        </td>
+   479→                        <td className="px-4 py-3 whitespace-nowrap">
+   480→                          <span
+   481→                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+   482→                              rate.category === 'Business'
+   483→                                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400'
+   484→                                : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400'
+   485→                            }`}
+   486→                          >
+   487→                            {rate.category}
+   488→                          </span>
+   489→                        </td>
+   490→                        <td className="px-4 py-3 font-medium text-slate-900 dark:text-white whitespace-nowrap">
+   491→                          {getDisplayAmount(rate)}
+   492→                        </td>
+   493→                        <td className="px-4 py-3 whitespace-nowrap">
+   494→                          <span
+   495→                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+   496→                              rate.status === 'Active'
+   497→                                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400'
+   498→                                : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400'
+   499→                            }`}
+   500→                          >
+   501→                            {rate.status}
+   502→                          </span>
+   503→                        </td>
+   504→                        <td className="px-4 py-3 text-slate-500 dark:text-slate-400 whitespace-nowrap hidden md:table-cell">
+   505→                          {rate.effectiveDate}
+   506→                        </td>
+   507→                        <td className="px-4 py-3 text-slate-500 dark:text-slate-400 whitespace-nowrap hidden md:table-cell">
+   508→                          {rate.expiryDate}
+   509→                        </td>
+   510→                        <td className="px-4 py-3 text-right whitespace-nowrap">
+   511→                          <div className="inline-flex items-center gap-1">
+   512→                            <button
+   513→                              onClick={() => openEditModal(rate)}
+   514→                              className="p-1.5 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+   515→                              title="Edit"
+   516→                            >
+   517→                              <Pencil className="w-4 h-4" />
+   518→                            </button>
+   519→                            <button
+   520→                              onClick={() => toggleStatus(rate.id)}
+   521→                              className="p-1.5 rounded-md text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+   522→                              title="Toggle Status"
+   523→                            >
+   524→                              <Power className="w-4 h-4" />
+   525→                            </button>
+   526→                            <button
+   527→                              onClick={() => handleDelete(rate.id)}
+   528→                              className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+   529→                              title="Delete"
+   530→                            >
+   531→                              <Trash2 className="w-4 h-4" />
+   532→                            </button>
+   533→                          </div>
+   534→                        </td>
+   535→                      </tr>
+   536→
+   537→                      {/* Expanded sub-rate rows */}
+   538→                      {isExpanded && rate.subRates.length > 1 && (
+   539→                        <tr key={`${rate.id}-sub`} className="bg-slate-50/60 dark:bg-slate-800/30">
+   540→                          <td />
+   541→                          <td colSpan={7} className="py-0">
+   542→                            <div className="px-6 py-3">
+   543→                              <div className="ml-4 border-l-2 border-emerald-400 dark:border-emerald-600 pl-4">
+   544→                                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wider">
+   545→                                  Sub-Rates
+   546→                                </p>
+   547→                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+   548→                                  {rate.subRates.map((sr) => (
+   549→                                    <div
+   550→                                      key={sr.id}
+   551→                                      className="flex items-center justify-between bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 px-4 py-2.5"
+   552→                                    >
+   553→                                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+   554→                                        {sr.name}
+   555→                                      </span>
+   556→                                      <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400">
+   557→                                        {formatCurrency(sr.amount)}
+   558→                                      </span>
+   559→                                    </div>
+   560→                                  ))}
+   561→                                </div>
+   562→                                {rate.annualIncrement > 0 && (
+   563→                                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+   564→                                    Annual increment: <span className="font-semibold text-emerald-600 dark:text-emerald-400">{rate.annualIncrement}%</span>
+   565→                                  </p>
+   566→                                )}
+   567→                              </div>
+   568→                            </div>
+   569→                          </td>
+   570→                        </tr>
+   571→                      )}
+   572→                    </>
+   573→                  );
+   574→                })
+   575→              )}
+   576→            </tbody>
+   577→          </table>
+   578→        </div>
+   579→      </div>
+   580→
+   581→      {/* ── Summary ────────────────────────────────────────────────────── */}
+   582→      <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 px-1">
+   583→        <span>
+   584→          Showing {filtered.length} of {rates.length} rate types
+   585→        </span>
+   586→        {rates.filter((r) => r.status === 'Active').length > 0 && (
+   587→          <span>
+   588→            {rates.filter((r) => r.status === 'Active').length} active &middot;{' '}
+   589→            {rates.filter((r) => r.status === 'Inactive').length} inactive
+   590→          </span>
+   591→        )}
+   592→      </div>
+   593→
+   594→      {/* ── Add/Edit Modal ──────────────────────────────────────────────── */}
+   595→      {showModal && (
+   596→        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+   597→          {/* Backdrop */}
+   598→          <div
+   599→            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+   600→            onClick={() => setShowModal(false)}
+   601→          />
+   602→
+   603→          {/* Modal */}
+   604→          <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+   605→            {/* Modal Header */}
+   606→            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-6 py-4">
+   607→              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+   608→                {editingRate ? 'Edit Rate Type' : 'Add New Rate Type'}
+   609→              </h2>
+   610→              <button
+   611→                onClick={() => setShowModal(false)}
+   612→                className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+   613→              >
+   614→                <X className="w-5 h-5" />
+   615→              </button>
+   616→            </div>
+   617→
+   618→            {/* Modal Body */}
+   619→            <div className="px-6 py-5 space-y-4">
+   620→              {/* Rate Name */}
+   621→              <div>
+   622→                <label className={labelClass}>Rate Name</label>
+   623→                <input
+   624→                  type="text"
+   625→                  value={formData.name}
+   626→                  onChange={(e) =>
+   627→                    setFormData((p) => ({ ...p, name: e.target.value }))
+   628→                  }
+   629→                  placeholder="e.g. Business Operating Permit"
+   630→                  className={inputClass}
+   631→                />
+   632→              </div>
+   633→
+   634→              {/* Category */}
+   635→              <div>
+   636→                <label className={labelClass}>Category</label>
+   637→                <select
+   638→                  value={formData.category}
+   639→                  onChange={(e) =>
+   640→                    setFormData((p) => ({
+   641→                      ...p,
+   642→                      category: e.target.value as 'Business' | 'Property',
+   643→                    }))
+   644→                  }
+   645→                  className={inputClass}
+   646→                >
+   647→                  <option value="Business">Business</option>
+   648→                  <option value="Property">Property</option>
+   649→                </select>
+   650→              </div>
+   651→
+   652→              {/* Sub-rate name + Amount row */}
+   653→              <div className="grid grid-cols-2 gap-4">
+   654→                <div>
+   655→                  <label className={labelClass}>Sub-rate Name</label>
+   656→                  <input
+   657→                    type="text"
+   658→                    value={formData.subRateName}
+   659→                    onChange={(e) =>
+   660→                      setFormData((p) => ({
+   661→                        ...p,
+   662→                        subRateName: e.target.value,
+   663→                      }))
+   664→                    }
+   665→                    placeholder="e.g. Small, Medium"
+   666→                    className={inputClass}
+   667→                  />
+   668→                </div>
+   669→                <div>
+   670→                  <label className={labelClass}>Amount (GH₵)</label>
+   671→                  <input
+   672→                    type="number"
+   673→                    min={0}
+   674→                    value={formData.amount || ''}
+   675→                    onChange={(e) =>
+   676→                      setFormData((p) => ({
+   677→                        ...p,
+   678→                        amount: Number(e.target.value),
+   679→                      }))
+   680→                    }
+   681→                    placeholder="0"
+   682→                    className={inputClass}
+   683→                  />
+   684→                </div>
+   685→              </div>
+   686→
+   687→              {/* Effective Date + Expiry Date */}
+   688→              <div className="grid grid-cols-2 gap-4">
+   689→                <div>
+   690→                  <label className={labelClass}>Effective Date</label>
+   691→                  <input
+   692→                    type="date"
+   693→                    value={formData.effectiveDate}
+   694→                    onChange={(e) =>
+   695→                      setFormData((p) => ({
+   696→                        ...p,
+   697→                        effectiveDate: e.target.value,
+   698→                      }))
+   699→                    }
+   700→                    className={inputClass}
+   701→                  />
+   702→                </div>
+   703→                <div>
+   704→                  <label className={labelClass}>Expiry Date</label>
+   705→                  <input
+   706→                    type="date"
+   707→                    value={formData.expiryDate}
+   708→                    onChange={(e) =>
+   709→                      setFormData((p) => ({
+   710→                        ...p,
+   711→                        expiryDate: e.target.value,
+   712→                      }))
+   713→                    }
+   714→                    className={inputClass}
+   715→                  />
+   716→                </div>
+   717→              </div>
+   718→
+   719→              {/* Annual Increment */}
+   720→              <div>
+   721→                <label className={labelClass}>Annual Increment (%)</label>
+   722→                <input
+   723→                  type="number"
+   724→                  min={0}
+   725→                  max={100}
+   726→                  value={formData.annualIncrement || ''}
+   727→                  onChange={(e) =>
+   728→                    setFormData((p) => ({
+   729→                      ...p,
+   730→                      annualIncrement: Number(e.target.value),
+   731→                    }))
+   732→                  }
+   733→                  placeholder="0"
+   734→                  className={inputClass}
+   735→                />
+   736→              </div>
+   737→
+   738→              {/* Status Toggle */}
+   739→              <div className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-slate-600 px-4 py-3">
+   740→                <div>
+   741→                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+   742→                    Status
+   743→                  </p>
+   744→                  <p className="text-xs text-slate-500 dark:text-slate-400">
+   745→                    {formData.status === 'Active'
+   746→                      ? 'This rate type is currently active'
+   747→                      : 'This rate type is currently inactive'}
+   748→                  </p>
+   749→                </div>
+   750→                <button
+   751→                  onClick={() =>
+   752→                    setFormData((p) => ({
+   753→                      ...p,
+   754→                      status:
+   755→                        p.status === 'Active' ? 'Inactive' : 'Active',
+   756→                    }))
+   757→                  }
+   758→                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
+   759→                    formData.status === 'Active'
+   760→                      ? 'bg-emerald-600'
+   761→                      : 'bg-slate-300 dark:bg-slate-600'
+   762→                  }`}
+   763→                  role="switch"
+   764→                  aria-checked={formData.status === 'Active'}
+   765→                >
+   766→                  <span
+   767→                    className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ease-in-out ${
+   768→                      formData.status === 'Active'
+   769→                        ? 'translate-x-5'
+   770→                        : 'translate-x-0'
+   771→                    }`}
+   772→                  />
+   773→                </button>
+   774→              </div>
+   775→            </div>
+   776→
+   777→            {/* Modal Footer */}
+   778→            <div className="flex items-center justify-end gap-3 border-t border-slate-200 dark:border-slate-700 px-6 py-4">
+   779→              <button onClick={() => setShowModal(false)} className={btnSecondary}>
+   780→                <X className="w-4 h-4" />
+   781→                Cancel
+   782→              </button>
+   783→              <button
+   784→                onClick={handleSave}
+   785→                className={btnPrimary}
+   786→                disabled={
+   787→                  !formData.name.trim() ||
+   788→                  !formData.subRateName.trim() ||
+   789→                  formData.amount <= 0
+   790→                }
+   791→              >
+   792→                <Save className="w-4 h-4" />
+   793→                {editingRate ? 'Update Rate' : 'Save Rate'}
+   794→              </button>
+   795→            </div>
+   796→          </div>
+   797→        </div>
+   798→      )}
+   799→    </div>
+   800→  );
+   801→}
+   802→

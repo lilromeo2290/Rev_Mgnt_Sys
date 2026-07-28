@@ -4,9 +4,48 @@ import { useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { SplashScreen } from '@/components/landing/splash-screen';
 import { LandingPage } from '@/components/landing/landing-page';
+import { RmsLayout } from '@/components/rms/rms-layout';
+import { DashboardPage } from '@/components/rms/dashboard';
+import { BusinessesPage } from '@/components/rms/businesses';
+import { PropertiesPage } from '@/components/rms/properties';
+import { RateConfigPage } from '@/components/rms/rate-config';
+import { BillingPage } from '@/components/rms/billing';
+import { PaymentsPage } from '@/components/rms/payments';
+import { ReceiptsPage } from '@/components/rms/receipts';
+import { ReportsPage } from '@/components/rms/reports';
+import { UsersPage } from '@/components/rms/users';
+import { SettingsPage } from '@/components/rms/settings';
+import { SearchPage } from '@/components/rms/search';
+import { AuditTrailPage } from '@/components/rms/audit-trail';
+import { useAppStore, type RMSPage } from '@/stores/app-store';
+
+function RMSView() {
+  const rmsPage = useAppStore((s) => s.rmsPage);
+
+  const renderPage = () => {
+    switch (rmsPage) {
+      case 'dashboard': return <DashboardPage />;
+      case 'businesses': return <BusinessesPage />;
+      case 'properties': return <PropertiesPage />;
+      case 'rates': return <RateConfigPage />;
+      case 'billing': return <BillingPage />;
+      case 'payments': return <PaymentsPage />;
+      case 'receipts': return <ReceiptsPage />;
+      case 'reports': return <ReportsPage />;
+      case 'users': return <UsersPage />;
+      case 'settings': return <SettingsPage />;
+      case 'search': return <SearchPage />;
+      case 'audit-trail': return <AuditTrailPage />;
+      default: return <DashboardPage />;
+    }
+  };
+
+  return <RmsLayout>{renderPage()}</RmsLayout>;
+}
 
 export default function Home() {
   const [showSplash, setShowSplash] = useState(true);
+  const view = useAppStore((s) => s.view);
 
   const handleSplashComplete = useCallback(() => {
     setShowSplash(false);
@@ -20,7 +59,7 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {!showSplash && (
+      {!showSplash && view === 'landing' && (
         <motion.div
           key="landing"
           initial={{ opacity: 0 }}
@@ -28,6 +67,17 @@ export default function Home() {
           transition={{ duration: 0.5, ease: 'easeOut' }}
         >
           <LandingPage />
+        </motion.div>
+      )}
+
+      {!showSplash && view === 'rms' && (
+        <motion.div
+          key="rms"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+        >
+          <RMSView />
         </motion.div>
       )}
     </>

@@ -5,7 +5,7 @@ import { ThemeToggle } from './theme-toggle';
 import { ParticleBackground } from './particle-background';
 import { NavigationCard } from './navigation-card';
 import { useTheme } from 'next-themes';
-import { useRouter } from 'next/navigation';
+import { useAppStore } from '@/stores/app-store';
 import {
   Building2,
   Users,
@@ -88,15 +88,14 @@ const SYSTEMS: SystemEntry[] = [
 
 export function LandingPage() {
   const { resolvedTheme } = useTheme();
-  const router = useRouter();
+  const openRMS = useAppStore((s) => s.openRMS);
   const mounted = resolvedTheme !== undefined;
 
   const isDark = resolvedTheme === 'dark';
 
   const handleCardClick = (entry: SystemEntry) => {
-    if (!entry.active || !entry.route) return;
-    // Internal routing — destination URL never exposed in visible UI
-    router.push(entry.route);
+    if (!entry.active) return;
+    openRMS();
   };
 
   return (
