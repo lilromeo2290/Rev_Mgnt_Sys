@@ -646,9 +646,8 @@ export function BillingPage() {
           </table>
           <div class="qr-placeholder">QR Code</div>
           <div class="footer">
-            Thank you for your payment.<br/>
-            This receipt is computer generated and does not require a signature.<br/><br/>
-            Designed &amp; Powered by <strong>Clipe Consult</strong><br/>
+            This is a computer-generated document and does not require a signature.<br/><br/>
+            Designed, Developed &amp; Maintained by <strong>Clipe Consult</strong><br/>
             www.clipeconsult.com
           </div>
         </body>
