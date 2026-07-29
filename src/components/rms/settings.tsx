@@ -215,11 +215,11 @@ function FinancialSettings() {
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Penalty Rate (%)</label>
-          <input type="number" defaultValue="5" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="number" defaultValue="" placeholder="e.g. 5" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Interest Rate (%)</label>
-          <input type="number" defaultValue="2" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="number" defaultValue="" placeholder="e.g. 2" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
       </div>
     </div>
@@ -252,28 +252,28 @@ function BillingSettings() {
             <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Auto-Generate Bills</p>
             <p className="text-xs text-slate-500 dark:text-slate-400">Automatically generate bills at the start of each period</p>
           </div>
-          <input type="checkbox" defaultChecked className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+          <input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
         </div>
         <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
           <div>
             <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Include QR Code on Bills</p>
             <p className="text-xs text-slate-500 dark:text-slate-400">Add QR code and barcode to printed bills</p>
           </div>
-          <input type="checkbox" defaultChecked className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+          <input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
         </div>
         <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
           <div>
             <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Digital Signature</p>
             <p className="text-xs text-slate-500 dark:text-slate-400">Include assembly digital signature on receipts</p>
           </div>
-          <input type="checkbox" defaultChecked className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+          <input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
         </div>
         <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
           <div>
             <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Duplicate Bill Detection</p>
             <p className="text-xs text-slate-500 dark:text-slate-400">Prevent generation of duplicate bills</p>
           </div>
-          <input type="checkbox" defaultChecked className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+          <input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
         </div>
       </div>
     </div>
@@ -287,19 +287,19 @@ function SecuritySettings() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Session Timeout (Minutes)</label>
-          <input type="number" defaultValue="30" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="number" defaultValue="" placeholder="e.g. 30" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Max Login Attempts</label>
-          <input type="number" defaultValue="5" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="number" defaultValue="" placeholder="e.g. 5" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Password Min Length</label>
-          <input type="number" defaultValue="8" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="number" defaultValue="" placeholder="e.g. 8" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Account Lockout Duration (Minutes)</label>
-          <input type="number" defaultValue="15" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="number" defaultValue="" placeholder="e.g. 15" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
           <div>
@@ -313,7 +313,7 @@ function SecuritySettings() {
             <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Audit Trail Logging</p>
             <p className="text-xs text-slate-500 dark:text-slate-400">Log all user activities</p>
           </div>
-          <input type="checkbox" defaultChecked className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+          <input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
         </div>
       </div>
     </div>
@@ -326,14 +326,14 @@ function NotificationSettings() {
       <h2 className="text-lg font-semibold text-slate-900 dark:text-white pb-2 border-b border-slate-200 dark:border-slate-700">Notification Settings</h2>
       <div className="space-y-4">
         {[
-          { label: 'SMS Due Date Reminders', desc: 'Send SMS reminder before bill due date', defaultChecked: true },
-          { label: 'Email Due Date Reminders', desc: 'Send email reminder before bill due date', defaultChecked: true },
-          { label: 'Payment Confirmation SMS', desc: 'Send SMS after successful payment', defaultChecked: true },
+          { label: 'SMS Due Date Reminders', desc: 'Send SMS reminder before bill due date', defaultChecked: false },
+          { label: 'Email Due Date Reminders', desc: 'Send email reminder before bill due date', defaultChecked: false },
+          { label: 'Payment Confirmation SMS', desc: 'Send SMS after successful payment', defaultChecked: false },
           { label: 'Payment Confirmation Email', desc: 'Send email after successful payment', defaultChecked: false },
-          { label: 'Overdue Bill Alerts', desc: 'Notify when bills become overdue', defaultChecked: true },
-          { label: 'System Notifications', desc: 'Show in-app system notifications', defaultChecked: true },
+          { label: 'Overdue Bill Alerts', desc: 'Notify when bills become overdue', defaultChecked: false },
+          { label: 'System Notifications', desc: 'Show in-app system notifications', defaultChecked: false },
           { label: 'Daily Collection Summary', desc: 'Send daily revenue summary to admins', defaultChecked: false },
-          { label: 'Weekly Revenue Report', desc: 'Email weekly revenue report', defaultChecked: true },
+          { label: 'Weekly Revenue Report', desc: 'Email weekly revenue report', defaultChecked: false },
         ].map((item) => (
           <div key={item.label} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
             <div>
@@ -358,14 +358,14 @@ function BackupSettings() {
             <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Automatic Daily Backup</p>
             <p className="text-xs text-slate-500 dark:text-slate-400">Automatically backup database daily at midnight</p>
           </div>
-          <input type="checkbox" defaultChecked className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+          <input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
         </div>
         <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
           <div>
             <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Backup Retention (Days)</p>
             <p className="text-xs text-slate-500 dark:text-slate-400">How long to keep backup files</p>
           </div>
-          <input type="number" defaultValue="90" className="w-24 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="number" defaultValue="" placeholder="90" className="w-24 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
       </div>
       <div className="flex flex-wrap gap-3 mt-4">

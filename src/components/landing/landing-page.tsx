@@ -144,7 +144,7 @@ export function LandingPage() {
 
         {/* Main */}
         <main className="flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-          <div className="w-full max-w-2xl">
+          <div className="w-full max-w-4xl">
             {/* Hero section */}
             <motion.div
               className="text-center mb-12 sm:mb-16"
@@ -251,7 +251,7 @@ export function LandingPage() {
 
             {/* Navigation cards */}
             <nav
-              className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4"
+              className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4"
               aria-label="System navigation"
             >
               {SYSTEMS.map((system, i) => (
