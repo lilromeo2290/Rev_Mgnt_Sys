@@ -11,6 +11,7 @@ import { PropertiesPage } from '@/components/rms/properties';
 import { RateConfigPage } from '@/components/rms/rate-config';
 import { BillingPage } from '@/components/rms/billing';
 import { PaymentsPage } from '@/components/rms/payments';
+import { PaymentHistoryPage } from '@/components/rms/payment-history';
 import { ReceiptsPage } from '@/components/rms/receipts';
 import { ReportsPage } from '@/components/rms/reports';
 import { UsersPage } from '@/components/rms/users';
@@ -30,6 +31,7 @@ function RMSView() {
       case 'rates': return <RateConfigPage />;
       case 'billing': return <BillingPage />;
       case 'payments': return <PaymentsPage />;
+      case 'payment-history': return <PaymentHistoryPage />;
       case 'receipts': return <ReceiptsPage />;
       case 'reports': return <ReportsPage />;
       case 'users': return <UsersPage />;

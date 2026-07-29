@@ -223,7 +223,7 @@ export function ReceiptsPage() {
                 <td style="padding:6px 12px;border-bottom:1px solid #f1f5f9;text-align:right;font-weight:500;">${fmtCurrency(item.amount)}</td>
               </tr>`).join('');
 
-    const printWin = window.open('', '_blank', 'width=800,height=700');
+    const printWin = window.open('', '_blank', 'width=794,height=1123');
     if (!printWin) return;
     printWin.document.write(`
       <!DOCTYPE html>
@@ -253,7 +253,8 @@ export function ReceiptsPage() {
           .method-badge { display: inline-block; padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600; background: #f1f5f9; color: #475569; }
           .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 11px; color: #94a3b8; }
           .voided-stamp { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 48px; font-weight: 900; color: rgba(239,68,68,0.25); border: 6px solid rgba(239,68,68,0.25); padding: 8px 32px; border-radius: 12px; letter-spacing: 0.1em; text-transform: uppercase; pointer-events: none; }
-          @media print { body { padding: 20px; } }
+          @page { size: A4; margin: 15mm; }
+          @media print { body { padding: 0; } }
         </style>
       </head>
       <body>

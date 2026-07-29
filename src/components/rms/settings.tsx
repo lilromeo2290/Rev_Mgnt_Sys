@@ -85,76 +85,97 @@ export function SettingsPage() {
 }
 
 function AssemblySettings() {
+  const [logoPreview, setLogoPreview] = useState('');
+  const [logoName, setLogoName] = useState('');
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return;
+    setLogoName(file.name);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setLogoPreview(ev.target.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveLogo = () => {
+    setLogoPreview('');
+    setLogoName('');
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-lg font-semibold text-slate-900 dark:text-white pb-2 border-b border-slate-200 dark:border-slate-700">Assembly Information</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Assembly Name</label>
-          <input
-            type="text"
-            defaultValue="Kumasi Metropolitan Assembly"
-            className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
-          />
+          <input type="text" defaultValue="Kumasi Metropolitan Assembly" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Assembly Code</label>
-          <input
-            type="text"
-            defaultValue="KMA-001"
-            className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
-          />
+          <input type="text" defaultValue="KMA-001" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> Telephone</label>
-          <input
-            type="tel"
-            defaultValue="+233 32 202 2401"
-            className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
-          />
+          <input type="tel" defaultValue="+233 32 202 2401" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> Email</label>
-          <input
-            type="email"
-            defaultValue="info@kma.gov.gh"
-            className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
-          />
+          <input type="email" defaultValue="info@kma.gov.gh" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5"><Globe className="w-3.5 h-3.5" /> Website</label>
-          <input
-            type="url"
-            defaultValue="www.kma.gov.gh"
-            className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
-          />
+          <input type="url" defaultValue="www.kma.gov.gh" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Physical Address</label>
-          <input
-            type="text"
-            defaultValue="Post Office Box KA 896, Kumasi, Ashanti Region"
-            className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
-          />
+          <input type="text" defaultValue="Post Office Box KA 896, Kumasi, Ashanti Region" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="lg:col-span-2 space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Assembly Logo</label>
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 border-2 border-dashed border-emerald-300 dark:border-emerald-700 flex items-center justify-center">
-              <Building className="w-8 h-8 text-emerald-500" />
+            <div className={`w-16 h-16 rounded-xl border-2 border-dashed flex items-center justify-center overflow-hidden ${logoPreview ? 'border-emerald-400 dark:border-emerald-600' : 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-300 dark:border-emerald-700'}`}>
+              {logoPreview ? (
+                <img src={logoPreview} alt="Assembly Logo" className="w-full h-full object-contain" />
+              ) : (
+                <Building className="w-8 h-8 text-emerald-500" />
+              )}
             </div>
-            <button className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-2">
-              <Upload className="w-4 h-4" /> Upload Logo
-            </button>
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center gap-2">
+                <input
+                  id="logo-file-input"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoUpload}
+                  className="hidden"
+                />
+                <button
+                  onClick={() => document.getElementById('logo-file-input')?.click()}
+                  className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-2 cursor-pointer"
+                >
+                  <Upload className="w-4 h-4" /> Upload Logo
+                </button>
+                {logoPreview && (
+                  <button
+                    onClick={handleRemoveLogo}
+                    className="px-3 py-2 border border-red-300 dark:border-red-700 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+              {logoName && (
+                <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[200px]">{logoName}</p>
+              )}
+            </div>
           </div>
         </div>
         <div className="lg:col-span-2 space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Assembly Description</label>
-          <textarea
-            rows={3}
-            defaultValue="The Kumasi Metropolitan Assembly is one of the 261 Metropolitan, Municipal and District Assemblies (MMDAs) in Ghana. It is the capital of the Ashanti Region and the second-largest city in Ghana."
-            className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition resize-none"
-          />
+          <textarea rows={3} defaultValue="The Kumasi Metropolitan Assembly is one of the 261 Metropolitan, Municipal and District Assemblies (MMDAs) in Ghana. It is the capital of the Ashanti Region and the second-largest city in Ghana." className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition resize-none" />
         </div>
       </div>
     </div>

@@ -20,6 +20,7 @@ import {
   LogOut,
   Bell,
   ChevronRight,
+  Clock,
 } from 'lucide-react';
 import { useAppStore, type RMSPage } from '@/stores/app-store';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -54,6 +55,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Rate Config', page: 'rates', icon: Settings2 },
   { label: 'Billing', page: 'billing', icon: FileText },
   { label: 'Payments', page: 'payments', icon: CreditCard },
+  { label: 'Payment History', page: 'payment-history', icon: Clock },
   { label: 'Receipts', page: 'receipts', icon: Receipt },
   { label: 'Reports', page: 'reports', icon: BarChart3 },
   { label: 'User Mgmt', page: 'users', icon: UserCog },

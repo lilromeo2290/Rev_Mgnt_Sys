@@ -8,6 +8,7 @@ type RMSPage =
   | 'rates'
   | 'billing'
   | 'payments'
+  | 'payment-history'
   | 'receipts'
   | 'reports'
   | 'users'
