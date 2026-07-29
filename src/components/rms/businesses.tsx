@@ -147,6 +147,34 @@ export function BusinessesPage() {
   };
 
   const handleSave = () => {
+    if (!form.name || !form.type) return;
+    const newBusiness: Business = {
+      regNumber: form.regNumber || `BIZ-${String(businesses.length + 1).padStart(4, '0')}`,
+      name: form.name,
+      owner: form.ownerName,
+      type: form.type,
+      category: form.category,
+      tin: form.tin,
+      status: (form.status as 'Active' | 'Inactive') || 'Active',
+      dateRegistered: form.dateRegistered || new Date().toISOString().split('T')[0],
+      ghanaCard: form.ghanaCard,
+      phone: form.phone,
+      email: form.email,
+      gpsAddress: form.gpsAddress,
+      digitalAddress: form.digitalAddress,
+      residentialAddress: form.residentialAddress,
+      businessAddress: form.businessAddress,
+      ward: form.ward,
+      electoralArea: form.electoralArea,
+      zone: form.zone,
+      revenueArea: form.revenueArea,
+      licenseNumber: form.licenseNumber,
+      subCategory: form.subCategory,
+    };
+    setBusinesses((prev) => [...prev, newBusiness]);
+    setForm({
+      regNumber: '', name: '', type: '', category: '', subCategory: '', tin: '', licenseNumber: '', dateRegistered: '', status: 'Active', ownerName: '', ghanaCard: '', phone: '', email: '', gpsAddress: '', digitalAddress: '', residentialAddress: '', businessAddress: '', ward: '', electoralArea: '', zone: '', revenueArea: '',
+    });
     setView('list');
   };
 

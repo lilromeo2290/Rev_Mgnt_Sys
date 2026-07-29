@@ -171,6 +171,31 @@ export function PropertiesPage() {
   };
 
   const handleSave = () => {
+    if (!form.owner || !form.propertyType) return;
+    const newProp: Property = {
+      propNumber: form.propNumber || `PROP-${String(properties.length + 1).padStart(4, '0')}`,
+      owner: form.owner,
+      ownerContact: form.ownerContact,
+      propertyType: form.propertyType,
+      category: form.category,
+      floors: parseInt(form.floors) || 1,
+      rooms: parseInt(form.rooms) || 1,
+      propertyUse: form.propertyUse,
+      valuation: parseFloat(form.valuation) || 0,
+      occupancyStatus: (form.occupancyStatus as 'Occupied' | 'Vacant' | 'Under Construction') || 'Occupied',
+      buildingPermit: form.buildingPermit,
+      gpsCoordinates: form.gpsCoordinates,
+      digitalAddress: form.digitalAddress,
+      plotNumber: form.plotNumber,
+      streetName: form.streetName,
+      ward: form.ward,
+      electoralArea: form.electoralArea,
+      zone: form.zone,
+    };
+    setProperties((prev) => [...prev, newProp]);
+    setForm({
+      propNumber: '', owner: '', ownerContact: '', propertyType: '', category: '', floors: '', rooms: '', propertyUse: '', valuation: '', occupancyStatus: 'Occupied', buildingPermit: '', gpsCoordinates: '', digitalAddress: '', plotNumber: '', streetName: '', ward: '', electoralArea: '', zone: '',
+    });
     setView('list');
   };
 
