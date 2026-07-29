@@ -1,0 +1,1247 @@
+Class	Categories	 Amount 	 Ceiling 	Unit
+Abattoir (Private)	CAT A - Industrial setting  (Large)		 1,350.00 	Per Annum
+Abattoir (Private)	CAT B - Industrial Setting  (Medium)		 975.00 	Per Annum
+Abattoir (Private)	CAT C - Industrial Setting  (Small)		 750.00 	Per Annum
+Abattoir (Private)	CAT D - Slaughter House (Large)		 500.00 	Per Annum
+Abattoir (Private)	CAT E - Slaughter House (Medium)		 370.00 	Per Annum
+Abattoir (Private)	CAT F - Slaughter House (Small)	 200.00 	 250.00 	Per Annum
+Abattoir (Private)	CAT G - Others	 50.00 	 130.00 	Per Annum
+Adinkra Designers/Kente/Smock Weavers & Sellers	CAT A - Weavers & Sellers (Large)		 750.00 	Per Annum
+Adinkra Designers/Kente/Smock Weavers & Sellers	CAT B - Weavers Only (Large)	 300.00 	 350.00 	Per Annum
+Adinkra Designers/Kente/Smock Weavers & Sellers	CAT C - Sellers Only (Large)	 300.00 	 600.00 	Per Annum
+Adinkra Designers/Kente/Smock Weavers & Sellers	CAT D - Weavers & Sellers (Medium)	 160.00 	 280.00 	Per Annum
+Adinkra Designers/Kente/Smock Weavers & Sellers	CAT E - Weavers Only (Medium)	 140.00 	 140.00 	Per Annum
+Adinkra Designers/Kente/Smock Weavers & Sellers	CAT F  - Sellers Only (Medium)	 250.00 	 210.00 	Per Annum
+Adinkra Designers/Kente/Smock Weavers & Sellers	CAT G - Weavers & Sellers (Small)	 100.00 	 130.00 	Per Annum
+Adinkra Designers/Kente/Smock Weavers & Sellers	CAT H - Weavers Only (Small)	 70.00 	 100.00 	Per Annum
+Adinkra Designers/Kente/Smock Weavers & Sellers	CAT I  - Sellers Only (Small)	 100.00 	 130.00 	Per Annum
+Advertising Companies	CAT A - Platinum (minimum of 10 staff)		 2,100.00 	Per Annum
+Advertising Companies	CAT B - Gold (minimum of 5 staff)		 1,500.00 	Per Annum
+Advertising Companies	CAT C - Silver  (minimum of 3 staff)		 970.00 	Per Annum
+Advertising Companies	CAT D - Bronze (Below 3 staff)		 450.00 	Per Annum
+Agro Chemical/Farm Inputs Dealers	CAT A - Manufacturers/ Importers/ Distributors/Retailers		 1,800.00 	Per Annum
+Agro Chemical/Farm Inputs Dealers	CAT B - Importers/ Distributors/Retailers		 1,600.00 	Per Annum
+Agro Chemical/Farm Inputs Dealers	CAT B - Manufacturers & Importers		 1,350.00 	Per Annum
+Agro Chemical/Farm Inputs Dealers	CAT C - Manufacturers & Distributors		 1,050.00 	Per Annum
+Agro Chemical/Farm Inputs Dealers	CAT D - Distributors & Retailers	 750.00 	 900.00 	Per Annum
+Agro Chemical/Farm Inputs Dealers	CAT E - Manufacturers		 700.00 	Per Annum
+Agro Chemical/Farm Inputs Dealers	CAT F - Importers		 550.00 	Per Annum
+Agro Chemical/Farm Inputs Dealers	CAT G - Distributors		 400.00 	Per Annum
+Agro Chemical/Farm Inputs Dealers	CAT H - Retailers	 400.00 	 250.00 	Per Annum
+Agro Chemical/Farm Inputs Dealers	CAT I - Retailers (Small)	 250.00 	 250.00 	Per Annum
+Agro Machine Dealers	CAT A - Importers/ Distributors/ Retailers		 1,900.00 	Per Annum
+Agro Machine Dealers	CAT B - Importers/Distributors		 1,500.00 	Per Annum
+Agro Machine Dealers	CAT C - Manufacturers/ Distributors/ Retailers		 1,350.00 	Per Annum
+Agro Machine Dealers	CAT D - Manufacturers & Distributors		 1,200.00 	Per Annum
+Agro Machine Dealers	CAT E - Distributors & Retailers	 900.00 	 970.00 	Per Annum
+Agro Machine Dealers	CAT F - Manufacturers		 750.00 	Per Annum
+Agro Machine Dealers	CAT G - Importers		 600.00 	Per Annum
+Agro Machine Dealers	CAT H - Distributors	 400.00 	 450.00 	Per Annum
+Agro Machine Dealers	CAT I - Retailers	 350.00 	 300.00 	Per Annum
+Airline Offices/Operators	CAT A - Non-African Carriers		 14,000.00 	Per Annum
+Airline Offices/Operators	CAT B - Local & Regional Carriers		 13,000.00 	Per Annum
+Airline Offices/Operators	CAT C - African Carriers		 12,000.00 	Per Annum
+Airline Offices/Operators	CAT D - Local Carriers		 10,000.00 	Per Annum
+Airline Offices/Operators	CAT E - Agents of Airlines		 700.00 	Per Annum
+Airport Operators	CAT A -International		 50,000.00 	Per Annum
+Airport Operators	CAT B - Domestic		 30,000.00 	Per Annum
+Manufacturers (Distillers)	CAT A - Large Scale	 500.00 	 700.00 	Per Annum
+Manufacturers (Distillers)	CAT B - Medium Scale	 260.00 	 280.00 	Per Annum
+Manufacturers (Distillers)	CAT C - Small Scale	 120.00 	 140.00 	Per Annum
+Distributors	CAT A - Large scale	 500.00 	 700.00 	Per Annum
+Distributors	CAT B - Medium Scale	 350.00 	 280.00 	Per Annum
+Distributors	CAT C - Small Scale	 300.00 	 140.00 	Per Annum
+Home Based/Farm Site	CAT A - Pito (daily brewing)	 100.00 	 100.00 	Per Annum
+Home Based/Farm Site	CAT B - Palm Wine Tappers	 200.00 	 70.00 	Per Annum
+Akpeteshie Sellers  Only	Akpeteshie Sellers  Only	 100.00 	 130.00 	Per Annum
+Aluminium Fabricators (Doors/Windows)	CAT A  Large Scale	 1,500.00 	 2,800.00 	Per Annum
+Aluminium Fabricators (Doors/Windows)	CAT B  Medium Scale	 1,200.00 	 2,600.00 	Per Annum
+Aluminium Fabricators (Doors/Windows)	CAT C  Small Scale	 500.00 	 1,400.00 	Per Annum
+Aluminium Fabricators (Doors/Windows)	CAT D - Others	 300.00 	 700.00 	Per Annum
+Aluminium Pot Dealers (Dadesen)	CAT A - Manufacturers		 280.00 	Per Annum
+Aluminium Pot Dealers (Dadesen)	CAT B - Distributors		 250.00 	Per Annum
+Aluminium Pot Dealers (Dadesen)	CAT C - Retailers		 160.00 	Per Annum
+Aluminium Manufacturing	CAT A - Smelting		 22,400.00 	Per Annum
+Aluminium Manufacturing	CAT B -  Multiple Product Lines		 17,000.00 	Per Annum
+Aluminium Manufacturing	CAT C - Roofing Sheets only		 10,000.00 	Per Annum
+Aluminium Manufacturing	CAT D - Saucepan		 6,000.00 	Per Annum
+Aluminium Product Distributors	CAT A - Large Scale		 900.00 	Per Annum
+Aluminium Product Distributors	CAT B - Medium Scale		 450.00 	Per Annum
+Aluminium Product Distributors	CAT C - Small Scale	 180.00 	 210.00 	Per Annum
+Aluminium Product Retailers	Category A - Store (Large)	 300.00 	 210.00 	Per Annum
+Aluminium Product Retailers	Category B - Container/Kiosk (Medium)	 200.00 	 140.00 	Per Annum
+Aluminium Product Retailers	Category C - Table Top (Small)	 150.00 	 100.00 	Per Annum
+Ambulance Service Providers	CAT A - Large Scale (Above 5 Vehicles)		 350.00 	Per Annum
+Ambulance Service Providers	CAT B - Medium Scale (3-5 Vehicles)		 150.00 	Per Annum
+Ambulance Service Providers	CAT C - Small Scale (1-2 Vehicles)		 75.00 	Per Annum
+Art Gallery	CAT A - Own Facility with multi-services	 500.00 	 400.00 	Per Annum
+Art Gallery	CAT B - Own Facility with limited-services		 280.00 	Per Annum
+Art Gallery	CAT C - Own Facility only	 200.00 	 250.00 	Per Annum
+Art Gallery	CAT D - Rented space	 150.00 	 210.00 	Per Annum
+Arts & Handicraft Dealers	CAT A - Importers		 2,100.00 	Per Annum
+Arts & Handicraft Dealers	CAT B - Exporters	 800.00 	 600.00 	Per Annum
+Arts & Handicraft Dealers	CAT C - Producers (Large)	 600.00 	 1,300.00 	Per Annum
+Arts & Handicraft Dealers	CAT D - Producers (Medium)	 270.00 	 600.00 	Per Annum
+Arts & Handicraft Dealers	CAT E - Producers (Small)	 200.00 	 280.00 	Per Annum
+Arts & Handicraft Dealers	CAT F - Retailers Only	 200.00 	 500.00 	Per Annum
+Arts & Handicraft Dealers	CAT G - Container/Kiosk	 200.00 	 450.00 	Per Annum
+Arts & Handicraft Dealers	CAT H - Table Top	 180.00 	 220.00 	Per Annum
+Artisans  e.g.Masons, Carpenters, Plumbers, Electricians, Painters, Steel Benders, Tile Layers etc.	CAT 'A'	 150.00 	 100.00 	Per Annum
+Artisans  e.g.Masons, Carpenters, Plumbers, Electricians, Painters, Steel Benders, Tile Layers etc.	CAT 'B'	 100.00 	 50.00 	Per Annum
+Auctioning Firms/Agencies / Auctioneers	CAT A		 1,900.00 	Per Annum
+Auctioning Firms/Agencies / Auctioneers	CAT B		 1,400.00 	Per Annum
+Auctioning Firms/Agencies / Auctioneers	CAT C		 970.00 	Per Annum
+Auctioning Firms/Agencies / Auctioneers	CAT D		 500.00 	Per Annum
+Air Condition Mechanics	CAT A - Formal Company	 500.00 	 900.00 	Per Annum
+Air Condition Mechanics	CAT B - Informal Garage with Shop	 350.00 	 500.00 	Per Annum
+Air Condition Mechanics	CAT C - Informal Garage without Shop	 200.00 	 350.00 	Per Annum
+Air Condition Mechanics	CAT D - Others	 280.00 	 130.00 	Per Annum
+Arc Welders	CAT A - Fuel and Water Tankers; Truck Builders	 600.00 	 600.00 	Per Annum
+Arc Welders	CAT B - Light vehicle repairs, Container Shops and Iron Gates	 320.00 	 320.00 	Per Annum
+Arc Welders	CAT C - Light vehicle repairs, Container Shops and Iron Gates	 180.00 	 320.00 	
+Argon (Aluminium) Welders	Argon (Aluminium) Welders	 180.00 	 220.00 	Per Annum
+Auto Body Repairers	CAT A - Formal Company	 1,200.00 	 2,800.00 	Per Annum
+Auto Body Repairers	CAT B - Informal Garage with Shop	 1,000.00 	 2,100.00 	Per Annum
+Auto Body Repairers	CAT C - Informal Garage without Shop	 720.00 	 1,400.00 	Per Annum
+Auto Body Repairers	CAT D - Others	 540.00 	 1,000.00 	Per Annum
+Auto Electricians	CAT A - With Battery Charging	 300.00 	 140.00 	Per Annum
+Auto Electricians	CAT B - Without Battery Charging	 250.00 	 100.00 	Per Annum
+Auto Mechanics	CAT A - Heavy Duty Earthmoving Equipment	 300.00 	 500.00 	Per Annum
+Auto Mechanics	CAT B - Heavy Duty Trucks	 260.00 	 280.00 	Per Annum
+Auto Mechanics	CAT C - Light Duty Trucks (3 to 5 tonnes)	 200.00 	 210.00 	Per Annum
+Auto Mechanics	CAT D - Light Duty Vehicles (Below 3 tonnes)	 130.00 	 130.00 	Per Annum
+Auto Sprayers	CAT A - Spraying and Oven	 600.00 	 600.00 	Per Annum
+Auto Sprayers	CAT B - Spraying without Oven	 420.00 	 500.00 	Per Annum
+Auto Upholstery	CAT A - Moulding and Seat Cover Sewing	 200.00 	 140.00 	Per Annum
+Auto Upholstery	CAT B - Seat Cover Sewing	 200.00 	 100.00 	Per Annum
+Vulcanisers	CAT A - Tyre Repairs, Wheel Balancing, Alignment and Washing Bay	 340.00 	 525.00 	Per Annum
+Vulcanisers	CAT B - Tyre Repairs, Wheel Balancing  and Alignment	 280.00 	 300.00 	Per Annum
+Vulcanisers	CAT C - Wheel Balancing  and Alignment	 150.00 	 150.00 	Per Annum
+Vulcanisers	CAT D - Tire Repairs only	 90.00 	 90.00 	Per Annum
+Brake Specialist	Brake Specialist	 250.00 	 100.00 	Per Annum
+Carburettor Specialist	Carburettor Specialist		 100.00 	Per Annum
+Plastic Welders and Fabricators	Plastic Welders and Fabricators	 250.00 	 100.00 	Per Annum
+Radiator Specialist	Radiator Specialist		 100.00 	Per Annum
+Multiple Service Providers for Auto Works	CAT A - Large Scale	 350.00 	 210.00 	Per Annum
+Multiple Service Providers for Auto Works	CAT B  - Medium Scale	 250.00 	 160.00 	Per Annum
+Multiple Service Providers for Auto Works	CAT C - Small Scale	 200.00 	 130.00 	Per Annum
+Windscreen Repairers	CAT A		 210.00 	Per Annum
+Windscreen Repairers	CAT B		 190.00 	Per Annum
+Windscreen Repairers	CAT C	 130.00 	 130.00 	Per Annum
+Automobile Companies - Vehicle Importers/Sales (Brand New)	CAT A - Vehicle Assembling  and Sale		 32,000.00 	Per Annum
+Automobile Companies - Vehicle Importers/Sales (Brand New)	CAT B - Heavy Duty Equipment/Vehicle Sales		 13,000.00 	Per Annum
+Automobile Companies - Vehicle Importers/Sales (Brand New)	CAT C - Light Duty Equipment/Vehicle Sales		 9,400.00 	Per Annum
+Automobile Companies - Saloon and Sub Urban Vehicles (SUVs) Sales	CAT A - Large Scale (Branded Companies)		 13,000.00 	Per Annum
+Automobile Companies -  Saloon and Sub Urban Vehicles (SUVs) Sales	CAT B - Medium Scale (Unbranded Companies)		 9,450.00 	Per Annum
+Automobile Companies -  Saloon and Sub Urban Vehicles (SUVs) Sales	CAT C -  Small Scale (Unbranded Companies)		 6,000.00 	Per Annum
+Automobile Companies -  Saloon and Sub Urban Vehicles (SUVs) Sales	CAT D - Sales Outlets with showrooms		 2,800.00 	Per Annum
+Automobile Companies -  Used Vehicle Sales (Second-hand Car Dealers)	CAT A - Large Scale (Above 50 Vehicles)		 2,800.00 	Per Annum
+Automobile Companies -  Used Vehicle Sales (Second-hand Car Dealers)	CAT B - Medium Scale (20-49 Vehicles)		 2,800.00 	Per Annum
+Automobile Companies -  Used Vehicle Sales (Second-hand Car Dealers)	CAT C - Small Scale (Below 20 Vehicles)		 1,400.00 	Per Annum
+Automobile Companies -  Heavy Equipment Hiring Services	CAT A  - Mining Equipment (Large)		 13,000.00 	Per Annum
+Automobile Companies -  Heavy Equipment Hiring Services	CAT B  - Construction Equipment (Road & Building) Mining Equipment (Small)		 4,500.00 	Per Annum
+Automobile Companies -  Heavy Equipment Hiring Services	CAT C - Construction Equipment (Road & Building - Large)		 9,700.00 	Per Annum
+Automobile Companies -  Heavy Equipment Hiring Services	CAT D - Others (small scale) Construction Equipment (Road & Building - Small)		 2,200.00 	Per Annum
+Automobile Companies -  Heavy Equipment Hiring Services	CAT E - Others	 1,000.00 	 1,000.00 	Per Annum
+Vehicle Assembling & Manufacturing Dealers	CAT A - Foreign		 22,000.00 	Per Annum
+Vehicle Assembling & Manufacturing Dealers	CAT B - Local		 12,000.00 	Per Annum
+Bolt and Nut Dealers	CAT A - Shop		 140.00 	Per Annum
+Bolt and Nut Dealers	CAT B - Table Top		 130.00 	Per Annum
+Spare Parts Sales Outlets (New)	CAT A - Importers/Wholesalers Only	 600.00 	 1,300.00 	
+Spare Parts Sales Outlets (New)	CAT B  - Wholesalers Only	 490.00 	 750.00 	Per Annum
+Spare Parts Sales Outlets (New)	CAT C - Retailers (Large)	 400.00 	 400.00 	Per Annum
+Spare Parts Sales Outlets (New)	CAT D - Retailers (Medium)	 273.00 	 280.00 	Per Annum
+Spare Parts Sales Outlets (New)	CAT E - Retailers (Small)	 130.00 	 130.00 	Per Annum
+Spare Parts Sales Outlets(Second-hand)	CAT A - Second-Hand Engine Shops	 540.00 	 750.00 	Per Annum
+Spare Parts Sales Outlets(Second-hand)	CAT B - Retailers (Large)	 320.00 	 400.00 	Per Annum
+Spare Parts Sales Outlets(Second-hand)	CAT C - Retailers (Medium)	 220.00 	 280.00 	Per Annum
+Spare Parts Sales Outlets(Second-hand)	CAT D - Retailers (Small)	 130.00 	 160.00 	Per Annum
+Spare Parts Sales Outlets(Second-hand)	CAT E - Kiosk/Table Top	 100.00 	 100.00 	Per Annum
+Tyre/Battery Dealers  New	CAT A - Wholesale	 1,100.00 	 2,700.00 	Per Annum
+Tyre/Battery Dealers  New	CAT B - Retail (Large)	 600.00 	 1,400.00 	Per Annum
+Tyre/Battery Dealers  New	CAT C - Retail (Medium)	 350.00 	 370.00 	Per Annum
+Tyre/Battery Dealers  New	CAT D - Retail (Small)	 250.00 	 230.00 	Per Annum
+Tyre/Battery Dealers  Used	CAT A - Wholesale		 2,250.00 	Per Annum
+Tyre/Battery Dealers  Used	CAT B - Retail  (Large)		 1,300.00 	Per Annum
+Tyre/Battery Dealers  Used	CAT C - Retail (Medium)		 450.00 	Per Annum
+Tyre/Battery Dealers  Used	CAT D - Retail (Small)		 150.00 	Per Annum
+Windscreen Dealers	CAT A		 500.00 	Per Annum
+Windscreen Dealers	CAT B		 350.00 	Per Annum
+Windscreen Dealers	CAT C		 210.00 	Per Annum
+Bags and Suitcases Dealers	CAT A - Large Scale	 200.00 	 500.00 	Per Annum
+Bags and Suitcases Dealers	CAT B - Medium Scale	 140.00 	 280.00 	Per Annum
+Bags and Suitcases Dealers	CAT C - Small Scale	 100.00 	 140.00 	Per Annum
+Barbering Shop (floor space and number of points)	CAT A - Barbering & Grooming Services		 750.00 	Per Annum
+Barbering Shop (floor space and number of points)	CAT (A) B  - Large Shop (above 5 points)		 450.00 	Per Annum
+Barbering Shop (floor space and number of points)	CAT (B) C - Medium Shop (3-5 points)	 300.00 	 300.00 	Per Annum
+Barbering Shop (floor space and number of points)	CAT (C) D - Small Shop (1-2 points)	 150.00 	 150.00 	Per Annum
+Barbering Shop (floor space and number of points)	CAT (D) E - Mobile/ Certified Wanzam Operators	 50.00 	 50.00 	Per Annum
+Barbering Shop (floor space and number of points)	CAT (E) F - Barbering accessory shop	 100.00 	 150.00 	Per Annum
+Bakeries	CAT A - Large Scale (Industrial operations)	 500.00 	 1,000.00 	Per Annum
+Bakeries	CAT B - Medium Scale	 200.00 	 450.00 	Per Annum
+Bakeries	CAT C - Small Scale	 110.00 	 210.00 	Per Annum
+Beads Dealers	CAT A - Producers/Wholesalers/ Retailers	 150.00 	 150.00 	Per Annum
+Beads Dealers	CAT B - Producers Only	 120.00 	 120.00 	Per Annum
+Beads Dealers	CAT C - Retailers Only	 75.00 	 75.00 	Per Annum
+Beads Dealers	CAT D - Retailers (Table Top)	 45.00 	 45.00 	Per Annum
+Alcoholic and Non-Alcoholic Beverages	CAT A - Depots	 2,700.00 	 2,200.00 	Per Annum
+Alcoholic and Non-Alcoholic Beverages	CAT B - Wholesale & Retail	 1,200.00 	 2,100.00 	Per Annum
+Alcoholic and Non-Alcoholic Beverages	CAT C - Wholesale	 850.00 	 1,400.00 	Per Annum
+Alcoholic and Non-Alcoholic Beverages	CAT D - Retail (Large)	 500.00 	 750.00 	Per Annum
+Alcoholic and Non-Alcoholic Beverages	CAT  E - Retail (Medium)	 300.00 	 450.00 	Per Annum
+Alcoholic and Non-Alcoholic Beverages	CAT  F - Retail (Small)	 200.00 	 220.00 	Per Annum
+Alcoholic and Non-Alcoholic Beverages	CAT  G - Retail (Very Small)	 150.00 		
+Casino Operations	Casino Operations		 7,000.00 	Per Annum
+Sports Betting Operations	CAT A - Online Betting		 6,000.00 	Per Annum
+Sports Betting Operations	CAT B - Online + Brick & Mortar/Land Base		 4,800.00 	Per Annum
+Sports Betting Operations	CAT C - Brick and Mortar/ Land Base	 400.00 	 3,500.00 	Per Annum
+Route Operations (Console/consul Games)	CAT A	 2,000.00 	 5,000.00 	Per Annum
+Route Operations (Console/consul Games)	CAT A	 1,600.00 	 4,620.00 	Per Annum
+Route Operations (Console/consul Games)	CAT C	 400.00 	 900.00 	Per Annum
+Route Operations (Console/consul Games)	CAT D (Per Machine)	 400.00 	 520.00 	Per Annum
+Bicycles/Tricycles/Motorcycles Dealers (Brand New)	CAT A - Importers/Wholesalers	 750.00 	 2,100.00 	Per Annum
+Bicycles/Tricycles/Motorcycles Dealers (Brand New)	CAT B - Sales Outlets (Large)	 600.00 	 1,000.00 	Per Annum
+Bicycles/Tricycles/Motorcycles Dealers (Brand New)	CAT C - Sales Outlets (Small-Medium)	 490.00 	 600.00 	Per Annum
+Bicycles/Tricycles/Motorcycles Dealers (Brand New)	CAT D - Tricycles Only	 300.00 	 400.00 	Per Annum
+Bicycles/Tricycles/Motorcycles Dealers (Brand New)	CAT E - Bicycles Only		 320.00 	Per Annum
+Bicycles/Tricycles/Motorcycle Dealers (Second-hand)	CAT A - Large Scale		 750.00 	Per Annum
+Bicycles/Tricycles/Motorcycle Dealers (Second-hand)	CAT B - Medium Scale		 520.00 	Per Annum
+Bicycles/Tricycles/Motorcycle Dealers (Second-hand)	CAT C - Small Scale	 200.00 	 300.00 	Per Annum
+Bicycles/Tricycles/Motorcycles and Parts Sales	CAT A - Multiple Products	 270.00 	 350.00 	Per Annum
+Bicycles/Tricycles/Motorcycles and Parts Sales	CAT B - Motorcycle/Tricycle with Parts	 250.00 	 320.00 	Per Annum
+Bicycles/Tricycles/Motorcycles and Parts Sales	CAT C - Motorcycle/Tricycles	 200.00 	 260.00 	Per Annum
+Bicycles/Tricycles/Motorcycles and Parts Sales	CAT D - Bicycle  with Parts	 160.00 	 210.00 	Per Annum
+Bicycles/Tricycles/Motorcycles and Parts Sales	CAT E - Bicycles	 120.00 	 140.00 	Per Annum
+Bicycle Tricycle/ Motorcycle Repairers	CAT A - Tricycle	 150.00 	 90.00 	Per Annum
+Bicycle Tricycle/ Motorcycle Repairers	CAT B - Motorcycle	 120.00 	 50.00 	Per Annum
+Bicycle Tricycle/ Motorcycle Repairers	CAT C - Bicycle	 100.00 	 25.00 	Per Annum
+Bill Boards (e.g. Road Arches, Unipole spectacular, LEDs, Building wrap or Wall Drape signs, Vehicular Adverts, Banners)	CAT A - Class A1 (Along First Class Accesses)	 60.00 	 70.00 	Per m2
+Bill Boards (e.g. Road Arches, Unipole spectacular, LEDs, Building wrap or Wall Drape signs, Vehicular Adverts, Banners)	CAT B - Class A2 (Along Second Class Accesses)	 60.00 	 60.00 	Per m2
+Bill Boards (e.g. Road Arches, Unipole spectacular, LEDs, Building wrap or Wall Drape signs, Vehicular Adverts, Banners)	CAT C - Class A3 (Along Third Class Accesses)	 60.00 	 45.00 	Per m2
+Aerial Adverts - Planes, Balloons etc (Per Day Fee in All Zones)	Aerial Adverts - Planes, Balloons etc (Per Day Fee in All Zones)		 225.00 	Per m2
+Bus Stop Shelters	CAT A - Class A1	 500.00 	 730.00 	Per m2
+Bus Stop Shelters	CAT B - Class A2	 270.00 	 480.00 	Per m2
+Bus Stop Shelters	CAT C - Class A3	 200.00 	 340.00 	Per m2
+Flag Poles	CAT A - Class A1	 400.00 	 530.00 	Per Annum
+Flag Poles	CAT B - Class A2	 274.00 	 438.00 	Per Annum
+Flag Poles	CAT C - Class A3	 274.00 	 400.00 	Per Annum
+Group Directional Signs	CAT A - Class A1	 2,100.00 	 7,870.00 	Per Annum
+Group Directional Signs	CAT B - Class A2	 2,000.00 	 7,350.00 	Per Annum
+Group Directional Signs	CAT C - Class A3		 6,370.00 	Per Annum
+Lamp post Adverts (Street Light Poles)	Lamp post Adverts (Street Light Poles)		 340.00 	Per Annum
+Posters	Posters	 5.00 	 9.00 	Per Day
+Others (Not categorised above)	Others (Not categorised above)		 56.00 	Per sq/m per Annum
+Blacksmith	Blacksmith	 140.00 	 140.00 	Per Annum
+Blocks & Concrete Producers	CAT A - Large Scale (Concrete Mixtures and Wares)	 1,200.00 	 3,500.00 	Per Annum
+Blocks & Concrete Producers	CAT B - Large Scale (Machine and manual for design blocks)	 650.00 	 1,000.00 	Per Annum
+Blocks & Concrete Producers	CAT C - Medium Scale (Machine for blocks only)	 520.00 	 900.00 	Per Annum
+Blocks & Concrete Producers	CAT D - Small Scale (Manual blocks only)	 380.00 	 650.00 	Per Annum
+Blocks & Concrete Producers	CAT E - Small Scale (Manual design blocks/columns only)	 300.00 	 500.00 	Per Annum
+Blocks & Concrete Producers	CAT F - Tiles/Pavement Blocks and Terrazzo Works (Chipping)	 170.00 	 220.00 	Per Annum
+Boat/Canoe Dealers (Manufacturers)	CAT A - Importers	 800.00 	 300.00 	Per Annum
+Boat/Canoe Dealers (Manufacturers)	CAT B -   Local Producers	 300.00 	 250.00 	Per Annum
+Boat/Canoe Operators	CAT A - Large Scale	 300.00 	 350.00 	Per Annum
+Boat/Canoe Operators	CAT B - Medium Scale	 250.00 	 280.00 	Per Annum
+Boat/Canoe Operators	CAT C - Small Scale	 200.00 	 140.00 	Per Annum
+Book, Stationery, Office Equipment, Computer & Accessory, etc. Shops	CAT A - Book Shops, Stationeries, Office Equipment, Computer & Accessories	 1,200.00 	 6,000.00 	Per Annum
+Book, Stationery, Office Equipment, Computer & Accessory, etc. Shops	CAT B - Computer, Accessories, Office Equipment, Stationery	 800.00 	 3,500.00 	Per Annum
+Book, Stationery, Office Equipment, Computer & Accessory, etc. Shops	CAT C - Computer & Accessories, Office Equipment	 700.00 	 2,800.00 	Per Annum
+Book, Stationery, Office Equipment, Computer & Accessory, etc. Shops	CAT D - Medium size of CAT C	 500.00 	 1,400.00 	Per Annum
+Book, Stationery, Office Equipment, Computer & Accessory, etc. Shops	CAT E - Book Shops, Stationeries	 450.00 	 2,100.00 	Per Annum
+Book, Stationery, Office Equipment, Computer & Accessory, etc. Shops	CAT F - Stationeries, Office Equipment	 500.00 	 1,400.00 	Per Annum
+Book, Stationery, Office Equipment, Computer & Accessory, etc. Shops	CAT G - Medium size of CAT E	 270.00 	 900.00 	Per Annum
+Book, Stationery, Office Equipment, Computer & Accessory, etc. Shops	CAT H - Office Equipment Only		 1,000.00 	Per Annum
+Book, Stationery, Office Equipment, Computer & Accessory, etc. Shops	CAT I - Stationery Only	 250.00 	 500.00 	Per Annum
+Book, Stationery, Office Equipment, Computer & Accessory, etc. Shops	CAT J - Books Only	 150.00 	 210.00 	Per Annum
+Book, Stationery, Office Equipment, Computer & Accessory, etc. Shops	CAT K - Table Top/Truck Pusher	 100.00 	 100.00 	Per Annum
+Book, Stationery, Office Equipment, Computer & Accessory, etc. Shops	CAT L - Mobile Vans	 150.00 	 280.00 	Per Annum
+Boutiques Boutiques (Including African Wear)	CAT A - Large Scale	 600.00 	 2,800.00 	Per Annum
+Boutiques Boutiques (Including African Wear)	CAT B - Medium Scale	 360.00 	 1,400.00 	Per Annum
+Boutiques Boutiques (Including African Wear)	CAT C - Small Scale	 350.00 	 700.00 	Per Annum
+Boutiques Boutiques (Including African Wear)	CAT D - Branches of CAT A & B	 220.00 	 280.00 	Per Annum
+Boutiques Boutiques (Including African Wear)	CAT E -  Others	 130.00 	 140.00 	Per Annum
+Boutiques Boutiques (Including African Wear)	CAT F -  Others	 60.00 		
+Breweries	CAT A		 45,000.00 	Per Annum
+Breweries	CAT B		 21,000.00 	Per Annum
+Breweries	CAT C		 13,000.00 	Per Annum
+Breweries	CAT D		 7,500.00 	Per Annum
+Bridal Homes	CAT A	 600.00 	 2,100.00 	Per Annum
+Bridal Homes	CAT B	 400.00 	 1,400.00 	Per Annum
+Bridal Homes	CAT 'C'	 330.00 	 370.00 	Per Annum
+Butcher's Licence	CAT A - Master Butcher		 120.00 	Per Annum
+Butcher's Licence	CAT B - Butcher		 80.00 	Per Annum
+Hardware (Distributor/ Wholesaler)	CAT A - Large Scale hardware Distributor/Wholesaler (Large)	 1,300.00 	 5,000.00 	Per Annum
+Hardware (Distributor/ Wholesaler)	CAT B - Medium Scale hardware Distributor/Wholesaler (Medium)	 820.00 	 2,100.00 	Per Annum
+Hardware (Distributor/ Wholesaler)	CAT C - Small Scale hardware Wholesaler (Medium)	 680.00 	 1,700.00 	Per Annum
+Hardware (Distributor/ Wholesaler)	CAT D - Wholesaler (Small)	 600.00 	 900.00 	Per Annum
+Finishing/Retail	CAT A - Large Scale	 1,200.00 	 3,200.00 	Per Annum
+Finishing/Retail	CAT B - Medium Scale	 1,000.00 	 1,575.00 	Per Annum
+Finishing/Retail	CAT C - Small Scale (Containers/ Kiosk)	 600.00 	 900.00 	Per Annum
+Finishing/Retail	CAT D - Very Small Scale	 180.00 	 187.00 	Per Annum
+Roofing Material Dealers	CAT A - Manufacture/Sales	 1,800.00 	 2,200.00 	Per Annum
+Roofing Material Dealers	CAT B - Sales & Installation	 1,200.00 	 1,500.00 	Per Annum
+Business Centres	CAT A -  Internet, Word Processing, Printing and Copying Services plus above 20 Work stations with Internet Service Retailing	   	 6,000.00 	Per Annum
+Business Centres	CAT B - Internet, Word Processing, Printing and Copying Services plus above 20 Work stations		 2,800.00 	Per Annum
+Business Centres	CAT C - Internet, Word Processing, Printing and Copying Services plus 11-20 Work stations	 500.00 	 1,300.00 	Per Annum
+Business Centres	CAT D - Internet, Word Processing, Printing and Copying Services plus below 11 Work stations	 280.00 	 280.00 	Per Annum
+Business Centres	CAT E - Secretarial Services (Word Processing, Printing and Copying Services)	 210.00 	 210.00 	Per Annum
+Cable Manufacturers	CAT 'A'		 12,000.00 	Per Annum
+Cable Manufacturers	CAT 'B'		 9,000.00 	Per Annum
+Cable Manufacturers	CAT 'C'		 8,295.00 	Per Annum
+Cable Manufacturers	CAT 'D'		 7,350.00 	Per Annum
+Cane Product Weavers	CAT A		 280.00 	Per Annum
+Cane Product Weavers	CAT B		 210.00 	Per Annum
+Cane Product Weavers	CAT 'C'		 140.00 	Per Annum
+Car Washing Bay	CAT A  - Jet Washing, Restaurant  and Drinking Facility	 600.00 	 950.00 	Per Annum
+Car Washing Bay	CAT B - Jet Washing and Drinking Facility	 400.00 	 600.00 	Per Annum
+Car Washing Bay	CAT C - Jet Washing Only	 230.00 	 500.00 	Per Annum
+Car Washing Bay	CAT D - Manual Washing with other Facilities	 200.00 	 350.00 	Per Annum
+Car Washing Bay	CAT E - Manual Washing	 150.00 	 280.00 	Per Annum
+Canopy Producers	CAT A - Tarpaulin Fabric Sewing and metal Fabricators	 330.00 	 350.00 	Per Annum
+Canopy Producers	CAT B - Metal Fabricators	 200.00 	 220.00 	Per Annum
+Canopy Producers	CAT C - Fabric Sewing	 80.00 	 75.00 	Per Annum
+Carpentry Workshops	CAT A - Furniture Large Scale	 500.00 	 750.00 	Per Annum
+Carpentry Workshops	CAT B -  Furniture Medium Scale	 300.00 	 280.00 	Per Annum
+Carpentry Workshops	CAT C -  Furniture (plus upholstery - Medium)	 270.00 	 210.00 	Per Annum
+Carpentry Workshops	CAT D - Furniture (plus upholstery -Small)	 250.00 	 130.00 	Per Annum
+Carpentry Workshops	CAT E - Minor Works	 170.00 	 90.00 	Per Annum
+Casket & Coffin Dealers	CAT A - Importers	   	 2,800.00 	Per Annum
+Casket & Coffin Dealers	CAT B - Industrial (Manufacture & Sale)	 750.00 	 1,400.00 	Per Annum
+Casket & Coffin Dealers	CAT C - Manual (Manufacture & Sale)	 370.00 	 370.00 	Per Annum
+Casket & Coffin Dealers	CAT D - Sales Outlets	 140.00 	 140.00 	Per Annum
+Casket & Coffin Dealers	CAT E - Manufacturers Only	 130.00 	 130.00 	Per Annum
+Contracted Caterers (e.g. School Feeding)	CAT A -  Above 1,000 pupils	 270.00 	 700.00 	Per Annum
+Contracted Caterers (e.g. School Feeding)	CAT B - Above 500 to 1,000 pupils	 200.00 	 600.00 	Per Annum
+Contracted Caterers (e.g. School Feeding)	CAT C - Up to 500 pupils	 160.00 	 400.00 	Per Annum
+CD Sellers (Audio/Video)	CAT A - Shops	 100.00 	 350.00 	Per Annum
+CD Sellers (Audio/Video)	CAT B - Table Tops		 100.00 	Per Annum
+CD Sellers (Audio/Video)	CAT C - Mobile Vans		 60.00 	Per Annum
+Cement & Limestone  Factories	CAT A		 90,000.00 	Per Annum
+Cement & Limestone  Factories	CAT B		 65,000.00 	Per Annum
+Cement & Limestone  Factories	CAT C		 28,000.00 	Per Annum
+Ceramics/Pottery Producers/Sellers	CAT A		 130.00 	Per Annum
+Ceramics/Pottery Producers/Sellers	CAT B		 90.00 	Per Annum
+Ceremonial Hiring Services	CAT A - Multi Services	 1,600.00 	 7,000.00 	Per Annum
+Ceremonial Hiring Services	CAT B - Canopies , Chairs, Tables , cutlery, Glasses, Plates, Serving Trays	 700.00 	 1,300.00 	Per Annum
+Ceremonial Hiring Services	CAT C - Canopies, Chairs, Tables	 420.00 	 600.00 	Per Annum
+Ceremonial Hiring Services	CAT D - Single Item of above	 250.00 	 130.00 	Per Annum
+Ceremonial Hiring Services	CAT E - Recreational/social facilities (Large)	 1,000.00 	 1,950.00 	Per Annum
+Ceremonial Hiring Services	CAT F - Recreational/social facilities (Medium)	 950.00 	 1,300.00 	Per Annum
+Ceremonial Hiring Services	CAT G - Recreational/social facilities (Small)	 818.00 	 950.00 	Per Annum
+Ceremonial Hiring Services	CAT H - Spinners (Large)	 270.00 	 280.00 	Per Annum
+Ceremonial Hiring Services	CAT I - Spinners (Small)	 130.00 	 130.00 	Per Annum
+Ceremonial Hiring Services	CAT J - Live Band	 250.00 	 500.00 	Per Annum
+Ceremonial Hiring Services	CAT K - Musical/Dance Groups	 300.00 	 350.00 	Per Annum
+Chandlery (shipping supplies) Services	CAT A		 6,000.00 	Per Annum
+Chandlery (shipping supplies) Services	CAT B		 4,500.00 	Per Annum
+Chandlery (shipping supplies) Services	CAT C		 1,300.00 	Per Annum
+Chandlery (shipping supplies) Services	CAT 'D'		 650.00 	Per Annum
+Chandlery (shipping supplies) Services	CAT 'E'		 370.00 	Per Annum
+Cigarette Dealers	CAT A - Importers/Wholesalers	 4,107.00 	 7,000.00 	Per Annum
+Cigarette Dealers	CAT B - Distributors	 1,095.00 	 2,100.00 	Per Annum
+Cigarette Dealers	CAT C - Retailers	 684.00 	 1,300.00 	Per Annum
+Cleaning Companies	CAT A - Household/Office (Large)	 1,300.00 	 2,800.00 	Per Annum
+Cleaning Companies	CAT B - Household/Office (Medium)	 1,000.00 	 1,950.00 	Per Annum
+Cleaning Companies	CAT C - Household/Office (Small)	 400.00 	 1,000.00 	Per Annum
+Cleaning Companies	CAT D - Household/Office (Very Small)	 270.00 	 500.00 	Per Annum
+Cocoa Residue Buying Companies	CAT A		 900.00 	Per Annum
+Cocoa Residue Buying Companies	CAT B		 700.00 	Per Annum
+Cocoa/ Shea Nut/Cotton Buying Companies	CAT A - Large Scale (Mother Company)	 800.00 	 13,000.00 	Per Annum
+Cocoa/ Shea Nut/Cotton Buying Companies	CAT B - Medium Scale (Mother Company)		 7,500.00 	Per Annum
+Cocoa/ Shea Nut/Cotton Buying Companies	CAT C - Medium Scale (Agent)	 600.00 	 3,500.00 	Per Annum
+Cocoa/ Shea Nut/Cotton Buying Companies	CAT D - Small Scale (Agent)	 680.00 	 1,400.00 	Per Annum
+Coconut Oil Production/Sales	CAT A - Company (Large Scale)		 2,800.00 	Per Annum
+Coconut Oil Production/Sales	CAT B - Company (Medium Scale)		 1,400.00 	Per Annum
+Coconut Oil Production/Sales	CAT C - Company (Small Scale)		 700.00 	Per Annum
+Coconut Oil Production/Sales	CAT D - Individuals		 210.00 	Per Annum
+Coffee/Cashew  Buying Companies	CAT A - Large Scale (Mother Company)		 5,000.00 	Per Annum
+Coffee/Cashew  Buying Companies	CAT B - Medium Scale (Mother Company)		 1,400.00 	Per Annum
+Coffee/Cashew  Buying Companies	CAT C - Small Scale (Agent)		 500.00 	Per Annum
+Cola Nut Buying Companies	CAT  A - Large Scale		 350.00 	Per Annum
+Cola Nut Buying Companies	CAT  B - Medium Scale		 250.00 	Per Annum
+Cola Nut Buying Companies	CAT  C - Small Scale		 170.00 	Per Annum
+Importers with Own/Rented Cold Storage Facilities	CAT A - Above 2500 Metric Tonnes		 7,500.00 	Per Annum
+Importers with Own/Rented Cold Storage Facilities	CAT B - 2001 to 2500 Metric Tonnes		 7,000.00 	Per Annum
+Importers with Own/Rented Cold Storage Facilities	CAT C - 1501 to 2000 Metric Tonnes		 4,000.00 	Per Annum
+Importers with Own/Rented Cold Storage Facilities	CAT D -  1001 to 1500 Metric Tonnes		 3,500.00 	Per Annum
+Importers with Own/Rented Cold Storage Facilities	CAT E - 501 to 1000 Metric Tonnes		 2,800.00 	Per Annum
+Importers with Own/Rented Cold Storage Facilities	CAT F - Up to 500 Metric Tonnes		 1,700.00 	Per Annum
+Non-Importers with Rented Cold Storage Facilities (Local)	CAT A - Above 1000 Metric Tonnes		 1,950.00 	Per Annum
+Non-Importers with Rented Cold Storage Facilities (Local)	CAT B - 501 to 1000 Metric Tonnes		 1,700.00 	Per Annum
+Non-Importers with Rented Cold Storage Facilities (Local)	CAT C - Up to 500 Metric Tonnes	 1,200.00 	 1,300.00 	Per Annum
+Non-Importers with Containerised Cold Storage Facilities (Local)	CAT A - 40 Footer Container	 800.00 	 1,785.00 	Per Annum
+Non-Importers with Containerised Cold Storage Facilities (Local)	CAT B - 20 Footer Container	 700.00 	 600.00 	Per Annum
+Non-Importers with Containerised Cold Storage Facilities (Local)	CAT C - Below 20 Footer Container	 358.00 	 400.00 	Per Annum
+Non-Importers with Containerised Cold Storage Facilities (Local)	CAT D -  Fabricated facility (Retail Large)	 279.00 	 320.00 	Per Annum
+Non-Importers with Containerised Cold Storage Facilities (Local)	CAT E - Fabricated facility (Retail Medium)	 175.00 	 160.00 	Per Annum
+Non-Importers with Containerised Cold Storage Facilities (Local)	CAT F - Fabricated facility (Retail Small)	 120.00 	 90.00 	Per Annum
+Commercial Houses/Departmental Stores	CAT A - Mall (Large)		 75,000.00 	Per Annum
+Commercial Houses/Departmental Stores	CAT B - Mall (Medium)	 1,000.00 	 30,000.00 	Per Annum
+Commercial Houses/Departmental Stores	CAT C - Branches of A or B		 14,000.00 	Per Annum
+Commercial Houses/Departmental Stores	CAT D - Supermarkets (Large Size)	 1,600.00 	 5,000.00 	Per Annum
+Commercial Houses/Departmental Stores	CAT E - Supermarkets (Medium Size)	 1,200.00 	 4,000.00 	Per Annum
+Commercial Houses/Departmental Stores	CAT F - Supermarkets (Small Size)	 1,000.00 	 2,800.00 	Per Annum
+Commercial Houses/Departmental Stores	CAT G - Neighbourhood Shops (Large Size)	 600.00 	 1,000.00 	Per Annum
+Commercial Houses/Departmental Stores	CAT H -  Neighbourhood Shops (Medium Size)	 380.00 	 400.00 	Per Annum
+Commercial Houses/Departmental Stores	CAT I - Neighbourhood Shops (Small Size)	 130.00 	 130.00 	Per Annum
+Commercial Houses/Departmental Stores	CAT J - Neighbourhood Shops (Very Small Size)	 90.00 	 90.00 	Per Annum
+Commercial Houses/Departmental Stores	CAT K - Neighbourhood Shops (Very Small Size)	 200.00 		
+Mobile Sales Vans	Cat A - Above 3 and above Vans	 2,000.00 		
+Mobile Sales Vans	Cat B - Below 1 - 2 Vans	 1,000.00 		
+Commercialised State Companies/Corporations	CAT A - Head Offices		 32,000.00 	Per Annum
+Commercialised State Companies/Corporations	CAT B - Regional Offices		 29,400.00 	Per Annum
+Commercialised State Companies/Corporations	CAT C - Branch Offices		 19,500.00 	Per Annum
+Commercialised State Companies/Corporations	CAT D - District Offices		 14,000.00 	Per Annum
+Commercialised State Companies/Corporations	CAT E - Local Offices		 4,000.00 	Per Annum
+Commercial Water Tanker Suppliers	CAT A - Water Tanker Suppliers (Large - above 10 Vehicles)		 750.00 	Per Annum
+Commercial Water Tanker Suppliers	CAT B - Water Tankers Suppliers (Meduim - 5 to 10 Vehicles)		 600.00 	Per Annum
+Commercial Water Tanker Suppliers	CAT C - Water Tanker Suppliers (Small - below 5 vehicles)	 350.00 	 370.00 	Per Annum
+Commercial Water Tanker Suppliers	CAT D - Mobile Polytank Water Suppliers (Medium)	 250.00 	 180.00 	Per Annum
+Commercial Water Tanker Suppliers	CAT E - Mobile Polytank Water Suppliers (Small)	 200.00 	 120.00 	Per Annum
+Commercial Water Tanker Suppliers	CAT F - Others	 180.00 	 75.00 	Per Annum
+Commissioner of Oath/Letter Writers	CAT A	 200.00 	 130.00 	Per Annum
+Commissioner of Oath/Letter Writers	CAT B		 90.00 	Per Annum
+Communication Mast Operating Licence	CAT A - 1-10 Masts	 2,200.00 	 2,200.00 	Per Annum /per mast
+Communication Mast Operating Licence	CAT B - 11-20 Masts	 1,620.00 	 1,800.00 	Per Annum /per mast
+Communication Mast Operating Licence	CAT C - 21-30 Masts	 1,200.00 	 1,500.00 	Per Annum /per mast
+Communication Mast Operating Licence	CAT D - 31-40 Masts		 1,000.00 	Per Annum /per mast
+Communication Mast Operating Licence	CAT E - Above 40 Masts		 720.00 	Per Annum /per mast
+Computer/Accessories/ Office Equipment  Repairs	CAT  A -  Large Scale	 600.00 	 1,300.00 	Per Annum
+Computer/Accessories/ Office Equipment  Repairs	CAT  B - Medium Scale	 400.00 	 600.00 	Per Annum
+Computer/Accessories/ Office Equipment  Repairs	CAT  C - Small Scale	 200.00 	 280.00 	Per Annum
+Condiments/Confectioneries (e.g. Biscuits, toffees and spices)	CAT A - Wholesale	 200.00 	 500.00 	Per Annum
+Condiments/Confectioneries (e.g. Biscuits, toffees and spices)	CAT B - Retail	 160.00 	 280.00 	Per Annum
+Condiments/Confectioneries (e.g. Biscuits, toffees and spices)	CAT C - Table Top	 80.00 	 100.00 	Per Annum
+Cooking/Household Utensil Sales	CAT A	 370.00 	 370.00 	Per Annum
+Cooking/Household Utensil Sales	CAT B	 250.00 	 250.00 	Per Annum
+Cooking/Household Utensil Sales	CAT C	 130.00 	 130.00 	Per Annum
+Cosmetics Production	CAT A		 2,800.00 	Per Annum
+Cosmetics Production	CAT B		 1,400.00 	Per Annum
+Cosmetic/Personal Care/Hair Product Sales	CAT A - Wholesale and Retail	 600.00 	 2,100.00 	Per Annum
+Cosmetic/Personal Care/Hair Product Sales	CAT B - Wholesale Only	 684.00 	 1,400.00 	Per Annum
+Cosmetic/Personal Care/Hair Product Sales	CAT C - Retail	 340.00 	 600.00 	Per Annum
+Cosmetic/Personal Care/Hair Product Sales	CAT D - Table top	 220.00 	 130.00 	Per Annum
+Courier Services	CAT A - International Companies	 100.00 	 6,100.00 	Per Annum
+Courier Services	CAT B - National Companies		 3,700.00 	Per Annum
+Courier Services	CAT C - Small Companies		 2,200.00 	Per Annum
+Courier Services	CAT D - Others		 1,000.00 	Per Annum
+Curtains/Carpets etc. Sales	CAT A	 200.00 	 280.00 	Per Annum
+Curtains/Carpets etc. Sales	CAT B	 120.00 	 140.00 	Per Annum
+Curtains/Carpets etc. Sales	CAT C	 110.00 	 100.00 	Per Annum
+Clearing Agents	CAT A		 2,600.00 	Per Annum
+Clearing Agents	CAT B		 1,400.00 	Per Annum
+Clearing Agents	CAT C		 1,300.00 	Per Annum
+Clearing Agents	CAT D		 950.00 	Per Annum
+Port Services	CAT A		 69,300.00 	Per Annum
+Port Services	CAT B		 54,600.00 	Per Annum
+Port Services	CAT C		 44,100.00 	Per Annum
+Port Services	CAT D		 35,700.00 	Per Annum
+Port Services	CAT E		 22,000.00 	Per Annum
+Port Services	CAT F		 19,500.00 	Per Annum
+Port Services	CAT G		 15,000.00 	Per Annum
+Port Services	CAT H		 11,500.00 	Per Annum
+Digital Embroidery Companies	CAT A		 2,600.00 	Per Annum
+Digital Embroidery Companies	CAT B		 1,000.00 	Per Annum
+Digital Embroidery Companies	CAT 'C'		 370.00 	Per Annum
+Disposable Products Dealers	CAT A - Wholesalers/Retailers	 430.00 	 450.00 	Per Annum
+Disposable Products Dealers	CAT B - Retailers (Medium)	 220.00 	 250.00 	Per Annum
+Disposable Products Dealers	CAT C - Retailers (Small)	 200.00 	 120.00 	Per Annum
+Dog Licence	Dog Licence	 20.00 	 21.00 	Per Annum
+Dog Breeding & Sales Licence	CAT A - Registered Breeders - With Association		 1,500.00 	Per Annum
+Dog Breeding & Sales Licence	CAT B- Registered Breeders - Non- Association Members		 750.00 	Per Annum
+Dog Breeding & Sales Licence	CAT (A) C - Exotic & Local		 520.00 	Per Annum
+Dog Breeding & Sales Licence	CAT (B) D - Exotic Only		 400.00 	Per Annum
+Dog Breeding & Sales Licence	CAT (C) E - Local Only		 210.00 	Per Annum
+Dressmakers/Tailors (Industrial)	CAT A - Fashion Designers (Large)	 400.00 	 2,800.00 	Per Annum
+Dressmakers/Tailors (Industrial)	CAT B - Fashion Designers (Small)	 300.00 	 1,400.00 	Per Annum
+Dressmakers/Tailors (Industrial)	CAT C - Large Scale (Above 25 workers)		 750.00 	Per Annum
+Dressmakers/Tailors (Industrial)	CAT D - Medium Scale (10-25 workers)		 400.00 	Per Annum
+Dressmakers/Tailors (Industrial)	CAT E - Small Scale (Below 10 workers)	 170.00 	 210.00 	Per Annum
+Dressmakers/Tailors (Non-Industrial)	CAT A - Large Scale	 300.00 	 190.00 	Per Annum
+Dressmakers/Tailors (Non-Industrial)	CAT B - Medium Scale	 120.00 	 130.00 	Per Annum
+Dressmakers/Tailors (Non-Industrial)	CAT C - Small scale	 120.00 	 100.00 	Per Annum
+Dressmakers/Tailors Services	CAT A - Knitting, Haberdashery and Embroidery	 280.00 	 140.00 	Per Annum
+Dressmakers/Tailors Services	CAT B - Knitting and Embroidery	 180.00 	 130.00 	Per Annum
+Dressmakers/Tailors Services	CAT C - Embroidery only	 160.00 	 100.00 	Per Annum
+Dressmakers/Tailors Services	CAT D - Knitting only	 100.00 	 100.00 	Per Annum
+Dressmakers/Tailors Services	CAT E - Haberdashery Only (sewing items - large)	 450.00 	 450.00 	Per Annum
+Dressmakers/Tailors Services	CAT F - Haberdashery Only (Small)	 150.00 	 280.00 	Per Annum
+Mining	CAT A - Exploration & Prospecting - (Large)		 37,000.00 	Per Annum
+Mining	CAT B - Exploration & Prospecting - (Small)		 26,000.00 	Per Annum
+Mining	CAT C - Ancillary Services		 22,680.00 	Per Annum
+Oil/Gas	CAT A - Exploration & Prospecting - (Large)		 170,000.00 	Per Annum
+Oil/Gas	CAT B - Exploration & Prospecting - (Medium)		 60,000.00 	Per Annum
+Oil/Gas	CAT D - Exploration & Prospecting - (Very Small)		 5,200.00 	Per Annum
+Oil/Gas	CAT E - Ancillary Services		 90,000.00 	Per Annum
+Water (Borehole)	CAT A - Large Scale		 7,500.00 	Per Annum
+Water (Borehole)	CAT B - Medium Scale		 6,000.00 	Per Annum
+Water (Borehole)	CAT C - Small Scale		 2,100.00 	Per Annum
+Water (Borehole)	CAT D - Wells		 320.00 	Per Annum
+Driving Schools	CAT A - Above 6 Vehicles	 1,200.00 	 945.00 	Per Annum
+Driving Schools	CAT B - 4 - 6 Vehicles	 600.00 	 600.00 	Per Annum
+Driving Schools	CAT C - 1 - 3 Vehicles	 600.00 	 280.00 	Per Annum
+Day Care Centres (Early Childhood Development Centres)	CAT A -  Grade A	 400.00 	 2,200.00 	Per Annum
+Day Care Centres (Early Childhood Development Centres)	CAT B -  Grade B	 400.00 	 750.00 	Per Annum
+Day Care Centres (Early Childhood Development Centres)	CAT C - Grade C	 270.00 	 500.00 	Per Annum
+Pre-Tertiary Schools - Basic School (Foreign Curriculum Operators)	CAT A - KG/Primary/Junior High Schools		 50,000.00 	Per Annum
+Pre-Tertiary Schools - Basic School (Foreign Curriculum Operators)	CAT B - KG/Primary		 50,000.00 	Per Annum
+Pre-Tertiary Schools - Basic School (National Curriculum Operators)	CAT A - KG/Primary/Junior High Schools (Large)	 1,100.00 	 3,650.00 	Per Annum
+Pre-Tertiary Schools - Basic School (National Curriculum Operators)	CAT B - KG/Primary/Junior High Schools (Medium)	 900.00 	 2,300.00 	Per Annum
+Pre-Tertiary Schools - Basic School (National Curriculum Operators)	CAT C - KG/Primary/Junior High Schools (Small)	 850.00 	 900.00 	Per Annum
+Pre-Tertiary Schools - Basic School (National Curriculum Operators)	CAT D -  KG/Primary (Large)	 720.00 	 680.00 	Per Annum
+Pre-Tertiary Schools - Basic School (National Curriculum Operators)	CAT E - KG/Primary (Medium)	 650.00 	 370.00 	Per Annum
+Pre-Tertiary Schools - Basic School (National Curriculum Operators)	CAT F - KG/Primary (Small)	 200.00 	 190.00 	Per Annum
+Pre-Tertiary Schools -  Secondary Level (Senior High/Technical/ Vocational Schools)	CAT A - Large	 1,500.00 	 3,500.00 	Per Annum
+Pre-Tertiary Schools -  Secondary Level (Senior High/Technical/ Vocational Schools)	CAT B - Medium	 1,000.00 	 2,100.00 	Per Annum
+Pre-Tertiary Schools -  Secondary Level (Senior High/Technical/ Vocational Schools)	CAT C - Small	 1,000.00 	 1,400.00 	Per Annum
+Pre-Tertiary Schools -  Basic to Secondary School	CAT 'A' CAT A - Large	 3,100.00 	 5,200.00 	Per Annum
+Pre-Tertiary Schools -  Basic to Secondary School	CAT 'B' CAT B - Medium	 1,300.00 	 4,000.00 	Per Annum
+Pre-Tertiary Schools -  Specialised Schools (Remedial School)	CAT 'A'	 1,320.00 	 1,575.00 	Per Annum
+Pre-Tertiary Schools -  Specialised Schools (Remedial School)	CAT 'B'	 600.00 	 750.00 	Per Annum
+Tertiary Schools	CAT A - Chartered Universities (Own Conferred Degrees)		 13,000.00 	Per Annum
+Tertiary Schools	CAT B - University colleges/Nursing & Midwifery Training Colleges (affiliated)	 2,000.00 	 7,500.00 	Per Annum
+Tertiary Schools	CAT C - Tutorial Colleges (Professional Exams e.g.. ACCA, SAT etc.)	 1,630.00 	 3,200.00 	Per Annum
+Tertiary Schools	CAT D - Academy (Training in Special fields e.g.. Football, Dance etc.)		 2,100.00 	Per Annum
+Training & Vocational Institutions (Media, Construction, Fashion, Floral, Catering, Cosmetology & Wellness, etc.)	CAT 'A'		 1,700.00 	Per Annum
+Training & Vocational Institutions (Media, Construction, Fashion, Floral, Catering, Cosmetology & Wellness, etc.)	CAT 'B'		 1,000.00 	Per Annum
+Training & Vocational Institutions (Media, Construction, Fashion, Floral, Catering, Cosmetology & Wellness, etc.)	CAT 'C'		 900.00 	Per Annum
+Training & Vocational Institutions (Media, Construction, Fashion, Floral, Catering, Cosmetology & Wellness, etc.)	CAT 'D'	 500.00 	 600.00 	Per Annum
+Other Educational & Training Centres  - Computer Schools/ Training Centre	CAT A - International		 2,200.00 	Per Annum
+Other Educational & Training Centres  - Computer Schools/ Training Centre	CAT B - Local (Large)		 1,300.00 	Per Annum
+Other Educational & Training Centres  - Computer Schools/ Training Centre	CAT C - Local (Small)	 600.00 	 600.00 	Per Annum
+Other Educational & Training Centres  - Private Library	Private Library	 210.00 	 210.00 	Per Annum
+Egg Dealers	CAT A - Wholesale	 250.00 	 280.00 	Per Annum
+Egg Dealers	CAT B - Retail Shops	 200.00 	 140.00 	Per Annum
+Egg Dealers	CAT C - Mobile Retail	 120.00 	 130.00 	Per Annum
+Electrical Appliances (New & Second-hand)	CAT A - Importers/Wholesalers		 5,000.00 	Per Annum
+Electrical Appliances (New & Second-hand)	CAT B - Wholesalers		 3,700.00 	Per Annum
+Electrical Appliances (New & Second-hand)	CAT C - Retailers (Large )	 1,100.00 	 2,200.00 	Per Annum
+Electrical Appliances (New & Second-hand)	CAT D - Retailers - (Small)	 380.00 	 1,700.00 	Per Annum
+Electrical Appliances (New & Second-hand)	CAT E - Table Top	 160.00 	 280.00 	Per Annum
+Electronic/Home Appliances/Shops -New & Second Hand	CAT A - Importers/Wholesalers (Large)		 6,000.00 	Per Annum
+Electronic/Home Appliances/Shops -New & Second Hand	CAT B - Importers/Wholesalers (Small)		 4,500.00 	Per Annum
+Electronic/Home Appliances/Shops -New & Second Hand	CAT C - Wholesalers cum Retailers (Large)		 3,700.00 	Per Annum
+Electronic/Home Appliances/Shops -New & Second Hand	CAT D - Wholesalers cum Retailers (Small)		 3,200.00 	Per Annum
+Electronic/Home Appliances/Shops -New & Second Hand	CAT E - Retailers (Shops and Containers - Large)	 650.00 	 2,800.00 	Per Annum
+Electronic/Home Appliances/Shops -New & Second Hand	CAT F - Retailers (Shops and Containers - Medium)	 600.00 	 1,950.00 	Per Annum
+Electronic/Home Appliances/Shops -New & Second Hand	CAT G - Retailers (Shops and Containers - Small)	 350.00 	 1,300.00 	Per Annum
+Electronic/Home Appliances/Shops -New & Second Hand	CAT  H - Retailers (Table Top- Medium)	 300.00 	 600.00 	Per Annum
+Electronic/Home Appliances/Shops -New & Second Hand	CAT  I - Retailers Table Top - Small)	 200.00 	 210.00 	Per Annum
+Electronic/Home Appliance Parts Dealers	CAT A	 300.00 	 450.00 	Per Annum
+Electronic/Home Appliance Parts Dealers	CAT B	 200.00 	 350.00 	Per Annum
+Electronic/Home Appliance Parts Dealers	CAT C	 120.00 	 210.00 	Per Annum
+Embossment Centres	CAT A - Vehicle Embossment Company		 1,400.00 	Per Annum
+Embossment Centres	CAT B - Stickers for vehicles and temporary structures - Medium		 520.00 	Per Annum
+Embossment Centres	CAT C - Stickers for vehicles and temporary structures - Small		 140.00 	Per Annum
+Power & Energy Dealers	CAT A - Production - Large		 150,000.00 	Per Annum
+Power & Energy Dealers	CAT B - Production - Medium		 120,000.00 	Per Annum
+Power & Energy Dealers	CAT E - Distribution		 90,000.00 	Per Annum
+Power & Energy Dealers	CAT D - Retailers		 60,000.00 	Per Annum
+Power & Energy Dealers	CAT E - Retailers		 75,000.00 	Per Annum
+Solar Energy Dealers	CAT A - Importers		 3,500.00 	Per Annum
+Solar Energy Dealers	CAT B - Manufacturers		 2,600.00 	Per Annum
+Solar Energy Dealers	CAT C - Retailers		 1,300.00 	Per Annum
+Solar Energy Dealers	CAT D - Technicians		 750.00 	Per Annum
+Engineering Laboratories	CAT A - Geological Services		 5,200.00 	Per Annum
+Engineering Laboratories	CAT B - Industrial Services		 3,200.00 	Per Annum
+Engineering Laboratories	CAT C - Others		 2,100.00 	Per Annum
+Fabric  Dealers  Manufacturing	CAT A - Large Scale		 1,300.00 	Per Annum
+Fabric  Dealers  Manufacturing	CAT B - Medium Scale		 1,000.00 	Per Annum
+Fabric  Dealers  Manufacturing	CAT C - Small Scale		 350.00 	Per Annum
+Fabric  Dealers  Sales	CAT A - Imports/Wholesale		 1,950.00 	Per Annum
+Fabric  Dealers  Sales	CAT B - Wholesale and Retail		 1,300.00 	Per Annum
+Fabric  Dealers  Sales	CAT C - Wholesale		 500.00 	Per Annum
+Fabric  Dealers  Sales	CAT D - Retail	 200.00 	 280.00 	Per Annum
+Fabric  Dealers  Sales	CAT E - Table Top	 100.00 	 100.00 	Per Annum
+Fabric  Dealers  Sales	CAT F - Retail (Small)	 150.00 		
+Feed Mills (Poultry, Pets, Fish etc.)  Production	CAT A		 1,400.00 	Per Annum
+Feed Mills (Poultry, Pets, Fish etc.)  Production	CAT B		 600.00 	Per Annum
+Feed Mills (Poultry, Pets, Fish etc.)  Production	CAT C		 350.00 	Per Annum
+Feed Sellers	CAT A - Wholesalers	 300.00 	 400.00 	Per Annum
+Feed Sellers	CAT B - Distributors	 200.00 	 280.00 	Per Annum
+Feed Sellers	CAT C - Retailers	 130.00 	 130.00 	Per Annum
+Film Production/Distribution	CAT A - Film Production cum Distribution		 1,400.00 	Per Annum
+Film Production/Distribution	CAT B - Film Production		 1,300.00 	Per Annum
+Film Production/Distribution	CAT C - Film Distribution		 750.00 	Per Annum
+Film Production/Distribution	CAT D - Small Scale of CAT B or C		 400.00 	Per Annum
+Central Bank	CAT A - Bank of Ghana Central Bank		 60,000.00 	Per Annum
+Development Banks	Development Banks	 15,000.00 	 37,000.00 	Per Annum
+Universal Banks	CAT A - Bank with Capital Market operations	 15,000.00 	 25,000.00 	Per Annum
+Universal Banks	CAT B - Head Office		 22,000.00 	Per Annum
+Universal Banks	CAT C - Branch Office	 15,000.00 	 15,000.00 	Per Annum
+Universal Banks	CAT D - Agency		 4,500.00 	Per Annum
+Special Deposit Taking Institutions - Savings and Loans Companies & Finance Houses	CAT A - Head Office	 3,800.00 	 4,000.00 	Per Annum
+Special Deposit Taking Institutions - Savings and Loans Companies & Finance Houses	CAT B - Branch	 2,200.00 	 2,200.00 	Per Annum
+Special Deposit Taking Institutions - Savings and Loans Companies & Finance Houses	CAT C - Agency	 1,200.00 	 1,350.00 	Per Annum
+Special Deposit Taking Institutions - Savings and Loans Companies & Finance Houses	CAT D - Mobilisation Centre	 1,000.00 	 520.00 	Per Annum
+Special Deposit Taking Institutions - Savings and Loans Companies & Finance Houses	CAT E - Loan/Business Centre		 300.00 	Per Annum
+Special Deposit Taking Institutions - Leasing & Mortgage Finance Companies	CAT A - Head Office		 2,600.00 	Per Annum
+Special Deposit Taking Institutions - Leasing & Mortgage Finance Companies	CAT B - Branch		 1,900.00 	Per Annum
+Other Financial Institutions - Microfinance Companies (Deposit Taking)	CAT A - Head Office	 2,600.00 	 1,900.00 	Per Annum
+Other Financial Institutions - Microfinance Companies (Deposit Taking)	CAT B - Branch	 2,000.00 	 750.00 	Per Annum
+Other Financial Institutions - Microcredit/Money Lenders/Credit Union	CAT A - Head Office (Microcredit/Money Lenders/Credit Union)	 1,200.00 	 1,900.00 	Per Annum
+Other Financial Institutions - Microcredit/Money Lenders/Credit Union	CAT B - Branch (Microcredit/Money Lenders/Credit Union)	 750.00 	 750.00 	Per Annum
+Other Financial Institutions - Microcredit/Money Lenders/Credit Union	CAT C - Tier 4 Operators (Microcredit/Money Lenders/Credit Union)	 300.00 	 300.00 	Per Annum
+Other Financial Institutions - Rural & Community Banks	CAT A - Head Office (Rural & Community Banks)	 3,000.00 	 1,200.00 	Per Annum
+Other Financial Institutions - Rural & Community Banks	CAT B - Branch (Rural & Community Banks)	 2,000.00 	 600.00 	Per Annum
+Other Financial Institutions - Rural & Community Banks	CAT C - Agency (Rural & Community Banks)	 1,500.00 	 370.00 	Per Annum
+Other Financial Institutions - Rural & Community Banks	CAT D - Mobilisation Centre (Rural & Community Banks)	 1,000.00 	 190.00 	Per Annum
+Financial Institutions (Banking)  - Other Financial Institutions - Financial NGOs	CAT A - Head Office		 600.00 	Per Annum
+Financial Institutions (Banking)  - Other Financial Institutions - Financial NGOs	CAT B - Branch		 370.00 	Per Annum
+Forex Bureauss	CAT A - Head Office	 600.00 	 750.00 	Per Annum
+Forex Bureauss	CAT B - Branch	 500.00 	 370.00 	Per Annum
+Financial Technology Companies	CAT A - Dedicated Electronic Money Issuer	 2,500.00 	 7,500.00 	Per Annum
+Financial Technology Companies	CAT B Mobile Money Vendor Large	 370.00 	 750.00 	Per Annum
+Financial Technology Companies	CAT C Mobile Money Vendor Medium	 350.00 	 370.00 	Per Annum
+Financial Technology Companies	CAT D Mobile Money Vendor Small	 220.00 	 220.00 	Per Annum
+Financial Technology Companies	CAT E - Payment Service Provider (Enhanced)		 3,750.00 	Per Annum
+Financial Technology Companies	CAT F - Payment Service Provider (Medium)		 2,200.00 	Per Annum
+Financial Technology Companies	CAT G - Payment Service Provider (Standard)		 370.00 	Per Annum
+Financial Technology Companies	CAT H - Payment & Financial Technology Service Provider (PFTSP)		 1,100.00 	Per Annum
+Financial Technology Companies	CAT I - Mobile Money Vendor Small (Others)	 150.00 		
+Stand Alone ATMs	Stand Alone ATMs	 500.00 	 750.00 	Per Annum
+Insurance Companies - Re-insurance	Re-insurance		 22,500.00 	Per Annum
+Insurance Companies - Non-Life Insurance	CAT A - Head Office		 13,500.00 	Per Annum
+Insurance Companies - Non-Life Insurance	CAT B - Branch Office		 7,500.00 	Per Annum
+Insurance Companies - Non-Life Insurance	CAT C - Agency Office	 700.00 	 5,200.00 	Per Annum
+Insurance Companies - Life Insurance	CAT A - Head Office		 9,000.00 	Per Annum
+Insurance Companies - Life Insurance	CAT B - Branch Office		 3,700.00 	Per Annum
+Insurance Companies - Life Insurance	CAT C - Agency Office	 700.00 	 2,200.00 	Per Annum
+Insurance Companies - Brokers	CAT A - Main Office		 3,700.00 	Per Annum
+Insurance Companies - Brokers	CAT B - Branch Office		 1,500.00 	Per Annum
+Capital Market Companies	CAT A - Financial Holding Companies		 6,000.00 	Per Annum
+Capital Market Companies	CAT B - Security Exchangers		 6,000.00 	Per Annum
+Capital Market Companies	CAT C - Fund Managers (Head Office)		 3,000.00 	Per Annum
+Capital Market Companies	CAT D - Fund Managers (Branch Office)		 1,500.00 	Per Annum
+Capital Market Companies	CAT E - Broker Dealers		 1,125.00 	Per Annum
+Capital Market Companies	CAT F - Investment Advisors		 375.00 	Per Annum
+Fish Farming Companies	CAT A- International Large Scale		 40,000.00 	Per Annum
+Fish Farming Companies	CAT B- International Medium Scale		 28,000.00 	Per Annum
+Fish Farming Companies	CAT C- International Small Scale		 14,000.00 	Per Annum
+Fish Farming Companies	CAT D - Local Large Scale	 800.00 	 300.00 	Per Annum
+Fish Farming Companies	CAT E - Local Medium Scale	 600.00 	 210.00 	Per Annum
+Fish Farming Companies	CAT F - Local Small Scale	 350.00 	 110.00 	Per Annum
+Fishing Nets and Accessories Dealers	CAT A - Importers/Wholesalers		 1,275.00 	Per Annum
+Fishing Nets and Accessories Dealers	CAT B - Wholesalers	 500.00 	 1,050.00 	Per Annum
+Fishing Nets and Accessories Dealers	CAT C - Retailers	 200.00 	 450.00 	Per Annum
+Fishing Nets and Accessories Dealers	CAT D - Table Top	 150.00 	 90.00 	Per Annum
+Floral and Allied Products	CAT A - Natural (Large Scale)		 675.00 	Per Annum
+Floral and Allied Products	CAT B - Natural (Medium Scale)		 525.00 	Per Annum
+Floral and Allied Products	CAT C - Natural (Small Scale)		 450.00 	Per Annum
+Floral and Allied Products	CAT D - Artificial (Large Scale)		 525.00 	Per Annum
+Floral and Allied Products	CAT E - Artificial (Small Scale)		 263.00 	Per Annum
+Footwear Producers	CAT A - Large (Industrial/Handmade)	 1,000.00 	 450.00 	Per Annum
+Footwear Producers	CAT B - Medium (Industrial/Handmade)	 600.00 	 350.00 	Per Annum
+Footwear Producers	CAT C - Small (Handmade)		 75.00 	Per Annum
+Footwear Sales - New	CAT A	 250.00 	 220.00 	Per Annum
+Footwear Sales - New	CAT B	 180.00 	 150.00 	Per Annum
+Footwear Sales - New	CAT C	 100.00 	 120.00 	Per Annum
+Footwear Sales - Used	CAT A	 150.00 	 150.00 	Per Annum
+Footwear Sales - Used	CAT B	 120.00 	 120.00 	Per Annum
+Footwear Sales - Used	CAT C	 60.00 	 60.00 	Per Annum
+Footwear Accessory Sales	CAT A	 160.00 	 160.00 	Per Annum
+Footwear Accessory Sales	CAT B	 130.00 	 130.00 	Per Annum
+Footwear Accessory Sales	CAT C	 75.00 	 75.00 	Per Annum
+Footwear Repairers (Cobblers)	CAT A	 80.00 	 100.00 	Per Annum
+Footwear Repairers (Cobblers)	CAT B	 50.00 	 50.00 	Per Annum
+Exporters of General Goods	CAT A - Timber		 13,000.00 	Per Annum
+Exporters of General Goods	CAT B - Cash Crops		 9,000.00 	Per Annum
+Exporters of General Goods	CAT C - Food Crops		 7,200.00 	Per Annum
+Exporters of General Goods	CAT D - African Clothing/Ornaments		 4,500.00 	Per Annum
+Exporters of General Goods	CAT E - Cosmetic Products		 2,100.00 	Per Annum
+Exporters of General Goods	CAT F - Footwear		 1,400.00 	Per Annum
+Exporters of General Goods	CAT G - Others	 500.00 	 1,000.00 	Per Annum
+Exporters of General Goods	CAT H - Combination of C, D, E & F		 2,600.00 	Per Annum
+Importers of General Goods	CAT A - Food Crops		 12,000.00 	Per Annum
+Importers of General Goods	CAT B - Clothing		 9,700.00 	Per Annum
+Importers of General Goods	CAT C - African Clothing/Ornaments		 7,500.00 	Per Annum
+Importers of General Goods	CAT D - Cosmetic Products		 5,200.00 	Per Annum
+Importers of General Goods	CAT E - Footwear		 3,000.00 	Per Annum
+Importers of General Goods	CAT F - Combination of A to E		 1,500.00 	Per Annum
+Freight Forwarding Operators	CAT A - Large Scale		 50,000.00 	Per Annum
+Freight Forwarding Operators	CAT B - Medium Scale		 32,000.00 	Per Annum
+Freight Forwarding Operators	CAT C - Small Scale		 19,500.00 	Per Annum
+Burial Grounds/Funeral Homes/Mortuaries (Private) - Burial Grounds	Burial Grounds		 3,750.00 	Per Annum
+Burial Grounds/Funeral Homes/Mortuaries (Private) - Funeral Homes	CAT A - Advanced  Activities: Cold Storage room + Preparation of body for burial, Autopsy and Others		 13,500.00 	Per Annum
+Burial Grounds/Funeral Homes/Mortuaries (Private) - Funeral Homes	CAT B- Basic Activities: Cold Storage room + Preparation of body for burial	 1,300.00 	 7,500.00 	Per Annum
+Burial Grounds/Funeral Homes/Mortuaries (Private) - Mortuaries	CAT A - Cold Storage for Remains (Level 3 Mortuary)	 2,500.00 	 3,750.00 	Per Annum
+Burial Grounds/Funeral Homes/Mortuaries (Private) - Mortuaries	CAT A - Cold Storage for Remains (Level 2 Mortuary)	 2,180.00 	 2,250.00 	Per Annum
+Burial Grounds/Funeral Homes/Mortuaries (Private) - Mortuaries	CAT A - Cold Storage for Remains (Level 1 Mortuary)	 700.00 	 750.00 	Per Annum
+Funeral  Undertakers Licence	Funeral  Undertakers Licence	 600.00 	 750.00 	Per Annum
+Hearse Service Providers	CAT A - Large Scale (Above 5 Vehicles)	 600.00 	 600.00 	Per Annum
+Hearse Service Providers	CAT B - Medium Scale (3-5 Vehicles)	 470.00 	 300.00 	Per Annum
+Hearse Service Providers	CAT C - Small Scale (1-2 Vehicles)	 250.00 	 150.00 	Per Annum
+Furniture Showroom	CAT A - Large Scale (Including Manufacturing)	 1,200.00 	 4,500.00 	Per Annum
+Furniture Showroom	CAT B - Medium Scale (Including Manufacturing)	 1,000.00 	 3,500.00 	Per Annum
+Furniture Showroom	CAT C - Small scale Medium scale (Showroom only)	 900.00 	 2,100.00 	Per Annum
+Furniture Showroom	CAT D - Small scale (Showroom only)	 700.00 	 1,125.00 	Per Annum
+Game Viewing/Commercial TV Viewing Centres	CAT A - Large Scale		 750.00 	Per Annum
+Game Viewing/Commercial TV Viewing Centres	CAT B - Medium Scale		 520.00 	Per Annum
+Game Viewing/Commercial TV Viewing Centres	CAT C - Small Scale	 150.00 	 300.00 	Per Annum
+Gas Cylinder/ Stoves & Accessory Dealers	CAT A - Large Scale		 220.00 	Per Annum
+Gas Cylinder/ Stoves & Accessory Dealers	CAT B - Medium Scale		 150.00 	Per Annum
+Gas Cylinder/ Stoves & Accessory Dealers	CAT C - Small Scale		 75.00 	Per Annum
+General Goods - Sales (e.g. Generator, Water pump, Chain saw, etc.)	CAT A - Large Scale	 1,500.00 	 3,500.00 	Per Annum
+General Goods - Sales (e.g. Generator, Water pump, Chain saw, etc.)	CAT B - Medium Scale	 1,000.00 	 2,100.00 	Per Annum
+General Goods - Sales (e.g. Generator, Water pump, Chain saw, etc.)	CAT C - Small Scale	 700.00 	 1,000.00 	Per Annum
+General Goods - Sales (e.g. Generator, Water pump, Chain saw, etc.)	CAT D - Individuals	 500.00 	 750.00 	Per Annum
+Gift Shops	CAT A - Large Scale	 270.00 	 400.00 	Per Annum
+Gift Shops	CAT A - Medium Scale	 200.00 	 208.00 	Per Annum
+Gift Shops	CAT B - Small Scale	 100.00 	 100.00 	Per Annum
+Glass Sellers (Tinted /Plain)	CAT A - Large Scale	 500.00 	 1,300.00 	Per Annum
+Glass Sellers (Tinted /Plain)	CAT B - Medium Scale	 320.00 	 1,000.00 	Per Annum
+Glass Sellers (Tinted /Plain)	CAT C - Small Scale	 250.00 	 600.00 	Per Annum
+Gold/Diamond Dealers	CAT A - Refinery		 6,000.00 	Per Annum
+Gold/Diamond Dealers	CAT B - Merchants		 3,500.00 	Per Annum
+Gold/Diamond Dealers	CAT C - Agents		 2,625.00 	Per Annum
+Gold/Diamond Dealers	CAT D - Goldsmith		 1,400.00 	Per Annum
+Gold/Diamond Dealers	CAT E - Silversmith		 220.00 	Per Annum
+Graphic Design Companies	CAT A - Large Scale		 3,000.00 	Per Annum
+Graphic Design Companies	CAT B - Medium Scale		 2,100.00 	Per Annum
+Graphic Design Companies	CAT C - Small Scale		 1,100.00 	Per Annum
+Graphic Design Companies	CAT D - Individuals	 220.00 	 450.00 	Per Annum
+Grain Distributors	CAT A - Wholesale		 750.00 	Per Annum
+Grain Distributors	CAT B - Retail		 600.00 	Per Annum
+Grain Distributors	CAT C - Others		 370.00 	Per Annum
+Hair & Beauty Service Providers	CAT A - Beauty Parlour and School	 700.00 	 2,600.00 	Per Annum
+Hair & Beauty Service Providers	CAT B -  Beauty Parlour	 650.00 	 1,575.00 	Per Annum
+Hair & Beauty Service Providers	CAT C - Salon with pedicure, manicure, braiding/weaving	 70.00 	 1,300.00 	Per Annum
+Hair & Beauty Service Providers	CAT D - Big Salon	 70.00 	 280.00 	Per Annum
+Hair & Beauty Service Providers	CAT E - Small Salon	 70.00 	 140.00 	Per Annum
+Hair & Beauty Service Providers	CAT F - Braiding and Weaving Only	 70.00 	 600.00 	Per Annum
+Hair & Beauty Service Providers	CAT G - Braiding Only	 70.00 	 210.00 	Per Annum
+Hair & Beauty Service Providers	CAT H - Pedicure & Manicure Only	 70.00 	 150.00 	Per Annum
+Harbours	CAT A - Merchandise Harbours		 150,000.00 	Per Annum
+Harbours	CAT B - Fishing Harbours		 15,000.00 	Per Annum
+Haulage Companies	CAT A		 5,000.00 	Per Annum
+Haulage Companies	CAT B		 3,200.00 	Per Annum
+Haulage Companies	CAT 'C'		 1,500.00 	Per Annum
+Dental Clinics	Dental Clinics		 550.00 	Per Annum
+Eye Clinics	CAT A - Ophthalmologist Clinics	 600.00 	 550.00 	Per Annum
+Eye Clinics	CAT B - Opticians/Optometrist		 300.00 	Per Annum
+General Clinics	CAT B - Specialty Clinics		 2,000.00 	Per Annum
+General Clinics	CAT C - Primary Health Care	 500.00 	 900.00 	Per Annum
+General Clinics	CAT D - Wound Care Clinic	 250.00 		
+General Hospitals	Primary Health Care	 2,300.00 	 2,700.00 	Per Annum
+Maternity Homes	CAT A -  Expanded Services		 300.00 	Per Annum
+Maternity Homes	CAT B -  General Services	 274.00 	 160.00 	Per Annum
+Medical Diagnostic Services	CAT A - Secondary/Tertiary	 1,100.00 	 1,500.00 	Per Annum
+Medical Diagnostic Services	CAT C - Basic/ Primary	 400.00 	 450.00 	Per Annum
+Lincenced Herbal Medicine Units	CAT A - Foreign Clinics and Shops		 3,500.00 	Per Annum
+Lincenced Herbal Medicine Units	CAT B - Foreign Clinics or Shops		 2,100.00 	Per Annum
+Lincenced Herbal Medicine Units	CAT C - Clinic and Medicine Producers (Local)	 600.00 	 1,400.00 	Per Annum
+Lincenced Herbal Medicine Units	CAT D - Clinic Only (Local)	 500.00 	 1,300.00 	Per Annum
+Lincenced Herbal Medicine Units	CAT E - Medicine Producers Only (Local)	 420.00 	 1,200.00 	Per Annum
+Lincenced Herbal Medicine Units	CAT F - Herbal Shops (Local)	 280.00 	 500.00 	Per Annum
+Lincenced Herbal Medicine Units	CAT G - Shop on wheel (Mobile)	 400.00 	 750.00 	Per Annum
+Hire Purchase Trading Enterprises	CAT A - Large Scale		 750.00 	Per Annum
+Hire Purchase Trading Enterprises	CAT B - Medium Scale		 550.00 	Per Annum
+Hire Purchase Trading Enterprises	CAT C - Small Scale		 300.00 	Per Annum
+Ice Cream/Yoghurt Dealers	CAT A - Manufacturers (Large Scale)	 4,107.00 	 10,100.00 	Per Annum
+Ice Cream/Yoghurt Dealers	CAT B - Manufacturers (Medium Scale - Local Producers )	 2,738.00 	 6,000.00 	Per Annum
+Ice Cream/Yoghurt Dealers	CAT C - Manufacturers (Small Scale -Local Producers )	 2,000.00 	 2,800.00 	Per Annum
+Ice Cream/Yoghurt Dealers	CAT D - Wholesale/Depot	 1,095.00 	 1,900.00 	Per Annum
+Ice Cream/Yoghurt Dealers	CAT E - Retail	 450.00 	 450.00 	Per Annum
+Interior/Event Decorators	CAT A - Companies (Large)	 500.00 	 1,000.00 	Per Annum
+Interior/Event Decorators	CAT B - Companies (Medium)	 300.00 	 600.00 	Per Annum
+Interior/Event Decorators	CAT C - Individuals	 200.00 	 280.00 	Per Annum
+Jewellery Shops	CAT.A - Retail (Large)		 2,100.00 	Per Annum
+Jewellery Shops	CAT B -  Retail (Medium)		 750.00 	Per Annum
+Jewellery Shops	CAT C - Retail (Small)		 400.00 	Per Annum
+Jewellery Shops	CAT D - Table Top		 100.00 	Per Annum
+Jewellery Repairers (watches/bracelets, etc.)	CAT A		 210.00 	Per Annum
+Jewellery Repairers (watches/bracelets, etc.)	CAT B		 100.00 	Per Annum
+Job Placement Agencies	CAT 'A'	 1,000.00 	 2,600.00 	Per Annum
+Job Placement Agencies	CAT 'B'	 680.00 	 1,000.00 	Per Annum
+Job Placement Agencies	CAT C	 270.00 	 400.00 	Per Annum
+Key Technicians/Cutters	CAT 'A'	 200.00 	 210.00 	Per Annum
+Key Technicians/Cutters	CAT 'B'	 150.00 	 90.00 	Per Annum
+Landscapers/Horticulturalists	CAT A - Large Scale		 280.00 	Per Annum
+Landscapers/Horticulturalists	CAT B - Medium Scale		 190.00 	Per Annum
+Landscapers/Horticulturalists	CAT C - Small Scale		 130.00 	Per Annum
+Laundry Services	CAT A - Large Scale	 600.00 	 1,200.00 	Per Annum
+Laundry Services	CAT B - Medium Scale	 400.00 	 600.00 	Per Annum
+Laundry Services	CAT C - Small Scale	 160.00 	 140.00 	Per Annum
+Leather Works	CAT A - Producers (Donkey Skin)		 9,450.00 	Per Annum
+Leather Works	CAT B - Producers (Industrial)		 1,300.00 	Per Annum
+Leather Works	CAT C - Producers (Handmade Medium)		 400.00 	Per Annum
+Leather Works	CAT D - Repairers (e.g Cobbler or Shoe Shine) Sales/Others	 50.00 	 150.00 	Per Annum
+Lincenced Arms & Ammunition Dealers	CAT A		 13,000.00 	Per Annum
+Lincenced Arms & Ammunition Dealers	CAT B		 6,000.00 	Per Annum
+Livestock Farms	CAT A - Very large-sized	 1,200.00 	 2,100.00 	Per Annum
+Livestock Farms	CAT B - Large-sized	 1,000.00 	 1,400.00 	Per Annum
+Livestock Farms	CAT C - Medium-sized	 620.00 	 1,000.00 	Per Annum
+Livestock Farms	CAT D - Small-sized	 320.00 	 600.00 	Per Annum
+Livestock Farms	CAT E - Very Small-sized	 200.00 	 210.00 	Per Annum
+Lottery Business Operators	CAT A - National Lotto Authority		 22,000.00 	Per Annum
+Lottery Business Operators	CAT B - National Marketing Companies/Agents	 1,600.00 	 4,000.00 	Per Annum
+Lottery Business Operators	CAT C  - Private Operators	 1,000.00 	 2,400.00 	Per Annum
+Lottery Business Operators	CAT D - Lotto Receiver	 750.00 	 900.00 	Per Annum
+Lumber Business (Including Saw Mill)	CAT A	 6,500.00 	 12,750.00 	Per Annum
+Lumber Business (Including Saw Mill)	CAT B	 4,500.00 	 6,300.00 	Per Annum
+Lumber Business (Including Saw Mill)	CAT 'C'	 1,900.00 	 4,100.00 	Per Annum
+Lumber Business (Including Saw Mill)	CAT 'D'	 1,200.00 	 2,100.00 	Per Annum
+Machine Shops (Workshop for making or repairing machines)	CAT A - Large Scale		 600.00 	Per Annum
+Machine Shops (Workshop for making or repairing machines)	CAT B - Medium Scale		 370.00 	Per Annum
+Machine Shops (Workshop for making or repairing machines)	CAT C - Small Scale	 150.00 	 220.00 	Per Annum
+Machine Sharpening Operators	CAT A - Stationed with shops	 75.00 	 75.00 	Per Annum
+Machine Sharpening Operators	CAT B - Mobile	 60.00 	 60.00 	Per Annum
+Manufacturing/ Processing Companies	CAT A - International (Large Scale)		 60,000.00 	Per Annum
+Manufacturing/ Processing Companies	CAT B - International (Medium Scale)		 45,000.00 	Per Annum
+Manufacturing/ Processing Companies	CAT C - International (Small Scale)		 37,500.00 	Per Annum
+Manufacturing/ Processing Companies	CAT D - National (Large Scale)		 29,000.00 	Per Annum
+Manufacturing/ Processing Companies	CAT E - National (Medium Scale)		 19,500.00 	Per Annum
+Manufacturing/ Processing Companies	CAT F - National (Small Scale)		 13,000.00 	Per Annum
+Manufacturing/ Processing Companies	CAT G - Local (Large Scale)		 11,500.00 	Per Annum
+Manufacturing/ Processing Companies	CAT H - Local (Medium Scale)		 10,000.00 	Per Annum
+Manufacturing/ Processing Companies	CAT I - Local (Small Scale)		 7,500.00 	Per Annum
+Markets & Other Facilities Management Companies	CAT A - Large Scale		 21,000.00 	Per Annum
+Markets & Other Facilities Management Companies	CAT B - Medium Scale		 12,000.00 	Per Annum
+Markets & Other Facilities Management Companies	CAT C - Small Scale		 2,400.00 	Per Annum
+Mattress/Foam Products Dealers	CAT A - Manufacturers		 7,500.00 	Per Annum
+Mattress/Foam Products Dealers	CAT B - Wholesalers	 750.00 	 1,300.00 	Per Annum
+Mattress/Foam Products Dealers	CAT C - Retailers (Medium Scale)	 520.00 	 600.00 	Per Annum
+Mattress/Foam Products Dealers	CAT D - Retailers (Small Scale)	 300.00 	 350.00 	Per Annum
+Mattress Makers/Repairers	Mattress Makers/Repairers		 50.00 	Per Annum
+Electronic Media (Radio) Operators	CAT A - National & Inter-Regional		 3,000.00 	Per Annum
+Electronic Media (Radio) Operators	CAT B - Regional		 2,500.00 	Per Annum
+Electronic Media (Radio) Operators	CAT C - District		 1,700.00 	Per Annum
+Electronic Media (Radio) Operators	CAT D - Community	 700.00 	 700.00 	Per Annum
+Electronic Media (Radio) Operators	CAT E - Recording Studios (Large)		 700.00 	Per Annum
+Electronic Media (Radio) Operators	CAT F - Recording Studios (Medium)	 300.00 	 350.00 	Per Annum
+Electronic Media (Radio) Operators	CAT G - Recording Studios (Small)		 70.00 	Per Annum
+Electronic Media (Radio) Operators	CAT H - Information Centres (Urban)	 150.00 	 200.00 	Per Annum
+Electronic Media (Radio) Operators	CAT I - Information Centres (Rural)	 100.00 	 140.00 	Per Annum
+Electronic Media (Radio) Operators	CAT J - Stand Alone Radio/TV Satellite		 3,500.00 	Per Annum
+Electronic Media (Television) Operators	CAT A - Very Large Scale		 6,000.00 	Per Annum
+Electronic Media (Television) Operators	CAT B - Large Scale		 5,000.00 	Per Annum
+Electronic Media (Television) Operators	CAT C - Medium Scale		 3,500.00 	Per Annum
+Electronic Media (Television) Operators	CAT D - Small Scale		 1,700.00 	Per Annum
+Printing Houses	CAT A - Large Scale	 1,500.00 	 3,500.00 	Per Annum
+Printing Houses	CAT B - Medium Scale	 1,300.00 	 3,000.00 	Per Annum
+Printing Houses	CAT C - Small Scale	 1,000.00 	 1,400.00 	Per Annum
+Printing Houses	CAT D - Binders	 274.00 	 700.00 	Per Annum
+Printing Houses	CAT E - Others	 274.00 	 300.00 	Per Annum
+Printing Houses	CAT F - Newspaper/Periodicals Vendors	 70.00 	 70.00 	Per Annum
+Medical Supply Companies	CAT A		 2,200.00 	Per Annum
+Medical Supply Companies	CAT B		 1,200.00 	Per Annum
+Medical Supply Companies	CAT C		 600.00 	Per Annum
+Metal Fabricators	CAT A - Filling Station Sheds/Trailers/Undergroind Tanks Moulding		 57,000.00 	Per Annum
+Metal Fabricators	CAT B - Agro Processing Machines Surface Tanks		 4,000.00 	Per Annum
+Metal Fabricators	CAT C - Domestic Milling Machines	 690.00 	 1,400.00 	Per Annum
+Metal Fabricators	CAT D - Canopies and Scaffolding	 400.00 	 900.00 	Per Annum
+Metal Fabricators	CAT E - Pot, Coal pots and Sheet moulders	 230.00 	 400.00 	Per Annum
+Metal Fabricators	CAT F - Chairs and beds, etc.	 120.00 	 320.00 	Per Annum
+Fabrication Materials Dealers	CAT A - Large Scale		 3,750.00 	Per Annum
+Fabrication Materials Dealers	CAT B - Medium Scale		 2,500.00 	Per Annum
+Fabrication Materials Dealers	CAT C - Small Scale		 1,500.00 	Per Annum
+Milling Businesses (For Food)	CAT A - Above 3 Machines	 210.00 	 210.00 	Per Annum
+Milling Businesses (For Food)	CAT B - 2-3 Machines	 130.00 	 130.00 	Per Annum
+Milling Businesses (For Food)	CAT C - 1 Machine Only	 60.00 	 60.00 	Per Annum
+Mineral Water Producers	CAT A - Bottled, Sachet & Filtered Water	 1,500.00 	 2,800.00 	Per Annum
+Mineral Water Producers	CAT B - Bottled & Sachet Water	 1,300.00 	 2,100.00 	Per Annum
+Mineral Water Producers	CAT C - Sachet Water	 900.00 	 1,000.00 	Per Annum
+Mineral Water Producers	CAT D - Accessory Shop (Medium)	 320.00 	 300.00 	Per Annum
+Mineral Water Producers	CAT E  Accessory Shop (Small)	 250.00 	 190.00 	Per Annum
+Mineral Water Distribution/Sales	CAT A - Depot	 600.00 	 1,000.00 	Per Annum
+Mineral Water Distribution/Sales	CAT B - Wholesale	 380.00 	 600.00 	Per Annum
+Mineral Water Distribution/Sales	CAT C - Retail (Large)	 210.00 	 350.00 	Per Annum
+Mineral Water Distribution/Sales	CAT D - Retail (Medium)	 120.00 	 130.00 	Per Annum
+Mineral Water Distribution/Sales	CAT E - Retail (Small)	 100.00 	 50.00 	Per Annum
+Mineral Marketing Companies	CAT A		 21,000.00 	Per Annum
+Mineral Marketing Companies	CAT B		 13,000.00 	Per Annum
+Mineral Marketing Companies	CAT C		 7,500.00 	Per Annum
+Mining/Oil/Quarry Administrative offices	CAT 'A'		 4,500.00 	Per Annum
+Mining/Oil/Quarry Administrative offices	CAT 'B'		 3,000.00 	Per Annum
+Mining/Oil/Quarry Administrative offices	CAT 'C'		 1,500.00 	Per Annum
+Mining Operating Licence	CAT A - Large Scale		 100,000.00 	Per Annum
+Mining Operating Licence	CAT B - Medium Scale		 60,000.00 	Per Annum
+Mining Operating Licence	CAT C - Small Scale		 15,000.00 	Per Annum
+Mining Operating Licence	CAT D - Salt Mining		 7,500.00 	Per Annum
+Mining Sub-Contractors	CAT A - Exploration etc.		 52,000.00 	Per Annum
+Mining Sub-Contractors	CAT B - Haulage etc.		 17,000.00 	Per Annum
+Mining Sub-Contractors	CAT C - Automobile, Heavy Duty Equipment (Large)		 26,000.00 	Per Annum
+Mining Sub-Contractors	CAT D - Automobile, Heavy Duty Equipment (Medium)		 16,500.00 	Per Annum
+Mining Sub-Contractors	CAT E - Automobile, Heavy Duty Equipment (Small)		 10,500.00 	Per Annum
+Mining Sub-Contractors	CAT F - Petroleum Services		 13,500.00 	Per Annum
+Mining Sub-Contractors	CAT G - Mechanical Services (Large)		 22,000.00 	Per Annum
+Mining Sub-Contractors	CAT H - Mechanical Services (Medium)		 13,500.00 	Per Annum
+Mining Sub-Contractors	CAT I - Mechanical Services (Small)		 10,500.00 	Per Annum
+Mining Sub-Contractors	CAT J - Medical Services, Consultants, Technicians etc.		 4,500.00 	Per Annum
+Mining Sub-Contractors	CAT K - Transport & Catering Services		 6,000.00 	Per Annum
+Mining Sub-Contractors	CAT L - Other Professional Services		 4,500.00 	Per Annum
+Mobile Phone & Accessories Sales/Assembling/Repairs	CAT A - Import/Assembling Wholesale/Retail/Repairs		 3,500.00 	Per Annum
+Mobile Phone & Accessories Sales/Assembling/Repairs	CAT B - Import/Wholesale/Retail/Repairs	 850.00 	 2,100.00 	Per Annum
+Mobile Phone & Accessories Sales/Assembling/Repairs	CAT C - Retail/Repairs	 270.00 	 600.00 	Per Annum
+Mobile Phone & Accessories Sales/Assembling/Repairs	CAT D - Retail Only	 200.00 	 350.00 	Per Annum
+Mobile Phone & Accessories Sales/Assembling/Repairs	CAT E - Repairs Only	 200.00 	 280.00 	Per Annum
+Mobile Phone & Accessories Sales/Assembling/Repairs	CAT F -  Repairs Only (Small)	 170.00 	 180.00 	Per Annum
+Mobile Phone Cards Sales	CAT A - Distribution/Retail		 600.00 	Per Annum
+Mobile Phone Cards Sales	CAT B - Distribution Only	 200.00 	 500.00 	Per Annum
+Mobile Phone Cards Sales	CAT D - Retail		 100.00 	Per Annum
+Mother Care Shops - Wholesale	CAT A - Mother Care Shops (Wholesale/Retail) 		 1,500.00 	Per Annum
+Mother Care Shops - Wholesale	CAT B - Mother Care Shops (Wholesale only)	 500.00 	 1,000.00 	Per Annum
+Mother Care Shops -Retail	CAT A - Mother Care Shops (Large Scale)		 500.00 	Per Annum
+Mother Care Shops -Retail	CAT B - Mother Care Shops (Medium Scale)	 350.00 	 250.00 	Per Annum
+Mother Care Shops -Retail	CAT C - Mother Care Shops (Small Scale)	 200.00 	 100.00 	Per Annum
+Musical  Instrument Sales	CAT A - Wholesale/Retail		 210.00 	Per Annum
+Musical  Instrument Sales	CAT B - Retail (Medium)	 250.00 	 170.00 	Per Annum
+Musical  Instrument Sales	CAT C - Retail (Small)	 160.00 	 130.00 	Per Annum
+Musical Speaker Manufacturers & Sales	Musical Speaker Manufacturers & Sales	 150.00 	 150.00 	Per Annum
+Non-Governmental Institutions (Renewal)	CAT A - International NGOs/CSOs /FBOs	 600.00 	 280.00 	Per Annum
+Non-Governmental Institutions (Renewal)	CAT B - Local NGOs/CSOs /FBOs	 300.00 	 210.00 	Per Annum
+Non-Governmental Institutions (Renewal)	CAT C - Community NGOs/CSOs /FBOs	 300.00 	 100.00 	Per Annum
+On-line Trading	CAT A - Multi Services	 1,308.00 	 1,500.00 	Per Annum
+On-line Trading	CAT B - Dual Services	 1,000.00 	 1,000.00 	Per Annum
+On-line Trading	CAT C - Single Service	 600.00 	 700.00 	Per Annum
+Optical Services	CAT A - Large Scale		 520.00 	Per Annum
+Optical Services	CAT B - Medium Scale		 350.00 	Per Annum
+Optical Services	CAT C - Small Scale		 210.00 	Per Annum
+Palm/Kernel Oil Extraction Companies	CAT A - Large Scale		 28,000.00 	Per Annum
+Palm/Kernel Oil Extraction Companies	CAT B - Medium Scale		 14,000.00 	Per Annum
+Palm/Kernel Oil Extraction Companies	CAT C - Small Scale		 2,000.00 	Per Annum
+Palm/Kernel Oil Extraction Companies	CAT D - Individuals		 400.00 	Per Annum
+Paper Product Companies	CAT A		 1,300.00 	Per Annum
+Paper Product Companies	CAT B		 950.00 	Per Annum
+Paper Product Companies	CAT C		 600.00 	Per Annum
+Petrochemical Companies	CAT A - Oil Exploration		 57,000.00 	Per Annum
+Petrochemical Companies	CAT B - Refineries		 60,000.00 	Per Annum
+Petrochemical Companies	CAT C - Gas Processing Plants		 50,000.00 	Per Annum
+Petrochemical Companies	CAT D - Oil Import/Storage		 26,000.00 	Per Annum
+Petrochemical Companies	CAT E - Transportation and Storage of CAT A		 18,000.00 	Per Annum
+Petrochemical Companies	CAT F - Transportation and Storage of CAT B		 14,000.00 	Per Annum
+Petrochemical Companies	CAT G - Bulk Oil Distribution Companies  of CAT A		 18,000.00 	Per Annum
+Petrochemical Companies	CAT H - Bulk Oil Distribution Companies  of CAT B		 9,100.00 	Per Annum
+Pharmacies	CAT A - Manufacture / Wholesale	 1,600.00 	 6,000.00 	Per Annum
+Pharmacies	CAT B - Wholesale	 1,500.00 	 3,500.00 	Per Annum
+Pharmacies	CAT C - Wholesale & Retail	 1,200.00 	 3,700.00 	Per Annum
+Pharmacies	CAT D - Retail	 600.00 	 2,100.00 	Per Annum
+Pharmacies	CAT E - Compounding Pharmacy		 3,700.00 	Per Annum
+Pharmacies	CAT F - Pharmaceutical Raw Material Suppliers		 3,700.00 	Per Annum
+Over the Counter Medicine Sellers (OTCMs) (Licenced Chemical Shops)	Over the Counter Medicine Sellers (OTCMs) (Licenced Chemical Shops)	 250.00 	 320.00 	Per Annum
+Photographers / Video Operators	CAT A - Photo/Video Company with Labs		 1,200.00 	Per Annum
+Photographers / Video Operators	CAT B - Photo/Video Company without Labs		 600.00 	Per Annum
+Photographers / Video Operators	CAT C - Photographic Laboratory	 274.00 	 450.00 	Per Annum
+Photographers / Video Operators	CAT D - Photo Shops/Studio	 200.00 	 250.00 	Per Annum
+Photographers / Video Operators	CAT E - Individual video  and photography operators		 130.00 	Per Annum
+Plastic/ Bottle Dealers - Used	CAT 'A'		 1,000.00 	Per Annum
+Plastic/ Bottle Dealers - Used	CAT 'B'		 520.00 	Per Annum
+Plastic/ Bottle Dealers - Used	CAT 'C'		 210.00 	Per Annum
+Plastic Processing and Manufacturing Companies	CAT A - Bulk Product Lines (e.g. tanks, pipelines)		 3,500.00 	Per Annum
+Plastic Processing and Manufacturing Companies	CAT B - Light product lines (e.g. Plastic chairs)		 2,100.00 	Per Annum
+Plastic Processing and Manufacturing Companies	CAT C - Others (Household wares)		 1,800.00 	Per Annum
+Plastic Processing and Manufacturing Companies	CAT D - Polyethylene		 600.00 	Per Annum
+Plastic Product Sales (Including Water tanks)	CAT A - Wholesale (Large)	 500.00 	 500.00 	Per Annum
+Plastic Product Sales (Including Water tanks)	CAT B - Wholesale (Small)	 350.00 	 350.00 	Per Annum
+Plastic Product Sales (Including Water tanks)	CAT C - Retail (Large)	 140.00 	 140.00 	Per Annum
+Plastic Product Sales (Including Water tanks)	CAT D - Retail (Medium)	 130.00 	 130.00 	Per Annum
+Plastic Product Sales (Including Water tanks)	CAT E - Retail (Small)	 80.00 	 100.00 	Per Annum
+Plastic Product Sales (Including Water tanks)	CAT F - Polyethylene Sellers	 70.00 	 70.00 	Per Annum
+Poultry Farms	CAT A - Above 2000 Birds	 400.00 	 750.00 	Per Annum
+Poultry Farms	CAT B - Up to 2000 Birds	 340.00 	 550.00 	Per Annum
+Poultry Farms	CAT C - Up to 1000 Birds	 270.00 	 400.00 	Per Annum
+Poultry Farms	CAT D - Up to 500 Birds	 130.00 	 210.00 	Per Annum
+Private Meat Van	Private Meat Van	 150.00 	 130.00 	Per Annum
+Private Recreational Parks	CAT A - Large Scale		 1,400.00 	Per Annum
+Private Recreational Parks	CAT B - Medium Scale		 1,200.00 	Per Annum
+Private Recreational Parks	CAT C - Small Scale		 900.00 	Per Annum
+Private Security	CAT A	 2,700.00 	 6,000.00 	Per Annum
+Private Security	CAT B	 2,000.00 	 4,000.00 	Per Annum
+Private Security	CAT C	 1,300.00 	 2,600.00 	Per Annum
+(Architectural, Auditing, Accounting, Engineering, Legal Firms etc.)	CAT A - International		 4,000.00 	Per Annum
+(Architectural, Auditing, Accounting, Engineering, Legal Firms etc.)	CAT B - National		 3,500.00 	Per Annum
+(Architectural, Auditing, Accounting, Engineering, Legal Firms etc.)	CAT C - Regional		 2,800.00 	Per Annum
+(Architectural, Auditing, Accounting, Engineering, Legal Firms etc.)	CAT D - Local		 2,100.00 	Per Annum
+(Architectural, Auditing, Accounting, Engineering, Legal Firms etc.)	CAT E - Partnership		 1,400.00 	Per Annum
+(Architectural, Auditing, Accounting, Engineering, Legal Firms etc.)	CAT F - Solo		 1,000.00 	Per Annum
+(Architectural, Auditing, Accounting, Engineering, Legal Firms etc.)	CAT G - Others		 600.00 	Per Annum
+Draughtsmanship Business	CAT A		 500.00 	Per Annum
+Draughtsmanship Business	CAT B		 280.00 	Per Annum
+Publishing Houses	CAT A - Publishing Cum Wholesale		 4,500.00 	Per Annum
+Publishing Houses	CAT B - Publishing and Retail Outlets		 3,700.00 	Per Annum
+Publishing Houses	CAT C - Publishing Only (Medium)		 2,100.00 	Per Annum
+Publishing Houses	CAT D - Publishing Only (Small)		 600.00 	Per Annum
+Quarry/Sand Operators	CAT A - Mechanised Quarry (Large)		 9,000.00 	
+Quarry/Sand Operators	CAT A - Mechanised Quarry (Large) (Medium)		 4,500.00 	Per Annum
+Quarry/Sand Operators	CAT B - Mechanised Quarry (Small)		 2,400.00 	Per Annum
+Quarry/Sand Operators	CAT C - Sand Winning		 600.00 	Per Annum
+Quarry/Sand Operators	CAT D - Stone, Laterite & Gravels Contractors		 500.00 	Per Annum
+Quarry/Sand Operators	CAT E - Manual Stone Crackers/Labourers		 90.00 	Per Annum
+Agents	CAT A - Large Scale	 5,000.00 	 4,000.00 	Per Annum
+Agents	CAT B - Medium Scale	 2,500.00 	 2,800.00 	Per Annum
+Agents	CAT C - Small Scale	 2,000.00 	 1,300.00 	Per Annum
+Developers	CAT A - Large Scale	 8,000.00 	 20,000.00 	Per Annum
+Developers	CAT B - Medium Scale	 5,475.00 	 16,500.00 	Per Annum
+Developers	CAT C - Small Scale	 4,791.00 	 13,500.00 	Per Annum
+Property Managers	CAT A - Large Scale (International)	 6,500.00 	 7,500.00 	Per Annum
+Property Managers	CAT B - Medium Scale (National)	 5,000.00 	 2,800.00 	Per Annum
+Property Managers	CAT C - Small Scale (Local)	 1,000.00 	 600.00 	Per Annum
+Recycling Plants/Companies	CAT A		 4,000.00 	Per Annum
+Recycling Plants/Companies	CAT B		 3,500.00 	Per Annum
+Recycling Plants/Companies	CAT C		 2,800.00 	Per Annum
+Recycling Plants/Companies	CAT D		 2,000.00 	Per Annum
+Refrigerator/Air Condition Mechanics	CAT A	 350.00 	 600.00 	Per Annum
+Refrigerator/Air Condition Mechanics	CAT B	 270.00 	 500.00 	Per Annum
+Rubber Stamp Makers	Rubber Stamp Makers	 100.00 	 90.00 	Per Annum
+Rubber Cutting Machine Operators	CAT 'A'	 160.00 	 110.00 	Per Annum
+Rubber Cutting Machine Operators	CAT 'B'	 170.00 	 75.00 	Per Annum
+Protective Wears (e.g. PPEs)	CAT A - Health & Workplace (Large)		 1,900.00 	Per Annum
+Protective Wears (e.g. PPEs)	CAT B - Health & Workplace (Medium)		 1,300.00 	Per Annum
+Protective Wears (e.g. PPEs)	CAT C - Health Items only		 1,000.00 	Per Annum
+Protective Wears (e.g. PPEs)	CAT D - Workplace Items only		 500.00 	Per Annum
+Protective Wears (e.g. PPEs)	CAT E - Producers only		 210.00 	Per Annum
+Fire Extinguisher Dealers	CAT A		 500.00 	Per Annum
+Fire Extinguisher Dealers	CAT B		 280.00 	Per Annum
+Bath House Operators	CAT A - Above 12 Showers (including toilet facility)	 300.00 	 370.00 	Per Annum
+Bath House Operators	CAT B - 9 -12 showers (including toilet facility)	 250.00 	 300.00 	Per Annum
+Bath House Operators	CAT C - Up to 8 showers (including toilet facility)		 250.00 	Per Annum
+Bath House Operators	CAT D - 13 showers and above		 250.00 	Per Annum
+Bath House Operators	CAT E - 9-12 Showers		 210.00 	Per Annum
+Bath House Operators	CAT F - 8 Showers and below		 140.00 	Per Annum
+Toilet Operators (Private)	CAT A - Above 24Seater	 1,000.00 	 600.00 	Per Annum
+Toilet Operators (Private)	CAT B - Up to 24Seater	 280.00 	 500.00 	Per Annum
+Toilet Operators (Private)	CAT C - 9-16Seater	 200.00 	 210.00 	Per Annum
+Toilet Operators (Private)	CAT D - Up to 8Seater	 100.00 	 140.00 	Per Annum
+Urinal Operators (Private)	CAT A - Large Scale		 210.00 	Per Annum
+Urinal Operators (Private)	CAT B - Medium Scale		 130.00 	Per Annum
+Urinal Operators (Private)	CAT C - Small Scale		 90.00 	Per Annum
+Satellite TV/Dish Installation Dealers	CAT 'A'	 450.00 	 1,000.00 	Per Annum
+Satellite TV/Dish Installation Dealers	CAT 'B'	 300.00 	 600.00 	Per Annum
+Satellite TV/Dish Installation Dealers	CAT 'C'	 200.00 	 320.00 	Per Annum
+Scrap Metal Dealers	CAT A - Large Scale (Export)	 1,369.00 	 3,000.00 	Per Annum
+Scrap Metal Dealers	CAT B - Medium Scale (Depot)	 1,000.00 	 2,250.00 	Per Annum
+Scrap Metal Dealers	CAT C - Small Scale (Collection Points)	 500.00 	 750.00 	Per Annum
+Scrap Metal Dealers	CAT D - Very Small Scale  (Collection Points)	 350.00 	 400.00 	Per Annum
+Scrap Metal Dealers	CAT E - Individual Collectors	 190.00 	 190.00 	Per Annum
+Security Fencing Companies	CAT A - Large Scale		 750.00 	Per Annum
+Security Fencing Companies	CAT B - Medium Scale		 600.00 	Per Annum
+Security Fencing Companies	CAT C - Small Scale		 370.00 	Per Annum
+Service/Filling Stations	CAT A - Muli Purpose - Large  (eg. Fuel, Shopping Centre, Vulcanizing, Washing bay, etc.)	 3,500.00 	 10,000.00 	Per Annum
+Service/Filling Stations	CAT B - Muli Purpose - Medium  (eg. Fuel, Shopping Centre, Vulcanizing, Washing bay, etc.)	 2,500.00 	 7,500.00 	Per Annum
+Service/Filling Stations	CAT C - Fuel and Shopping Centres	 2,000.00 	 6,000.00 	Per Annum
+Service/Filling Stations	CAT D - Fuel, and Washing Bay	 1,700.00 	 5,800.00 	Per Annum
+Service/Filling Stations	CAT E - Fuel Only	 1,500.00 	 5,000.00 	Per Annum
+Service/Filling Stations	CAT F - Surface Tank Points	 500.00 	 750.00 	Per Annum
+Service/Filling Stations	CAT G - Sale of Lubricants	 300.00 	 210.00 	Per Annum
+Service/Filling Stations	CAT H - Kerosene	 270.00 	 400.00 	Per Annum
+Service/Filling Stations	CAT I - LPG Retail Points (of CAT A) (Large)	 1,900.00 	 2,800.00 	Per Annum
+Service/Filling Stations	CAT J- LPG Retail Points (of CAT B) (Medium)	 1,600.00 	 1,300.00 	Per Annum
+Service/Filling Stations	CAT K - LPG Only (Large)  LPG Retail Points Only (Small)	 1,000.00 	 1,000.00 	Per Annum
+Ship Maintenance/Repair Companies	CAT A		 11,200.00 	Per Annum
+Ship Maintenance/Repair Companies	CAT B		 9,000.00 	Per Annum
+Ship Maintenance/Repair Companies	CAT C		 6,700.00 	Per Annum
+Ship Maintenance/Repair Companies	CAT D		 4,500.00 	Per Annum
+Ship Maintenance/Repair Companies	CAT E		 2,700.00 	Per Annum
+Shipping Companies	Shipping Companies		 69,000.00 	Per Annum
+Signage Makers	CAT  A - Digital		 1,000.00 	Per Annum
+Signage Makers	CAT  B - Non-digital		 900.00 	Per Annum
+Signage Writers	CAT A - Electronic	 400.00 	 900.00 	Per Annum
+Signage Writers	CAT B - Manual	 200.00 	 500.00 	Per Annum
+Software Development/ Software Support Companies	CAT A - International Companies		 16,000.00 	Per Annum
+Software Development/ Software Support Companies	CAT B - National Large		 10,000.00 	Per Annum
+Software Development/ Software Support Companies	CAT C - National Medium		 6,700.00 	Per Annum
+Software Development/ Software Support Companies	CAT D - National Small		 2,600.00 	Per Annum
+Software Development/ Software Support Companies	CAT E - Individual Developers		 1,000.00 	Per Annum
+Straw Basket Weavers and Sales	Straw Basket Weavers and Sales		 90.00 	Per Annum
+Internet (Data) Services Providers	CAT A		 6,000.00 	Per Annum
+Internet (Data) Services Providers	CAT B		 3,000.00 	Per Annum
+Internet (Data) Services Providers	CAT C		 1,300.00 	Per Annum
+Phone and Internet Services Providers	CAT A - Head Office		 28,000.00 	Per Annum
+Phone and Internet Services Providers	CAT B - Regional/Municipal/District Office		 26,000.00 	Per Annum
+Phone and Internet Services Providers	CAT C - Service Centres (Retail Shops)		 19,500.00 	Per Annum
+Phone and Internet Services Providers	CAT D - Outsourced Service Centres (Retail Shops)		 13,000.00 	Per Annum
+Phone and Internet Services Providers	CAT E - Warehouses		 15,750.00 	Per Annum
+Tower Infrastructure Centres	Tower Infrastructure Centres		 13,000.00 	Per Annum
+Terrazzo Making	CAT A - Two machines and above		 750.00 	Per Annum
+Terrazzo Making	CAT B - One Machine		 400.00 	Per Annum
+Timber Products Retail Outlets	CAT A - Large scale	 1,000.00 	 1,300.00 	Per Annum
+Timber Products Retail Outlets	CAT B - Medium scale	 640.00 	 750.00 	Per Annum
+Timber Products Retail Outlets	CAT C - Small scale	 420.00 	 500.00 	Per Annum
+Trade/Custom/ Inspection Companies	CAT 'A'		 3,700.00 	Per Annum
+Trade/Custom/ Inspection Companies	CAT 'B'		 2,200.00 	Per Annum
+Trade/Custom/ Inspection Companies	CAT 'C'		 1,205.00 	Per Annum
+Hotels/ Beach Resorts/ Motels	CAT A - Five Star		 14,000.00 	Per Annum
+Hotels/ Beach Resorts/ Motels	CAT B - Four Star		 13,000.00 	Per Annum
+Hotels/ Beach Resorts/ Motels	CAT C - Three Star		 3,500.00 	Per Annum
+Hotels/ Beach Resorts/ Motels	CAT D - Two Star		 1,000.00 	Per Annum
+Hotels/ Beach Resorts/ Motels	CAT E - One Star	 900.00 	 900.00 	Per Annum
+Guest Houses (4-9 Rooms)	Guest Houses (4-9 Rooms)	 500.00 	 750.00 	Per Annum
+Budget Hotels	Budget Hotels	 500.00 	 500.00 	Per Annum
+Hostels (Private):	CAT A - Above 50 Beds	 1,500.00 	 2,100.00 	Per Annum
+Hostels (Private):	CAT B - 21-50 Beds	 1,095.00 	 1,400.00 	Per Annum
+Hostels (Private):	CAT C - 11-20 Beds	 927.00 	 1,300.00 	Per Annum
+Hostels (Private):	CAT D - Up to 10 Beds	 684.00 	 950.00 	Per Annum
+Beach Recreational Facility	CAT A	 680.00 	 1,300.00 	Per Annum
+Beach Recreational Facility	CAT B	 270.00 	 520.00 	Per Annum
+Body Building Gym	CAT A - Large Scale (Club Setting)	 450.00 	 600.00 	Per Annum
+Body Building Gym	CAT B - Medium Scale	 274.00 	 400.00 	Per Annum
+Body Building Gym	CAT C - Small Scale	 200.00 	 210.00 	Per Annum
+Formal Catering Services - Restaurants	CAT A - Grade 1 (Restaurant)	 800.00 	 2,800.00 	Per Annum
+Formal Catering Services - Restaurants	CAT B - Grade 2 (Restaurant)	 700.00 	 1,200.00 	Per Annum
+Formal Catering Services - Restaurants	CAT C - Grade 3 (Restaurant)	 620.00 	 750.00 	Per Annum
+Formal Catering Services - Fast Food	CAT A - Grade 1 (Fast Food)	 700.00 	 2,700.00 	Per Annum
+Formal Catering Services - Fast Food	CAT B - Grade 2 (Fast Food)	 600.00 	 1,600.00 	Per Annum
+Formal Catering Services - Fast Food	CAT C - Grade 3 (Fast Food)	 360.00 	 600.00 	Per Annum
+Formal Catering Services - Coffee Shop	CAT A - Grade 1 (Coffee Shop)		 900.00 	Per Annum
+Formal Catering Services - Coffee Shop	CAT B - Grade 2 (Coffee Shop)		 650.00 	Per Annum
+Formal Catering Services - Coffee Shop	CAT C - Grade 3 (Coffee Shop)		 300.00 	Per Annum
+Formal Catering Services - Salad Bars	CAT A - Grade 1 (Salad Bars)		 600.00 	Per Annum
+Formal Catering Services - Salad Bars	CAT B - Grade 2 (Salad Bars)	 250.00 	 370.00 	Per Annum
+Formal Catering Services - Salad Bars	CAT C - Grade 3 (Salad Bars)	 170.00 	 210.00 	Per Annum
+Formal Catering Services - Highway Rest Stops	CAT A - Grade 1 (Highway Rest Stops)		 2,000.00 	Per Annum
+Formal Catering Services - Highway Rest Stops	CAT B - Grade 2 (Highway Rest Stops)		 1,200.00 	Per Annum
+Formal Catering Services - Highway Rest Stops	CAT C - Grade 3 (Highway Rest Stops)		 750.00 	Per Annum
+Traditional Catering Establishments (chop bars)	CAT A - Grade 1 (Chop Bars)	 370.00 	 600.00 	Per Annum
+Traditional Catering Establishments (chop bars)	CAT B - Grade 2 (Chop Bars)	 180.00 	 350.00 	Per Annum
+Drinking Bars	CAT A - Grade 1 (Drinking Bars)	 600.00 	 1,000.00 	Per Annum
+Drinking Bars	CAT B - Grade 2 (Drinking Bars)	 270.00 	 500.00 	Per Annum
+Snack Bars	CAT A - Grade 1 (Snack Bars)	 300.00 	 460.00 	Per Annum
+Snack Bars	CAT B - Grade 2 ((Snack Bars)	 200.00 	 300.00 	Per Annum
+Outdoor Catering Establishments	CAT A - Grade 1 (Outdoor Catering Est.)	 200.00 	 375.00 	Per Annum
+Outdoor Catering Establishments	CAT B - Grade 2 (Outdoor Catering Est.)	 130.00 	 130.00 	Per Annum
+Local Fast Food Vendors	CAT A - Grade 1 (Local Fast Food)	 200.00 	 320.00 	Per Annum
+Local Fast Food Vendors	CAT B - Grade 2 (Local Fast Food)	 150.00 	 190.00 	Per Annum
+Drinking Bars	CAT B - Grade 3 (Drinking Bars)	 100.00 		
+Traditional Catering Establishments (chop bars)	CAT B - Grade 3 (Chop Bars)	 450.00 		
+Multi-Purpose Facilities - Conference Centre	CAT A - Grade 1 		 750.00 	Per Annum
+Multi-Purpose Facilities - Conference Centre	CAT B - Grade 2		 370.00 	Per Annum
+Multi-Purpose Facilities - Event Centre	CAT A - Grade 1		 2,100.00 	Per Annum
+Multi-Purpose Facilities - Event Centre	CAT B - Grade 2		 1,500.00 	Per Annum
+Multi-Purpose Facilities - Event Centre	CAT C - Club Houses		 1,900.00 	Per Annum
+Multi-Purpose Facilities - Event Centre	CAT D - Club Houses		 750.00 	Per Annum
+Multi-Purpose Facilities - Convention/Exhibition Centre	CAT A - Grade 1		 750.00 	Per Annum
+Multi-Purpose Facilities - Convention/Exhibition Centre	CAT B - Grade 2		 320.00 	Per Annum
+Multi-Purpose Facilities - Banquet Facilities	CAT A - Grade 1		 750.00 	Per Annum
+Multi-Purpose Facilities - Banquet Facilities	CAT B - Grade 2		 350.00 	Per Annum
+Nightclub	CAT A - Grade 1 (Night Club)		 2,400.00 	Per Annum
+Nightclub	CAT B - Grade 2 (Night Club)		 1,000.00 	Per Annum
+Pub	CAT A - Grade 1 (Pub)	 600.00 	 1,300.00 	Per Annum
+Pub	CAT B - Grade 2 (Pub)	 450.00 	 550.00 	Per Annum
+Movie House	CAT A - Grade 1 (Movie House)		 1,900.00 	Per Annum
+Movie House	CAT B - Grade 2  (Movie House)		 1,000.00 	Per Annum
+Theatre	CAT A - Grade 1 (Theatre)		 7,500.00 	Per Annum
+Theatre	CAT B - Grade 2 (Theatre)		 3,700.00 	Per Annum
+Spa	CAT A - Spa with more than 3 add-on services		 2,500.00 	Per Annum
+Spa	CAT B - Spa with 2 -3 add-on services		 2,100.00 	Per Annum
+Spa	CAT C - Spa Only		 650.00 	Per Annum
+Travel and Tour Operators	CAT A - With I.A.T.A. Licence		 750.00 	Per Annum
+Travel and Tour Operators	CAT B - Without I.A.T.A. Licence		 680.00 	Per Annum
+Travel and Tour Operators	CAT C - Tour Operators		 500.00 	Per Annum
+Car Hiring/Rental Services	CAT A - Large Scale		 1,300.00 	Per Annum
+Car Hiring/Rental Services	CAT B - Medium Scale		 900.00 	Per Annum
+Car Hiring/Rental Services	CAT C - Small Scale		 450.00 	Per Annum
+Road Operators	CAT A - With own Terminal		 10,000.00 	Per Annum
+Road Operators	CAT B - Operating from Publicly Owned Terminal		 9,000.00 	Per Annum
+Rail Operators	CAT 'A'		 5,200.00 	Per Annum
+Rail Operators	CAT 'B'		 1,300.00 	Per Annum
+Fuel Haulage Companies	CAT A - 20 Trucks and Above		 15,500.00 	Per Annum
+Fuel Haulage Companies	CAT B - 11- 19 Trucks		 13,500.00 	Per Annum
+Fuel Haulage Companies	CAT C - 5-10 Trucks		 9,700.00 	Per Annum
+Fuel Haulage Companies	CAT D - 1-5 Trucks		 6,500.00 	Per Annum
+Bullion Service Companies	CAT A - 10 & Above Vans		 6,500.00 	Per Annum
+Bullion Service Companies	CAT B - 5 to 9 Vans		 5,200.00 	Per Annum
+Bullion Service Companies	CAT C - Below 5 Vans		 4,500.00 	Per Annum
+Transport Unions (Lorry park Operations)	CAT A	 1,000.00 	 2,800.00 	Per Annum
+Transport Unions (Lorry park Operations)	CAT B	 700.00 	 1,900.00 	Per Annum
+Transport Unions (Lorry park Operations)	CAT C	 600.00 	 1,300.00 	Per Annum
+Transport Unions (Lorry park Operations)	CAT 'D'	 450.00 	 750.00 	Per Annum
+Route Operating Permit	Type A Permit (Transport Entities)		 370.00 	Per Annum
+Route Operating Permit	Additional Route		 370.00 	Per Annum
+Gas Storage Plants	Gas Storage Plants		 90,000.00 	Per Annum
+Waste Treatment Plants	CAT A - Sewage		 2,800.00 	Per Annum
+Waste Treatment Plants	CAT B - E-waste		 2,800.00 	Per Annum
+Waste Treatment Plants	CAT C - Others		 1,300.00 	Per Annum
+Tyre Manufacturing	CAT A - Manufacturers		 2,800.00 	Per Annum
+Tyre Manufacturing	CAT B - Remoulding (OTR)		 600.00 	Per Annum
+TV & Radio Repairers	TV & Radio Repairers	 100.00 	 130.00 	Per Annum
+Upholstery Dealers	CAT A - Production & Sales		 750.00 	Per Annum
+Upholstery Dealers	CAT B - Sales		 600.00 	Per Annum
+Upholstery Dealers	CAT C - Production		 370.00 	Per Annum
+Used Clothing Sales ('Second Hand')	CAT A - Importers/Wholesalers		 3,700.00 	Per Annum
+Used Clothing Sales ('Second Hand')	CAT B - Distributors		 2,100.00 	Per Annum
+Used Clothing Sales ('Second Hand')	CAT C - Retailers (Shops)	 350.00 	 750.00 	Per Annum
+Used Clothing Sales ('Second Hand')	CAT D - Retailers (Containers/Kiosks/Table tops)	 250.00 	 450.00 	Per Annum
+Used Clothing Sales ('Second Hand')	CAT E - Retailers (Table tops)	 200.00 	 270.00 	Per Annum
+Utility Vendors	CAT 'A'		 500.00 	Per Annum
+Utility Vendors	CAT 'B'		 350.00 	Per Annum
+Utility Vendors	CAT 'C'		 140.00 	Per Annum
+Vehicle Examination & Licencing Centres - Private	CAT 'A'		 5,200.00 	Per Annum
+Vehicle Examination & Licencing Centres - Private	CAT 'B'		 4,000.00 	Per Annum
+Veterinary Clinic/Hospital	CAT A - Vet, Lab and Shop		 1,300.00 	Per Annum
+Veterinary Clinic/Hospital	CAT B - Vet and Shop		 750.00 	Per Annum
+Veterinary Clinic/Hospital	CAT C - Vet Only		 500.00 	Per Annum
+Veterinary Clinic/Hospital	CAT D - Shop Only		 450.00 	Per Annum
+Customs Bonded Warehouse/Container Depot	CAT A	 3,500.00 	 10,000.00 	Per Annum
+Customs Bonded Warehouse/Container Depot	CAT B	 3,200.00 	 8,700.00 	Per Annum
+Customs Bonded Warehouse/Container Depot	CAT C	 2,900.00 	 6,500.00 	Per Annum
+Customs Bonded Warehouse/Container Depot	CAT D	 2,600.00 	 4,700.00 	Per Annum
+Un-bonded Warehouse	CAT A - 100m x 70m	 2,000.00 	 12,700.00 	Per Annum
+Un-bonded Warehouse	CAT B - 80m x 50m	 3,000.00 	 6,000.00 	Per Annum
+Un-bonded Warehouse	CAT C - 60m x 30m	 2,420.00 	 2,800.00 	Per Annum
+Un-bonded Warehouse	CAT D - Others	 600.00 	 600.00 	Per Annum
+Dislodging Companies	CAT A	 500.00 	 750.00 	Per Annum
+Dislodging Companies	CAT B	 270.00 	 500.00 	Per Annum
+Mine Waste Companies	CAT A		 30,000.00 	Per Annum
+Mine Waste Companies	CAT B		 22,000.00 	Per Annum
+Refuse Collection Companies	CAT 'A'		 12,000.00 	Per Annum
+Refuse Collection Companies	CAT 'B'		 5,200.00 	Per Annum
+Refuse Collection Companies	CAT C		 900.00 	Per Annum
+Refuse Collection Companies	CAT D		 500.00 	Per Annum
+Refuse Dump Container Depot Managers	CAT A		 500.00 	Per Annum
+Refuse Dump Container Depot Managers	CAT B		 400.00 	Per Annum
+Refuse Dump Container Depot Managers	CAT C		 280.00 	Per Annum
+Wood Fuel	CAT A - Charcoal  Producers		 280.00 	Per Annum
+Wood Fuel	CAT B - Firewood Sellers (Large)		 280.00 	Per Annum
+Wood Fuel	CAT C - Firewood Sellers (Medium)		 130.00 	Per Annum
+Wood Fuel	CAT D - Firewood Sellers (Small)		 60.00 	Per Annum
+Wood Fuel	CAT E - Charcoal  Sellers		 60.00 	Per Annum
+Bamboo Dealers	CAT 'A'	 120.00 	 210.00 	Per Annum
+Bamboo Dealers	CAT 'B'	 100.00 	 100.00 	Per Annum
+Plywood Sellers	CAT A	 548.00 	 1,000.00 	Per Annum
+Plywood Sellers	CAT B	 327.00 	 600.00 	Per Annum
+Plywood Sellers	CAT C	 270.00 	 400.00 	Per Annum
+Plywood Sellers	CAT D	 200.00 	 350.00 	Per Annum
+Plywood Manufacturers	Plywood Manufacturers		 4,000.00 	Per Annum
+Bill boards	CAT A	6300.00	6300.00	
+Bill boards	CAT B	1500.00	1500.00	
+Bill boards	CAT C	750.00	750.00	
+Assembly Hall	CAT A - Large	1500.00	1500.00	Per day
+Assembly Hall	CAT B - Medium	500.00	500.00	Per day
+Assembly Hall	CAT C - Small	350.00	350.00	Per day
+Assembly conference room	Assembly conference room	750.00	750.00	Per day
+Community centres	Community centres	370.00	370.00	Per day
+Sub-district/Metro Halls	Sub-district/Metro Halls	260.00	260.00	Per day
+Assembly Forecourt	Assembly Forecourt	320.00	320.00	Per day
+Others	Others	260.00	260.00	Per Day
+Stores	CAT A - In CBD (Central Business District)	1200.00	280.00	Per Month
+Stores	CAT B - Satellite Markets	180.00	180.00	Per Month
+Stores	CAT C - Outside CBD	120.00	120.00	Per Month
+Stores	CAT D - Sub District Store	28.00	28.00	Per Month
+Stores	CAT E - In CBD (Top Floor)	960.00		
+Stalls	CAT A - In CBD (Without Metal Fabrication)	120.00	13.00	Per Month
+Stalls	CAT B - Satellite Market	10.00	10.00	Per Month
+Stalls	CAT C - Outside CBD	7.50	7.50	Per Month
+Stalls	CAT D - Sub District Store	4.50	4.50	Per Month
+Sheds	CAT A - In CBD	10.00	10.00	Per Month
+Sheds	CAT B - Satellite Markets	10.00	10.00	Per Month
+Sheds	CAT C - Outside CBD	6.00	6.00	Per Month
+Sheds	CAT D - Sub District Store	3.50	3.50	Per Month
+Sheds (With Metal Fabrication)	CAT A - In CBD (with Metal Fabrication)	360.00	10.00	Per Annum
+Rent of Open Market Space	Rent of Open Market Space	120.00		Per Annum
+Rent of Market Warehouse	Cat A - Market Warehouse	960.00		Per Annum
+Rent of Market Warehouse	Cat B - Market Warehouse	120.00		Per Annum
+Rent of Market Warehouse	Cat C - Market Warehouse	60.00		Per Annum
+Rent of Undeveloped Lands	Rent of Undeveloped Lands	31.00	31.00	4x4 ft
+Hiring of Parks	CAT A - Government Recreational Park	900.00	900.00	Per event
+Hiring of Parks	CAT B - Lorry Park (space rental)	1400.00	1400.00	Per month
+Hiring of Parks	CAT C - Parade Grounds (Jubilee Parks)	900.00	900.00	Per day
+Hiring of Parks	CAT D - School Compound (Social functions)	150.00	150.00	Per day
+Rent on Leased Buildings	Rent on Leased Buildings	0.00	0.00	
+Rent  for Vendor Stands	Rent  for Vendor Stands			
+Official Residence	Management Staff Quarters (3 Bedroom & Above)	2400.00	0.00	
+Official Residence	Senior Staff Quarters (2 Bedroom & Above)			
+Official Residence	Junior Staff Quarters (Single Room Self-Contained)			
+Guest House	Guest House			
+Restaurant/Canteen	Restaurant/Canteen	0.00	0.00	
+Club House	Club House	0.00	0.00	
+Stadium	Stadium	0.00	0.00	
