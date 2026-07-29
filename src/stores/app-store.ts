@@ -24,6 +24,7 @@ interface AppState {
   openRMS: () => void;
   showLogin: () => void;
   loginSuccess: () => void;
+  logout: () => void;
   backToLanding: () => void;
 }
 
@@ -35,6 +36,7 @@ export const useAppStore = create<AppState>((set) => ({
   openRMS: () => set({ view: 'login' }),
   showLogin: () => set({ view: 'login' }),
   loginSuccess: () => set({ view: 'rms', rmsPage: 'dashboard' }),
+  logout: () => set({ view: 'landing', rmsPage: 'dashboard' }),
   backToLanding: () => set({ view: 'landing' }),
 }));
 

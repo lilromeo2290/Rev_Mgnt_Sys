@@ -217,13 +217,13 @@ function SidebarContent({
               <button
                 onClick={onBack}
                 className='flex w-full items-center justify-center rounded-lg p-2.5 text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
-                aria-label='Exit to home'
+                aria-label='Logout'
               >
                 <LogOut size={20} />
               </button>
             </TooltipTrigger>
             <TooltipContent side='right' sideOffset={12}>
-              <p>Exit to Home</p>
+              <p>Logout</p>
             </TooltipContent>
           </Tooltip>
         ) : (
@@ -232,7 +232,7 @@ function SidebarContent({
             className='flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring'
           >
             <LogOut size={20} />
-            <span>Exit to Home</span>
+            <span>Logout</span>
           </button>
         )}
       </div>
@@ -244,7 +244,7 @@ function SidebarContent({
 
 export function RmsLayout({ children }: { children: React.ReactNode }) {
   const isMobile = useIsMobile();
-  const { rmsPage, setRMSPage, backToLanding } = useAppStore();
+  const { rmsPage, setRMSPage, logout } = useAppStore();
 
   // Local state: sidebar collapsed (desktop only)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -280,6 +280,9 @@ export function RmsLayout({ children }: { children: React.ReactNode }) {
             <Button variant='ghost' size='icon' className='relative' aria-label='Notifications'>
               <Bell size={18} />
             </Button>
+            <Button variant='ghost' size='icon' onClick={logout} aria-label='Logout' className='text-muted-foreground hover:text-destructive'>
+              <LogOut size={18} />
+            </Button>
             <Avatar className='h-8 w-8'>
               <AvatarImage src='' alt='User avatar' />
               <AvatarFallback className='text-xs'>AD</AvatarFallback>
@@ -301,7 +304,7 @@ export function RmsLayout({ children }: { children: React.ReactNode }) {
               collapsed={false}
               onNavigate={setRMSPage}
               onBack={() => {
-                backToLanding();
+                logout();
                 setMobileOpen(false);
               }}
               onCloseMobile={() => setMobileOpen(false)}
@@ -326,7 +329,7 @@ export function RmsLayout({ children }: { children: React.ReactNode }) {
           currentPage={rmsPage}
           collapsed={sidebarCollapsed}
           onNavigate={setRMSPage}
-          onBack={backToLanding}
+          onBack={logout}
         />
       </aside>
 
@@ -370,6 +373,15 @@ export function RmsLayout({ children }: { children: React.ReactNode }) {
               <span className='text-sm font-medium text-foreground hidden lg:inline'>
                 Admin User
               </span>
+              <Button
+                variant='ghost'
+                size='sm'
+                onClick={logout}
+                className='ml-1 text-xs text-muted-foreground hover:text-destructive'
+              >
+                <LogOut size={16} className='mr-1' />
+                <span className='hidden xl:inline'>Logout</span>
+              </Button>
             </div>
           </div>
         </header>
