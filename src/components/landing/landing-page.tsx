@@ -15,6 +15,7 @@ import {
   HelpCircle,
   FileText,
   ArrowRightLeft,
+  MessageSquare,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
@@ -82,6 +83,13 @@ const SYSTEMS: SystemEntry[] = [
     description:
       'Secure document storage, version control, collaborative editing, and automated workflow approvals.',
     icon: FileText,
+    active: false,
+  },
+  {
+    title: 'CMS Community Hub',
+    description:
+      'Centralized community engagement platform for announcements, discussions, feedback, and public service requests.',
+    icon: MessageSquare,
     active: false,
   },
 ];
