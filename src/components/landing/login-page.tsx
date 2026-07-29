@@ -81,7 +81,7 @@ export function LoginPage() {
         }}
       />
 
-      {/* Ambient glow */}</arg_value><arg_key>
+      {/* Ambient glow */}
       <div
         className="fixed top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full pointer-events-none -z-10"
         style={{
