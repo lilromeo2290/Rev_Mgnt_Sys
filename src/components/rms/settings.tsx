@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   Building,
   Phone,
@@ -87,9 +87,10 @@ export function SettingsPage() {
 function AssemblySettings() {
   const [logoPreview, setLogoPreview] = useState('');
   const [logoName, setLogoName] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) return;
     setLogoName(file.name);
@@ -103,6 +104,7 @@ function AssemblySettings() {
   const handleRemoveLogo = () => {
     setLogoPreview('');
     setLogoName('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   return (
@@ -146,14 +148,15 @@ function AssemblySettings() {
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center gap-2">
                 <input
-                  id="logo-file-input"
+                  ref={fileInputRef}
                   type="file"
                   accept="image/*"
                   onChange={handleLogoUpload}
                   className="hidden"
                 />
                 <button
-                  onClick={() => document.getElementById('logo-file-input')?.click()}
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
                   className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-2 cursor-pointer"
                 >
                   <Upload className="w-4 h-4" /> Upload Logo
