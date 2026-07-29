@@ -30,50 +30,13 @@ import {
 // Mock Data
 // ---------------------------------------------------------------------------
 
-const monthlyRevenue = [
-  { month: 'Jan', revenue: 185000 },
-  { month: 'Feb', revenue: 210000 },
-  { month: 'Mar', revenue: 195000 },
-  { month: 'Apr', revenue: 230000 },
-  { month: 'May', revenue: 260000 },
-  { month: 'Jun', revenue: 245000 },
-  { month: 'Jul', revenue: 275000 },
-  { month: 'Aug', revenue: 290000 },
-  { month: 'Sep', revenue: 255000 },
-  { month: 'Oct', revenue: 310000 },
-  { month: 'Nov', revenue: 340000 },
-  { month: 'Dec', revenue: 352350 },
-];
+const monthlyRevenue = [];
 
-const revenueByCategory = [
-  { name: 'Business Rates', value: 820000, color: '#10b981' },
-  { name: 'Property Tax', value: 650000, color: '#059669' },
-  { name: 'Market Fees', value: 480000, color: '#34d399' },
-  { name: 'Licensing', value: 350000, color: '#6ee7b7' },
-  { name: 'Parking Fees', value: 220000, color: '#047857' },
-  { name: 'Sanitation', value: 187350, color: '#a7f3d0' },
-  { name: ' billboard Ads', value: 90000, color: '#065f46' },
-  { name: 'Others', value: 50000, color: '#d1fae5' },
-];
+const revenueByCategory = [];
 
-const topCollectors = [
-  { name: 'Kwame Asante', area: 'Central Market', amount: 142500, bills: 87 },
-  { name: 'Abena Mensah', area: 'Kejetia', amount: 128300, bills: 76 },
-  { name: 'Kofi Boateng', area: 'Suame', amount: 115800, bills: 69 },
-  { name: 'Ama Darko', area: 'Bantama', amount: 103200, bills: 64 },
-  { name: 'Yaw Owusu', area: 'Nhyiaeso', amount: 97550, bills: 58 },
-];
+const topCollectors = [];
 
-const recentPayments = [
-  { receipt: 'RMS-2024-0012', business: 'Royal Supermarket', amount: 2400, date: '2024-12-18', method: 'Mobile Money' },
-  { receipt: 'RMS-2024-0011', business: 'Kumasi Hardware Ltd', amount: 5800, date: '2024-12-18', method: 'Bank Transfer' },
-  { receipt: 'RMS-2024-0010', business: 'Adom Filling Station', amount: 3200, date: '2024-12-17', method: 'Cash' },
-  { receipt: 'RMS-2024-0009', business: 'Peace Transport Co.', amount: 7600, date: '2024-12-17', method: 'Mobile Money' },
-  { receipt: 'RMS-2024-0008', business: 'Sika Pharmacy', amount: 1900, date: '2024-12-16', method: 'Bank Transfer' },
-  { receipt: 'RMS-2024-0007', business: 'Oheneba Restaurant', amount: 2100, date: '2024-12-16', method: 'Cash' },
-  { receipt: 'RMS-2024-0006', business: 'Asante Motel', amount: 6400, date: '2024-12-15', method: 'Mobile Money' },
-  { receipt: 'RMS-2024-0005', business: 'City Auto Parts', amount: 4500, date: '2024-12-15', method: 'Bank Transfer' },
-];
+const recentPayments = [];
 
 // ---------------------------------------------------------------------------
 // Helpers

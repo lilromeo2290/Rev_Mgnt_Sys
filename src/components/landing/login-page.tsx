@@ -17,11 +17,8 @@ import {
   Shield,
 } from 'lucide-react';
 
-// Demo credentials
 const VALID_USERS = [
   { username: 'admin', password: 'admin123', name: 'System Administrator', role: 'Admin' },
-  { username: 'kofi', password: 'kofi123', name: 'Kofi Mensah', role: 'Revenue Officer' },
-  { username: 'ama', password: 'ama123', name: 'Ama Owusu', role: 'Revenue Officer' },
 ];
 
 export function LoginPage() {
@@ -284,56 +281,7 @@ export function LoginPage() {
               </motion.button>
             </form>
 
-            {/* Demo Credentials */}
-            <div
-              className="mt-6 pt-5"
-              style={{ borderTop: isDark ? '1px solid rgba(51,65,85,0.4)' : '1px solid rgba(226,232,240,0.6)' }}
-            >
-              <p
-                className="text-xs font-medium mb-3 flex items-center gap-1.5"
-                style={{ color: isDark ? 'rgba(148,163,184,0.7)' : 'rgba(100,116,139,0.7)' }}
-              >
-                Demo Credentials
-              </p>
-              <div className="grid grid-cols-1 gap-2">
-                {VALID_USERS.map((u) => (
-                  <button
-                    key={u.username}
-                    type="button"
-                    onClick={() => { setUsername(u.username); setPassword(u.password); setError(''); }}
-                    className="flex items-center justify-between px-3 py-2 rounded-lg text-left transition-all duration-200 cursor-pointer"
-                    style={{
-                      background: isDark ? 'rgba(30,41,59,0.5)' : 'rgba(241,245,249,0.6)',
-                      border: isDark ? '1px solid rgba(51,65,85,0.3)' : '1px solid rgba(226,232,240,0.5)',
-                      color: isDark ? '#cbd5e1' : '#475569',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = 'rgba(16,185,129,0.5)';
-                      e.currentTarget.style.background = isDark ? 'rgba(16,185,129,0.08)' : 'rgba(16,185,129,0.06)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = isDark ? 'rgba(51,65,85,0.3)' : 'rgba(226,232,240,0.5)';
-                      e.currentTarget.style.background = isDark ? 'rgba(30,41,59,0.5)' : 'rgba(241,245,249,0.6)';
-                    }}
-                  >
-                    <div>
-                      <span className="text-sm font-semibold">{u.username}</span>
-                      <span className="text-xs mx-1.5" style={{ color: 'rgba(148,163,184,0.5)' }}>/</span>
-                      <span className="text-xs font-mono">{u.password}</span>
-                    </div>
-                    <span
-                      className="text-[10px] px-2 py-0.5 rounded-full font-medium"
-                      style={{
-                        background: isDark ? 'rgba(16,185,129,0.15)' : 'rgba(16,185,129,0.1)',
-                        color: '#10b981',
-                      }}
-                    >
-                      {u.role}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
+
           </motion.div>
 
           {/* Footer text */}

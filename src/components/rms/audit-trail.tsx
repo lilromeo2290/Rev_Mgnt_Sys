@@ -21,24 +21,7 @@ interface AuditEntry {
   status: 'Success' | 'Failed';
 }
 
-const mockAuditLog: AuditEntry[] = [
-  { id: 'AUD-4821', timestamp: '2024-12-18 14:32:05', user: 'Kwame Asante', action: 'User Login', category: 'auth', target: 'k.asante@kma.gov.gh', details: 'Successful login from Chrome on Windows', ipAddress: '102.156.44.12', status: 'Success' },
-  { id: 'AUD-4820', timestamp: '2024-12-18 14:28:41', user: 'Abena Mensah', action: 'Payment Recorded', category: 'payment', target: 'PAY-98234', details: 'Received GH₨ 2,400 from Royal Supermarket via Mobile Money', ipAddress: '102.156.44.18', status: 'Success' },
-  { id: 'AUD-4819', timestamp: '2024-12-18 13:55:12', user: 'Akua Boateng', action: 'Audit Report Exported', category: 'system', target: 'RPT-AUDIT-Q4-2024', details: 'Exported Q4 2024 audit report as PDF', ipAddress: '102.156.44.25', status: 'Success' },
-  { id: 'AUD-4818', timestamp: '2024-12-18 13:40:08', user: 'Kofi Boateng', action: 'Property Rate Updated', category: 'property', target: 'PROP-2024-0087', details: 'Updated annual rate for Suame Industrial plot', ipAddress: '102.156.44.31', status: 'Success' },
-  { id: 'AUD-4817', timestamp: '2024-12-18 12:18:55', user: 'Ama Darko', action: 'User Created', category: 'user', target: 'USR-012', details: 'Created account for Oheneba Agyeman with Admin role', ipAddress: '102.156.44.14', status: 'Success' },
-  { id: 'AUD-4816', timestamp: '2024-12-18 11:45:33', user: 'Yaw Owusu', action: 'Payment Recorded', category: 'payment', target: 'PAY-98218', details: 'Received GH₨ 600 from Nana Akwasi Mensah via Cash', ipAddress: '102.156.44.22', status: 'Success' },
-  { id: 'AUD-4815', timestamp: '2024-12-18 11:20:09', user: 'Unknown', action: 'Failed Login Attempt', category: 'auth', target: 'admin@kma.gov.gh', details: 'Invalid password, attempt 3 of 5 before lockout', ipAddress: '197.231.88.55', status: 'Failed' },
-  { id: 'AUD-4814', timestamp: '2024-12-18 10:50:42', user: 'Efua Owusu', action: 'Business Registration', category: 'business', target: 'BIZ-2024-045', details: 'Registered new business: Kumasi Fresh Foods at Kejetia', ipAddress: '102.156.44.19', status: 'Success' },
-  { id: 'AUD-4813', timestamp: '2024-12-18 10:15:28', user: 'Nana Akwasi Mensah', action: 'Bill Generated', category: 'payment', target: 'BILL-2024-1234', details: 'Generated Q1 2025 property tax bill for Bantama Ward 12', ipAddress: '102.156.44.27', status: 'Success' },
-  { id: 'AUD-4812', timestamp: '2024-12-18 09:48:16', user: 'Kwabena Amponsah', action: 'Role Changed', category: 'user', target: 'USR-010', details: 'Changed role to Suspended for Kwabena Amponsah', ipAddress: '102.156.44.30', status: 'Success' },
-  { id: 'AUD-4811', timestamp: '2024-12-18 09:30:00', user: 'Afia Acheampong', action: 'Receipt Issued', category: 'payment', target: 'RCP-2024-0451', details: 'Issued receipt for GH₨ 2,400 Business Operating Permit Fee', ipAddress: '102.156.44.16', status: 'Success' },
-  { id: 'AUD-4810', timestamp: '2024-12-18 09:02:44', user: 'Oheneba Agyeman', action: 'System Config Updated', category: 'system', target: 'CFG-RATE-Y2025', details: 'Updated business rate multiplier from 1.15 to 1.20 for FY2025', ipAddress: '102.156.44.11', status: 'Success' },
-  { id: 'AUD-4809', timestamp: '2024-12-17 17:25:31', user: 'Abena Mensah', action: 'Business Updated', category: 'business', target: 'BIZ-2024-012', details: 'Updated licence status to Active for Adom Filling Station', ipAddress: '102.156.44.18', status: 'Success' },
-  { id: 'AUD-4808', timestamp: '2024-12-17 16:48:19', user: 'Kofi Boateng', action: 'User Login', category: 'auth', target: 'k.boateng@kma.gov.gh', details: 'Successful login from Safari on macOS', ipAddress: '102.156.44.31', status: 'Success' },
-  { id: 'AUD-4807', timestamp: '2024-12-17 16:10:55', user: 'Akosua Frimpong', action: 'Report Viewed', category: 'system', target: 'RPT-REV-MONTHLY', details: 'Viewed November 2024 monthly revenue summary', ipAddress: '102.156.44.23', status: 'Success' },
-  { id: 'AUD-4806', timestamp: '2024-12-17 15:35:02', user: 'Unknown', action: 'Failed Login Attempt', category: 'auth', target: 'superuser@kma.gov.gh', details: 'Account does not exist', ipAddress: '197.231.88.102', status: 'Failed' },
-];
+const mockAuditLog: AuditEntry[] = [];
 
 const CATEGORY_CONFIG: Record<ActionCategory, { icon: React.ElementType; label: string; style: string }> = {
   auth: { icon: LogIn, label: 'Authentication', style: 'bg-sky-50 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400' },

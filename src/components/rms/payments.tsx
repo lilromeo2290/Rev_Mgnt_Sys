@@ -71,23 +71,7 @@ const statusBadge: Record<PaymentStatus, { bg: string; text: string; dot: string
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
-const mockPayments: Payment[] = [
-  { id: '1', receiptNo: 'RCP-2024-0001', billNo: 'BIL-2024-0156', business: 'Kwame Asante Enterprises', amount: 245000, balance: 0, date: '2024-12-15', collector: 'Kofi Mensah', method: 'Cash', status: 'Full', reference: 'CASH-001', remarks: 'Annual property tax' },
-  { id: '2', receiptNo: 'RCP-2024-0002', billNo: 'BIL-2024-0203', business: 'Ama Osei Trading Co.', amount: 185000, balance: 65000, date: '2024-12-15', collector: 'Abena Frimpong', method: 'Mobile Money', status: 'Partial', reference: 'MTN-98374', remarks: 'Market stall fees' },
-  { id: '3', receiptNo: 'RCP-2024-0003', billNo: 'BIL-2024-0089', business: 'Nana Akufo & Sons Ltd', amount: 520000, balance: 0, date: '2024-12-14', collector: 'Kwame Boateng', method: 'Bank', status: 'Full', reference: 'GCB-TRF-44521', remarks: 'Commercial rates Q4' },
-  { id: '4', receiptNo: 'RCP-2024-0004', billNo: 'BIL-2024-0312', business: 'Efua Darko Ventures', amount: 450200, balance: 450200, date: '2024-12-14', collector: 'Kofi Mensah', method: 'Online', status: 'Advance', reference: 'PAY-ADV-7823', remarks: 'Advance payment for 2025' },
-  { id: '5', receiptNo: 'RCP-2024-0005', billNo: 'BIL-2024-0178', business: 'Kojo Annan Electronics', amount: 320000, balance: 0, date: '2024-12-14', collector: 'Ama Owusu', method: 'POS', status: 'Full', reference: 'POS-TID-00123', remarks: 'Shop lease payment' },
-  { id: '6', receiptNo: 'RCP-2024-0006', billNo: 'BIL-2024-0245', business: 'Abena Serwaa Pharmacy', amount: 95000, balance: 45000, date: '2024-12-13', collector: 'Abena Frimpong', method: 'Mobile Money', status: 'Partial', reference: 'VOD-55921', remarks: 'Health facility fees' },
-  { id: '7', receiptNo: 'RCP-2024-0007', billNo: 'BIL-2024-0401', business: 'Kwesi Nkansah Transport', amount: 178000, balance: 0, date: '2024-12-13', collector: 'Kwame Boateng', method: 'Cash', status: 'Full', reference: 'CASH-002', remarks: 'Transport permit renewal' },
-  { id: '8', receiptNo: 'RCP-2024-0008', billNo: 'BIL-2024-0187', business: 'Akosua Boateng Fabrics', amount: 210000, balance: 0, date: '2024-12-12', collector: 'Kofi Mensah', method: 'Bank', status: 'Full', reference: 'ECB-TRF-88322', remarks: 'Textile market stall fees' },
-  { id: '9', receiptNo: 'RCP-2024-0009', billNo: 'BIL-2024-0356', business: 'Yaw Adjei Construction', amount: 345000, balance: 145000, date: '2024-12-12', collector: 'Ama Owusu', method: 'POS', status: 'Partial', reference: 'POS-TID-00456', remarks: 'Building permit partial' },
-  { id: '10', receiptNo: 'RCP-2024-0010', billNo: 'BIL-2024-0299', business: 'Adwoa Pokuwa Catering', amount: 87000, balance: 0, date: '2024-12-11', collector: 'Abena Frimpong', method: 'Mobile Money', status: 'Full', reference: 'MTN-11234', remarks: 'Food vendor license' },
-  { id: '11', receiptNo: 'RCP-2024-0011', billNo: 'BIL-2024-0423', business: 'Emmanuel Tetteh Garage', amount: 156000, balance: 156000, date: '2024-12-11', collector: 'Kwame Boateng', method: 'Online', status: 'Advance', reference: 'PAY-ADV-9102', remarks: 'Advance garage license 2025' },
-  { id: '12', receiptNo: 'RCP-2024-0012', billNo: 'BIL-2024-0134', business: 'Grace Amponsah Beauty', amount: 125000, balance: 0, date: '2024-12-10', collector: 'Kofi Mensah', method: 'Cash', status: 'Full', reference: 'CASH-003', remarks: 'Salon permit renewal' },
-  { id: '13', receiptNo: 'RCP-2024-0013', billNo: 'BIL-2024-0267', business: 'Joseph Amoako Hardware', amount: 278000, balance: 78000, date: '2024-12-10', collector: 'Ama Owusu', method: 'Bank', status: 'Partial', reference: 'NMB-TRF-33215', remarks: 'Hardware store rates' },
-  { id: '14', receiptNo: 'RCP-2024-0014', billNo: 'BIL-2024-0389', business: 'Felicia Mensah Foods', amount: 198000, balance: 0, date: '2024-12-09', collector: 'Abena Frimpong', method: 'Mobile Money', status: 'Full', reference: 'AIR-66789', remarks: 'Restaurant license fee' },
-  { id: '15', receiptNo: 'RCP-2024-0015', billNo: 'BIL-2024-0501', business: 'Daniel Ofori Agro Ltd', amount: 412000, balance: 0, date: '2024-12-09', collector: 'Kwame Boateng', method: 'Cash', status: 'Full', reference: 'CASH-004', remarks: 'Agro-business property tax' },
-];
+const mockPayments: Payment[] = [];
 
 const mockBills: MockBill[] = [
   { billNo: 'BIL-2024-0512', business: 'Theresa Aidoo Fashion House', totalAmount: 180000, balance: 180000 },

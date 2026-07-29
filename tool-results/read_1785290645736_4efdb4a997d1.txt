@@ -1,0 +1,652 @@
+     1→'use client';
+     2→
+     3→import { useState, useMemo } from 'react';
+     4→import {
+     5→  Search,
+     6→  Plus,
+     7→  Pencil,
+     8→  Trash2,
+     9→  X,
+    10→  ChevronLeft,
+    11→  ChevronRight,
+    12→  Shield,
+    13→  UserCog,
+    14→  Eye,
+    15→  Mail,
+    16→  Phone,
+    17→  MapPin,
+    18→  CheckCircle2,
+    19→  XCircle,
+    20→  Clock,
+    21→  Users,
+    22→  Filter,
+    23→  Save,
+    24→} from 'lucide-react';
+    25→
+    26→// ─── Types ───────────────────────────────────────────────────────────────────
+    27→
+    28→type UserRole = 'Administrator' | 'Revenue Officer' | 'Field Collector' | 'Auditor' | 'Finance Manager';
+    29→type UserStatus = 'Active' | 'Inactive' | 'Suspended';
+    30→
+    31→interface User {
+    32→  id: string;
+    33→  staffId: string;
+    34→  firstName: string;
+    35→  lastName: string;
+    36→  email: string;
+    37→  phone: string;
+    38→  role: UserRole;
+    39→  zone: string;
+    40→  ward: string;
+    41→  status: UserStatus;
+    42→  lastLogin: string;
+    43→  dateCreated: string;
+    44→  ghanaCard: string;
+    45→}
+    46→
+    47→interface UserFormData {
+    48→  firstName: string;
+    49→  lastName: string;
+    50→  email: string;
+    51→  phone: string;
+    52→  role: UserRole;
+    53→  zone: string;
+    54→  ward: string;
+    55→  ghanaCard: string;
+    56→}
+    57→
+    58→// ─── Helpers ──────────────────────────────────────────────────────────────────
+    59→
+    60→const roleIcon: Record<UserRole, string> = {
+    61→  Administrator: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+    62→  'Revenue Officer': 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
+    63→  'Field Collector': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+    64→  Auditor: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+    65→  'Finance Manager': 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400',
+    66→};
+    67→
+    68→const statusConfig: Record<UserStatus, { pill: string; icon: React.ElementType }> = {
+    69→  Active: { pill: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400', icon: CheckCircle2 },
+    70→  Inactive: { pill: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400', icon: Clock },
+    71→  Suspended: { pill: 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400', icon: XCircle },
+    72→};
+    73→
+    74→const emptyForm: UserFormData = {
+    75→  firstName: '',
+    76→  lastName: '',
+    77→  email: '',
+    78→  phone: '',
+    79→  role: 'Field Collector',
+    80→  zone: 'Zone A',
+    81→  ward: '',
+    82→  ghanaCard: '',
+    83→};
+    84→
+    85→// ─── Mock Data ────────────────────────────────────────────────────────────────
+    86→
+    87→const initialUsers: User[] = [
+    88→  { id: '1', staffId: 'STF-001', firstName: 'Kwame', lastName: 'Mensah', email: 'kwame.mensah@kma.gov.gh', phone: '+233 24 567 8901', role: 'Administrator', zone: 'Zone A', ward: 'Bantama', status: 'Active', lastLogin: '2024-12-18 09:15', dateCreated: '2022-03-01', ghanaCard: 'GHA-123456789-0' },
+    89→  { id: '2', staffId: 'STF-002', firstName: 'Abena', lastName: 'Frimpong', email: 'abena.frimpong@kma.gov.gh', phone: '+233 20 345 6789', role: 'Revenue Officer', zone: 'Zone B', ward: 'Kejetia', status: 'Active', lastLogin: '2024-12-18 08:30', dateCreated: '2022-06-15', ghanaCard: 'GHA-234567890-1' },
+    90→  { id: '3', staffId: 'STF-003', firstName: 'Kofi', lastName: 'Boateng', email: 'kofi.boateng@kma.gov.gh', phone: '+233 27 890 1234', role: 'Field Collector', zone: 'Zone C', ward: 'Suame', status: 'Active', lastLogin: '2024-12-17 16:45', dateCreated: '2023-01-10', ghanaCard: 'GHA-345678901-2' },
+    91→  { id: '4', staffId: 'STF-004', firstName: 'Ama', lastName: 'Owusu', email: 'ama.owusu@kma.gov.gh', phone: '+233 50 123 4567', role: 'Revenue Officer', zone: 'Zone A', ward: 'Ahodwo', status: 'Active', lastLogin: '2024-12-18 10:00', dateCreated: '2022-09-20', ghanaCard: 'GHA-456789012-3' },
+    92→  { id: '5', staffId: 'STF-005', firstName: 'Yaw', lastName: 'Adjei', email: 'yaw.adjei@kma.gov.gh', phone: '+233 28 456 7890', role: 'Auditor', zone: 'Zone D', ward: 'Oforikrom', status: 'Active', lastLogin: '2024-12-17 14:20', dateCreated: '2023-04-05', ghanaCard: 'GHA-567890123-4' },
+    93→  { id: '6', staffId: 'STF-006', firstName: 'Efua', lastName: 'Darko', email: 'efua.darko@kma.gov.gh', phone: '+233 24 678 9012', role: 'Finance Manager', zone: 'Zone A', ward: 'Bantama', status: 'Active', lastLogin: '2024-12-18 07:45', dateCreated: '2022-01-18', ghanaCard: 'GHA-678901234-5' },
+    94→  { id: '7', staffId: 'STF-007', firstName: 'Kwesi', lastName: 'Nkansah', email: 'kwesi.nkansah@kma.gov.gh', phone: '+233 20 789 0123', role: 'Field Collector', zone: 'Zone D', ward: 'Oforikrom', status: 'Inactive', lastLogin: '2024-11-30 11:00', dateCreated: '2023-07-12', ghanaCard: 'GHA-789012345-6' },
+    95→  { id: '8', staffId: 'STF-008', firstName: 'Adwoa', lastName: 'Pokuwa', email: 'adwoa.pokuwa@kma.gov.gh', phone: '+233 50 234 5678', role: 'Field Collector', zone: 'Zone B', ward: 'Nhyiaeso', status: 'Active', lastLogin: '2024-12-18 08:50', dateCreated: '2023-02-28', ghanaCard: 'GHA-890123456-7' },
+    96→  { id: '9', staffId: 'STF-009', firstName: 'Nana', lastName: 'Akufo', email: 'nana.akufo@kma.gov.gh', phone: '+233 27 012 3456', role: 'Revenue Officer', zone: 'Zone C', ward: 'Suame', status: 'Active', lastLogin: '2024-12-17 15:30', dateCreated: '2022-11-08', ghanaCard: 'GHA-901234567-8' },
+    97→  { id: '10', staffId: 'STF-010', firstName: 'Akosua', lastName: 'Boateng', email: 'akosua.boateng@kma.gov.gh', phone: '+233 28 890 1234', role: 'Auditor', zone: 'Zone A', ward: 'Ahodwo', status: 'Suspended', lastLogin: '2024-10-15 09:00', dateCreated: '2023-05-22', ghanaCard: 'GHA-012345678-9' },
+    98→  { id: '11', staffId: 'STF-011', firstName: 'Emmanuel', lastName: 'Tetteh', email: 'emmanuel.tetteh@kma.gov.gh', phone: '+233 24 345 6789', role: 'Field Collector', zone: 'Zone B', ward: 'Kejetia', status: 'Active', lastLogin: '2024-12-16 16:10', dateCreated: '2023-08-30', ghanaCard: 'GHA-111222333-4' },
+    99→  { id: '12', staffId: 'STF-012', firstName: 'Grace', lastName: 'Amponsah', email: 'grace.amponsah@kma.gov.gh', phone: '+233 50 567 8901', role: 'Revenue Officer', zone: 'Zone D', ward: 'Oforikrom', status: 'Active', lastLogin: '2024-12-18 09:40', dateCreated: '2022-08-14', ghanaCard: 'GHA-222333444-5' },
+   100→];
+   101→
+   102→// ─── Component ────────────────────────────────────────────────────────────────
+   103→
+   104→const ITEMS_PER_PAGE = 8;
+   105→
+   106→export function UsersPage() {
+   107→  const [users, setUsers] = useState<User[]>(initialUsers);
+   108→  const [search, setSearch] = useState('');
+   109→  const [roleFilter, setRoleFilter] = useState<'All' | UserRole>('All');
+   110→  const [statusFilter, setStatusFilter] = useState<'All' | UserStatus>('All');
+   111→  const [page, setPage] = useState(1);
+   112→  const [showAddModal, setShowAddModal] = useState(false);
+   113→  const [editUser, setEditUser] = useState<User | null>(null);
+   114→  const [form, setForm] = useState<UserFormData>(emptyForm);
+   115→  const [showFilters, setShowFilters] = useState(false);
+   116→  const [viewUser, setViewUser] = useState<User | null>(null);
+   117→
+   118→  const filtered = useMemo(() => {
+   119→    return users.filter((u) => {
+   120→      const q = search.toLowerCase();
+   121→      const fullName = `${u.firstName} ${u.lastName}`.toLowerCase();
+   122→      const matchSearch =
+   123→        !q ||
+   124→        fullName.includes(q) ||
+   125→        u.staffId.toLowerCase().includes(q) ||
+   126→        u.email.toLowerCase().includes(q) ||
+   127→        u.zone.toLowerCase().includes(q);
+   128→      const matchRole = roleFilter === 'All' || u.role === roleFilter;
+   129→      const matchStatus = statusFilter === 'All' || u.status === statusFilter;
+   130→      return matchSearch && matchRole && matchStatus;
+   131→    });
+   132→  }, [users, search, roleFilter, statusFilter]);
+   133→
+   134→  const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+   135→  const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+   136→
+   137→  const activeCount = users.filter((u) => u.status === 'Active').length;
+   138→  const inactiveCount = users.filter((u) => u.status === 'Inactive').length;
+   139→  const suspendedCount = users.filter((u) => u.status === 'Suspended').length;
+   140→
+   141→  const openAdd = () => {
+   142→    setForm(emptyForm);
+   143→    setShowAddModal(true);
+   144→  };
+   145→
+   146→  const openEdit = (user: User) => {
+   147→    setForm({
+   148→      firstName: user.firstName,
+   149→      lastName: user.lastName,
+   150→      email: user.email,
+   151→      phone: user.phone,
+   152→      role: user.role,
+   153→      zone: user.zone,
+   154→      ward: user.ward,
+   155→      ghanaCard: user.ghanaCard,
+   156→    });
+   157→    setEditUser(user);
+   158→  };
+   159→
+   160→  const handleSave = () => {
+   161→    if (editUser) {
+   162→      setUsers((prev) =>
+   163→        prev.map((u) =>
+   164→          u.id === editUser.id
+   165→            ? { ...u, ...form }
+   166→            : u
+   167→        )
+   168→      );
+   169→      setEditUser(null);
+   170→    } else {
+   171→      const newUser: User = {
+   172→        id: String(Date.now()),
+   173→        staffId: `STF-${String(users.length + 1).padStart(3, '0')}`,
+   174→        ...form,
+   175→        status: 'Active',
+   176→        lastLogin: 'Never',
+   177→        dateCreated: new Date().toISOString().slice(0, 10),
+   178→      };
+   179→      setUsers((prev) => [newUser, ...prev]);
+   180→      setShowAddModal(false);
+   181→    }
+   182→    setForm(emptyForm);
+   183→  };
+   184→
+   185→  const handleDelete = (id: string) => {
+   186→    setUsers((prev) => prev.filter((u) => u.id !== id));
+   187→  };
+   188→
+   189→  const toggleStatus = (id: string) => {
+   190→    setUsers((prev) =>
+   191→      prev.map((u) =>
+   192→        u.id === id
+   193→          ? { ...u, status: u.status === 'Active' ? 'Inactive' : 'Active' }
+   194→          : u
+   195→      )
+   196→    );
+   197→  };
+   198→
+   199→  const updateForm = (field: keyof UserFormData, value: string) => {
+   200→    setForm((prev) => ({ ...prev, [field]: value }));
+   201→  };
+   202→
+   203→  const isValid =
+   204→    form.firstName.trim() !== '' &&
+   205→    form.lastName.trim() !== '' &&
+   206→    form.email.trim() !== '' &&
+   207→    form.phone.trim() !== '';
+   208→
+   209→  return (
+   210→    <div className="space-y-6">
+   211→      {/* Header */}
+   212→      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+   213→        <div>
+   214→          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">User Management</h1>
+   215→          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+   216→            Manage system users, roles, and access permissions
+   217→          </p>
+   218→        </div>
+   219→        <button
+   220→          onClick={openAdd}
+   221→          className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 text-sm font-medium transition-colors"
+   222→        >
+   223→          <Plus className="w-4 h-4" />
+   224→          Add User
+   225→        </button>
+   226→      </div>
+   227→
+   228→      {/* Summary Cards */}
+   229→      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+   230→        <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 flex items-center gap-4">
+   231→          <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
+   232→            <Users className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+   233→          </div>
+   234→          <div>
+   235→            <p className="text-sm text-slate-500 dark:text-slate-400">Total Users</p>
+   236→            <p className="text-xl font-bold text-slate-900 dark:text-white">{users.length}</p>
+   237→          </div>
+   238→        </div>
+   239→        <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 flex items-center gap-4">
+   240→          <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
+   241→            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+   242→          </div>
+   243→          <div>
+   244→            <p className="text-sm text-slate-500 dark:text-slate-400">Active</p>
+   245→            <p className="text-xl font-bold text-slate-900 dark:text-white">{activeCount}</p>
+   246→          </div>
+   247→        </div>
+   248→        <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 flex items-center gap-4">
+   249→          <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+   250→            <Clock className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+   251→          </div>
+   252→          <div>
+   253→            <p className="text-sm text-slate-500 dark:text-slate-400">Inactive</p>
+   254→            <p className="text-xl font-bold text-slate-900 dark:text-white">{inactiveCount}</p>
+   255→          </div>
+   256→        </div>
+   257→        <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 flex items-center gap-4">
+   258→          <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+   259→            <XCircle className="w-5 h-5 text-red-500" />
+   260→          </div>
+   261→          <div>
+   262→            <p className="text-sm text-slate-500 dark:text-slate-400">Suspended</p>
+   263→            <p className="text-xl font-bold text-slate-900 dark:text-white">{suspendedCount}</p>
+   264→          </div>
+   265→        </div>
+   266→      </div>
+   267→
+   268→      {/* Table Card */}
+   269→      <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden">
+   270→        {/* Toolbar */}
+   271→        <div className="p-4 border-b border-slate-200 dark:border-slate-700 space-y-3">
+   272→          <div className="flex flex-col sm:flex-row gap-3">
+   273→            <div className="relative flex-1">
+   274→              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+   275→              <input
+   276→                type="text"
+   277→                placeholder="Search by name, staff ID, email, or zone..."
+   278→                value={search}
+   279→                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+   280→                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-4 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-shadow"
+   281→              />
+   282→            </div>
+   283→            <button
+   284→              onClick={() => setShowFilters((v) => !v)}
+   285→              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+   286→            >
+   287→              <Filter className="w-4 h-4" />
+   288→              Filters
+   289→            </button>
+   290→          </div>
+   291→
+   292→          {showFilters && (
+   293→            <div className="flex flex-wrap gap-3">
+   294→              <select
+   295→                value={roleFilter}
+   296→                onChange={(e) => { setRoleFilter(e.target.value as 'All' | UserRole); setPage(1); }}
+   297→                className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   298→              >
+   299→                <option value="All">All Roles</option>
+   300→                <option value="Administrator">Administrator</option>
+   301→                <option value="Revenue Officer">Revenue Officer</option>
+   302→                <option value="Field Collector">Field Collector</option>
+   303→                <option value="Auditor">Auditor</option>
+   304→                <option value="Finance Manager">Finance Manager</option>
+   305→              </select>
+   306→              <select
+   307→                value={statusFilter}
+   308→                onChange={(e) => { setStatusFilter(e.target.value as 'All' | UserStatus); setPage(1); }}
+   309→                className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   310→              >
+   311→                <option value="All">All Statuses</option>
+   312→                <option value="Active">Active</option>
+   313→                <option value="Inactive">Inactive</option>
+   314→                <option value="Suspended">Suspended</option>
+   315→              </select>
+   316→            </div>
+   317→          )}
+   318→        </div>
+   319→
+   320→        {/* Table */}
+   321→        <div className="overflow-x-auto max-h-96 overflow-y-auto">
+   322→          <table className="w-full text-left">
+   323→            <thead className="bg-slate-50 dark:bg-slate-900/50 sticky top-0 z-10">
+   324→              <tr className="border-b border-slate-200 dark:border-slate-700">
+   325→                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Staff ID</th>
+   326→                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Name</th>
+   327→                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Role</th>
+   328→                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Zone / Ward</th>
+   329→                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Status</th>
+   330→                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Last Login</th>
+   331→                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3 text-center">Actions</th>
+   332→              </tr>
+   333→            </thead>
+   334→            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
+   335→              {paginated.length === 0 ? (
+   336→                <tr>
+   337→                  <td colSpan={7} className="text-center py-12 text-sm text-slate-400 dark:text-slate-500">
+   338→                    No users found matching your criteria.
+   339→                  </td>
+   340→                </tr>
+   341→              ) : (
+   342→                paginated.map((u) => {
+   343→                  const StatusIcon = statusConfig[u.status].icon;
+   344→                  return (
+   345→                    <tr key={u.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+   346→                      <td className="px-4 py-3 text-sm font-mono text-slate-900 dark:text-white">{u.staffId}</td>
+   347→                      <td className="px-4 py-3">
+   348→                        <div className="flex items-center gap-2.5">
+   349→                          <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-700 dark:text-emerald-400 text-xs font-bold shrink-0">
+   350→                            {u.firstName[0]}{u.lastName[0]}
+   351→                          </div>
+   352→                          <div>
+   353→                            <p className="text-sm font-medium text-slate-900 dark:text-white">{u.firstName} {u.lastName}</p>
+   354→                            <p className="text-xs text-slate-500 dark:text-slate-400">{u.email}</p>
+   355→                          </div>
+   356→                        </div>
+   357→                      </td>
+   358→                      <td className="px-4 py-3">
+   359→                        <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${roleIcon[u.role]}`}>
+   360→                          {u.role}
+   361→                        </span>
+   362→                      </td>
+   363→                      <td className="px-4 py-3">
+   364→                        <p className="text-sm text-slate-700 dark:text-slate-300">{u.zone}</p>
+   365→                        <p className="text-xs text-slate-400 dark:text-slate-500">{u.ward}</p>
+   366→                      </td>
+   367→                      <td className="px-4 py-3">
+   368→                        <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${statusConfig[u.status].pill}`}>
+   369→                          <StatusIcon className="w-3 h-3" />
+   370→                          {u.status}
+   371→                        </span>
+   372→                      </td>
+   373→                      <td className="px-4 py-3">
+   374→                        <div className="text-sm text-slate-600 dark:text-slate-400">{u.lastLogin.split(' ')[0]}</div>
+   375→                        <div className="text-xs text-slate-400 dark:text-slate-500">{u.lastLogin.split(' ')[1]}</div>
+   376→                      </td>
+   377→                      <td className="px-4 py-3">
+   378→                        <div className="flex items-center justify-center gap-1">
+   379→                          <button
+   380→                            onClick={() => setViewUser(u)}
+   381→                            className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+   382→                            title="View user"
+   383→                          >
+   384→                            <Eye className="w-4 h-4" />
+   385→                          </button>
+   386→                          <button
+   387→                            onClick={() => openEdit(u)}
+   388→                            className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+   389→                            title="Edit user"
+   390→                          >
+   391→                            <Pencil className="w-4 h-4" />
+   392→                          </button>
+   393→                          <button
+   394→                            onClick={() => toggleStatus(u.id)}
+   395→                            className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+   396→                            title={u.status === 'Active' ? 'Deactivate' : 'Activate'}
+   397→                          >
+   398→                            <Shield className="w-4 h-4" />
+   399→                          </button>
+   400→                          <button
+   401→                            onClick={() => handleDelete(u.id)}
+   402→                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+   403→                            title="Delete user"
+   404→                          >
+   405→                            <Trash2 className="w-4 h-4" />
+   406→                          </button>
+   407→                        </div>
+   408→                      </td>
+   409→                    </tr>
+   410→                  );
+   411→                })
+   412→              )}
+   413→            </tbody>
+   414→          </table>
+   415→        </div>
+   416→
+   417→        {/* Pagination */}
+   418→        <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 dark:border-slate-700">
+   419→          <p className="text-sm text-slate-500 dark:text-slate-400">
+   420→            Showing {paginated.length} of {filtered.length} users
+   421→          </p>
+   422→          <div className="flex items-center gap-1">
+   423→            <button
+   424→              onClick={() => setPage((p) => Math.max(1, p - 1))}
+   425→              disabled={page === 1}
+   426→              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+   427→            >
+   428→              <ChevronLeft className="w-4 h-4" />
+   429→            </button>
+   430→            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+   431→              <button
+   432→                key={p}
+   433→                onClick={() => setPage(p)}
+   434→                className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
+   435→                  p === page
+   436→                    ? 'bg-emerald-600 text-white'
+   437→                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
+   438→                }`}
+   439→              >
+   440→                {p}
+   441→              </button>
+   442→            ))}
+   443→            <button
+   444→              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+   445→              disabled={page === totalPages}
+   446→              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+   447→            >
+   448→              <ChevronRight className="w-4 h-4" />
+   449→            </button>
+   450→          </div>
+   451→        </div>
+   452→      </div>
+   453→
+   454→      {/* Add/Edit Modal */}
+   455→      {(showAddModal || editUser) && (
+   456→        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+   457→          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => { setShowAddModal(false); setEditUser(null); setForm(emptyForm); }} />
+   458→          <div className="relative bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xl w-full max-w-md">
+   459→            {/* Modal Header */}
+   460→            <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-700">
+   461→              <div className="flex items-center gap-3">
+   462→                <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
+   463→                  <UserCog className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+   464→                </div>
+   465→                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+   466→                  {editUser ? 'Edit User' : 'Add New User'}
+   467→                </h2>
+   468→              </div>
+   469→              <button
+   470→                onClick={() => { setShowAddModal(false); setEditUser(null); setForm(emptyForm); }}
+   471→                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+   472→              >
+   473→                <X className="w-5 h-5" />
+   474→              </button>
+   475→            </div>
+   476→
+   477→            {/* Modal Body */}
+   478→            <div className="p-5 space-y-4">
+   479→              <div className="grid grid-cols-2 gap-4">
+   480→                <div>
+   481→                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">First Name</label>
+   482→                  <input
+   483→                    type="text"
+   484→                    value={form.firstName}
+   485→                    onChange={(e) => updateForm('firstName', e.target.value)}
+   486→                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   487→                    placeholder="Kwame"
+   488→                  />
+   489→                </div>
+   490→                <div>
+   491→                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Last Name</label>
+   492→                  <input
+   493→                    type="text"
+   494→                    value={form.lastName}
+   495→                    onChange={(e) => updateForm('lastName', e.target.value)}
+   496→                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   497→                    placeholder="Mensah"
+   498→                  />
+   499→                </div>
+   500→              </div>
+   501→              <div>
+   502→                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email</label>
+   503→                <input
+   504→                  type="email"
+   505→                  value={form.email}
+   506→                  onChange={(e) => updateForm('email', e.target.value)}
+   507→                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   508→                  placeholder="kwame.mensah@kma.gov.gh"
+   509→                />
+   510→              </div>
+   511→              <div>
+   512→                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Phone</label>
+   513→                <input
+   514→                  type="tel"
+   515→                  value={form.phone}
+   516→                  onChange={(e) => updateForm('phone', e.target.value)}
+   517→                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   518→                  placeholder="+233 24 567 8901"
+   519→                />
+   520→              </div>
+   521→              <div className="grid grid-cols-2 gap-4">
+   522→                <div>
+   523→                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Role</label>
+   524→                  <select
+   525→                    value={form.role}
+   526→                    onChange={(e) => updateForm('role', e.target.value)}
+   527→                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   528→                  >
+   529→                    <option value="Field Collector">Field Collector</option>
+   530→                    <option value="Revenue Officer">Revenue Officer</option>
+   531→                    <option value="Auditor">Auditor</option>
+   532→                    <option value="Finance Manager">Finance Manager</option>
+   533→                    <option value="Administrator">Administrator</option>
+   534→                  </select>
+   535→                </div>
+   536→                <div>
+   537→                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Zone</label>
+   538→                  <select
+   539→                    value={form.zone}
+   540→                    onChange={(e) => updateForm('zone', e.target.value)}
+   541→                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   542→                  >
+   543→                    <option value="Zone A">Zone A</option>
+   544→                    <option value="Zone B">Zone B</option>
+   545→                    <option value="Zone C">Zone C</option>
+   546→                    <option value="Zone D">Zone D</option>
+   547→                  </select>
+   548→                </div>
+   549→              </div>
+   550→              <div>
+   551→                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Ward</label>
+   552→                <input
+   553→                  type="text"
+   554→                  value={form.ward}
+   555→                  onChange={(e) => updateForm('ward', e.target.value)}
+   556→                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   557→                  placeholder="Bantama"
+   558→                />
+   559→              </div>
+   560→              <div>
+   561→                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Ghana Card No.</label>
+   562→                <input
+   563→                  type="text"
+   564→                  value={form.ghanaCard}
+   565→                  onChange={(e) => updateForm('ghanaCard', e.target.value)}
+   566→                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   567→                  placeholder="GHA-123456789-0"
+   568→                />
+   569→              </div>
+   570→            </div>
+   571→
+   572→            {/* Modal Footer */}
+   573→            <div className="flex items-center justify-end gap-2 p-5 border-t border-slate-200 dark:border-slate-700">
+   574→              <button
+   575→                onClick={() => { setShowAddModal(false); setEditUser(null); setForm(emptyForm); }}
+   576→                className="rounded-lg border border-slate-200 dark:border-slate-700 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+   577→              >
+   578→                Cancel
+   579→              </button>
+   580→              <button
+   581→                onClick={handleSave}
+   582→                disabled={!isValid}
+   583→                className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 text-sm font-medium transition-colors"
+   584→              >
+   585→                <Save className="w-4 h-4" />
+   586→                {editUser ? 'Update User' : 'Create User'}
+   587→              </button>
+   588→            </div>
+   589→          </div>
+   590→        </div>
+   591→      )}
+   592→
+   593→      {/* View User Modal */}
+   594→      {viewUser && (
+   595→        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+   596→          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setViewUser(null)} />
+   597→          <div className="relative bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xl w-full max-w-md">
+   598→            <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-700">
+   599→              <div className="flex items-center gap-3">
+   600→                <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-700 dark:text-emerald-400 text-sm font-bold">
+   601→                  {viewUser.firstName[0]}{viewUser.lastName[0]}
+   602→                </div>
+   603→                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{viewUser.firstName} {viewUser.lastName}</h2>
+   604→              </div>
+   605→              <button onClick={() => setViewUser(null)} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+   606→                <X className="w-5 h-5" />
+   607→              </button>
+   608→            </div>
+   609→            <div className="p-5 space-y-4">
+   610→              <div className="grid grid-cols-2 gap-4">
+   611→                <ViewField label="Staff ID" value={viewUser.staffId} />
+   612→                <ViewField label="Ghana Card" value={viewUser.ghanaCard} />
+   613→                <ViewField label="Role" value={viewUser.role} />
+   614→                <ViewField label="Status" value={viewUser.status} />
+   615→                <ViewField label="Zone" value={viewUser.zone} />
+   616→                <ViewField label="Ward" value={viewUser.ward} />
+   617→              </div>
+   618→              <div className="border-t border-slate-200 dark:border-slate-700 pt-4 space-y-3">
+   619→                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+   620→                  <Mail className="w-4 h-4" />{viewUser.email}
+   621→                </div>
+   622→                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+   623→                  <Phone className="w-4 h-4" />{viewUser.phone}
+   624→                </div>
+   625→                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+   626→                  <Clock className="w-4 h-4" />Last login: {viewUser.lastLogin}
+   627→                </div>
+   628→                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+   629→                  <MapPin className="w-4 h-4" />Created: {viewUser.dateCreated}
+   630→                </div>
+   631→              </div>
+   632→            </div>
+   633→          </div>
+   634→        </div>
+   635→      )}
+   636→    </div>
+   637→  );
+   638→}
+   639→
+   640→// ─── Sub-components ────────────────────────────────────────────────────────────
+   641→
+   642→function ViewField({ label, value }: { label: string; value: string }) {
+   643→  return (
+   644→    <div>
+   645→      <p className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">{label}</p>
+   646→      <p className="text-sm font-medium text-slate-900 dark:text-white">{value}</p>
+   647→    </div>
+   648→  );
+   649→}
+   650→
+   651→export { UsersPage };
+   652→

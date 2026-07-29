@@ -1,0 +1,983 @@
+     1→'use client';
+     2→
+     3→import { useState } from 'react';
+     4→import {
+     5→  Search,
+     6→  Plus,
+     7→  ArrowLeft,
+     8→  Pencil,
+     9→  Trash2,
+    10→  ChevronLeft,
+    11→  ChevronRight,
+    12→  Upload,
+    13→  Home,
+    14→} from 'lucide-react';
+    15→
+    16→// ─── Types ───────────────────────────────────────────────────────────────────
+    17→
+    18→interface Property {
+    19→  propNumber: string;
+    20→  owner: string;
+    21→  ownerContact: string;
+    22→  propertyType: string;
+    23→  category: string;
+    24→  floors: number;
+    25→  rooms: number;
+    26→  propertyUse: string;
+    27→  valuation: number;
+    28→  occupancyStatus: 'Occupied' | 'Vacant' | 'Under Construction';
+    29→  buildingPermit: string;
+    30→  gpsCoordinates: string;
+    31→  digitalAddress: string;
+    32→  plotNumber: string;
+    33→  streetName: string;
+    34→  ward: string;
+    35→  electoralArea: string;
+    36→  zone: string;
+    37→}
+    38→
+    39→// ─── Mock Data ───────────────────────────────────────────────────────────────
+    40→
+    41→const mockProperties: Property[] = [
+    42→  {
+    43→    propNumber: 'PRP-2024-001',
+    44→    owner: 'Nana Akwasi Mensah',
+    45→    ownerContact: '+233 24 567 8901',
+    46→    propertyType: 'Residential',
+    47→    category: 'Single Family Home',
+    48→    floors: 2,
+    49→    rooms: 8,
+    50→    propertyUse: 'Private Residence',
+    51→    valuation: 450000,
+    52→    occupancyStatus: 'Occupied',
+    53→    buildingPermit: 'BP-KMA-2023-0451',
+    54→    gpsCoordinates: 'AK-034-5521',
+    55→    digitalAddress: 'AK-034-5521',
+    56→    plotNumber: 'BLK-A/LOT-12',
+    57→    streetName: 'Kejetia Road',
+    58→    ward: 'Ahodwo',
+    59→    electoralArea: 'Bantama',
+    60→    zone: 'Zone A',
+    61→  },
+    62→  {
+    63→    propNumber: 'PRP-2024-002',
+    64→    owner: 'Kwame Asante',
+    65→    ownerContact: '+233 20 123 4567',
+    66→    propertyType: 'Commercial',
+    67→    category: 'Office Complex',
+    68→    floors: 5,
+    69→    rooms: 24,
+    70→    propertyUse: 'Mixed Office & Retail',
+    71→    valuation: 3200000,
+    72→    occupancyStatus: 'Occupied',
+    73→    buildingPermit: 'BP-ACC-2022-1122',
+    74→    gpsCoordinates: 'GA-512-8932',
+    75→    digitalAddress: 'GA-512-8932',
+    76→    plotNumber: 'BLK-C/LOT-07',
+    77→    streetName: 'Liberation Road',
+    78→    ward: 'Osu',
+    79→    electoralArea: 'Osu Klottey',
+    80→    zone: 'Zone C',
+    81→  },
+    82→  {
+    83→    propNumber: 'PRP-2024-003',
+    84→    owner: 'Adwoa Frimpong',
+    85→    ownerContact: '+233 50 234 5678',
+    86→    propertyType: 'Residential',
+    87→    category: 'Apartment Block',
+    88→    floors: 4,
+    89→    rooms: 16,
+    90→    propertyUse: 'Residential Apartments',
+    91→    valuation: 1850000,
+    92→    occupancyStatus: 'Occupied',
+    93→    buildingPermit: 'BP-KMA-2023-0789',
+    94→    gpsCoordinates: 'AK-092-7781',
+    95→    digitalAddress: 'AK-092-7781',
+    96→    plotNumber: 'BLK-D/LOT-33',
+    97→    streetName: 'Suame Magazine Road',
+    98→    ward: 'Suame',
+    99→    electoralArea: 'Suame',
+   100→    zone: 'Zone D',
+   101→  },
+   102→  {
+   103→    propNumber: 'PRP-2024-004',
+   104→    owner: 'Emmanuel Tetteh',
+   105→    ownerContact: '+233 26 345 6789',
+   106→    propertyType: 'Vacant Land',
+   107→    category: 'Undeveloped Plot',
+   108→    floors: 0,
+   109→    rooms: 0,
+   110→    propertyUse: 'Vacant / Future Development',
+   111→    valuation: 280000,
+   112→    occupancyStatus: 'Vacant',
+   113→    buildingPermit: '',
+   114→    gpsCoordinates: 'GA-201-4456',
+   115→    digitalAddress: 'GA-201-4456',
+   116→    plotNumber: 'BLK-E/LOT-19',
+   117→    streetName: 'Teshie Nungua Road',
+   118→    ward: 'Teshie',
+   119→    electoralArea: 'Teshie Nungua',
+   120→    zone: 'Zone E',
+   121→  },
+   122→  {
+   123→    propNumber: 'PRP-2024-005',
+   124→    owner: 'Kwabena Darko',
+   125→    ownerContact: '+233 20 890 1234',
+   126→    propertyType: 'Commercial',
+   127→    category: 'Shopping Mall',
+   128→    floors: 3,
+   129→    rooms: 42,
+   130→    propertyUse: 'Retail & Entertainment',
+   131→    valuation: 7500000,
+   132→    occupancyStatus: 'Under Construction',
+   133→    buildingPermit: 'BP-KMA-2024-0056',
+   134→    gpsCoordinates: 'AK-156-2290',
+   135→    digitalAddress: 'AK-156-2290',
+   136→    plotNumber: 'BLK-G/LOT-05',
+   137→    streetName: 'Accra-Kumasi Highway',
+   138→    ward: 'Konongo',
+   139→    electoralArea: 'Asante Akim Central',
+   140→    zone: 'Zone G',
+   141→  },
+   142→  {
+   143→    propNumber: 'PRP-2024-006',
+   144→    owner: 'Grace Amponsah',
+   145→    ownerContact: '+233 50 567 8901',
+   146→    propertyType: 'Institutional',
+   147→    category: 'School Building',
+   148→    floors: 2,
+   149→    rooms: 18,
+   150→    propertyUse: 'Educational Facility',
+   151→    valuation: 1200000,
+   152→    occupancyStatus: 'Occupied',
+   153→    buildingPermit: 'BP-KMA-2021-0334',
+   154→    gpsCoordinates: 'AK-045-8812',
+   155→    digitalAddress: 'AK-045-8812',
+   156→    plotNumber: 'BLK-A/LOT-88',
+   157→    streetName: 'Nhyiaeso Boulevard',
+   158→    ward: 'Nhyiaeso',
+   159→    electoralArea: 'Nhyiaeso',
+   160→    zone: 'Zone A',
+   161→  },
+   162→  {
+   163→    propNumber: 'PRP-2024-007',
+   164→    owner: 'Ibrahim Musah',
+   165→    ownerContact: '+233 27 123 4567',
+   166→    propertyType: 'Industrial',
+   167→    category: 'Warehouse / Factory',
+   168→    floors: 1,
+   169→    rooms: 6,
+   170→    propertyUse: 'Manufacturing & Storage',
+   171→    valuation: 4800000,
+   172→    occupancyStatus: 'Occupied',
+   173→    buildingPermit: 'BP-TE-2022-0901',
+   174→    gpsCoordinates: 'GA-615-3347',
+   175→    digitalAddress: 'GA-615-3347',
+   176→    plotNumber: 'BLK-I/LOT-42',
+   177→    streetName: 'Tema Heavy Industrial Road',
+   178→    ward: 'Tema Industrial',
+   179→    electoralArea: 'Tema East',
+   180→    zone: 'Zone I',
+   181→  },
+   182→  {
+   183→    propNumber: 'PRP-2024-008',
+   184→    owner: 'Dr. Yaw Ofori',
+   185→    ownerContact: '+233 24 678 9012',
+   186→    propertyType: 'Mixed Use',
+   187→    category: 'Commercial-Residential Block',
+   188→    floors: 6,
+   189→    rooms: 30,
+   190→    propertyUse: 'Shops & Residential Flats',
+   191→    valuation: 5200000,
+   192→    occupancyStatus: 'Under Construction',
+   193→    buildingPermit: 'BP-ACC-2024-0088',
+   194→    gpsCoordinates: 'GA-408-1123',
+   195→    digitalAddress: 'GA-408-1123',
+   196→    plotNumber: 'BLK-H/LOT-15',
+   197→    streetName: 'Madina Estate Road',
+   198→    ward: 'Madina',
+   199→    electoralArea: 'Madina',
+   200→    zone: 'Zone H',
+   201→  },
+   202→  {
+   203→    propNumber: 'PRP-2024-009',
+   204→    owner: 'Rev. Fr. Peter Agyeman',
+   205→    ownerContact: '+233 20 456 7890',
+   206→    propertyType: 'Institutional',
+   207→    category: 'Church / Religious Building',
+   208→    floors: 1,
+   209→    rooms: 5,
+   210→    propertyUse: 'Worship Centre',
+   211→    valuation: 850000,
+   212→    occupancyStatus: 'Occupied',
+   213→    buildingPermit: 'BP-KMA-2019-0612',
+   214→    gpsCoordinates: 'AK-223-6674',
+   215→    digitalAddress: 'AK-223-6674',
+   216→    plotNumber: 'BLK-C/LOT-51',
+   217→    streetName: 'Manhyia Palace Road',
+   218→    ward: 'Manhyia',
+   219→    electoralArea: 'Manhyia South',
+   220→    zone: 'Zone C',
+   221→  },
+   222→  {
+   223→    propNumber: 'PRP-2024-010',
+   224→    owner: 'Mrs. Elizabeth Owusu',
+   225→    ownerContact: '+233 24 789 0123',
+   226→    propertyType: 'Residential',
+   227→    category: 'Townhouse',
+   228→    floors: 3,
+   229→    rooms: 10,
+   230→    propertyUse: 'Private Residence',
+   231→    valuation: 720000,
+   232→    occupancyStatus: 'Vacant',
+   233→    buildingPermit: 'BP-KMA-2022-0545',
+   234→    gpsCoordinates: 'AK-310-9901',
+   235→    digitalAddress: 'AK-310-9901',
+   236→    plotNumber: 'BLK-D/LOT-77',
+   237→    streetName: 'Dichemso Main Road',
+   238→    ward: 'Dichemso',
+   239→    electoralArea: 'Dichemso',
+   240→    zone: 'Zone D',
+   241→  },
+   242→];
+   243→
+   244→// ─── Constants ──────────────────────────────────────────────────────────────
+   245→
+   246→const propertyTypes = [
+   247→  'Residential',
+   248→  'Commercial',
+   249→  'Industrial',
+   250→  'Institutional',
+   251→  'Mixed Use',
+   252→  'Vacant Land',
+   253→];
+   254→
+   255→const occupancyStatuses = ['All', 'Occupied', 'Vacant', 'Under Construction'];
+   256→
+   257→const propertyCategories: Record<string, string[]> = {
+   258→  Residential: [
+   259→    'Single Family Home',
+   260→    'Apartment Block',
+   261→    'Townhouse',
+   262→    'Duplex',
+   263→    'Bungalow',
+   264→    'Compound House',
+   265→  ],
+   266→  Commercial: [
+   267→    'Office Complex',
+   268→    'Shopping Mall',
+   269→    'Retail Store',
+   270→    'Hotel',
+   271→    'Restaurant Building',
+   272→    'Warehouse',
+   273→  ],
+   274→  Industrial: [
+   275→    'Warehouse / Factory',
+   276→    'Processing Plant',
+   277→    'Workshop',
+   278→    'Cold Storage',
+   279→    'Heavy Industrial',
+   280→  ],
+   281→  Institutional: [
+   282→    'School Building',
+   283→    'Hospital / Clinic Building',
+   284→    'Church / Religious Building',
+   285→    'Government Building',
+   286→    'Community Centre',
+   287→  ],
+   288→  'Mixed Use': [
+   289→    'Commercial-Residential Block',
+   290→    'Retail-Office Hybrid',
+   291→    'Live-Work Space',
+   292→  ],
+   293→  'Vacant Land': [
+   294→    'Undeveloped Plot',
+   295→    'Agricultural Land',
+   296→    'Future Development Plot',
+   297→  ],
+   298→};
+   299→
+   300→// ─── Component ───────────────────────────────────────────────────────────────
+   301→
+   302→export function PropertiesPage() {
+   303→  const [view, setView] = useState<'list' | 'form'>('list');
+   304→  const [searchQuery, setSearchQuery] = useState('');
+   305→  const [typeFilter, setTypeFilter] = useState<string>('All');
+   306→  const [statusFilter, setStatusFilter] = useState<string>('All');
+   307→  const [currentPage, setCurrentPage] = useState(1);
+   308→  const [properties, setProperties] = useState<Property[]>(mockProperties);
+   309→  const itemsPerPage = 10;
+   310→
+   311→  // ── Form State ───────────────────────────────────────────────────────────
+   312→  const [form, setForm] = useState({
+   313→    propNumber: '',
+   314→    owner: '',
+   315→    ownerContact: '',
+   316→    propertyType: '',
+   317→    category: '',
+   318→    floors: '',
+   319→    rooms: '',
+   320→    propertyUse: '',
+   321→    valuation: '',
+   322→    occupancyStatus: 'Occupied',
+   323→    buildingPermit: '',
+   324→    gpsCoordinates: '',
+   325→    digitalAddress: '',
+   326→    plotNumber: '',
+   327→    streetName: '',
+   328→    ward: '',
+   329→    electoralArea: '',
+   330→    zone: '',
+   331→  });
+   332→
+   333→  // ── Derived categories based on selected property type ──────────────────
+   334→  const availableCategories = form.propertyType
+   335→    ? propertyCategories[form.propertyType] || []
+   336→    : [];
+   337→
+   338→  // ── Filtering & Pagination ───────────────────────────────────────────────
+   339→  const filtered = properties.filter((p) => {
+   340→    const matchSearch =
+   341→      searchQuery === '' ||
+   342→      p.owner.toLowerCase().includes(searchQuery.toLowerCase()) ||
+   343→      p.propNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+   344→      p.streetName.toLowerCase().includes(searchQuery.toLowerCase());
+   345→    const matchType = typeFilter === 'All' || p.propertyType === typeFilter;
+   346→    const matchStatus =
+   347→      statusFilter === 'All' || p.occupancyStatus === statusFilter;
+   348→    return matchSearch && matchType && matchStatus;
+   349→  });
+   350→
+   351→  const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+   352→  const safeCurrentPage = Math.min(currentPage, totalPages);
+   353→  const startIdx = (safeCurrentPage - 1) * itemsPerPage;
+   354→  const paged = filtered.slice(startIdx, startIdx + itemsPerPage);
+   355→  const showingFrom = filtered.length === 0 ? 0 : startIdx + 1;
+   356→  const showingTo = Math.min(startIdx + itemsPerPage, filtered.length);
+   357→
+   358→  // ── Handlers ─────────────────────────────────────────────────────────────
+   359→  const handleFormChange = (
+   360→    e: React.ChangeEvent<
+   361→      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+   362→    >
+   363→  ) => {
+   364→    const { name, value } = e.target;
+   365→    setForm((prev) => {
+   366→      const updated = { ...prev, [name]: value };
+   367→      if (name === 'propertyType') {
+   368→        updated.category = '';
+   369→      }
+   370→      return updated;
+   371→    });
+   372→  };
+   373→
+   374→  const handleSave = () => {
+   375→    setView('list');
+   376→  };
+   377→
+   378→  const handleCancel = () => {
+   379→    setView('list');
+   380→  };
+   381→
+   382→  const handleDelete = (propNumber: string) => {
+   383→    setProperties((prev) => prev.filter((p) => p.propNumber !== propNumber));
+   384→  };
+   385→
+   386→  // ── Form Field Helper ────────────────────────────────────────────────────
+   387→  const inputClass =
+   388→    'w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition';
+   389→  const labelClass =
+   390→    'text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5';
+   391→  const sectionHeaderClass =
+   392→    'text-lg font-semibold text-slate-900 dark:text-white mb-4 pb-2 border-b border-slate-200 dark:border-slate-700';
+   393→
+   394→  // ── Status Badge Helper ─────────────────────────────────────────────────
+   395→  const statusBadge = (status: Property['occupancyStatus']) => {
+   396→    const styles: Record<
+   397→      Property['occupancyStatus'],
+   398→      string
+   399→    > = {
+   400→      Occupied:
+   401→        'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400',
+   402→      Vacant:
+   403→        'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400',
+   404→      'Under Construction':
+   405→        'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400',
+   406→    };
+   407→    return (
+   408→      <span
+   409→        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${styles[status]}`}
+   410→      >
+   411→        {status}
+   412→      </span>
+   413→    );
+   414→  };
+   415→
+   416→  // ── Format Valuation ────────────────────────────────────────────────────
+   417→  const formatValuation = (amount: number) =>
+   418→    amount.toLocaleString('en-GH');
+   419→
+   420→  // ══════════════════════════════════════════════════════════════════════════
+   421→  //  LIST VIEW
+   422→  // ══════════════════════════════════════════════════════════════════════════
+   423→  if (view === 'list') {
+   424→    return (
+   425→      <div className="space-y-6">
+   426→        {/* ── Header ──────────────────────────────────────────────────────── */}
+   427→        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+   428→          <div>
+   429→            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+   430→              Property Registration
+   431→            </h1>
+   432→            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+   433→              Manage and register properties within the assembly. Track
+   434→              valuations, occupancy, and rates collection.
+   435→            </p>
+   436→          </div>
+   437→          <button
+   438→            onClick={() => setView('form')}
+   439→            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap"
+   440→          >
+   441→            <Plus className="w-4 h-4" />
+   442→            Register New Property
+   443→          </button>
+   444→        </div>
+   445→
+   446→        {/* ── Search & Filters ────────────────────────────────────────────── */}
+   447→        <div className="flex flex-col sm:flex-row gap-3">
+   448→          <div className="relative flex-1">
+   449→            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+   450→            <input
+   451→              type="text"
+   452→              placeholder="Search by property number, owner, or street..."
+   453→              value={searchQuery}
+   454→              onChange={(e) => {
+   455→                setSearchQuery(e.target.value);
+   456→                setCurrentPage(1);
+   457→              }}
+   458→              className={`${inputClass} pl-10`}
+   459→            />
+   460→          </div>
+   461→          <select
+   462→            value={typeFilter}
+   463→            onChange={(e) => {
+   464→              setTypeFilter(e.target.value);
+   465→              setCurrentPage(1);
+   466→            }}
+   467→            className={`${inputClass} w-full sm:w-48`}
+   468→          >
+   469→            <option value="All">All Property Types</option>
+   470→            {propertyTypes.map((t) => (
+   471→              <option key={t} value={t}>
+   472→                {t}
+   473→              </option>
+   474→            ))}
+   475→          </select>
+   476→          <select
+   477→            value={statusFilter}
+   478→            onChange={(e) => {
+   479→              setStatusFilter(e.target.value);
+   480→              setCurrentPage(1);
+   481→            }}
+   482→            className={`${inputClass} w-full sm:w-48`}
+   483→          >
+   484→            {occupancyStatuses.map((s) => (
+   485→              <option key={s} value={s}>
+   486→                {s === 'All' ? 'All Occupancy Statuses' : s}
+   487→              </option>
+   488→            ))}
+   489→          </select>
+   490→        </div>
+   491→
+   492→        {/* ── Table ───────────────────────────────────────────────────────── */}
+   493→        <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+   494→          <div className="overflow-x-auto">
+   495→            <table className="w-full text-sm">
+   496→              <thead>
+   497→                <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700">
+   498→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   499→                    Property #
+   500→                  </th>
+   501→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   502→                    Owner
+   503→                  </th>
+   504→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   505→                    Property Type
+   506→                  </th>
+   507→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden lg:table-cell">
+   508→                    Category
+   509→                  </th>
+   510→                  <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   511→                    Valuation
+   512→                  </th>
+   513→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   514→                    Status
+   515→                  </th>
+   516→                  <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   517→                    Actions
+   518→                  </th>
+   519→                </tr>
+   520→              </thead>
+   521→              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+   522→                {paged.length === 0 ? (
+   523→                  <tr>
+   524→                    <td
+   525→                      colSpan={7}
+   526→                      className="text-center py-12 text-slate-400 dark:text-slate-500"
+   527→                    >
+   528→                      <Home className="w-10 h-10 mx-auto mb-3 opacity-40" />
+   529→                      No properties found matching your criteria.
+   530→                    </td>
+   531→                  </tr>
+   532→                ) : (
+   533→                  paged.map((prop) => (
+   534→                    <tr
+   535→                      key={prop.propNumber}
+   536→                      className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+   537→                    >
+   538→                      <td className="px-4 py-3 font-mono text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+   539→                        {prop.propNumber}
+   540→                      </td>
+   541→                      <td className="px-4 py-3 font-medium text-slate-900 dark:text-white whitespace-nowrap">
+   542→                        {prop.owner}
+   543→                      </td>
+   544→                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   545→                        {prop.propertyType}
+   546→                      </td>
+   547→                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap hidden lg:table-cell">
+   548→                        {prop.category}
+   549→                      </td>
+   550→                      <td className="px-4 py-3 text-right font-medium text-slate-700 dark:text-slate-200 whitespace-nowrap">
+   551→                        GH₵ {formatValuation(prop.valuation)}
+   552→                      </td>
+   553→                      <td className="px-4 py-3 whitespace-nowrap">
+   554→                        {statusBadge(prop.occupancyStatus)}
+   555→                      </td>
+   556→                      <td className="px-4 py-3 text-right whitespace-nowrap">
+   557→                        <div className="inline-flex items-center gap-1">
+   558→                          <button
+   559→                            className="p-1.5 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+   560→                            title="Edit"
+   561→                          >
+   562→                            <Pencil className="w-4 h-4" />
+   563→                          </button>
+   564→                          <button
+   565→                            onClick={() => handleDelete(prop.propNumber)}
+   566→                            className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+   567→                            title="Delete"
+   568→                          >
+   569→                            <Trash2 className="w-4 h-4" />
+   570→                          </button>
+   571→                        </div>
+   572→                      </td>
+   573→                    </tr>
+   574→                  ))
+   575→                )}
+   576→              </tbody>
+   577→            </table>
+   578→          </div>
+   579→        </div>
+   580→
+   581→        {/* ── Pagination ──────────────────────────────────────────────────── */}
+   582→        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+   583→          <p className="text-slate-500 dark:text-slate-400">
+   584→            Showing {showingFrom}-{showingTo} of {filtered.length}
+   585→          </p>
+   586→          <div className="flex items-center gap-2">
+   587→            <button
+   588→              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+   589→              disabled={safeCurrentPage <= 1}
+   590→              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+   591→            >
+   592→              <ChevronLeft className="w-4 h-4" />
+   593→              Previous
+   594→            </button>
+   595→            <span className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium">
+   596→              {safeCurrentPage} / {totalPages}
+   597→            </span>
+   598→            <button
+   599→              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+   600→              disabled={safeCurrentPage >= totalPages}
+   601→              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+   602→            >
+   603→              Next
+   604→              <ChevronRight className="w-4 h-4" />
+   605→            </button>
+   606→          </div>
+   607→        </div>
+   608→      </div>
+   609→    );
+   610→  }
+   611→
+   612→  // ══════════════════════════════════════════════════════════════════════════
+   613→  //  FORM VIEW
+   614→  // ══════════════════════════════════════════════════════════════════════════
+   615→  return (
+   616→    <div className="space-y-6">
+   617→      {/* ── Header ────────────────────────────────────────────────────────── */}
+   618→      <div className="flex items-center gap-4">
+   619→        <button
+   620→          onClick={handleCancel}
+   621→          className="p-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+   622→        >
+   623→          <ArrowLeft className="w-5 h-5" />
+   624→        </button>
+   625→        <div>
+   626→          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+   627→            Register New Property
+   628→          </h1>
+   629→          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+   630→            Fill in the details below to register a new property.
+   631→          </p>
+   632→        </div>
+   633→      </div>
+   634→
+   635→      <div className="space-y-8">
+   636→        {/* ─── Section 1: Property Details ──────────────────────────────── */}
+   637→        <section>
+   638→          <h2 className={sectionHeaderClass}>Property Details</h2>
+   639→          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+   640→            {/* Property Number */}
+   641→            <div>
+   642→              <label className={`${labelClass} block`}>Property Number</label>
+   643→              <input
+   644→                type="text"
+   645→                name="propNumber"
+   646→                value={form.propNumber}
+   647→                onChange={handleFormChange}
+   648→                placeholder="e.g. PRP-2024-011"
+   649→                className={inputClass}
+   650→              />
+   651→            </div>
+   652→
+   653→            {/* Property Owner */}
+   654→            <div>
+   655→              <label className={`${labelClass} block`}>Property Owner</label>
+   656→              <input
+   657→                type="text"
+   658→                name="owner"
+   659→                value={form.owner}
+   660→                onChange={handleFormChange}
+   661→                placeholder="Enter full name of property owner"
+   662→                className={inputClass}
+   663→              />
+   664→            </div>
+   665→
+   666→            {/* Owner Contact */}
+   667→            <div>
+   668→              <label className={`${labelClass} block`}>Owner Contact</label>
+   669→              <input
+   670→                type="tel"
+   671→                name="ownerContact"
+   672→                value={form.ownerContact}
+   673→                onChange={handleFormChange}
+   674→                placeholder="e.g. +233 24 567 8901"
+   675→                className={inputClass}
+   676→              />
+   677→            </div>
+   678→
+   679→            {/* Property Type */}
+   680→            <div>
+   681→              <label className={`${labelClass} block`}>Property Type</label>
+   682→              <select
+   683→                name="propertyType"
+   684→                value={form.propertyType}
+   685→                onChange={handleFormChange}
+   686→                className={inputClass}
+   687→              >
+   688→                <option value="">Select property type</option>
+   689→                {propertyTypes.map((t) => (
+   690→                  <option key={t} value={t}>
+   691→                    {t}
+   692→                  </option>
+   693→                ))}
+   694→              </select>
+   695→            </div>
+   696→
+   697→            {/* Property Category */}
+   698→            <div>
+   699→              <label className={`${labelClass} block`}>Property Category</label>
+   700→              <select
+   701→                name="category"
+   702→                value={form.category}
+   703→                onChange={handleFormChange}
+   704→                disabled={availableCategories.length === 0}
+   705→                className={`${inputClass} ${availableCategories.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+   706→              >
+   707→                <option value="">
+   708→                  {form.propertyType
+   709→                    ? 'Select category'
+   710→                    : 'Select a property type first'}
+   711→                </option>
+   712→                {availableCategories.map((c) => (
+   713→                  <option key={c} value={c}>
+   714→                    {c}
+   715→                  </option>
+   716→                ))}
+   717→              </select>
+   718→            </div>
+   719→
+   720→            {/* Number of Floors */}
+   721→            <div>
+   722→              <label className={`${labelClass} block`}>Number of Floors</label>
+   723→              <input
+   724→                type="number"
+   725→                name="floors"
+   726→                value={form.floors}
+   727→                onChange={handleFormChange}
+   728→                placeholder="e.g. 2"
+   729→                min="0"
+   730→                className={inputClass}
+   731→              />
+   732→            </div>
+   733→
+   734→            {/* Number of Rooms */}
+   735→            <div>
+   736→              <label className={`${labelClass} block`}>Number of Rooms</label>
+   737→              <input
+   738→                type="number"
+   739→                name="rooms"
+   740→                value={form.rooms}
+   741→                onChange={handleFormChange}
+   742→                placeholder="e.g. 8"
+   743→                min="0"
+   744→                className={inputClass}
+   745→              />
+   746→            </div>
+   747→
+   748→            {/* Property Use */}
+   749→            <div>
+   750→              <label className={`${labelClass} block`}>Property Use</label>
+   751→              <input
+   752→                type="text"
+   753→                name="propertyUse"
+   754→                value={form.propertyUse}
+   755→                onChange={handleFormChange}
+   756→                placeholder="e.g. Private Residence"
+   757→                className={inputClass}
+   758→              />
+   759→            </div>
+   760→
+   761→            {/* Valuation */}
+   762→            <div>
+   763→              <label className={`${labelClass} block`}>Valuation (GH₵)</label>
+   764→              <div className="relative">
+   765→                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 dark:text-slate-400 font-medium">
+   766→                  GH₵
+   767→                </span>
+   768→                <input
+   769→                  type="number"
+   770→                  name="valuation"
+   771→                  value={form.valuation}
+   772→                  onChange={handleFormChange}
+   773→                  placeholder="e.g. 450000"
+   774→                  min="0"
+   775→                  className={`${inputClass} pl-14`}
+   776→                />
+   777→              </div>
+   778→            </div>
+   779→
+   780→            {/* Occupancy Status */}
+   781→            <div>
+   782→              <label className={`${labelClass} block`}>Occupancy Status</label>
+   783→              <select
+   784→                name="occupancyStatus"
+   785→                value={form.occupancyStatus}
+   786→                onChange={handleFormChange}
+   787→                className={inputClass}
+   788→              >
+   789→                <option value="Occupied">Occupied</option>
+   790→                <option value="Vacant">Vacant</option>
+   791→                <option value="Under Construction">Under Construction</option>
+   792→              </select>
+   793→            </div>
+   794→
+   795→            {/* Building Permit Number */}
+   796→            <div>
+   797→              <label className={`${labelClass} block`}>
+   798→                Building Permit Number
+   799→              </label>
+   800→              <input
+   801→                type="text"
+   802→                name="buildingPermit"
+   803→                value={form.buildingPermit}
+   804→                onChange={handleFormChange}
+   805→                placeholder="e.g. BP-KMA-2024-0111"
+   806→                className={inputClass}
+   807→              />
+   808→            </div>
+   809→          </div>
+   810→        </section>
+   811→
+   812→        {/* ─── Section 2: Location ──────────────────────────────────────── */}
+   813→        <section>
+   814→          <h2 className={sectionHeaderClass}>Location</h2>
+   815→          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+   816→            {/* GPS Coordinates */}
+   817→            <div>
+   818→              <label className={`${labelClass} block`}>GPS Coordinates</label>
+   819→              <input
+   820→                type="text"
+   821→                name="gpsCoordinates"
+   822→                value={form.gpsCoordinates}
+   823→                onChange={handleFormChange}
+   824→                placeholder="e.g. AK-034-5521"
+   825→                className={inputClass}
+   826→              />
+   827→            </div>
+   828→
+   829→            {/* Digital Address */}
+   830→            <div>
+   831→              <label className={`${labelClass} block`}>Digital Address</label>
+   832→              <input
+   833→                type="text"
+   834→                name="digitalAddress"
+   835→                value={form.digitalAddress}
+   836→                onChange={handleFormChange}
+   837→                placeholder="e.g. AK-034-5521"
+   838→                className={inputClass}
+   839→              />
+   840→            </div>
+   841→
+   842→            {/* Plot Number */}
+   843→            <div>
+   844→              <label className={`${labelClass} block`}>Plot Number</label>
+   845→              <input
+   846→                type="text"
+   847→                name="plotNumber"
+   848→                value={form.plotNumber}
+   849→                onChange={handleFormChange}
+   850→                placeholder="e.g. BLK-A/LOT-12"
+   851→                className={inputClass}
+   852→              />
+   853→            </div>
+   854→
+   855→            {/* Street Name */}
+   856→            <div>
+   857→              <label className={`${labelClass} block`}>Street Name</label>
+   858→              <input
+   859→                type="text"
+   860→                name="streetName"
+   861→                value={form.streetName}
+   862→                onChange={handleFormChange}
+   863→                placeholder="e.g. Kejetia Road"
+   864→                className={inputClass}
+   865→              />
+   866→            </div>
+   867→
+   868→            {/* Ward */}
+   869→            <div>
+   870→              <label className={`${labelClass} block`}>Ward</label>
+   871→              <input
+   872→                type="text"
+   873→                name="ward"
+   874→                value={form.ward}
+   875→                onChange={handleFormChange}
+   876→                placeholder="Enter ward"
+   877→                className={inputClass}
+   878→              />
+   879→            </div>
+   880→
+   881→            {/* Electoral Area */}
+   882→            <div>
+   883→              <label className={`${labelClass} block`}>Electoral Area</label>
+   884→              <input
+   885→                type="text"
+   886→                name="electoralArea"
+   887→                value={form.electoralArea}
+   888→                onChange={handleFormChange}
+   889→                placeholder="Enter electoral area"
+   890→                className={inputClass}
+   891→              />
+   892→            </div>
+   893→
+   894→            {/* Zone */}
+   895→            <div>
+   896→              <label className={`${labelClass} block`}>Zone</label>
+   897→              <input
+   898→                type="text"
+   899→                name="zone"
+   900→                value={form.zone}
+   901→                onChange={handleFormChange}
+   902→                placeholder="e.g. Zone A"
+   903→                className={inputClass}
+   904→              />
+   905→            </div>
+   906→          </div>
+   907→        </section>
+   908→
+   909→        {/* ─── Section 3: Documents ────────────────────────────────────── */}
+   910→        <section>
+   911→          <h2 className={sectionHeaderClass}>Documents</h2>
+   912→          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+   913→            {/* Property Photograph */}
+   914→            <div>
+   915→              <label className={`${labelClass} block`}>
+   916→                Property Photograph
+   917→              </label>
+   918→              <div className="relative">
+   919→                <input
+   920→                  type="file"
+   921→                  accept="image/*"
+   922→                  className="hidden"
+   923→                  id="property-photo"
+   924→                />
+   925→                <label
+   926→                  htmlFor="property-photo"
+   927→                  className={`${inputClass} flex items-center justify-center gap-2 cursor-pointer hover:border-emerald-400 dark:hover:border-emerald-500 transition-colors py-8 border-dashed`}
+   928→                >
+   929→                  <Upload className="w-5 h-5 text-slate-400" />
+   930→                  <span className="text-slate-500 dark:text-slate-400">
+   931→                    Click to upload property photograph
+   932→                  </span>
+   933→                </label>
+   934→              </div>
+   935→            </div>
+   936→
+   937→            {/* Supporting Documents */}
+   938→            <div>
+   939→              <label className={`${labelClass} block`}>
+   940→                Supporting Documents
+   941→              </label>
+   942→              <div className="relative">
+   943→                <input
+   944→                  type="file"
+   945→                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+   946→                  multiple
+   947→                  className="hidden"
+   948→                  id="property-docs"
+   949→                />
+   950→                <label
+   951→                  htmlFor="property-docs"
+   952→                  className={`${inputClass} flex items-center justify-center gap-2 cursor-pointer hover:border-emerald-400 dark:hover:border-emerald-500 transition-colors py-8 border-dashed`}
+   953→                >
+   954→                  <Upload className="w-5 h-5 text-slate-400" />
+   955→                  <span className="text-slate-500 dark:text-slate-400">
+   956→                    Click to upload supporting documents
+   957→                  </span>
+   958→                </label>
+   959→              </div>
+   960→            </div>
+   961→          </div>
+   962→        </section>
+   963→
+   964→        {/* ─── Action Buttons ──────────────────────────────────────────── */}
+   965→        <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+   966→          <button
+   967→            onClick={handleCancel}
+   968→            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+   969→          >
+   970→            Cancel
+   971→          </button>
+   972→          <button
+   973→            onClick={handleSave}
+   974→            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors"
+   975→          >
+   976→            Save Property
+   977→          </button>
+   978→        </div>
+   979→      </div>
+   980→    </div>
+   981→  );
+   982→}
+   983→

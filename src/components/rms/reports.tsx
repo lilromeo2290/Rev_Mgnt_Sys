@@ -57,38 +57,11 @@ const fmtNumber = (n: number): string => n.toLocaleString('en-GH');
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
-const revenueBreakdown: RevenueBreakdown[] = [
-  { category: 'Business Operating Permits', budget: 2500000, collected: 2187500, target: 2300000, percentage: 95.1, officer: 'Kwame Asante' },
-  { category: 'Property Rates', budget: 3200000, collected: 2944000, target: 3000000, percentage: 98.1, officer: 'Abena Mensah' },
-  { category: 'Market Stall Fees', budget: 800000, collected: 648000, target: 720000, percentage: 90.0, officer: 'Kofi Boateng' },
-  { category: 'Building Permits', budget: 1500000, collected: 1125000, target: 1200000, percentage: 93.8, officer: 'Ama Darko' },
-  { category: 'Signage & Advertising', budget: 400000, collected: 376000, target: 380000, percentage: 98.9, officer: 'Yaw Owusu' },
-  { category: 'Food Vendor Permits', budget: 350000, collected: 315000, target: 340000, percentage: 92.6, officer: 'Efua Amponsah' },
-  { category: 'Transport Permits', budget: 600000, collected: 552000, target: 580000, percentage: 95.2, officer: 'Kwesi Nkansah' },
-  { category: 'Environmental Fees', budget: 280000, collected: 229600, target: 250000, percentage: 91.8, officer: 'Adwoa Pokuwa' },
-];
+const revenueBreakdown: RevenueBreakdown[] = [];
 
-const zoneReports: ZoneReport[] = [
-  { zone: 'Zone A — Central', businesses: 342, properties: 1050, collected: 1456000, target: 1500000, compliance: 97.1 },
-  { zone: 'Zone B — Kejetia', businesses: 418, properties: 890, collected: 1283000, target: 1350000, compliance: 95.0 },
-  { zone: 'Zone C — Suame', businesses: 267, properties: 1120, collected: 987000, target: 1100000, compliance: 89.7 },
-  { zone: 'Zone D — Oforikrom', businesses: 220, properties: 831, collected: 824000, target: 900000, compliance: 91.6 },
-];
+const zoneReports: ZoneReport[] = [];
 
-const monthlyComparison: MonthlyComparison[] = [
-  { month: 'Jan', currentYear: 185000, previousYear: 162000, change: 14.2 },
-  { month: 'Feb', currentYear: 210000, previousYear: 178000, change: 18.0 },
-  { month: 'Mar', currentYear: 195000, previousYear: 198000, change: -1.5 },
-  { month: 'Apr', currentYear: 230000, previousYear: 205000, change: 12.2 },
-  { month: 'May', currentYear: 260000, previousYear: 234000, change: 11.1 },
-  { month: 'Jun', currentYear: 245000, previousYear: 220000, change: 11.4 },
-  { month: 'Jul', currentYear: 275000, previousYear: 258000, change: 6.6 },
-  { month: 'Aug', currentYear: 290000, previousYear: 265000, change: 9.4 },
-  { month: 'Sep', currentYear: 255000, previousYear: 248000, change: 2.8 },
-  { month: 'Oct', currentYear: 310000, previousYear: 278000, change: 11.5 },
-  { month: 'Nov', currentYear: 340000, previousYear: 305000, change: 11.5 },
-  { month: 'Dec', currentYear: 352350, previousYear: 312000, change: 12.9 },
-];
+const monthlyComparison: MonthlyComparison[] = [];
 
 // ─── Component ────────────────────────────────────────────────────────────────
 

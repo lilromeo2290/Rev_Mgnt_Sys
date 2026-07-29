@@ -14,21 +14,7 @@ interface SearchResult {
   statusColor?: string;
 }
 
-const MOCK_RESULTS: SearchResult[] = [
-  { id: 'B001', type: 'business', title: 'Kumasi Pharmacy Ltd', subtitle: 'Business Registration', detail: 'BIZ-2024-0012 | TIN: C0001234567', status: 'Active', statusColor: 'emerald' },
-  { id: 'B002', type: 'business', title: 'Royal Hotel Kumasi', subtitle: 'Business Registration', detail: 'BIZ-2024-0045 | Owner: Nana Akufo', status: 'Active', statusColor: 'emerald' },
-  { id: 'B003', type: 'business', title: 'Osei Barbershop', subtitle: 'Business Registration', detail: 'BIZ-2024-0078 | Category: Barbering Salon', status: 'Active', statusColor: 'emerald' },
-  { id: 'B004', type: 'business', title: 'Mama Afia Restaurant', subtitle: 'Business Registration', detail: 'BIZ-2024-0091 | Phone: 024 567 8901', status: 'Active', statusColor: 'emerald' },
-  { id: 'P001', type: 'property', title: 'Plot No. KMA/A/4521', subtitle: 'Property Registration', detail: 'Owner: Kwame Asante | Commercial', amount: 'GH₵ 600.00', status: 'Occupied', statusColor: 'emerald' },
-  { id: 'P002', type: 'property', title: 'Plot No. KMA/R/7823', subtitle: 'Property Registration', detail: 'Owner: Abena Serwaa | Residential', amount: 'GH₵ 250.00', status: 'Occupied', statusColor: 'emerald' },
-  { id: 'P003', type: 'property', title: 'Plot No. KMA/C/3102', subtitle: 'Property Registration', detail: 'Owner: Kofi Boateng | Industrial', amount: 'GH₵ 1,200.00', status: 'Vacant', statusColor: 'amber' },
-  { id: 'BL001', type: 'bill', title: 'KMA-BILL-2026-0147', subtitle: 'Bill', detail: 'Kumasi Pharmacy Ltd | Business Operating Permit', amount: 'GH₵ 300.00', status: 'Unpaid', statusColor: 'red' },
-  { id: 'BL002', type: 'bill', title: 'KMA-BILL-2026-0152', subtitle: 'Bill', detail: 'Royal Hotel Kumasi | Property Rate', amount: 'GH₵ 600.00', status: 'Paid', statusColor: 'emerald' },
-  { id: 'BL003', type: 'bill', title: 'KMA-BILL-2026-0163', subtitle: 'Bill', detail: 'Cool Breeze Cold Store | Market Toll', amount: 'GH₵ 50.00', status: 'Overdue', statusColor: 'red' },
-  { id: 'RC001', type: 'receipt', title: 'KMA-REC-2026-0891', subtitle: 'Receipt', detail: 'Kumasi Pharmacy Ltd | Mobile Money', amount: 'GH₵ 300.00', status: 'Valid', statusColor: 'emerald' },
-  { id: 'RC002', type: 'receipt', title: 'KMA-REC-2026-0895', subtitle: 'Receipt', detail: 'Osei Barbershop | Cash', amount: 'GH₵ 150.00', status: 'Valid', statusColor: 'emerald' },
-  { id: 'RC003', type: 'receipt', title: 'KMA-REC-2026-0847', subtitle: 'Receipt', detail: 'Mama Afia Restaurant | Bank Transfer', amount: 'GH₵ 450.00', status: 'Valid', statusColor: 'emerald' },
-];
+const MOCK_RESULTS: SearchResult[] = [];
 
 const SEARCH_CATEGORIES = [
   { id: 'all', label: 'All', icon: Search },
