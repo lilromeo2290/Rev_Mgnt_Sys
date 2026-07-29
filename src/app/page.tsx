@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { SplashScreen } from '@/components/landing/splash-screen';
 import { LandingPage } from '@/components/landing/landing-page';
+import { LoginPage } from '@/components/landing/login-page';
 import { RmsLayout } from '@/components/rms/rms-layout';
 import { DashboardPage } from '@/components/rms/dashboard';
 import { BusinessesPage } from '@/components/rms/businesses';
@@ -69,6 +70,17 @@ export default function Home() {
           transition={{ duration: 0.5, ease: 'easeOut' }}
         >
           <LandingPage />
+        </motion.div>
+      )}
+
+      {!showSplash && view === 'login' && (
+        <motion.div
+          key="login"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+        >
+          <LoginPage />
         </motion.div>
       )}
 

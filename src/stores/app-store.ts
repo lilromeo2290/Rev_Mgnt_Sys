@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-type AppView = 'landing' | 'rms';
+type AppView = 'landing' | 'login' | 'rms';
 type RMSPage =
   | 'dashboard'
   | 'businesses'
@@ -22,6 +22,8 @@ interface AppState {
   setView: (view: AppView) => void;
   setRMSPage: (page: RMSPage) => void;
   openRMS: () => void;
+  showLogin: () => void;
+  loginSuccess: () => void;
   backToLanding: () => void;
 }
 
@@ -30,7 +32,9 @@ export const useAppStore = create<AppState>((set) => ({
   rmsPage: 'dashboard',
   setView: (view) => set({ view }),
   setRMSPage: (page) => set({ rmsPage: page }),
-  openRMS: () => set({ view: 'rms', rmsPage: 'dashboard' }),
+  openRMS: () => set({ view: 'login' }),
+  showLogin: () => set({ view: 'login' }),
+  loginSuccess: () => set({ view: 'rms', rmsPage: 'dashboard' }),
   backToLanding: () => set({ view: 'landing' }),
 }));
 
