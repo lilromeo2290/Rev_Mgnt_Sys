@@ -73,15 +73,7 @@ const statusBadge: Record<PaymentStatus, { bg: string; text: string; dot: string
 
 const mockPayments: Payment[] = [];
 
-const mockBills: MockBill[] = [
-  { billNo: 'BIL-2024-0512', business: 'Theresa Aidoo Fashion House', totalAmount: 180000, balance: 180000 },
-  { billNo: 'BIL-2024-0498', business: 'Samuel Okyere Logistics', totalAmount: 310000, balance: 310000 },
-  { billNo: 'BIL-2024-0475', business: 'Rebecca Addo Communications', totalAmount: 225000, balance: 225000 },
-  { billNo: 'BIL-2024-0456', business: 'Patrick Owusu-Ansah Farms', totalAmount: 450000, balance: 200000 },
-  { billNo: 'BIL-2024-0432', business: 'Lydia Agyeman Printers', totalAmount: 165000, balance: 165000 },
-  { billNo: 'BIL-2024-0398', business: 'Albert Osei Bonsu Pharmacy', totalAmount: 290000, balance: 140000 },
-  { billNo: 'BIL-2024-0376', business: 'Cynthia Tawiah Hotel & Suites', totalAmount: 580000, balance: 580000 },
-];
+const mockBills: MockBill[] = [];
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
