@@ -193,13 +193,13 @@ export function NavigationCard({
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between gap-2 mb-1">
               <h3
-                className={`font-semibold text-sm tracking-tight transition-colors duration-300 ${
+                className={`tracking-tight transition-colors duration-300 ${
                   active
-                    ? 'text-slate-900 dark:text-white'
-                    : 'text-slate-500 dark:text-slate-400'
+                    ? 'text-slate-900 dark:text-white font-bold text-[15px]'
+                    : 'text-slate-500 dark:text-slate-400 font-semibold text-sm'
                 }`}
               >
-                {title}
+                <span className={active ? 'animate-pulse' : ''}>{title}</span>
               </h3>
               {active && (
                 <motion.span
