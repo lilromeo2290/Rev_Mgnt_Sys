@@ -304,8 +304,10 @@ export function ReceiptsPage() {
             </tfoot>
           </table>
           <div class="footer">
-            This is a computer-generated receipt from Kumasi Metropolitan Assembly.<br/>
-            Generated on ${new Date().toLocaleString()} | For enquiries, contact the Revenue Office.
+            Thank you for your payment.<br/>
+            This receipt is computer generated and does not require a signature.<br/><br/>
+            Designed &amp; Powered by <strong>Clipe Consult</strong><br/>
+            www.clipeconsult.com
           </div>
         </div>
       </body>
