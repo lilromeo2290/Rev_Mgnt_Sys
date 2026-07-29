@@ -113,27 +113,27 @@ function AssemblySettings() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Assembly Name</label>
-          <input type="text" defaultValue="Kumasi Metropolitan Assembly" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="text" defaultValue="" placeholder="Enter assembly name" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Assembly Code</label>
-          <input type="text" defaultValue="KMA-001" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="text" defaultValue="" placeholder="Enter assembly code" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> Telephone</label>
-          <input type="tel" defaultValue="+233 32 202 2401" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="tel" defaultValue="" placeholder="Enter telephone number" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> Email</label>
-          <input type="email" defaultValue="info@kma.gov.gh" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="email" defaultValue="" placeholder="Enter email address" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5"><Globe className="w-3.5 h-3.5" /> Website</label>
-          <input type="url" defaultValue="www.kma.gov.gh" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="url" defaultValue="" placeholder="Enter website URL" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Physical Address</label>
-          <input type="text" defaultValue="Post Office Box KA 896, Kumasi, Ashanti Region" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="text" defaultValue="" placeholder="Enter physical address" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="lg:col-span-2 space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Assembly Logo</label>
@@ -178,7 +178,7 @@ function AssemblySettings() {
         </div>
         <div className="lg:col-span-2 space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Assembly Description</label>
-          <textarea rows={3} defaultValue="The Kumasi Metropolitan Assembly is one of the 261 Metropolitan, Municipal and District Assemblies (MMDAs) in Ghana. It is the capital of the Ashanti Region and the second-largest city in Ghana." className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition resize-none" />
+          <textarea rows={3} defaultValue="" placeholder="Enter assembly description" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition resize-none" />
         </div>
       </div>
     </div>
@@ -207,11 +207,11 @@ function FinancialSettings() {
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Current Financial Year</label>
-          <input type="text" defaultValue="2026" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="text" defaultValue="" placeholder="e.g. 2026" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Tax Rate (%)</label>
-          <input type="number" defaultValue="0" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="number" defaultValue="" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Penalty Rate (%)</label>
@@ -233,19 +233,19 @@ function BillingSettings() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Bill Prefix</label>
-          <input type="text" defaultValue="KMA-BILL" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="text" defaultValue="" placeholder="e.g. KMA-BILL" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Receipt Prefix</label>
-          <input type="text" defaultValue="KMA-REC" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="text" defaultValue="" placeholder="e.g. KMA-REC" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Default Due Days</label>
-          <input type="number" defaultValue="30" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="number" defaultValue="" placeholder="e.g. 30" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Penalty After (Days)</label>
-          <input type="number" defaultValue="15" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="number" defaultValue="" placeholder="e.g. 15" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
         <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
           <div>
@@ -382,23 +382,9 @@ function BackupSettings() {
       <div>
         <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Recent Backups</h3>
         <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
-          {[
-            { date: '2026-07-28 00:00', size: '24.5 MB', type: 'Automatic' },
-            { date: '2026-07-27 00:00', size: '24.3 MB', type: 'Automatic' },
-            { date: '2026-07-26 14:30', size: '24.4 MB', type: 'Manual' },
-            { date: '2026-07-26 00:00', size: '24.1 MB', type: 'Automatic' },
-          ].map((b) => (
-            <div key={b.date} className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-700 last:border-0">
-              <div className="flex items-center gap-3">
-                <Database className="w-4 h-4 text-slate-400" />
-                <div>
-                  <p className="text-sm text-slate-700 dark:text-slate-300">{b.date}</p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">{b.type}</p>
-                </div>
-              </div>
-              <span className="text-xs text-slate-500 dark:text-slate-400">{b.size}</span>
-            </div>
-          ))}
+          <div className="flex items-center justify-center px-4 py-8 text-sm text-slate-400 dark:text-slate-500">
+            No backups yet. Click "Manual Backup Now" to create your first backup.
+          </div>
         </div>
       </div>
     </div>

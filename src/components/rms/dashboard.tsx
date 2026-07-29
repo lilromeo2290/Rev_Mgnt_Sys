@@ -223,29 +223,29 @@ export function DashboardPage() {
           <StatCard
             icon={<Building2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />}
             label="Total Businesses"
-            value="1,247"
-            change={12.5}
+            value="0"
+            change={0}
             accent="bg-emerald-100 dark:bg-emerald-900/40"
           />
           <StatCard
             icon={<Home className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />}
             label="Total Properties"
-            value="3,891"
-            change={6.2}
+            value="0"
+            change={0}
             accent="bg-emerald-100 dark:bg-emerald-900/40"
           />
           <StatCard
             icon={<CircleDollarSign className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />}
             label="Amount Collected"
-            value={fmtCurrency(2847350)}
-            change={18.3}
+            value={fmtCurrency(0)}
+            change={0}
             accent="bg-emerald-100 dark:bg-emerald-900/40"
           />
           <StatCard
             icon={<AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />}
             label="Outstanding"
-            value={fmtCurrency(1203450)}
-            change={-4.7}
+            value={fmtCurrency(0)}
+            change={0}
             accent="bg-amber-100 dark:bg-amber-900/40"
           />
         </div>
