@@ -81,7 +81,7 @@ export function LoginPage() {
         }}
       />
 
-      {/* Ambient glow */
+      {/* Ambient glow */}</arg_value><arg_key>
       <div
         className="fixed top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full pointer-events-none -z-10"
         style={{
@@ -344,7 +344,7 @@ export function LoginPage() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.6 }}
           >
-            Kumasi Metropolitan Assembly — Revenue Management System
+            Kumasi Metropolitan Assembly  Revenue Management System
           </motion.p>
         </motion.div>
       </main>
