@@ -6,7 +6,7 @@ module.exports = {
       cwd: '/home/consult-rms',
       env: {
         NODE_ENV: 'production',
-        PORT: 3000,
+        PORT: 3001,
         HOSTNAME: '0.0.0.0',
       },
       instances: 1,
