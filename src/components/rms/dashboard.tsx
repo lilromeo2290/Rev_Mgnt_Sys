@@ -30,13 +30,13 @@ import {
 // Mock Data
 // ---------------------------------------------------------------------------
 
-const monthlyRevenue = [];
+const monthlyRevenue: { month: string; revenue: number }[] = [];
 
-const revenueByCategory = [];
+const revenueByCategory: { name: string; value: number; color: string }[] = [];
 
-const topCollectors = [];
+const topCollectors: { name: string; area: string; amount: number; bills: number }[] = [];
 
-const recentPayments = [];
+const recentPayments: { receipt: string; business: string; amount: number; date: string; method: string }[] = [];
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -425,4 +425,3 @@ export function DashboardPage() {
   );
 }
 
-export { DashboardPage };

@@ -643,4 +643,3 @@ function InfoField({ label, value }: { label: string; value: string }) {
   );
 }
 
-export { ReceiptsPage };

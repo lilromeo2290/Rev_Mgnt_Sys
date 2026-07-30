@@ -143,7 +143,7 @@ export function SearchPage() {
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-semibold text-slate-900 dark:text-white">{result.title}</p>
                     {result.status && (
-                      <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium bg-${result.statusColor}-50 dark:bg-${result.statusColor}-900/20 text-${result.statusColor}-600 dark:text-${result.statusColor}-400`}>
+                      <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${result.statusColor === 'emerald' ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400' : result.statusColor === 'red' ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400' : result.statusColor === 'amber' ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'}`}>
                         {result.status}
                       </span>
                     )}

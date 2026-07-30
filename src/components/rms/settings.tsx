@@ -96,7 +96,9 @@ function AssemblySettings() {
     setLogoName(file.name);
     const reader = new FileReader();
     reader.onload = (ev) => {
-      setLogoPreview(ev.target.result as string);
+      if (ev.target?.result) {
+        setLogoPreview(ev.target.result as string);
+      }
     };
     reader.readAsDataURL(file);
   };

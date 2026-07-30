@@ -22,7 +22,6 @@ import {
   X,
   FileText,
 } from 'lucide-react';
-import { useAppStore } from '@/stores/app-store';
 import { BUSINESS_CLASSES, BUSINESS_CLASS_CATEGORIES } from '@/lib/fee-schedule';
 import type { FeeCategory } from '@/lib/fee-schedule';
 
@@ -364,20 +363,20 @@ export function BusinessesPage() {
       electoralArea: biz.electoralArea,
       zone: biz.zone,
       revenueArea: biz.revenueArea,
-      streetName: (biz as Record<string, unknown>).streetName as string || '',
-      houseNo: (biz as Record<string, unknown>).houseNo as string || '',
-      streetCode: (biz as Record<string, unknown>).streetCode as string || '',
-      localityCode: (biz as Record<string, unknown>).localityCode as string || '',
-      daAssignmentNo: (biz as Record<string, unknown>).daAssignmentNo as string || '',
-      businessCertNo: (biz as Record<string, unknown>).businessCertNo as string || '',
-      businessPermit: (biz as Record<string, unknown>).businessPermit as string || '',
-      employees: (biz as Record<string, unknown>).employees as string || '',
-      yearEstablished: (biz as Record<string, unknown>).yearEstablished as string || '',
-      excludedFromFees: (biz as Record<string, unknown>).excludedFromFees as boolean || false,
-      ownerAddress: (biz as Record<string, unknown>).ownerAddress as string || '',
-      ownerGps: (biz as Record<string, unknown>).ownerGps as string || '',
-      ownerTin: (biz as Record<string, unknown>).ownerTin as string || '',
-      comments: (biz as Record<string, unknown>).comments as string || '',
+      streetName: (biz as any).streetName || '',
+      houseNo: (biz as any).houseNo || '',
+      streetCode: (biz as any).streetCode || '',
+      localityCode: (biz as any).localityCode || '',
+      daAssignmentNo: (biz as any).daAssignmentNo || '',
+      businessCertNo: (biz as any).businessCertNo || '',
+      businessPermit: (biz as any).businessPermit || '',
+      employees: (biz as any).employees || '',
+      yearEstablished: (biz as any).yearEstablished || '',
+      excludedFromFees: (biz as any).excludedFromFees || false,
+      ownerAddress: (biz as any).ownerAddress || '',
+      ownerGps: (biz as any).ownerGps || '',
+      ownerTin: (biz as any).ownerTin || '',
+      comments: (biz as any).comments || '',
     });
     setView('form');
   };

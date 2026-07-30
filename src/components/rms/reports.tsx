@@ -105,7 +105,7 @@ export function ReportsPage() {
 
   const totalBudget = revenueBreakdown.reduce((s, r) => s + r.budget, 0);
   const totalCollected = revenueBreakdown.reduce((s, r) => s + r.collected, 0);
-  const overallCompliance = ((totalCollected / totalBudget) * 100).toFixed(1);
+  const overallCompliance = totalBudget > 0 ? ((totalCollected / totalBudget) * 100).toFixed(1) : '0.0';
 
   const tabs: { key: ReportView; label: string; icon: React.ElementType }[] = [
     { key: 'overview', label: 'Overview', icon: PieChart },
@@ -375,7 +375,7 @@ export function ReportsPage() {
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
                     <span className="text-xs text-slate-500 dark:text-slate-400">Collection Progress</span>
-                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{((zone.collected / zone.target) * 100).toFixed(1)}%</span>
+                    <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">{zone.target > 0 ? ((zone.collected / zone.target) * 100).toFixed(1) : '0.0'}%</span>
                   </div>
                   <div className="w-full h-2.5 rounded-full bg-slate-100 dark:bg-slate-700">
                     <div
@@ -552,4 +552,3 @@ function ComplianceBadge({ percentage }: { percentage: number }) {
   );
 }
 
-export { ReportsPage };

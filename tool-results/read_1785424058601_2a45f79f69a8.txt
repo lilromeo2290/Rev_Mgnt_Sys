@@ -1,0 +1,673 @@
+     1→'use client';
+     2→
+     3→import { useState, useMemo } from 'react';
+     4→import {
+     5→  Plus,
+     6→  Pencil,
+     7→  Trash2,
+     8→  ChevronDown,
+     9→  ChevronRight,
+    10→  Search,
+    11→  Power,
+    12→  Save,
+    13→  X,
+    14→  Settings2,
+    15→} from 'lucide-react';
+    16→
+    17→// ─── Types ───────────────────────────────────────────────────────────────────
+    18→
+    19→interface SubRate {
+    20→  id: string;
+    21→  name: string;
+    22→  amount: number;
+    23→}
+    24→
+    25→interface RateType {
+    26→  id: string;
+    27→  name: string;
+    28→  category: 'Business' | 'Property';
+    29→  subRates: SubRate[];
+    30→  status: 'Active' | 'Inactive';
+    31→  effectiveDate: string;
+    32→  expiryDate: string;
+    33→  annualIncrement: number;
+    34→}
+    35→
+    36→interface RateFormData {
+    37→  id: string;
+    38→  name: string;
+    39→  category: 'Business' | 'Property';
+    40→  subRateName: string;
+    41→  amount: number;
+    42→  effectiveDate: string;
+    43→  expiryDate: string;
+    44→  status: 'Active' | 'Inactive';
+    45→  annualIncrement: number;
+    46→}
+    47→
+    48→// ─── Mock Data ───────────────────────────────────────────────────────────────
+    49→
+    50→const initialRates: RateType[] = [];
+    51→
+    52→// ─── Helpers ─────────────────────────────────────────────────────────────────
+    53→
+    54→function formatCurrency(amount: number): string {
+    55→  return `GH₵ ${amount.toLocaleString()}`;
+    56→}
+    57→
+    58→// ─── Component ───────────────────────────────────────────────────────────────
+    59→
+    60→export function RateConfigPage() {
+    61→  const [rates, setRates] = useState<RateType[]>(initialRates);
+    62→  const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+    63→  const [searchQuery, setSearchQuery] = useState('');
+    64→  const [categoryFilter, setCategoryFilter] = useState<string>('All');
+    65→  const [statusFilter, setStatusFilter] = useState<string>('All');
+    66→  const [showModal, setShowModal] = useState(false);
+    67→  const [editingRate, setEditingRate] = useState<RateType | null>(null);
+    68→  const [formData, setFormData] = useState<RateFormData>({
+    69→    id: '',
+    70→    name: '',
+    71→    category: 'Business',
+    72→    subRateName: '',
+    73→    amount: 0,
+    74→    effectiveDate: '',
+    75→    expiryDate: '',
+    76→    status: 'Active',
+    77→    annualIncrement: 0,
+    78→  });
+    79→
+    80→  // ── Filtering ───────────────────────────────────────────────────────────
+    81→
+    82→  const filtered = useMemo(() => {
+    83→    return rates.filter((r) => {
+    84→      const matchSearch =
+    85→        searchQuery === '' ||
+    86→        r.name.toLowerCase().includes(searchQuery.toLowerCase());
+    87→      const matchCategory =
+    88→        categoryFilter === 'All' || r.category === categoryFilter;
+    89→      const matchStatus =
+    90→        statusFilter === 'All' || r.status === statusFilter;
+    91→      return matchSearch && matchCategory && matchStatus;
+    92→    });
+    93→  }, [rates, searchQuery, categoryFilter, statusFilter]);
+    94→
+    95→  // ── Toggle expand ───────────────────────────────────────────────────────
+    96→
+    97→  const toggleExpand = (id: string) => {
+    98→    setExpandedRows((prev) => {
+    99→      const next = new Set(prev);
+   100→      if (next.has(id)) {
+   101→        next.delete(id);
+   102→      } else {
+   103→        next.add(id);
+   104→      }
+   105→      return next;
+   106→    });
+   107→  };
+   108→
+   109→  // ── Toggle status ──────────────────────────────────────────────────────
+   110→
+   111→  const toggleStatus = (id: string) => {
+   112→    setRates((prev) =>
+   113→      prev.map((r) =>
+   114→        r.id === id
+   115→          ? { ...r, status: r.status === 'Active' ? 'Inactive' : 'Active' }
+   116→          : r
+   117→      )
+   118→    );
+   119→  };
+   120→
+   121→  // ── Delete ──────────────────────────────────────────────────────────────
+   122→
+   123→  const handleDelete = (id: string) => {
+   124→    setRates((prev) => prev.filter((r) => r.id !== id));
+   125→  };
+   126→
+   127→  // ── Modal open for Add ──────────────────────────────────────────────────
+   128→
+   129→  const openAddModal = () => {
+   130→    setEditingRate(null);
+   131→    setFormData({
+   132→      id: '',
+   133→      name: '',
+   134→      category: 'Business',
+   135→      subRateName: '',
+   136→      amount: 0,
+   137→      effectiveDate: '',
+   138→      expiryDate: '',
+   139→      status: 'Active',
+   140→      annualIncrement: 0,
+   141→    });
+   142→    setShowModal(true);
+   143→  };
+   144→
+   145→  // ── Modal open for Edit ─────────────────────────────────────────────────
+   146→
+   147→  const openEditModal = (rate: RateType) => {
+   148→    setEditingRate(rate);
+   149→    setFormData({
+   150→      id: rate.id,
+   151→      name: rate.name,
+   152→      category: rate.category,
+   153→      subRateName: rate.subRates[0]?.name ?? '',
+   154→      amount: rate.subRates[0]?.amount ?? 0,
+   155→      effectiveDate: rate.effectiveDate,
+   156→      expiryDate: rate.expiryDate,
+   157→      status: rate.status,
+   158→      annualIncrement: rate.annualIncrement,
+   159→    });
+   160→    setShowModal(true);
+   161→  };
+   162→
+   163→  // ── Save ────────────────────────────────────────────────────────────────
+   164→
+   165→  const handleSave = () => {
+   166→    if (!formData.name.trim() || !formData.subRateName.trim() || formData.amount <= 0) return;
+   167→
+   168→    if (editingRate) {
+   169→      // Update existing rate
+   170→      setRates((prev) =>
+   171→        prev.map((r) =>
+   172→          r.id === editingRate.id
+   173→            ? {
+   174→                ...r,
+   175→                name: formData.name,
+   176→                category: formData.category,
+   177→                subRates: [{ id: r.subRates[0]?.id ?? `${r.id}-sub`, name: formData.subRateName, amount: formData.amount }],
+   178→                effectiveDate: formData.effectiveDate,
+   179→                expiryDate: formData.expiryDate,
+   180→                status: formData.status,
+   181→                annualIncrement: formData.annualIncrement,
+   182→              }
+   183→            : r
+   184→        )
+   185→      );
+   186→    } else {
+   187→      // Add new rate
+   188→      const newId = `RT-${String(rates.length + 1).padStart(3, '0')}`;
+   189→      const newRate: RateType = {
+   190→        id: newId,
+   191→        name: formData.name,
+   192→        category: formData.category,
+   193→        subRates: [{ id: `${newId}-sub`, name: formData.subRateName, amount: formData.amount }],
+   194→        effectiveDate: formData.effectiveDate,
+   195→        expiryDate: formData.expiryDate,
+   196→        status: formData.status,
+   197→        annualIncrement: formData.annualIncrement,
+   198→      };
+   199→      setRates((prev) => [...prev, newRate]);
+   200→    }
+   201→
+   202→    setShowModal(false);
+   203→  };
+   204→
+   205→  // ── CSS classes ──────────────────────────────────────────────────────────
+   206→
+   207→  const inputClass =
+   208→    'w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition';
+   209→  const labelClass =
+   210→    'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5';
+   211→  const btnPrimary =
+   212→    'inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap';
+   213→  const btnSecondary =
+   214→    'inline-flex items-center gap-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm font-medium px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap';
+   215→
+   216→  // ── Compute display amount from sub-rates ────────────────────────────────
+   217→
+   218→  const getDisplayAmount = (rate: RateType) => {
+   219→    if (rate.subRates.length === 1) return formatCurrency(rate.subRates[0].amount);
+   220→    const min = Math.min(...rate.subRates.map((s) => s.amount));
+   221→    const max = Math.max(...rate.subRates.map((s) => s.amount));
+   222→    return `${formatCurrency(min)} – ${formatCurrency(max)}`;
+   223→  };
+   224→
+   225→  // ══════════════════════════════════════════════════════════════════════════
+   226→  //  RENDER
+   227→  // ══════════════════════════════════════════════════════════════════════════
+   228→
+   229→  return (
+   230→    <div className="space-y-6">
+   231→      {/* ── Header ──────────────────────────────────────────────────────── */}
+   232→      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+   233→        <div>
+   234→          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+   235→            Rate Configuration
+   236→          </h1>
+   237→          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+   238→            Manage revenue rate types, sub-rates, and fee structures.
+   239→          </p>
+   240→        </div>
+   241→        <button onClick={openAddModal} className={btnPrimary}>
+   242→          <Plus className="w-4 h-4" />
+   243→          Add New Rate Type
+   244→        </button>
+   245→      </div>
+   246→
+   247→      {/* ── Filters ────────────────────────────────────────────────────── */}
+   248→      <div className="flex flex-col sm:flex-row gap-3">
+   249→        <div className="relative flex-1">
+   250→          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+   251→          <input
+   252→            type="text"
+   253→            placeholder="Search rate types..."
+   254→            value={searchQuery}
+   255→            onChange={(e) => setSearchQuery(e.target.value)}
+   256→            className={`${inputClass} pl-10`}
+   257→          />
+   258→        </div>
+   259→        <select
+   260→          value={categoryFilter}
+   261→          onChange={(e) => setCategoryFilter(e.target.value)}
+   262→          className={`${inputClass} w-full sm:w-44`}
+   263→        >
+   264→          <option value="All">All Categories</option>
+   265→          <option value="Business">Business</option>
+   266→          <option value="Property">Property</option>
+   267→        </select>
+   268→        <select
+   269→          value={statusFilter}
+   270→          onChange={(e) => setStatusFilter(e.target.value)}
+   271→          className={`${inputClass} w-full sm:w-44`}
+   272→        >
+   273→          <option value="All">All Statuses</option>
+   274→          <option value="Active">Active</option>
+   275→          <option value="Inactive">Inactive</option>
+   276→        </select>
+   277→      </div>
+   278→
+   279→      {/* ── Table ───────────────────────────────────────────────────────── */}
+   280→      <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+   281→        <div className="overflow-x-auto">
+   282→          <table className="w-full text-sm">
+   283→            <thead>
+   284→              <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700">
+   285→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap w-10" />
+   286→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   287→                  Rate Name
+   288→                </th>
+   289→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   290→                  Category
+   291→                </th>
+   292→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   293→                  Amount
+   294→                </th>
+   295→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   296→                  Status
+   297→                </th>
+   298→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden md:table-cell">
+   299→                  Effective Date
+   300→                </th>
+   301→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden md:table-cell">
+   302→                  Expiry Date
+   303→                </th>
+   304→                <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   305→                  Actions
+   306→                </th>
+   307→              </tr>
+   308→            </thead>
+   309→            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+   310→              {filtered.length === 0 ? (
+   311→                <tr>
+   312→                  <td
+   313→                    colSpan={8}
+   314→                    className="text-center py-12 text-slate-400 dark:text-slate-500"
+   315→                  >
+   316→                    <Settings2 className="w-10 h-10 mx-auto mb-3 opacity-40" />
+   317→                    No rate types found matching your criteria.
+   318→                  </td>
+   319→                </tr>
+   320→              ) : (
+   321→                filtered.map((rate) => {
+   322→                  const isExpanded = expandedRows.has(rate.id);
+   323→                  return (
+   324→                    <>
+   325→                      {/* Parent row */}
+   326→                      <tr
+   327→                        key={rate.id}
+   328→                        className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors cursor-pointer"
+   329→                      >
+   330→                        <td
+   331→                          className="px-4 py-3 text-slate-400"
+   332→                          onClick={() => toggleExpand(rate.id)}
+   333→                        >
+   334→                          {rate.subRates.length > 1 ? (
+   335→                            isExpanded ? (
+   336→                              <ChevronDown className="w-4 h-4" />
+   337→                            ) : (
+   338→                              <ChevronRight className="w-4 h-4" />
+   339→                            )
+   340→                          ) : (
+   341→                            <span className="w-4 h-4 inline-block" />
+   342→                          )}
+   343→                        </td>
+   344→                        <td
+   345→                          className="px-4 py-3 font-medium text-slate-900 dark:text-white whitespace-nowrap"
+   346→                          onClick={() => toggleExpand(rate.id)}
+   347→                        >
+   348→                          {rate.name}
+   349→                        </td>
+   350→                        <td className="px-4 py-3 whitespace-nowrap">
+   351→                          <span
+   352→                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+   353→                              rate.category === 'Business'
+   354→                                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400'
+   355→                                : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400'
+   356→                            }`}
+   357→                          >
+   358→                            {rate.category}
+   359→                          </span>
+   360→                        </td>
+   361→                        <td className="px-4 py-3 font-medium text-slate-900 dark:text-white whitespace-nowrap">
+   362→                          {getDisplayAmount(rate)}
+   363→                        </td>
+   364→                        <td className="px-4 py-3 whitespace-nowrap">
+   365→                          <span
+   366→                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+   367→                              rate.status === 'Active'
+   368→                                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400'
+   369→                                : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400'
+   370→                            }`}
+   371→                          >
+   372→                            {rate.status}
+   373→                          </span>
+   374→                        </td>
+   375→                        <td className="px-4 py-3 text-slate-500 dark:text-slate-400 whitespace-nowrap hidden md:table-cell">
+   376→                          {rate.effectiveDate}
+   377→                        </td>
+   378→                        <td className="px-4 py-3 text-slate-500 dark:text-slate-400 whitespace-nowrap hidden md:table-cell">
+   379→                          {rate.expiryDate}
+   380→                        </td>
+   381→                        <td className="px-4 py-3 text-right whitespace-nowrap">
+   382→                          <div className="inline-flex items-center gap-1">
+   383→                            <button
+   384→                              onClick={() => openEditModal(rate)}
+   385→                              className="p-1.5 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+   386→                              title="Edit"
+   387→                            >
+   388→                              <Pencil className="w-4 h-4" />
+   389→                            </button>
+   390→                            <button
+   391→                              onClick={() => toggleStatus(rate.id)}
+   392→                              className="p-1.5 rounded-md text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+   393→                              title="Toggle Status"
+   394→                            >
+   395→                              <Power className="w-4 h-4" />
+   396→                            </button>
+   397→                            <button
+   398→                              onClick={() => handleDelete(rate.id)}
+   399→                              className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+   400→                              title="Delete"
+   401→                            >
+   402→                              <Trash2 className="w-4 h-4" />
+   403→                            </button>
+   404→                          </div>
+   405→                        </td>
+   406→                      </tr>
+   407→
+   408→                      {/* Expanded sub-rate rows */}
+   409→                      {isExpanded && rate.subRates.length > 1 && (
+   410→                        <tr key={`${rate.id}-sub`} className="bg-slate-50/60 dark:bg-slate-800/30">
+   411→                          <td />
+   412→                          <td colSpan={7} className="py-0">
+   413→                            <div className="px-6 py-3">
+   414→                              <div className="ml-4 border-l-2 border-emerald-400 dark:border-emerald-600 pl-4">
+   415→                                <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wider">
+   416→                                  Sub-Rates
+   417→                                </p>
+   418→                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+   419→                                  {rate.subRates.map((sr) => (
+   420→                                    <div
+   421→                                      key={sr.id}
+   422→                                      className="flex items-center justify-between bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-600 px-4 py-2.5"
+   423→                                    >
+   424→                                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+   425→                                        {sr.name}
+   426→                                      </span>
+   427→                                      <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400">
+   428→                                        {formatCurrency(sr.amount)}
+   429→                                      </span>
+   430→                                    </div>
+   431→                                  ))}
+   432→                                </div>
+   433→                                {rate.annualIncrement > 0 && (
+   434→                                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2">
+   435→                                    Annual increment: <span className="font-semibold text-emerald-600 dark:text-emerald-400">{rate.annualIncrement}%</span>
+   436→                                  </p>
+   437→                                )}
+   438→                              </div>
+   439→                            </div>
+   440→                          </td>
+   441→                        </tr>
+   442→                      )}
+   443→                    </>
+   444→                  );
+   445→                })
+   446→              )}
+   447→            </tbody>
+   448→          </table>
+   449→        </div>
+   450→      </div>
+   451→
+   452→      {/* ── Summary ────────────────────────────────────────────────────── */}
+   453→      <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 px-1">
+   454→        <span>
+   455→          Showing {filtered.length} of {rates.length} rate types
+   456→        </span>
+   457→        {rates.filter((r) => r.status === 'Active').length > 0 && (
+   458→          <span>
+   459→            {rates.filter((r) => r.status === 'Active').length} active &middot;{' '}
+   460→            {rates.filter((r) => r.status === 'Inactive').length} inactive
+   461→          </span>
+   462→        )}
+   463→      </div>
+   464→
+   465→      {/* ── Add/Edit Modal ──────────────────────────────────────────────── */}
+   466→      {showModal && (
+   467→        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+   468→          {/* Backdrop */}
+   469→          <div
+   470→            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+   471→            onClick={() => setShowModal(false)}
+   472→          />
+   473→
+   474→          {/* Modal */}
+   475→          <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+   476→            {/* Modal Header */}
+   477→            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-6 py-4">
+   478→              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+   479→                {editingRate ? 'Edit Rate Type' : 'Add New Rate Type'}
+   480→              </h2>
+   481→              <button
+   482→                onClick={() => setShowModal(false)}
+   483→                className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+   484→              >
+   485→                <X className="w-5 h-5" />
+   486→              </button>
+   487→            </div>
+   488→
+   489→            {/* Modal Body */}
+   490→            <div className="px-6 py-5 space-y-4">
+   491→              {/* Rate Name */}
+   492→              <div>
+   493→                <label className={labelClass}>Rate Name</label>
+   494→                <input
+   495→                  type="text"
+   496→                  value={formData.name}
+   497→                  onChange={(e) =>
+   498→                    setFormData((p) => ({ ...p, name: e.target.value }))
+   499→                  }
+   500→                  placeholder="e.g. Business Operating Permit"
+   501→                  className={inputClass}
+   502→                />
+   503→              </div>
+   504→
+   505→              {/* Category */}
+   506→              <div>
+   507→                <label className={labelClass}>Category</label>
+   508→                <select
+   509→                  value={formData.category}
+   510→                  onChange={(e) =>
+   511→                    setFormData((p) => ({
+   512→                      ...p,
+   513→                      category: e.target.value as 'Business' | 'Property',
+   514→                    }))
+   515→                  }
+   516→                  className={inputClass}
+   517→                >
+   518→                  <option value="Business">Business</option>
+   519→                  <option value="Property">Property</option>
+   520→                </select>
+   521→              </div>
+   522→
+   523→              {/* Sub-rate name + Amount row */}
+   524→              <div className="grid grid-cols-2 gap-4">
+   525→                <div>
+   526→                  <label className={labelClass}>Sub-rate Name</label>
+   527→                  <input
+   528→                    type="text"
+   529→                    value={formData.subRateName}
+   530→                    onChange={(e) =>
+   531→                      setFormData((p) => ({
+   532→                        ...p,
+   533→                        subRateName: e.target.value,
+   534→                      }))
+   535→                    }
+   536→                    placeholder="e.g. Small, Medium"
+   537→                    className={inputClass}
+   538→                  />
+   539→                </div>
+   540→                <div>
+   541→                  <label className={labelClass}>Amount (GH₵)</label>
+   542→                  <input
+   543→                    type="number"
+   544→                    min={0}
+   545→                    value={formData.amount || ''}
+   546→                    onChange={(e) =>
+   547→                      setFormData((p) => ({
+   548→                        ...p,
+   549→                        amount: Number(e.target.value),
+   550→                      }))
+   551→                    }
+   552→                    placeholder="0"
+   553→                    className={inputClass}
+   554→                  />
+   555→                </div>
+   556→              </div>
+   557→
+   558→              {/* Effective Date + Expiry Date */}
+   559→              <div className="grid grid-cols-2 gap-4">
+   560→                <div>
+   561→                  <label className={labelClass}>Effective Date</label>
+   562→                  <input
+   563→                    type="date"
+   564→                    value={formData.effectiveDate}
+   565→                    onChange={(e) =>
+   566→                      setFormData((p) => ({
+   567→                        ...p,
+   568→                        effectiveDate: e.target.value,
+   569→                      }))
+   570→                    }
+   571→                    className={inputClass}
+   572→                  />
+   573→                </div>
+   574→                <div>
+   575→                  <label className={labelClass}>Expiry Date</label>
+   576→                  <input
+   577→                    type="date"
+   578→                    value={formData.expiryDate}
+   579→                    onChange={(e) =>
+   580→                      setFormData((p) => ({
+   581→                        ...p,
+   582→                        expiryDate: e.target.value,
+   583→                      }))
+   584→                    }
+   585→                    className={inputClass}
+   586→                  />
+   587→                </div>
+   588→              </div>
+   589→
+   590→              {/* Annual Increment */}
+   591→              <div>
+   592→                <label className={labelClass}>Annual Increment (%)</label>
+   593→                <input
+   594→                  type="number"
+   595→                  min={0}
+   596→                  max={100}
+   597→                  value={formData.annualIncrement || ''}
+   598→                  onChange={(e) =>
+   599→                    setFormData((p) => ({
+   600→                      ...p,
+   601→                      annualIncrement: Number(e.target.value),
+   602→                    }))
+   603→                  }
+   604→                  placeholder="0"
+   605→                  className={inputClass}
+   606→                />
+   607→              </div>
+   608→
+   609→              {/* Status Toggle */}
+   610→              <div className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-slate-600 px-4 py-3">
+   611→                <div>
+   612→                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+   613→                    Status
+   614→                  </p>
+   615→                  <p className="text-xs text-slate-500 dark:text-slate-400">
+   616→                    {formData.status === 'Active'
+   617→                      ? 'This rate type is currently active'
+   618→                      : 'This rate type is currently inactive'}
+   619→                  </p>
+   620→                </div>
+   621→                <button
+   622→                  onClick={() =>
+   623→                    setFormData((p) => ({
+   624→                      ...p,
+   625→                      status:
+   626→                        p.status === 'Active' ? 'Inactive' : 'Active',
+   627→                    }))
+   628→                  }
+   629→                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
+   630→                    formData.status === 'Active'
+   631→                      ? 'bg-emerald-600'
+   632→                      : 'bg-slate-300 dark:bg-slate-600'
+   633→                  }`}
+   634→                  role="switch"
+   635→                  aria-checked={formData.status === 'Active'}
+   636→                >
+   637→                  <span
+   638→                    className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ease-in-out ${
+   639→                      formData.status === 'Active'
+   640→                        ? 'translate-x-5'
+   641→                        : 'translate-x-0'
+   642→                    }`}
+   643→                  />
+   644→                </button>
+   645→              </div>
+   646→            </div>
+   647→
+   648→            {/* Modal Footer */}
+   649→            <div className="flex items-center justify-end gap-3 border-t border-slate-200 dark:border-slate-700 px-6 py-4">
+   650→              <button onClick={() => setShowModal(false)} className={btnSecondary}>
+   651→                <X className="w-4 h-4" />
+   652→                Cancel
+   653→              </button>
+   654→              <button
+   655→                onClick={handleSave}
+   656→                className={btnPrimary}
+   657→                disabled={
+   658→                  !formData.name.trim() ||
+   659→                  !formData.subRateName.trim() ||
+   660→                  formData.amount <= 0
+   661→                }
+   662→              >
+   663→                <Save className="w-4 h-4" />
+   664→                {editingRate ? 'Update Rate' : 'Save Rate'}
+   665→              </button>
+   666→            </div>
+   667→          </div>
+   668→        </div>
+   669→      )}
+   670→    </div>
+   671→  );
+   672→}
+   673→

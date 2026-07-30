@@ -83,7 +83,7 @@ const RATE_AMOUNTS: Record<string, number> = {
   'Fire Safety Cert': 350,
 };
 
-const ENTITIES: { id: string; name: string; type: string }[] = [];
+const ENTITIES: { id: string; name: string; type: string; category?: string }[] = [];
 
 const initialBills: Bill[] = [];
 
@@ -301,8 +301,8 @@ export function BillingPage() {
           billNumber: `BILL-2024-${String(bills.length + 156 + idx).padStart(4, '0')}`,
           date: new Date().toISOString().split('T')[0],
           entityName: entity.name,
-          entityType: entity.type,
-          category: entity.category,
+          entityType: entity.type as 'Business' | 'Property',
+          category: entity.category || 'General',
           revenueItem: bulkForm.revenueItem,
           amount,
           previousBalance: 0,
@@ -1090,7 +1090,7 @@ export function BillingPage() {
                     setFormData((p) => ({
                       ...p,
                       entityName: e.target.value,
-                      entityType: entity?.type ?? 'Business',
+                      entityType: (entity?.type ?? 'Business') as 'Business' | 'Property',
                     }));
                   }}
                   className={inputClass}
