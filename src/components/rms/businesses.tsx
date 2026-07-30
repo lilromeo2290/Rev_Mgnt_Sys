@@ -401,14 +401,11 @@ export function BusinessesPage() {
     }
   };
 
-  
-  const getAssemblySettings = () => {
-    try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r; } catch { return {}; }
-  };
-  const asmSettings = getAssemblySettings();
-  const dynAssemblyName = asmSettings.name || cert.assemblyName || 'Kumasi Metropolitan Assembly';
-  const dynAssemblyAddress = asmSettings.address || cert.assemblyAddress || '';
-const handlePrintCertificate = (cert: BusinessCert) => {
+  const handlePrintCertificate = (cert: BusinessCert) => {
+    // Read assembly name dynamically from settings at print time
+    const _asmSettings = (() => { try { return JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); } catch { return {}; } })();
+    const dynAssemblyName = _asmSettings.name || cert.assemblyName || 'Kumasi Metropolitan Assembly';
+    const dynAssemblyAddress = _asmSettings.address || cert.assemblyAddress || '';
     const fmtDate = (d: string) => {
       if (!d) return '..................';
       try {
