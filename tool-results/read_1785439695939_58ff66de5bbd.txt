@@ -1,0 +1,1119 @@
+     1→     1→'use client';
+     2→     2→
+     3→     3→import { useState, useCallback } from 'react';
+     4→     4→import { useLocalStorage } from '@/hooks/use-local-storage';
+     5→     5→import {
+     6→     6→  Search,
+     7→     7→  Plus,
+     8→     8→  ArrowLeft,
+     9→     9→  Pencil,
+    10→    10→  Trash2,
+    11→    11→  ChevronLeft,
+    12→    12→  ChevronRight,
+    13→    13→  Building2,
+    14→    14→  Award,
+    15→    15→  MapPin,
+    16→    16→  Briefcase,
+    17→    17→  User,
+    18→    18→  Save,
+    19→    19→  Crosshair,
+    20→    20→  Loader2,
+    21→    21→  Printer,
+    22→    22→  X,
+    23→    23→  FileText,
+    24→    24→} from 'lucide-react';
+    25→    25→import { BUSINESS_CLASSES, BUSINESS_CLASS_CATEGORIES } from '@/lib/fee-schedule';
+    26→    26→import type { FeeCategory } from '@/lib/fee-schedule';
+    27→    27→
+    28→    28→// ─── Types ───────────────────────────────────────────────────────────────────
+    29→    29→
+    30→    30→interface BusinessCert {
+    31→    31→  id: string;
+    32→    32→  certNumber: string;
+    33→    33→  regNumber: string;
+    34→    34→  businessName: string;
+    35→    35→  ownerName: string;
+    36→    36→  businessType: string;
+    37→    37→  category: string;
+    38→    38→  businessAddress: string;
+    39→    39→  dateRegistered: string;
+    40→    40→  dateIssued: string;
+    41→    41→  expiryDate: string;
+    42→    42→  status: string;
+    43→    43→  assemblyName: string;
+    44→    44→  assemblyAddress: string;
+    45→    45→  tradingName: string;
+    46→    46→  receiptNumber: string;
+    47→    47→}
+    48→    48→
+    49→    49→interface Business {
+    50→    50→  regNumber: string;
+    51→    51→  name: string;
+    52→    52→  owner: string;
+    53→    53→  type: string;
+    54→    54→  category: string;
+    55→    55→  tin: string;
+    56→    56→  status: 'Active' | 'Inactive';
+    57→    57→  dateRegistered: string;
+    58→    58→  ghanaCard: string;
+    59→    59→  phone: string;
+    60→    60→  email: string;
+    61→    61→  gpsAddress: string;
+    62→    62→  digitalAddress: string;
+    63→    63→  residentialAddress: string;
+    64→    64→  businessAddress: string;
+    65→    65→  ward: string;
+    66→    66→  electoralArea: string;
+    67→    67→  zone: string;
+    68→    68→  revenueArea: string;
+    69→    69→  licenseNumber: string;
+    70→    70→  subCategory: string;
+    71→    71→  // New fields
+    72→    72→  streetName: string;
+    73→    73→  houseNo: string;
+    74→    74→  streetCode: string;
+    75→    75→  localityCode: string;
+    76→    76→  daAssignmentNo: string;
+    77→    77→  businessCertNo: string;
+    78→    78→  businessPermit: string;
+    79→    79→  employees: string;
+    80→    80→  yearEstablished: string;
+    81→    81→  excludedFromFees: boolean;
+    82→    82→  ownerAddress: string;
+    83→    83→  ownerGps: string;
+    84→    84→  ownerTin: string;
+    85→    85→  comments: string;
+    86→    86→}
+    87→    87→
+    88→    88→// ─── Mock Data ───────────────────────────────────────────────────────────────
+    89→    89→
+    90→    90→const mockBusinesses: Business[] = [];
+    91→    91→
+    92→    92→// ─── Component ───────────────────────────────────────────────────────────────
+    93→    93→
+    94→    94→const businessTypes = BUSINESS_CLASSES;
+    95→    95→
+    96→    96→const defaultForm = {
+    97→    97→  regNumber: '',
+    98→    98→  name: '',
+    99→    99→  ownerName: '',
+   100→   100→  type: '',
+   101→   101→  category: '',
+   102→   102→  subCategory: '',
+   103→   103→  tin: '',
+   104→   104→  licenseNumber: '',
+   105→   105→  dateRegistered: '',
+   106→   106→  status: 'Active',
+   107→   107→  ghanaCard: '',
+   108→   108→  phone: '',
+   109→   109→  email: '',
+   110→   110→  gpsAddress: '',
+   111→   111→  digitalAddress: '',
+   112→   112→  residentialAddress: '',
+   113→   113→  businessAddress: '',
+   114→   114→  ward: '',
+   115→   115→  electoralArea: '',
+   116→   116→  zone: '',
+   117→   117→  revenueArea: '',
+   118→   118→  streetName: '',
+   119→   119→  houseNo: '',
+   120→   120→  streetCode: '',
+   121→   121→  localityCode: '',
+   122→   122→  daAssignmentNo: '',
+   123→   123→  businessCertNo: '',
+   124→   124→  businessPermit: '',
+   125→   125→  employees: '',
+   126→   126→  yearEstablished: '',
+   127→   127→  excludedFromFees: false,
+   128→   128→  ownerAddress: '',
+   129→   129→  ownerGps: '',
+   130→   130→  ownerTin: '',
+   131→   131→  comments: '',
+   132→   132→};
+   133→   133→
+   134→   134→export function BusinessesPage() {
+   135→   135→  const [view, setView] = useState<'list' | 'form'>('list');
+   136→   136→  const [editingRegNumber, setEditingRegNumber] = useState<string | null>(null);
+   137→   137→  const [searchQuery, setSearchQuery] = useState('');
+   138→   138→  const [statusFilter, setStatusFilter] = useState<string>('All');
+   139→   139→  const [typeFilter, setTypeFilter] = useState<string>('All');
+   140→   140→  const [currentPage, setCurrentPage] = useState(1);
+   141→   141→  const [locatingBusiness, setLocatingBusiness] = useState(false);
+   142→   142→  const [locatingOwner, setLocatingOwner] = useState(false);
+   143→   143→  const [viewingCert, setViewingCert] = useState<BusinessCert | null>(null);
+   144→   144→  const [businesses, setBusinesses] = useLocalStorage<Business[]>('rms-businesses', mockBusinesses);
+   145→   145→  const itemsPerPage = 10;
+   146→   146→
+   147→   147→  // ── Form State ───────────────────────────────────────────────────────────
+   148→   148→  const [form, setForm] = useState({ ...defaultForm });
+   149→   149→
+   150→   150→  // ── Geolocation: Fetch GPS from device location ─────────────────────
+   151→   151→  const fetchGpsFromLocation = (
+   152→   152→    target: 'business' | 'owner'
+   153→   153→  ) => {
+   154→   154→    const setLoading = target === 'business' ? setLocatingBusiness : setLocatingOwner;
+   155→   155→
+   156→   156→    if (!navigator.geolocation) {
+   157→   157→      alert('Geolocation is not supported by your browser. Please enter the GPS address manually.');
+   158→   158→      return;
+   159→   159→    }
+   160→   160→
+   161→   161→    setLoading(true);
+   162→   162→
+   163→   163→    navigator.geolocation.getCurrentPosition(
+   164→   164→      (position) => {
+   165→   165→        const { latitude, longitude } = position.coords;
+   166→   166→        const gpsString = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+   167→   167→        if (target === 'business') {
+   168→   168→          setForm((prev) => ({ ...prev, gpsAddress: gpsString }));
+   169→   169→        } else {
+   170→   170→          setForm((prev) => ({ ...prev, ownerGps: gpsString }));
+   171→   171→        }
+   172→   172→        setLoading(false);
+   173→   173→      },
+   174→   174→      (error) => {
+   175→   175→        let message = 'Unable to retrieve location.';
+   176→   176→        switch (error.code) {
+   177→   177→          case error.PERMISSION_DENIED:
+   178→   178→            message = 'Location permission denied. Please allow location access in your browser settings.';
+   179→   179→            break;
+   180→   180→          case error.POSITION_UNAVAILABLE:
+   181→   181→            message = 'Location information is unavailable. Please try again or enter manually.';
+   182→   182→            break;
+   183→   183→          case error.TIMEOUT:
+   184→   184→            message = 'Location request timed out. Please try again.';
+   185→   185→            break;
+   186→   186→        }
+   187→   187→        alert(message);
+   188→   188→        setLoading(false);
+   189→   189→      },
+   190→   190→      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+   191→   191→    );
+   192→   192→  };
+   193→   193→
+   194→   194→  // ── Derived categories based on selected business type ───────────────────
+   195→   195→  const availableCategories: FeeCategory[] = form.type
+   196→   196→    ? (BUSINESS_CLASS_CATEGORIES[form.type] || [])
+   197→   197→    : [];
+   198→   198→
+   199→   199→  // ── Get fee details for selected category ──────────────────────────────
+   200→   200→  const selectedCategoryFee = availableCategories.find(
+   201→   201→    (c) => c.name === form.category
+   202→   202→  );
+   203→   203→
+   204→   204→  // ── Filtering & Pagination ───────────────────────────────────────────────
+   205→   205→  const filtered = businesses.filter((b) => {
+   206→   206→    const matchSearch =
+   207→   207→      searchQuery === '' ||
+   208→   208→      b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+   209→   209→      b.owner.toLowerCase().includes(searchQuery.toLowerCase()) ||
+   210→   210→      b.regNumber.toLowerCase().includes(searchQuery.toLowerCase());
+   211→   211→    const matchStatus = statusFilter === 'All' || b.status === statusFilter;
+   212→   212→    const matchType = typeFilter === 'All' || b.type === typeFilter;
+   213→   213→    return matchSearch && matchStatus && matchType;
+   214→   214→  });
+   215→   215→
+   216→   216→  const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+   217→   217→  const safeCurrentPage = Math.min(currentPage, totalPages);
+   218→   218→  const startIdx = (safeCurrentPage - 1) * itemsPerPage;
+   219→   219→  const paged = filtered.slice(startIdx, startIdx + itemsPerPage);
+   220→   220→  const showingFrom = filtered.length === 0 ? 0 : startIdx + 1;
+   221→   221→  const showingTo = Math.min(startIdx + itemsPerPage, filtered.length);
+   222→   222→
+   223→   223→  // ── Handlers ─────────────────────────────────────────────────────────────
+   224→   224→  const handleFormChange = (
+   225→   225→    e: React.ChangeEvent<
+   226→   226→      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+   227→   227→    >
+   228→   228→  ) => {
+   229→   229→    const { name, type } = e.target;
+   230→   230→    setForm((prev) => {
+   231→   231→      const updated = { ...prev, [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : (e.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement).value };
+   232→   232→      // Reset category and sub-category when type changes
+   233→   233→      if (name === 'type') {
+   234→   234→        updated.category = '';
+   235→   235→        updated.subCategory = '';
+   236→   236→      }
+   237→   237→      return updated;
+   238→   238→    });
+   239→   239→  };
+   240→   240→
+   241→   241→  const handleSave = () => {
+   242→   242→    if (!form.name || !form.type) return;
+   243→   243→    const regNum = form.regNumber || `BIZ-${String(businesses.length + 1).padStart(4, '0')}`;
+   244→   244→    const newBusiness: Business = {
+   245→   245→      regNumber: regNum,
+   246→   246→      name: form.name,
+   247→   247→      owner: form.ownerName,
+   248→   248→      type: form.type,
+   249→   249→      category: form.category,
+   250→   250→      tin: form.tin,
+   251→   251→      status: (form.status as 'Active' | 'Inactive') || 'Active',
+   252→   252→      dateRegistered: form.dateRegistered || new Date().toISOString().split('T')[0],
+   253→   253→      ghanaCard: form.ghanaCard,
+   254→   254→      phone: form.phone,
+   255→   255→      email: form.email,
+   256→   256→      gpsAddress: form.gpsAddress,
+   257→   257→      digitalAddress: form.digitalAddress,
+   258→   258→      residentialAddress: form.residentialAddress,
+   259→   259→      businessAddress: form.businessAddress,
+   260→   260→      ward: form.ward,
+   261→   261→      electoralArea: form.electoralArea,
+   262→   262→      zone: form.zone,
+   263→   263→      revenueArea: form.revenueArea,
+   264→   264→      licenseNumber: form.licenseNumber,
+   265→   265→      subCategory: form.subCategory,
+   266→   266→      // New fields
+   267→   267→      streetName: form.streetName,
+   268→   268→      houseNo: form.houseNo,
+   269→   269→      streetCode: form.streetCode,
+   270→   270→      localityCode: form.localityCode,
+   271→   271→      daAssignmentNo: form.daAssignmentNo,
+   272→   272→      businessCertNo: form.businessCertNo,
+   273→   273→      businessPermit: form.businessPermit,
+   274→   274→      employees: form.employees,
+   275→   275→      yearEstablished: form.yearEstablished,
+   276→   276→      excludedFromFees: form.excludedFromFees,
+   277→   277→      ownerAddress: form.ownerAddress,
+   278→   278→      ownerGps: form.ownerGps,
+   279→   279→      ownerTin: form.ownerTin,
+   280→   280→      comments: form.comments,
+   281→   281→    };
+   282→   282→
+   283→   283→    if (editingRegNumber) {
+   284→   284→      setBusinesses((prev) =>
+   285→   285→        prev.map((b) =>
+   286→   286→          b.regNumber === editingRegNumber
+   287→   287→            ? { ...b, ...newBusiness, businessName: newBusiness.name, ownerName: newBusiness.owner, businessType: newBusiness.type, category: newBusiness.category, businessAddress: newBusiness.businessAddress }
+   288→   288→            : b
+   289→   289→        )
+   290→   290→      );
+   291→   291→    } else {
+   292→   292→      setBusinesses((prev) => [...prev, newBusiness]);
+   293→   293→    }
+   294→   294→
+   295→   295→    // Auto-generate business certificate
+   296→   296→    try {
+   297→   297→      const existingCerts = JSON.parse(localStorage.getItem('rms-business-certs') || '[]');
+   298→   298→      const certSeq = existingCerts.length + 1;
+   299→   299→      const today = new Date().toISOString().split('T')[0];
+   300→   300→      const expiryDate = new Date();
+   301→   301→      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+   302→   302→      const expiryStr = expiryDate.toISOString().split('T')[0];
+   303→   303→      const assemblyName = (() => {
+   304→   304→        try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kumasi Metropolitan Assembly'; } catch { return 'Kumasi Metropolitan Assembly'; }
+   305→   305→      })();
+   306→   306→      const assemblyAddress = (() => {
+   307→   307→        try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.address || ''; } catch { return ''; }
+   308→   308→      })();
+   309→   309→      const newCert = {
+   310→   310→        id: `CRT-${Date.now()}`,
+   311→   311→        certNumber: `CRT-${String(certSeq).padStart(4, '0')}`,
+   312→   312→        regNumber: regNum,
+   313→   313→        businessName: newBusiness.name,
+   314→   314→        ownerName: newBusiness.owner,
+   315→   315→        businessType: newBusiness.type,
+   316→   316→        category: newBusiness.category,
+   317→   317→        businessAddress: newBusiness.businessAddress,
+   318→   318→        dateRegistered: newBusiness.dateRegistered,
+   319→   319→        dateIssued: today,
+   320→   320→        expiryDate: expiryStr,
+   321→   321→        status: 'Active' as const,
+   322→   322→        assemblyName,
+   323→   323→        assemblyAddress,
+   324→   324→        tradingName: newBusiness.name,
+   325→   325→        receiptNumber: `RCT-${String(certSeq).padStart(4, '0')}`,
+   326→   326→      };
+   327→   327→      existingCerts.push(newCert);
+   328→   328→      localStorage.setItem('rms-business-certs', JSON.stringify(existingCerts));
+   329→   329→    } catch { /* cert generation failure should not block registration */ }
+   330→   330→
+   331→   331→    setEditingRegNumber(null);
+   332→   332→    setForm({ ...defaultForm });
+   333→   333→    setView('list');
+   334→   334→  };
+   335→   335→
+   336→   336→  const handleCancel = () => {
+   337→   337→    setEditingRegNumber(null);
+   338→   338→    setForm({ ...defaultForm });
+   339→   339→    setView('list');
+   340→   340→  };
+   341→   341→
+   342→   342→  const handleEdit = (biz: Business) => {
+   343→   343→    setEditingRegNumber(biz.regNumber);
+   344→   344→    setForm({
+   345→   345→      regNumber: biz.regNumber,
+   346→   346→      name: biz.name,
+   347→   347→      ownerName: biz.owner,
+   348→   348→      type: biz.type,
+   349→   349→      category: biz.category,
+   350→   350→      subCategory: biz.subCategory || '',
+   351→   351→      tin: biz.tin,
+   352→   352→      licenseNumber: biz.licenseNumber,
+   353→   353→      dateRegistered: biz.dateRegistered,
+   354→   354→      status: biz.status,
+   355→   355→      ghanaCard: biz.ghanaCard,
+   356→   356→      phone: biz.phone,
+   357→   357→      email: biz.email,
+   358→   358→      gpsAddress: biz.gpsAddress,
+   359→   359→      digitalAddress: biz.digitalAddress,
+   360→   360→      residentialAddress: biz.residentialAddress,
+   361→   361→      businessAddress: biz.businessAddress,
+   362→   362→      ward: biz.ward,
+   363→   363→      electoralArea: biz.electoralArea,
+   364→   364→      zone: biz.zone,
+   365→   365→      revenueArea: biz.revenueArea,
+   366→   366→      streetName: (biz as any).streetName || '',
+   367→   367→      houseNo: (biz as any).houseNo || '',
+   368→   368→      streetCode: (biz as any).streetCode || '',
+   369→   369→      localityCode: (biz as any).localityCode || '',
+   370→   370→      daAssignmentNo: (biz as any).daAssignmentNo || '',
+   371→   371→      businessCertNo: (biz as any).businessCertNo || '',
+   372→   372→      businessPermit: (biz as any).businessPermit || '',
+   373→   373→      employees: (biz as any).employees || '',
+   374→   374→      yearEstablished: (biz as any).yearEstablished || '',
+   375→   375→      excludedFromFees: (biz as any).excludedFromFees || false,
+   376→   376→      ownerAddress: (biz as any).ownerAddress || '',
+   377→   377→      ownerGps: (biz as any).ownerGps || '',
+   378→   378→      ownerTin: (biz as any).ownerTin || '',
+   379→   379→      comments: (biz as any).comments || '',
+   380→   380→    });
+   381→   381→    setView('form');
+   382→   382→  };
+   383→   383→
+   384→   384→  const handleDelete = (regNumber: string) => {
+   385→   385→    if (!confirm('Are you sure you want to delete this business? This action cannot be undone.')) return;
+   386→   386→    setBusinesses((prev) => prev.filter((b) => b.regNumber !== regNumber));
+   387→   387→  };
+   388→   388→
+   389→   389→  // ── Certificate View & Print ─────────────────────────────────────────────
+   390→   390→  const handleViewCertificate = (regNumber: string) => {
+   391→   391→    try {
+   392→   392→      const certs: BusinessCert[] = JSON.parse(localStorage.getItem('rms-business-certs') || '[]');
+   393→   393→      const cert = certs.find((c) => c.regNumber === regNumber);
+   394→   394→      if (cert) {
+   395→   395→        setViewingCert(cert);
+   396→   396→      } else {
+   397→   397→        alert('No certificate found for this business. Certificates are generated automatically when a business is saved.');
+   398→   398→      }
+   399→   399→    } catch {
+   400→   400→      alert('Error reading certificate data.');
+   401→   401→    }
+   402→   402→  };
+   403→   403→
+   404→   404→  const handlePrintCertificate = (cert: BusinessCert) => {
+   405→   405→    const fmtDate = (d: string) => {
+   406→   406→      if (!d) return '..................';
+   407→   407→      try {
+   408→   408→        const dt = new Date(d);
+   409→   409→        return dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+   410→   410→      } catch { return d; }
+   411→   411→    };
+   412→   412→    const getOrdinal = (day: number) => {
+   413→   413→      const s = ['th','st','nd','rd'];
+   414→   414→      const v = day % 100;
+   415→   415→      return day + (s[(v-20)%10] || s[v] || s[0]);
+   416→   416→    };
+   417→   417→    let dayOrd = '..................';
+   418→   418→    let monthName = '..................';
+   419→   419→    let yearShort = '........';
+   420→   420→    if (cert.dateIssued) {
+   421→   421→      try {
+   422→   422→        const d = new Date(cert.dateIssued);
+   423→   423→        dayOrd = getOrdinal(d.getDate());
+   424→   424→        monthName = d.toLocaleDateString('en-US', { month: 'long' });
+   425→   425→        yearShort = String(d.getFullYear()).slice(-2);
+   426→   426→      } catch {}
+   427→   427→    }
+   428→   428→    const expiryYear = cert.expiryDate ? new Date(cert.expiryDate).getFullYear() : new Date().getFullYear() + 1;
+   429→   429→    const assemblyShort = (cert.assemblyName || 'Kumasi Metropolitan Assembly').replace(/\b(Metropolitan|Municipal|District|Assembly)\b/gi, '').trim().split(' ')[0];
+   430→   430→
+   431→   431→    const win = window.open('', '_blank', 'width=900,height=1200');
+   432→   432→    if (!win) { alert('Please allow popups to print the certificate.'); return; }
+   433→   433→    win.document.write(`<!DOCTYPE html>
+   434→   434→<html>
+   435→   435→<head>
+   436→   436→  <title>Business Registration Certificate - ${cert.certNumber}</title>
+   437→   437→  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+   438→   438→  <style>
+   439→   439→    * { margin: 0; padding: 0; box-sizing: border-box; }
+   440→   440→    @page { size: A4 portrait; margin: 12mm; }
+   441→   441→    body {
+   442→   442→      font-family: 'Inter', Arial, sans-serif;
+   443→   443→      color: #111;
+   444→   444→      background: #f0ece2;
+   445→   445→      display: flex;
+   446→   446→      align-items: center;
+   447→   447→      justify-content: center;
+   448→   448→      min-height: 100vh;
+   449→   449→      padding: 20px;
+   450→   450→    }
+   451→   451→    .certificate-outer {
+   452→   452→      width: 750px;
+   453→   453→      background: #fff;
+   454→   454→      position: relative;
+   455→   455→      padding: 6px;
+   456→   456→    }
+   457→   457→    .certificate-outer::before {
+   458→   458→      content: '';
+   459→   459→      position: absolute;
+   460→   460→      inset: 0;
+   461→   461→      border: 14px solid #B5A642;
+   462→   462→      border-radius: 4px;
+   463→   463→      pointer-events: none;
+   464→   464→    }
+   465→   465→    .certificate-outer::after {
+   466→   466→      content: '';
+   467→   467→      position: absolute;
+   468→   468→      inset: 10px;
+   469→   469→      border: 2px solid #B5A642;
+   470→   470→      border-radius: 2px;
+   471→   471→      pointer-events: none;
+   472→   472→    }
+   473→   473→    .cert-inner {
+   474→   474→      margin: 22px;
+   475→   475→      padding: 40px 50px 35px;
+   476→   476→      position: relative;
+   477→   477→    }
+   478→   478→    .corner { position: absolute; width: 60px; height: 60px; border-color: #B5A642; border-style: solid; }
+   479→   479→    .corner-tl { top: 0; left: 0; border-width: 3px 0 0 3px; }
+   480→   480→    .corner-tr { top: 0; right: 0; border-width: 3px 3px 0 0; }
+   481→   481→    .corner-bl { bottom: 0; left: 0; border-width: 0 0 3px 3px; }
+   482→   482→    .corner-br { bottom: 0; right: 0; border-width: 0 3px 3px 0; }
+   483→   483→    .header-logos { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; padding: 0 20px; }
+   484→   484→    .logo-block { text-align: center; width: 160px; }
+   485→   485→    .coat-of-arms { line-height: 1; color: #1a1a1a; }
+   486→   486→    .logo-label { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; color: #333; }
+   487→   487→    .assembly-seal { line-height: 1; color: #8B0000; }
+   488→   488→    .assembly-name { text-align: center; font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #0a0a0a; margin-bottom: 2px; }
+   489→   489→    .assembly-subtitle { text-align: center; font-size: 10px; color: #666; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 18px; }
+   490→   490→    .cert-title { text-align: center; font-family: 'Playfair Display', serif; font-size: 34px; font-style: italic; font-weight: 700; color: #B22222; margin-bottom: 28px; letter-spacing: 1px; }
+   491→   491→    .cert-body { text-align: center; font-family: 'Inter', Georgia, serif; font-size: 14px; line-height: 2.2; color: #111; }
+   492→   492→    .cert-body .intro { font-weight: 700; font-size: 15px; margin-bottom: 6px; }
+   493→   493→    .dotted-field { font-family: 'Caveat', cursive; font-size: 20px; color: #00008B; font-weight: 700; border-bottom: 2px dotted #333; display: inline-block; min-width: 300px; padding: 0 8px 2px; vertical-align: baseline; }
+   494→   494→    .assembly-reiterate { font-weight: 800; text-transform: uppercase; font-size: 13px; letter-spacing: 1px; }
+   495→   495→    .gold-separator { border: none; height: 2px; background: linear-gradient(90deg, transparent, #B5A642, transparent); margin: 24px 0 20px; }
+   496→   496→    .cert-footer { margin-top: 30px; }
+   497→   497→    .issued-at { text-align: center; font-size: 13px; font-weight: 600; margin-bottom: 14px; color: #222; }
+   498→   498→    .date-line { text-align: center; font-size: 14px; line-height: 2; }
+   499→   499→    .date-line .handwritten { font-family: 'Caveat', cursive; font-size: 19px; color: #00008B; font-weight: 700; border-bottom: 2px dotted #555; display: inline-block; min-width: 70px; padding: 0 4px 1px; }
+   500→   500→    .validity-section { text-align: center; margin-top: 18px; }
+   501→   501→    .valid-until { font-size: 13px; font-weight: 700; color: #222; }
+   502→   502→    .renew-yearly { font-family: 'Playfair Display', serif; font-size: 14px; font-style: italic; color: #B22222; margin-top: 2px; font-weight: 700; }
+   503→   503→    .signature-section { margin-top: 28px; text-align: center; }
+   504→   504→    .sign-line { width: 260px; border-bottom: 2px dotted #333; margin: 0 auto 6px; }
+   505→   505→    .sign-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #333; }
+   506→   506→    .receipt-line { margin-top: 18px; font-size: 11px; color: #333; }
+   507→   507→    .receipt-line .receipt-val { font-family: 'Caveat', cursive; font-size: 16px; font-weight: 700; color: #000; }
+   508→   508→    .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-35deg); font-size: 72px; color: rgba(181, 166, 66, 0.06); font-weight: 900; pointer-events: none; white-space: nowrap; letter-spacing: 12px; text-transform: uppercase; z-index: 0; }
+   509→   509→    .flourish-top { text-align: center; font-size: 22px; color: #B5A642; margin-bottom: 6px; letter-spacing: 6px; }
+   510→   510→    .status-badge { display: inline-block; padding: 2px 14px; border-radius: 3px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+   511→   511→    .status-active { background: #d4edda; color: #155724; }
+   512→   512→    .status-inactive { background: #f8d7da; color: #721c24; }
+   513→   513→    .cert-no-small { text-align: center; font-size: 9px; color: #888; margin-top: 10px; letter-spacing: 1px; }
+   514→   514→  </style>
+   515→   515→</head>
+   516→   516→<body>
+   517→   517→  <div class="certificate-outer">
+   518→   518→    <div class="cert-inner">
+   519→   519→      <div class="watermark">OFFICIAL CERTIFICATE</div>
+   520→   520→      <div class="corner corner-tl"></div>
+   521→   521→      <div class="corner corner-tr"></div>
+   522→   522→      <div class="corner corner-bl"></div>
+   523→   523→      <div class="corner corner-br"></div>
+   524→   524→      <div class="header-logos">
+   525→   525→        <div class="logo-block">
+   526→   526→          <div class="coat-of-arms"><img src="/logos/ghana-coat-of-arms.webp" style="width:150px; height:150px; object-fit:contain;" /></div>
+   527→   527→          <div class="logo-label">Republic of Ghana</div>
+   528→   528→        </div>
+   529→   529→        <div class="logo-block">
+   530→   530→          <div class="assembly-seal"><img src="/logos/assembly-seal.png" style="width:150px; height:150px; object-fit:contain;" /></div>
+   531→   531→          <div class="logo-label">${(cert.assemblyName || "").toUpperCase()}</div>
+   532→   532→        </div>
+   533→   533→      </div>
+   534→   534→      <div class="flourish-top">✦ ✦ ✦</div>
+   535→   535→      <div class="assembly-name">${(cert.assemblyName || 'Kumasi Metropolitan Assembly').toUpperCase()}</div>
+   536→   536→      ${cert.assemblyAddress ? `<div class="assembly-subtitle">${cert.assemblyAddress.toUpperCase()}</div>` : '<div class="assembly-subtitle"></div>'}
+   537→   537→      <div class="cert-title">Certificate Of Registration</div>
+   538→   538→      <div class="cert-body">
+   539→   539→        <div class="intro">I Hereby Certify that</div>
+   540→   540→        <div style="margin: 8px 0;"><span class="dotted-field">${cert.businessName.toUpperCase()}</span></div>
+   541→   541→        <div>Has complied with the bye-laws/directives of the</div>
+   542→   542→        <div class="assembly-reiterate" style="margin: 6px 0;">${(cert.assemblyName || 'Kumasi Metropolitan Assembly').toUpperCase()}</div>
+   543→   543→        <div>and has duly been permitted to operate within the ${assemblyShort} Municipality</div>
+   544→   544→        ${cert.tradingName && cert.tradingName !== cert.businessName ? `<div style="margin-top: 8px;">as <span class="dotted-field">${cert.tradingName.toUpperCase()}</span></div>` : ''}
+   545→   545→      </div>
+   546→   546→      <hr class="gold-separator">
+   547→   547→      <div class="cert-footer">
+   548→   548→        <div class="issued-at">Give under my hand at ${assemblyShort}</div>
+   549→   549→        <div class="date-line">this <span class="handwritten">${dayOrd}</span> day of <span class="handwritten">${monthName}</span> 20<span class="handwritten">${yearShort}</span></div>
+   550→   550→        <div class="validity-section">
+   551→   551→          <div class="valid-until">Valid until 31st December ${expiryYear}</div>
+   552→   552→          <div class="renew-yearly">Renew Yearly</div>
+   553→   553→        </div>
+   554→   554→        <div class="signature-section">
+   555→   555→          <div class="sign-line"></div>
+   556→   556→          <div class="sign-title">Municipal Co-ordinating Director</div>
+   557→   557→        </div>
+   558→   558→        <div class="receipt-line">RECEIPT No: <span class="receipt-val">${cert.receiptNumber}</span></div>
+   559→   559→        <div class="cert-no-small">${cert.certNumber} | Reg: ${cert.regNumber}</div>
+   560→   560→      </div>
+   561→   561→    </div>
+   562→   562→  </div>
+   563→   563→  <script>window.onload = function() { window.print(); }</script>
+   564→   564→</body>
+   565→   565→</html>`);
+   566→   566→    win.document.close();
+   567→   567→  };
+   568→   568→
+   569→   569→  // ── Form Field Helper ────────────────────────────────────────────────────
+   570→   570→  const inputClass =
+   571→   571→    'w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition';
+   572→   572→  const labelClass =
+   573→   573→    'text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5';
+   574→   574→  const sectionHeaderClass =
+   575→   575→    'text-lg font-semibold text-slate-900 dark:text-white mb-4 pb-2 border-b border-slate-200 dark:border-slate-700';
+   576→   576→
+   577→   577→  // ══════════════════════════════════════════════════════════════════════════
+   578→   578→  //  LIST VIEW
+   579→   579→  // ══════════════════════════════════════════════════════════════════════════
+   580→   580→  if (view === 'list') {
+   581→   581→    return (
+   582→   582→      <div className="space-y-6">
+   583→   583→        {/* ── Header ──────────────────────────────────────────────────────── */}
+   584→   584→        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+   585→   585→          <div>
+   586→   586→            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+   587→   587→              Business Registration
+   588→   588→            </h1>
+   589→   589→            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+   590→   590→              Manage and register businesses within the assembly. Track revenue
+   591→   591→              collection and compliance.
+   592→   592→            </p>
+   593→   593→          </div>
+   594→   594→          <button
+   595→   595→            onClick={() => { setEditingRegNumber(null); setForm({ ...defaultForm }); setView('form'); }}
+   596→   596→            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap"
+   597→   597→          >
+   598→   598→            <Plus className="w-4 h-4" />
+   599→   599→            Register New Business
+   600→   600→          </button>
+   601→   601→        </div>
+   602→   602→
+   603→   603→        {/* ── Search & Filters ────────────────────────────────────────────── */}
+   604→   604→        <div className="flex flex-col sm:flex-row gap-3">
+   605→   605→          <div className="relative flex-1">
+   606→   606→            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+   607→   607→            <input
+   608→   608→              type="text"
+   609→   609→              placeholder="Search by name, owner, or registration number..."
+   610→   610→              value={searchQuery}
+   611→   611→              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+   612→   612→              className={`${inputClass} pl-10`}
+   613→   613→            />
+   614→   614→          </div>
+   615→   615→          <select
+   616→   616→            value={statusFilter}
+   617→   617→            onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
+   618→   618→            className={`${inputClass} w-full sm:w-44`}
+   619→   619→          >
+   620→   620→            <option value="All">All Statuses</option>
+   621→   621→            <option value="Active">Active</option>
+   622→   622→            <option value="Inactive">Inactive</option>
+   623→   623→          </select>
+   624→   624→          <select
+   625→   625→            value={typeFilter}
+   626→   626→            onChange={(e) => { setTypeFilter(e.target.value); setCurrentPage(1); }}
+   627→   627→            className={`${inputClass} w-full sm:w-48`}
+   628→   628→          >
+   629→   629→            <option value="All">All Business Classes</option>
+   630→   630→            {businessTypes.map((t) => (
+   631→   631→              <option key={t} value={t}>{t}</option>
+   632→   632→            ))}
+   633→   633→          </select>
+   634→   634→        </div>
+   635→   635→
+   636→   636→        {/* ── Table ───────────────────────────────────────────────────────── */}
+   637→   637→        <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+   638→   638→          <div className="overflow-x-auto">
+   639→   639→            <table className="w-full text-sm">
+   640→   640→              <thead>
+   641→   641→                <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700">
+   642→   642→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Reg #</th>
+   643→   643→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Business Name</th>
+   644→   644→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Owner</th>
+   645→   645→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Business Class</th>
+   646→   646→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden lg:table-cell">Category</th>
+   647→   647→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden md:table-cell">TIN</th>
+   648→   648→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Status</th>
+   649→   649→                  <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Actions</th>
+   650→   650→                </tr>
+   651→   651→              </thead>
+   652→   652→              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+   653→   653→                {paged.length === 0 ? (
+   654→   654→                  <tr>
+   655→   655→                    <td colSpan={8} className="text-center py-12 text-slate-400 dark:text-slate-500">
+   656→   656→                      <Building2 className="w-10 h-10 mx-auto mb-3 opacity-40" />
+   657→   657→                      No businesses found. Click "Register New Business" to add one.
+   658→   658→                    </td>
+   659→   659→                  </tr>
+   660→   660→                ) : (
+   661→   661→                  paged.map((biz) => (
+   662→   662→                    <tr key={biz.regNumber} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+   663→   663→                      <td className="px-4 py-3 font-mono text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">{biz.regNumber}</td>
+   664→   664→                      <td className="px-4 py-3 font-medium text-slate-900 dark:text-white whitespace-nowrap">{biz.name}</td>
+   665→   665→                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">{biz.owner}</td>
+   666→   666→                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">{biz.type}</td>
+   667→   667→                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap hidden lg:table-cell">{biz.category}</td>
+   668→   668→                      <td className="px-4 py-3 font-mono text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap hidden md:table-cell">{biz.tin}</td>
+   669→   669→                      <td className="px-4 py-3 whitespace-nowrap">
+   670→   670→                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+   671→   671→                          biz.status === 'Active'
+   672→   672→                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400'
+   673→   673→                            : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400'
+   674→   674→                        }`}>
+   675→   675→                          {biz.status}
+   676→   676→                        </span>
+   677→   677→                      </td>
+   678→   678→                      <td className="px-4 py-3 text-right whitespace-nowrap">
+   679→   679→                        <div className="inline-flex items-center gap-1">
+   680→   680→                          <button onClick={() => handleViewCertificate(biz.regNumber)} className="p-1.5 rounded-md text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors" title="View Certificate">
+   681→   681→                            <FileText className="w-4 h-4" />
+   682→   682→                          </button>
+   683→   683→                          <button onClick={() => handleEdit(biz)} className="p-1.5 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors" title="Edit">
+   684→   684→                            <Pencil className="w-4 h-4" />
+   685→   685→                          </button>
+   686→   686→                          <button onClick={() => handleDelete(biz.regNumber)} className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" title="Delete">
+   687→   687→                            <Trash2 className="w-4 h-4" />
+   688→   688→                          </button>
+   689→   689→                        </div>
+   690→   690→                      </td>
+   691→   691→                    </tr>
+   692→   692→                  ))
+   693→   693→                )}
+   694→   694→              </tbody>
+   695→   695→            </table>
+   696→   696→          </div>
+   697→   697→        </div>
+   698→   698→
+   699→   699→        {/* ── Pagination ──────────────────────────────────────────────────── */}
+   700→   700→        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+   701→   701→          <p className="text-slate-500 dark:text-slate-400">Showing {showingFrom}-{showingTo} of {filtered.length}</p>
+   702→   702→          <div className="flex items-center gap-2">
+   703→   703→            <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={safeCurrentPage <= 1} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+   704→   704→              <ChevronLeft className="w-4 h-4" /> Previous
+   705→   705→            </button>
+   706→   706→            <span className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium">{safeCurrentPage} / {totalPages}</span>
+   707→   707→            <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={safeCurrentPage >= totalPages} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+   708→   708→              Next <ChevronRight className="w-4 h-4" />
+   709→   709→            </button>
+   710→   710→          </div>
+   711→   711→        </div>
+   712→   712→
+   713→   713→        {/* ── Certificate Modal ──────────────────────────────────────────── */}
+   714→   714→        {viewingCert && (() => {
+   715→   715→          const getOrdinal = (day: number) => {
+   716→   716→            const s = ['th','st','nd','rd'];
+   717→   717→            const v = day % 100;
+   718→   718→            return day + (s[(v-20)%10] || s[v] || s[0]);
+   719→   719→          };
+   720→   720→          let dayOrd = '..................';
+   721→   721→          let monthName = '..................';
+   722→   722→          let yearShort = '........';
+   723→   723→          if (viewingCert.dateIssued) {
+   724→   724→            try {
+   725→   725→              const d = new Date(viewingCert.dateIssued);
+   726→   726→              dayOrd = getOrdinal(d.getDate());
+   727→   727→              monthName = d.toLocaleDateString('en-US', { month: 'long' });
+   728→   728→              yearShort = String(d.getFullYear()).slice(-2);
+   729→   729→            } catch {}
+   730→   730→          }
+   731→   731→          const expiryYear = viewingCert.expiryDate ? new Date(viewingCert.expiryDate).getFullYear() : new Date().getFullYear() + 1;
+   732→   732→          const assemblyShort = (viewingCert.assemblyName || 'Kumasi Metropolitan Assembly').replace(/\b(Metropolitan|Municipal|District|Assembly)\b/gi, '').trim().split(' ')[0];
+   733→   733→
+   734→   734→          return (
+   735→   735→          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setViewingCert(null)}>
+   736→   736→            <div className="rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+   737→   737→              {/* Modal Header */}
+   738→   738→              <div className="flex items-center justify-between px-5 py-3 bg-slate-800 rounded-t-2xl">
+   739→   739→                <div className="flex items-center gap-3">
+   740→   740→                  <div className="p-1.5 rounded-lg bg-amber-500/20">
+   741→   741→                    <Award className="w-5 h-5 text-amber-400" />
+   742→   742→                  </div>
+   743→   743→                  <div>
+   744→   744→                    <h3 className="text-base font-semibold text-white">Business Registration Certificate</h3>
+   745→   745→                    <p className="text-xs text-slate-400">{viewingCert.certNumber}</p>
+   746→   746→                  </div>
+   747→   747→                </div>
+   748→   748→                <button onClick={() => setViewingCert(null)} className="p-2 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-white transition-colors">
+   749→   749→                  <X className="w-5 h-5" />
+   750→   750→                </button>
+   751→   751→              </div>
+   752→   752→
+   753→   753→              {/* Certificate Preview - matches the print design */}
+   754→   754→              <div className="p-4">
+   755→   755→                <div className="bg-[#f0ece2] rounded-lg p-6">
+   756→   756→                  <div className="bg-white relative" style={{ padding: '6px' }}>
+   757→   757→                    {/* Gold border effect */}
+   758→   758→                    <div className="absolute inset-0 border-[10px] border-[#B5A642] rounded" style={{ pointerEvents: 'none' }} />
+   759→   759→                    <div className="absolute rounded" style={{ inset: '8px', border: '1.5px solid #B5A642', pointerEvents: 'none' }} />
+   760→   760→
+   761→   761→                    <div className="relative mx-[16px] my-[16px] py-8 px-10">
+   762→   762→                      {/* Corner ornaments */}
+   763→   763→                      <div className="absolute top-0 left-0 w-10 h-10 border-t-2 border-l-2 border-[#B5A642]" />
+   764→   764→                      <div className="absolute top-0 right-0 w-10 h-10 border-t-2 border-r-2 border-[#B5A642]" />
+   765→   765→                      <div className="absolute bottom-0 left-0 w-10 h-10 border-b-2 border-l-2 border-[#B5A642]" />
+   766→   766→                      <div className="absolute bottom-0 right-0 w-10 h-10 border-b-2 border-r-2 border-[#B5A642]" />
+   767→   767→
+   768→   768→                      {/* Header Logos */}
+   769→   769→                      <div className="flex justify-between items-start mb-3 px-4">
+   770→   770→                        <div className="text-center w-28">
+   771→   771→                          <img src="/logos/ghana-coat-of-arms.webp" className="w-36 h-36 object-contain" />
+   772→   772→                          <div className="text-[7px] font-bold uppercase tracking-wider text-slate-600 mt-1">Republic of Ghana</div>
+   773→   773→                        </div>
+   774→   774→                        <div className="text-center w-28">
+   775→   775→                          <img src="/logos/assembly-seal.png" className="w-36 h-36 object-contain" />
+   776→   776→                          <div className="text-[7px] font-bold uppercase tracking-wider text-slate-600 mt-1">{(viewingCert.assemblyName || "").toUpperCase()}</div>
+   777→   777→                        </div>
+   778→   778→                      </div>
+   779→   779→
+   780→   780→                      {/* Decorative flourish */}
+   781→   781→                      <div className="text-center text-[#B5A642] text-sm tracking-[6px] mb-1">✦ ✦ ✦</div>
+   782→   782→
+   783→   783→                      {/* Assembly Name */}
+   784→   784→                      <div className="text-center text-lg font-black uppercase tracking-[2px] text-[#0a0a0a]">
+   785→   785→                        {(viewingCert.assemblyName || 'Kumasi Metropolitan Assembly').toUpperCase()}
+   786→   786→                      </div>
+   787→   787→                      {viewingCert.assemblyAddress && (
+   788→   788→                        <div className="text-center text-[9px] text-slate-500 uppercase tracking-[3px] mb-4">
+   789→   789→                          {viewingCert.assemblyAddress.toUpperCase()}
+   790→   790→                        </div>
+   791→   791→                      )}
+   792→   792→
+   793→   793→                      {/* Certificate Title */}
+   794→   794→                      <div className="text-center my-4">
+   795→   795→                        <span className="text-2xl italic font-bold text-[#B22222]" style={{ fontFamily: 'Georgia, serif' }}>
+   796→   796→                          Certificate Of Registration
+   797→   797→                        </span>
+   798→   798→                      </div>
+   799→   799→
+   800→   800→                      {/* Body */}
+   801→   801→                      <div className="text-center text-sm leading-[2.2] text-[#111]">
+   802→   802→                        <div className="font-bold text-[15px] mb-1">I Hereby Certify that</div>
+   803→   803→                        <div className="my-2">
+   804→   804→                          <span className="text-lg font-bold border-b-2 border-dotted border-slate-500 inline-block min-w-[250px] px-2 pb-0.5" style={{ color: '#00008B', fontFamily: 'Georgia, cursive' }}>
+   805→   805→                            {viewingCert.businessName.toUpperCase()}
+   806→   806→                          </span>
+   807→   807→                        </div>
+   808→   808→                        <div>Has complied with the bye-laws/directives of the</div>
+   809→   809→                        <div className="font-extrabold uppercase text-xs tracking-[1px] my-1">
+   810→   810→                          {(viewingCert.assemblyName || 'Kumasi Metropolitan Assembly').toUpperCase()}
+   811→   811→                        </div>
+   812→   812→                        <div>and has duly been permitted to operate within the {assemblyShort} Municipality</div>
+   813→   813→                        {viewingCert.tradingName && viewingCert.tradingName !== viewingCert.businessName && (
+   814→   814→                          <div className="mt-2">
+   815→   815→                            as <span className="text-lg font-bold border-b-2 border-dotted border-slate-500 inline-block min-w-[200px] px-2 pb-0.5" style={{ color: '#00008B', fontFamily: 'Georgia, cursive' }}>
+   816→   816→                              {viewingCert.tradingName.toUpperCase()}
+   817→   817→                            </span>
+   818→   818→                          </div>
+   819→   819→                        )}
+   820→   820→                      </div>
+   821→   821→
+   822→   822→                      {/* Gold separator */}
+   823→   823→                      <div className="h-[2px] my-5" style={{ background: 'linear-gradient(90deg, transparent, #B5A642, transparent)' }} />
+   824→   824→
+   825→   825→                      {/* Footer */}
+   826→   826→                      <div className="mt-6">
+   827→   827→                        <div className="text-center text-xs font-semibold text-slate-800 mb-3">
+   828→   828→                          Give under my hand at {assemblyShort}
+   829→   829→                        </div>
+   830→   830→                        <div className="text-center text-sm leading-[2]">
+   831→   831→                          this <span className="text-base font-bold border-b-2 border-dotted border-slate-400 inline-block min-w-[50px] px-1" style={{ color: '#00008B', fontFamily: 'Georgia, cursive' }}>{dayOrd}</span> day of <span className="text-base font-bold border-b-2 border-dotted border-slate-400 inline-block min-w-[70px] px-1" style={{ color: '#00008B', fontFamily: 'Georgia, cursive' }}>{monthName}</span> 20<span className="text-base font-bold border-b-2 border-dotted border-slate-400 inline-block min-w-[40px] px-1" style={{ color: '#00008B', fontFamily: 'Georgia, cursive' }}>{yearShort}</span>
+   832→   832→                        </div>
+   833→   833→                        <div className="text-center mt-4">
+   834→   834→                          <div className="text-xs font-bold text-slate-800">Valid until 31st December {expiryYear}</div>
+   835→   835→                          <div className="text-sm italic font-bold text-[#B22222] mt-0.5" style={{ fontFamily: 'Georgia, serif' }}>Renew Yearly</div>
+   836→   836→                        </div>
+   837→   837→                        <div className="text-center mt-6">
+   838→   838→                          <div className="w-48 border-b-2 border-dotted border-slate-500 mx-auto mb-1" />
+   839→   839→                          <div className="text-[9px] font-bold uppercase tracking-[1.5px] text-slate-600">
+   840→   840→                            Municipal Co-ordinating Director
+   841→   841→                          </div>
+   842→   842→                        </div>
+   843→   843→                        <div className="mt-4 text-[10px] text-slate-700 text-center">
+   844→   844→                          RECEIPT No: <span className="font-bold text-sm" style={{ fontFamily: 'Georgia, cursive' }}>{viewingCert.receiptNumber}</span>
+   845→   845→                        </div>
+   846→   846→                        <div className="text-center text-[8px] text-slate-400 mt-2 tracking-wide">
+   847→   847→                          {viewingCert.certNumber} | Reg: {viewingCert.regNumber}
+   848→   848→                        </div>
+   849→   849→                      </div>
+   850→   850→                    </div>
+   851→   851→                  </div>
+   852→   852→                </div>
+   853→   853→              </div>
+   854→   854→
+   855→   855→              {/* Modal Footer */}
+   856→   856→              <div className="flex items-center justify-end gap-3 px-5 py-3 border-t border-slate-700 bg-slate-800 rounded-b-2xl">
+   857→   857→                <button onClick={() => setViewingCert(null)} className="px-4 py-2 rounded-lg border border-slate-600 text-slate-300 text-sm font-medium hover:bg-slate-700 transition-colors">
+   858→   858→                  Close
+   859→   859→                </button>
+   860→   860→                <button onClick={() => handlePrintCertificate(viewingCert)} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#B5A642] hover:bg-[#9a8d38] text-white text-sm font-medium transition-colors">
+   861→   861→                  <Printer className="w-4 h-4" />
+   862→   862→                  Print Certificate
+   863→   863→                </button>
+   864→   864→              </div>
+   865→   865→            </div>
+   866→   866→          </div>
+   867→   867→          );
+   868→   868→        })()}      </div>
+   869→   869→    );
+   870→   870→  }
+   871→   871→
+   872→   872→  // ══════════════════════════════════════════════════════════════════════════
+   873→   873→  //  FORM VIEW
+   874→   874→  // ══════════════════════════════════════════════════════════════════════════
+   875→   875→  return (
+   876→   876→    <div className="space-y-6">
+   877→   877→      {/* ── Header ────────────────────────────────────────────────────────── */}
+   878→   878→      <div className="flex items-center gap-4">
+   879→   879→        <button onClick={handleCancel} className="p-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+   880→   880→          <ArrowLeft className="w-5 h-5" />
+   881→   881→        </button>
+   882→   882→        <div>
+   883→   883→          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+   884→   884→            {editingRegNumber ? 'Edit Business' : 'Register New Business'}
+   885→   885→          </h1>
+   886→   886→          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+   887→   887→            {editingRegNumber ? 'Update the business details below.' : 'Fill in the details below to register a new business.'}
+   888→   888→          </p>
+   889→   889→        </div>
+   890→   890→      </div>
+   891→   891→
+   892→   892→      <div className="space-y-8">
+   893→   893→        {/* ─── Section 1: Fee Schedule (Business Class / Category / Amount) ── */}
+   894→   894→        <section>
+   895→   895→          <h2 className={sectionHeaderClass}>
+   896→   896→            <span className="inline-flex items-center gap-2"><Briefcase className="w-5 h-5" /> Fee Schedule Classification</span>
+   897→   897→          </h2>
+   898→   898→          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
+   899→   899→            {/* Business Class */}
+   900→   900→            <div>
+   901→   901→              <label className={`${labelClass} block`}>Business Class <span className="text-red-500">*</span></label>
+   902→   902→              <select name="type" value={form.type} onChange={handleFormChange} className={inputClass}>
+   903→   903→                <option value="">Select business class</option>
+   904→   904→                {businessTypes.map((t) => (
+   905→   905→                  <option key={t} value={t}>{t}</option>
+   906→   906→                ))}
+   907→   907→              </select>
+   908→   908→            </div>
+   909→   909→
+   910→   910→            {/* Category (dynamic from fee schedule) */}
+   911→   911→            <div>
+   912→   912→              <label className={`${labelClass} block`}>Category <span className="text-red-500">*</span></label>
+   913→   913→              <select name="category" value={form.category} onChange={handleFormChange} className={inputClass} disabled={!form.type}>
+   914→   914→                <option value="">Select category</option>
+   915→   915→                {availableCategories.map((c) => (
+   916→   916→                  <option key={c.name} value={c.name}>{c.name}</option>
+   917→   917→                ))}
+   918→   918→              </select>
+   919→   919→            </div>
+   920→   920→
+   921→   921→            {/* Amount (auto-filled from fee schedule) */}
+   922→   922→            <div>
+   923→   923→              <label className={`${labelClass} block`}>Amount</label>
+   924→   924→              <input type="text" value={selectedCategoryFee ? `GH\u20b5 ${selectedCategoryFee.amount.toLocaleString()}` : ''} readOnly placeholder="Select a category to see amount" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-emerald-700 dark:text-emerald-400 font-semibold`} />
+   925→   925→            </div>
+   926→   926→
+   927→   927→            {/* Ceiling (auto-filled from fee schedule) */}
+   928→   928→            <div>
+   929→   929→              <label className={`${labelClass} block`}>Ceiling</label>
+   930→   930→              <input type="text" value={selectedCategoryFee?.ceiling ? `GH\u20b5 ${selectedCategoryFee.ceiling.toLocaleString()}` : ''} readOnly placeholder="No ceiling" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-amber-700 dark:text-amber-400 font-semibold`} />
+   931→   931→            </div>
+   932→   932→
+   933→   933→            {/* Unit (auto-filled from fee schedule) */}
+   934→   934→            <div>
+   935→   935→              <label className={`${labelClass} block`}>Unit</label>
+   936→   936→              <input type="text" value={selectedCategoryFee?.unit || ''} readOnly placeholder="—" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-purple-700 dark:text-purple-400 font-semibold`} />
+   937→   937→            </div>
+   938→   938→          </div>
+   939→   939→        </section>
+   940→   940→
+   941→   941→        {/* ─── Section 2: Business Details ──────────────────────────────── */}
+   942→   942→        <section>
+   943→   943→          <h2 className={sectionHeaderClass}>
+   944→   944→            <span className="inline-flex items-center gap-2"><Building2 className="w-5 h-5" /> Business Details</span>
+   945→   945→          </h2>
+   946→   946→          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+   947→   947→            <div>
+   948→   948→              <label className={`${labelClass} block`}>Business Registration Number</label>
+   949→   949→              <input type="text" name="regNumber" value={form.regNumber} onChange={handleFormChange} placeholder="Auto-generated if blank" className={inputClass} />
+   950→   950→            </div>
+   951→   951→            <div>
+   952→   952→              <label className={`${labelClass} block`}>Business Name <span className="text-red-500">*</span></label>
+   953→   953→              <input type="text" name="name" value={form.name} onChange={handleFormChange} placeholder="Enter business name" className={inputClass} />
+   954→   954→            </div>
+   955→   955→            <div>
+   956→   956→              <label className={`${labelClass} block`}>Tax Identification Number (TIN)</label>
+   957→   957→              <input type="text" name="tin" value={form.tin} onChange={handleFormChange} placeholder="e.g. TIN-1234567890" className={inputClass} />
+   958→   958→            </div>
+   959→   959→            <div>
+   960→   960→              <label className={`${labelClass} block`}>Business License Number</label>
+   961→   961→              <input type="text" name="licenseNumber" value={form.licenseNumber} onChange={handleFormChange} placeholder="e.g. LIC-PH-2024-001" className={inputClass} />
+   962→   962→            </div>
+   963→   963→            <div>
+   964→   964→              <label className={`${labelClass} block`}>Date Registered</label>
+   965→   965→              <input type="date" name="dateRegistered" value={form.dateRegistered} onChange={handleFormChange} className={inputClass} />
+   966→   966→            </div>
+   967→   967→            <div>
+   968→   968→              <label className={`${labelClass} block`}>Business Status</label>
+   969→   969→              <select name="status" value={form.status} onChange={handleFormChange} className={inputClass}>
+   970→   970→                <option value="Active">Active</option>
+   971→   971→                <option value="Inactive">Inactive</option>
+   972→   972→              </select>
+   973→   973→            </div>
+   974→   974→            <div>
+   975→   975→              <label className={`${labelClass} block`}>Business Address <span className="text-red-500">*</span></label>
+   976→   976→              <input type="text" name="businessAddress" value={form.businessAddress} onChange={handleFormChange} placeholder="Enter business address" className={inputClass} />
+   977→   977→            </div>
+   978→   978→            <div>
+   979→   979→              <label className={`${labelClass} block`}>Phone Number</label>
+   980→   980→              <input type="tel" name="phone" value={form.phone} onChange={handleFormChange} placeholder="e.g. +233 24 567 8901" className={inputClass} />
+   981→   981→            </div>
+   982→   982→            <div>
+   983→   983→              <label className={`${labelClass} block`}>Email Address</label>
+   984→   984→              <input type="email" name="email" value={form.email} onChange={handleFormChange} placeholder="e.g. business@email.com" className={inputClass} />
+   985→   985→            </div>
+   986→   986→            <div>
+   987→   987→              <label className={`${labelClass} block`}>Year Established</label>
+   988→   988→              <input type="text" name="yearEstablished" value={form.yearEstablished} onChange={handleFormChange} placeholder="e.g. 2020" className={inputClass} />
+   989→   989→            </div>
+   990→   990→            <div>
+   991→   991→              <label className={`${labelClass} block`}>Number of Employees</label>
+   992→   992→              <input type="text" name="employees" value={form.employees} onChange={handleFormChange} placeholder="e.g. 15" className={inputClass} />
+   993→   993→            </div>
+   994→   994→          </div>
+   995→   995→        </section>
+   996→   996→
+   997→   997→        {/* ─── Section 3: Business Location / GPS ────────────────────────── */}
+   998→   998→        <section>
+   999→   999→          <h2 className={sectionHeaderClass}>
+  1000→  1000→            <span className="inline-flex items-center gap-2"><MapPin className="w-5 h-5" /> Business Location</span>
+  1001→  1001→          </h2>
+  1002→  1002→          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+  1003→  1003→            <div>
+  1004→  1004→              <label className={`${labelClass} block`}>GhanaPost GPS Address</label>
+  1005→  1005→              <div className="flex gap-2">
+  1006→  1006→                <input type="text" name="gpsAddress" value={form.gpsAddress} onChange={handleFormChange} placeholder="e.g. AK-034-5521 or lat, lng" className={`${inputClass} flex-1`} />
+  1007→  1007→                <button onClick={() => fetchGpsFromLocation('business')} disabled={locatingBusiness} className="inline-flex items-center gap-2 px-3 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors whitespace-nowrap" title="Use device GPS to get coordinates">
+  1008→  1008→                  {locatingBusiness ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crosshair className="w-4 h-4" />}
+  1009→  1009→                  {locatingBusiness ? 'Locating...' : 'Use Location'}
+  1010→  1010→                </button>
+  1011→  1011→              </div>
+  1012→  1012→              {form.gpsAddress && !locatingBusiness && (
+  1013→  1013→                <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+  1014→  1014→                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
+  1015→  1015→                  GPS coordinates captured
+  1016→  1016→                </p>
+  1017→  1017→              )}
+  1018→  1018→            </div>
+  1019→  1019→            <div>
+  1020→  1020→              <label className={`${labelClass} block`}>Digital Address</label>
+  1021→  1021→              <input type="text" name="digitalAddress" value={form.digitalAddress} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={inputClass} />
+  1022→  1022→            </div>
+  1023→  1023→            <div>
+  1024→  1024→              <label className={`${labelClass} block`}>Street Name</label>
+  1025→  1025→              <input type="text" name="streetName" value={form.streetName} onChange={handleFormChange} placeholder="Enter street name" className={inputClass} />
+  1026→  1026→            </div>
+  1027→  1027→            <div>
+  1028→  1028→              <label className={`${labelClass} block`}>House Number</label>
+  1029→  1029→              <input type="text" name="houseNo" value={form.houseNo} onChange={handleFormChange} placeholder="e.g. 24" className={inputClass} />
+  1030→  1030→            </div>
+  1031→  1031→            <div>
+  1032→  1032→              <label className={`${labelClass} block`}>Ward</label>
+  1033→  1033→              <input type="text" name="ward" value={form.ward} onChange={handleFormChange} placeholder="Enter ward" className={inputClass} />
+  1034→  1034→            </div>
+  1035→  1035→            <div>
+  1036→  1036→              <label className={`${labelClass} block`}>Electoral Area</label>
+  1037→  1037→              <input type="text" name="electoralArea" value={form.electoralArea} onChange={handleFormChange} placeholder="Enter electoral area" className={inputClass} />
+  1038→  1038→            </div>
+  1039→  1039→            <div>
+  1040→  1040→              <label className={`${labelClass} block`}>Zone</label>
+  1041→  1041→              <input type="text" name="zone" value={form.zone} onChange={handleFormChange} placeholder="e.g. Zone A" className={inputClass} />
+  1042→  1042→            </div>
+  1043→  1043→            <div>
+  1044→  1044→              <label className={`${labelClass} block`}>Revenue Area</label>
+  1045→  1045→              <input type="text" name="revenueArea" value={form.revenueArea} onChange={handleFormChange} placeholder="Enter revenue area" className={inputClass} />
+  1046→  1046→            </div>
+  1047→  1047→          </div>
+  1048→  1048→        </section>
+  1049→  1049→
+  1050→  1050→        {/* ─── Section 4: Owner Details ────────────────────────────────── */}
+  1051→  1051→        <section>
+  1052→  1052→          <h2 className={sectionHeaderClass}>
+  1053→  1053→            <span className="inline-flex items-center gap-2"><User className="w-5 h-5" /> Owner Details</span>
+  1054→  1054→          </h2>
+  1055→  1055→          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+  1056→  1056→            <div>
+  1057→  1057→              <label className={`${labelClass} block`}>Owner Name <span className="text-red-500">*</span></label>
+  1058→  1058→              <input type="text" name="ownerName" value={form.ownerName} onChange={handleFormChange} placeholder="Enter full name of owner" className={inputClass} />
+  1059→  1059→            </div>
+  1060→  1060→            <div>
+  1061→  1061→              <label className={`${labelClass} block`}>Ghana Card Number</label>
+  1062→  1062→              <input type="text" name="ghanaCard" value={form.ghanaCard} onChange={handleFormChange} placeholder="e.g. GHA-123456789-0" className={inputClass} />
+  1063→  1063→            </div>
+  1064→  1064→            <div>
+  1065→  1065→              <label className={`${labelClass} block`}>Owner Phone</label>
+  1066→  1066→              <input type="tel" name="phone" value={form.phone} onChange={handleFormChange} placeholder="e.g. +233 24 567 8901" className={inputClass} />
+  1067→  1067→            </div>
+  1068→  1068→            <div>
+  1069→  1069→              <label className={`${labelClass} block`}>Owner Address</label>
+  1070→  1070→              <input type="text" name="ownerAddress" value={form.ownerAddress} onChange={handleFormChange} placeholder="Enter owner's residential address" className={inputClass} />
+  1071→  1071→            </div>
+  1072→  1072→            <div>
+  1073→  1073→              <label className={`${labelClass} block`}>Owner GPS</label>
+  1074→  1074→              <div className="flex gap-2">
+  1075→  1075→                <input type="text" name="ownerGps" value={form.ownerGps} onChange={handleFormChange} placeholder="Owner's GPS coordinates" className={`${inputClass} flex-1`} />
+  1076→  1076→                <button onClick={() => fetchGpsFromLocation('owner')} disabled={locatingOwner} className="inline-flex items-center gap-2 px-3 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors whitespace-nowrap" title="Use device GPS for owner location">
+  1077→  1077→                  {locatingOwner ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crosshair className="w-4 h-4" />}
+  1078→  1078→                  {locatingOwner ? 'Locating...' : 'Use Location'}
+  1079→  1079→                </button>
+  1080→  1080→              </div>
+  1081→  1081→              {form.ownerGps && !locatingOwner && (
+  1082→  1082→                <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+  1083→  1083→                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
+  1084→  1084→                  Owner GPS captured
+  1085→  1085→                </p>
+  1086→  1086→              )}
+  1087→  1087→            </div>
+  1088→  1088→            <div>
+  1089→  1089→              <label className={`${labelClass} block`}>Owner TIN</label>
+  1090→  1090→              <input type="text" name="ownerTin" value={form.ownerTin} onChange={handleFormChange} placeholder="Owner's TIN" className={inputClass} />
+  1091→  1091→            </div>
+  1092→  1092→          </div>
+  1093→  1093→        </section>
+  1094→  1094→
+  1095→  1095→        {/* ─── Section 5: Additional Info ────────────────────────────────── */}
+  1096→  1096→        <section>
+  1097→  1097→          <h2 className={sectionHeaderClass}>Additional Information</h2>
+  1098→  1098→          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+  1099→  1099→            <div className="lg:col-span-2">
+  1100→  1100→              <label className={`${labelClass} block`}>Comments / Notes</label>
+  1101→  1101→              <textarea name="comments" value={form.comments} onChange={handleFormChange} placeholder="Any additional notes about this business..." rows={3} className={inputClass} />
+  1102→  1102→            </div>
+  1103→  1103→          </div>
+  1104→  1104→        </section>
+  1105→  1105→
+  1106→  1106→        {/* ─── Action Buttons ──────────────────────────────────────────── */}
+  1107→  1107→        <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+  1108→  1108→          <button onClick={handleCancel} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+  1109→  1109→            Cancel
+  1110→  1110→          </button>
+  1111→  1111→          <button onClick={handleSave} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors">
+  1112→  1112→            <Save className="w-4 h-4" />
+  1113→  1113→            {editingRegNumber ? 'Update Business' : 'Save Business'}
+  1114→  1114→          </button>
+  1115→  1115→        </div>
+  1116→  1116→      </div>
+  1117→  1117→    </div>
+  1118→  1118→  );
+  1119→  1119→}

@@ -401,7 +401,14 @@ export function BusinessesPage() {
     }
   };
 
-  const handlePrintCertificate = (cert: BusinessCert) => {
+  
+  const getAssemblySettings = () => {
+    try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r; } catch { return {}; }
+  };
+  const asmSettings = getAssemblySettings();
+  const dynAssemblyName = asmSettings.name || cert.assemblyName || 'Kumasi Metropolitan Assembly';
+  const dynAssemblyAddress = asmSettings.address || cert.assemblyAddress || '';
+const handlePrintCertificate = (cert: BusinessCert) => {
     const fmtDate = (d: string) => {
       if (!d) return '..................';
       try {
@@ -426,7 +433,7 @@ export function BusinessesPage() {
       } catch {}
     }
     const expiryYear = cert.expiryDate ? new Date(cert.expiryDate).getFullYear() : new Date().getFullYear() + 1;
-    const assemblyShort = (cert.assemblyName || 'Kumasi Metropolitan Assembly').replace(/\b(Metropolitan|Municipal|District|Assembly)\b/gi, '').trim().split(' ')[0];
+    const assemblyShort = dynAssemblyName.replace(/\b(Metropolitan|Municipal|District|Assembly)\b/gi, '').trim().split(' ')[0];
 
     const win = window.open('', '_blank', 'width=900,height=1200');
     if (!win) { alert('Please allow popups to print the certificate.'); return; }
@@ -523,23 +530,23 @@ export function BusinessesPage() {
       <div class="corner corner-br"></div>
       <div class="header-logos">
         <div class="logo-block">
-          <div class="coat-of-arms"><img src="/logos/ghana-coat-of-arms.webp" style="width:150px; height:150px; object-fit:contain;" /></div>
+          <div class="coat-of-arms"><img src="/logos/ghana-coat-of-arms.webp" style="width:180px; height:180px; object-fit:contain;" /></div>
           <div class="logo-label">Republic of Ghana</div>
         </div>
         <div class="logo-block">
-          <div class="assembly-seal"><img src="/logos/assembly-seal.png" style="width:150px; height:150px; object-fit:contain;" /></div>
-          <div class="logo-label">${(cert.assemblyName || "").toUpperCase()}</div>
+          <div class="assembly-seal"><img src="/logos/assembly-seal.png" style="width:180px; height:180px; object-fit:contain;" /></div>
+          <div class="logo-label">${dynAssemblyName.toUpperCase()}</div>
         </div>
       </div>
       <div class="flourish-top">✦ ✦ ✦</div>
-      <div class="assembly-name">${(cert.assemblyName || 'Kumasi Metropolitan Assembly').toUpperCase()}</div>
-      ${cert.assemblyAddress ? `<div class="assembly-subtitle">${cert.assemblyAddress.toUpperCase()}</div>` : '<div class="assembly-subtitle"></div>'}
+      <div class="assembly-name">${dynAssemblyName.toUpperCase()}</div>
+      ${dynAssemblyAddress ? `<div class="assembly-subtitle">${dynAssemblyAddress.toUpperCase()}</div>` : '<div class="assembly-subtitle"></div>'}
       <div class="cert-title">Certificate Of Registration</div>
       <div class="cert-body">
         <div class="intro">I Hereby Certify that</div>
         <div style="margin: 8px 0;"><span class="dotted-field">${cert.businessName.toUpperCase()}</span></div>
         <div>Has complied with the bye-laws/directives of the</div>
-        <div class="assembly-reiterate" style="margin: 6px 0;">${(cert.assemblyName || 'Kumasi Metropolitan Assembly').toUpperCase()}</div>
+        <div class="assembly-reiterate" style="margin: 6px 0;">${dynAssemblyName.toUpperCase()}</div>
         <div>and has duly been permitted to operate within the ${assemblyShort} Municipality</div>
         ${cert.tradingName && cert.tradingName !== cert.businessName ? `<div style="margin-top: 8px;">as <span class="dotted-field">${cert.tradingName.toUpperCase()}</span></div>` : ''}
       </div>
@@ -717,6 +724,9 @@ export function BusinessesPage() {
             const v = day % 100;
             return day + (s[(v-20)%10] || s[v] || s[0]);
           };
+          // Read assembly name dynamically from settings at view time
+          const _asm = (() => { try { return JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); } catch { return {}; } })();
+          const dynAssemblyName = _asm.name || viewingCert.assemblyName || 'Kumasi Metropolitan Assembly';
           let dayOrd = '..................';
           let monthName = '..................';
           let yearShort = '........';
@@ -729,7 +739,7 @@ export function BusinessesPage() {
             } catch {}
           }
           const expiryYear = viewingCert.expiryDate ? new Date(viewingCert.expiryDate).getFullYear() : new Date().getFullYear() + 1;
-          const assemblyShort = (viewingCert.assemblyName || 'Kumasi Metropolitan Assembly').replace(/\b(Metropolitan|Municipal|District|Assembly)\b/gi, '').trim().split(' ')[0];
+          const assemblyShort = dynAssemblyName.replace(/\b(Metropolitan|Municipal|District|Assembly)\b/gi, '').trim().split(' ')[0];
 
           return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setViewingCert(null)}>
@@ -768,12 +778,12 @@ export function BusinessesPage() {
                       {/* Header Logos */}
                       <div className="flex justify-between items-start mb-3 px-4">
                         <div className="text-center w-28">
-                          <img src="/logos/ghana-coat-of-arms.webp" className="w-36 h-36 object-contain" />
+                          <img src="/logos/ghana-coat-of-arms.webp" className="w-44 h-44 object-contain" />
                           <div className="text-[7px] font-bold uppercase tracking-wider text-slate-600 mt-1">Republic of Ghana</div>
                         </div>
                         <div className="text-center w-28">
-                          <img src="/logos/assembly-seal.png" className="w-36 h-36 object-contain" />
-                          <div className="text-[7px] font-bold uppercase tracking-wider text-slate-600 mt-1">{(viewingCert.assemblyName || "").toUpperCase()}</div>
+                          <img src="/logos/assembly-seal.png" className="w-44 h-44 object-contain" />
+                          <div className="text-[7px] font-bold uppercase tracking-wider text-slate-600 mt-1">{dynAssemblyName.toUpperCase()}</div>
                         </div>
                       </div>
 
@@ -782,7 +792,7 @@ export function BusinessesPage() {
 
                       {/* Assembly Name */}
                       <div className="text-center text-lg font-black uppercase tracking-[2px] text-[#0a0a0a]">
-                        {(viewingCert.assemblyName || 'Kumasi Metropolitan Assembly').toUpperCase()}
+                        {dynAssemblyName.toUpperCase()}
                       </div>
                       {viewingCert.assemblyAddress && (
                         <div className="text-center text-[9px] text-slate-500 uppercase tracking-[3px] mb-4">
@@ -807,7 +817,7 @@ export function BusinessesPage() {
                         </div>
                         <div>Has complied with the bye-laws/directives of the</div>
                         <div className="font-extrabold uppercase text-xs tracking-[1px] my-1">
-                          {(viewingCert.assemblyName || 'Kumasi Metropolitan Assembly').toUpperCase()}
+                          {dynAssemblyName.toUpperCase()}
                         </div>
                         <div>and has duly been permitted to operate within the {assemblyShort} Municipality</div>
                         {viewingCert.tradingName && viewingCert.tradingName !== viewingCert.businessName && (

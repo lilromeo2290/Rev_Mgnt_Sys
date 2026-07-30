@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Building,
   Phone,
@@ -18,9 +18,54 @@ import {
   RefreshCw,
 } from 'lucide-react';
 
+const SETTINGS_KEY = 'rms-settings-assembly';
+
+interface AssemblyInfo {
+  name: string;
+  code: string;
+  telephone: string;
+  email: string;
+  website: string;
+  address: string;
+  description: string;
+  logo: string;
+}
+
+const defaultAssembly: AssemblyInfo = {
+  name: '',
+  code: '',
+  telephone: '',
+  email: '',
+  website: '',
+  address: '',
+  description: '',
+  logo: '',
+};
+
+function loadAssemblySettings(): AssemblyInfo {
+  if (typeof window === 'undefined') return defaultAssembly;
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if (raw) return { ...defaultAssembly, ...JSON.parse(raw) };
+  } catch {}
+  return defaultAssembly;
+}
+
+function saveAssemblySettings(data: AssemblyInfo) {
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(data));
+}
+
 export function SettingsPage() {
   const [activeTab, setActiveTab] = useState('assembly');
   const [saved, setSaved] = useState(false);
+  const [assembly, setAssembly] = useState<AssemblyInfo>(defaultAssembly);
+  const [loaded, setLoaded] = useState(false);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    setAssembly(loadAssemblySettings());
+    setLoaded(true);
+  }, []);
 
   const tabs = [
     { id: 'assembly', label: 'Assembly Info', icon: Building },
@@ -31,7 +76,15 @@ export function SettingsPage() {
     { id: 'backup', label: 'Backup & Restore', icon: Database },
   ];
 
+  const handleAssemblyChange = (field: keyof AssemblyInfo, value: string) => {
+    setAssembly((prev) => ({ ...prev, [field]: value }));
+  };
+
   const handleSave = () => {
+    // Save assembly settings
+    saveAssemblySettings(assembly);
+    // Dispatch a storage event so other components pick up the change
+    window.dispatchEvent(new StorageEvent('storage', { key: SETTINGS_KEY }));
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -73,7 +126,7 @@ export function SettingsPage() {
 
       {/* Tab Content */}
       <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-        {activeTab === 'assembly' && <AssemblySettings />}
+        {activeTab === 'assembly' && loaded && <AssemblySettings data={assembly} onChange={handleAssemblyChange} onLogoChange={handleAssemblyChange} />}
         {activeTab === 'financial' && <FinancialSettings />}
         {activeTab === 'billing' && <BillingSettings />}
         {activeTab === 'security' && <SecuritySettings />}
@@ -84,30 +137,28 @@ export function SettingsPage() {
   );
 }
 
-function AssemblySettings() {
-  const [logoPreview, setLogoPreview] = useState('');
-  const [logoName, setLogoName] = useState('');
+function AssemblySettings({ data, onChange, onLogoChange }: { data: AssemblyInfo; onChange: (field: keyof AssemblyInfo, value: string) => void; onLogoChange: (field: keyof AssemblyInfo, value: string) => void; }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith('image/')) return;
-    setLogoName(file.name);
     const reader = new FileReader();
     reader.onload = (ev) => {
       if (ev.target?.result) {
-        setLogoPreview(ev.target.result as string);
+        onLogoChange('logo', ev.target.result as string);
       }
     };
     reader.readAsDataURL(file);
   };
 
   const handleRemoveLogo = () => {
-    setLogoPreview('');
-    setLogoName('');
+    onChange('logo', '');
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
+
+  const inputCls = 'w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition';
 
   return (
     <div className="space-y-6">
@@ -115,34 +166,34 @@ function AssemblySettings() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Assembly Name</label>
-          <input type="text" defaultValue="" placeholder="Enter assembly name" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="text" value={data.name} onChange={(e) => onChange('name', e.target.value)} placeholder="Enter assembly name" className={inputCls} />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Assembly Code</label>
-          <input type="text" defaultValue="" placeholder="Enter assembly code" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="text" value={data.code} onChange={(e) => onChange('code', e.target.value)} placeholder="Enter assembly code" className={inputCls} />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> Telephone</label>
-          <input type="tel" defaultValue="" placeholder="Enter telephone number" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="tel" value={data.telephone} onChange={(e) => onChange('telephone', e.target.value)} placeholder="Enter telephone number" className={inputCls} />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5"><Mail className="w-3.5 h-3.5" /> Email</label>
-          <input type="email" defaultValue="" placeholder="Enter email address" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="email" value={data.email} onChange={(e) => onChange('email', e.target.value)} placeholder="Enter email address" className={inputCls} />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5"><Globe className="w-3.5 h-3.5" /> Website</label>
-          <input type="url" defaultValue="" placeholder="Enter website URL" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="url" value={data.website} onChange={(e) => onChange('website', e.target.value)} placeholder="Enter website URL" className={inputCls} />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Physical Address</label>
-          <input type="text" defaultValue="" placeholder="Enter physical address" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="text" value={data.address} onChange={(e) => onChange('address', e.target.value)} placeholder="Enter physical address" className={inputCls} />
         </div>
         <div className="lg:col-span-2 space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Assembly Logo</label>
           <div className="flex items-center gap-4">
-            <div className={`w-16 h-16 rounded-xl border-2 border-dashed flex items-center justify-center overflow-hidden ${logoPreview ? 'border-emerald-400 dark:border-emerald-600' : 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-300 dark:border-emerald-700'}`}>
-              {logoPreview ? (
-                <img src={logoPreview} alt="Assembly Logo" className="w-full h-full object-contain" />
+            <div className={`w-16 h-16 rounded-xl border-2 border-dashed flex items-center justify-center overflow-hidden ${data.logo ? 'border-emerald-400 dark:border-emerald-600' : 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-300 dark:border-emerald-700'}`}>
+              {data.logo ? (
+                <img src={data.logo} alt="Assembly Logo" className="w-full h-full object-contain" />
               ) : (
                 <Building className="w-8 h-8 text-emerald-500" />
               )}
@@ -163,7 +214,7 @@ function AssemblySettings() {
                 >
                   <Upload className="w-4 h-4" /> Upload Logo
                 </button>
-                {logoPreview && (
+                {data.logo && (
                   <button
                     onClick={handleRemoveLogo}
                     className="px-3 py-2 border border-red-300 dark:border-red-700 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer"
@@ -172,15 +223,12 @@ function AssemblySettings() {
                   </button>
                 )}
               </div>
-              {logoName && (
-                <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[200px]">{logoName}</p>
-              )}
             </div>
           </div>
         </div>
         <div className="lg:col-span-2 space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Assembly Description</label>
-          <textarea rows={3} defaultValue="" placeholder="Enter assembly description" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition resize-none" />
+          <textarea rows={3} value={data.description} onChange={(e) => onChange('description', e.target.value)} placeholder="Enter assembly description" className={inputCls + ' resize-none'} />
         </div>
       </div>
     </div>
