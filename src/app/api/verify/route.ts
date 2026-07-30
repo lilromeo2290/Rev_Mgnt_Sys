@@ -21,12 +21,13 @@ export async function POST(request: Request) {
     }
 
     // Format the summary message
-    const docType = data.type === 'RECEIPT' ? 'Receipt' : 'Invoice';
+    const docType = data.type === 'RECEIPT' ? 'Receipt' : data.type === 'PAYMENT' ? 'Payment Receipt' : 'Invoice';
+    const assemblyName = data.assemblyName || 'Assembly';
     const summaryLines = [
-      `${"=".repeat(40)}`,
-      `KUMASI METROPOLITAN ASSEMBLY`,
+      `${'='.repeat(40)}`,
+      `${assemblyName.toUpperCase()}`,
       `${docType} Verification Summary`,
-      `${"=".repeat(40)}`,
+      `${'='.repeat(40)}`,
       ``,
       `${docType} Number: ${data.refNo}`,
       `Issued To: ${data.issuedTo}`,
@@ -37,11 +38,11 @@ export async function POST(request: Request) {
       `Status: ${data.status}`,
       data.method ? `Payment Method: ${data.method}` : "",
       ``,
-      `${"=".repeat(40)}`,
+      `${'='.repeat(40)}`,
       `Verification Code: ${data.checksum}`,
-      `This is an automated verification from KMA RMS.`,
+      `This is an automated verification from ${assemblyName} RMS.`,
       `If you did not request this, please ignore.`,
-      `${"=".repeat(40)}`,
+      `${'='.repeat(40)}`,
     ].filter(Boolean).join("\n");
 
     // ── Send via Email (simulated — in production, use SendGrid/Mailgun etc.) ──
@@ -53,7 +54,7 @@ export async function POST(request: Request) {
 
     // ── Send via SMS (simulated — in production, use Twilio/Africa's Talking etc.) ──
     if (phone) {
-      const smsMessage = `KMA ${docType} Verification\n${data.refNo}\n${data.issuedTo}\n${fmtGhc(data.amount)}\n${data.date}\nStatus: ${data.status}\nCode: ${data.checksum}`;
+      const smsMessage = `${assemblyName} ${docType} Verification\n${data.refNo}\n${data.issuedTo}\n${fmtGhc(data.amount)}\n${data.date}\nStatus: ${data.status}\nCode: ${data.checksum}`;
       console.log(`[SMS] Sending to ${phone}:\n${smsMessage}`);
       // In production, replace with actual SMS service:
       // await sendSMS({ to: phone, message: smsMessage });

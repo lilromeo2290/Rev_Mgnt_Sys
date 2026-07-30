@@ -1,0 +1,790 @@
+    96→// ─── Component ────────────────────────────────────────────────────────────────
+    97→
+    98→export function PaymentsPage() {
+    99→  const [payments, setPayments] = useLocalStorage<Payment[]>('rms-payments', mockPayments);
+   100→  const [realBills, setRealBills] = useLocalStorage<RealBill[]>('rms-bills', []);
+   101→  const [search, setSearch] = useState('');
+   102→  const [methodFilter, setMethodFilter] = useState<string>('All');
+   103→  const [statusFilter, setStatusFilter] = useState<string>('All');
+   104→  const [dateFrom, setDateFrom] = useState('');
+   105→  const [dateTo, setDateTo] = useState('');
+   106→
+   107→  // Modal state
+   108→  const [modalOpen, setModalOpen] = useState(false);
+   109→  const [selectedBill, setSelectedBill] = useState('');
+   110→  const [payAmount, setPayAmount] = useState('');
+   111→  const [payMethod, setPayMethod] = useState<PaymentMethod>('Cash');
+   112→  const [payReference, setPayReference] = useState('');
+   113→  const [payCollector, setPayCollector] = useState('');
+   114→  const [payRemarks, setPayRemarks] = useState('');
+   115→
+   116→  // Pagination
+   117→  const [currentPage, setCurrentPage] = useState(1);
+   118→  const perPage = 8;
+   119→
+   120→  // Derive available bills (only unpaid/partial with balance > 0)
+   121→  const availableBills = useMemo(() => {
+   122→    return realBills
+   123→      .filter((b) => b.status !== 'Paid' && b.totalDue > 0)
+   124→      .map((b) => ({
+   125→        billNo: b.billNumber,
+   126→        business: b.entityName,
+   127→        totalAmount: b.totalDue,
+   128→        balance: b.totalDue - (b.status === 'Partial' ? b.amount : 0),
+   129→      }));
+   130→  }, [realBills]);
+   131→
+   132→  const autoFill = useMemo(() => {
+   133→    const bill = availableBills.find((b) => b.billNo === selectedBill);
+   134→    if (!bill) return { business: '', balance: 0, totalAmount: 0 };
+   135→    return { business: bill.business, balance: bill.balance, totalAmount: bill.totalAmount };
+   136→  }, [selectedBill, availableBills]);
+   137→
+   138→  // ─── Filtering ───────────────────────────────────────────────────────────
+   139→
+   140→  const filtered = useMemo(() => {
+   141→    return payments.filter((p) => {
+   142→      const matchSearch =
+   143→        search === '' ||
+   144→        p.receiptNo.toLowerCase().includes(search.toLowerCase()) ||
+   145→        p.billNo.toLowerCase().includes(search.toLowerCase()) ||
+   146→        p.business.toLowerCase().includes(search.toLowerCase()) ||
+   147→        p.collector.toLowerCase().includes(search.toLowerCase());
+   148→
+   149→      const matchMethod = methodFilter === 'All' || p.method === methodFilter;
+   150→      const matchStatus = statusFilter === 'All' || p.status === statusFilter;
+   151→      const matchFrom = dateFrom === '' || p.date >= dateFrom;
+   152→      const matchTo = dateTo === '' || p.date <= dateTo;
+   153→
+   154→      return matchSearch && matchMethod && matchStatus && matchFrom && matchTo;
+   155→    });
+   156→  }, [payments, search, methodFilter, statusFilter, dateFrom, dateTo]);
+   157→
+   158→  const totalPages = Math.ceil(filtered.length / perPage);
+   159→  const paginated = filtered.slice((currentPage - 1) * perPage, currentPage * perPage);
+   160→
+   161→  // ─── Stats ──────────────────────────────────────────────────────────────
+   162→
+   163→  const totalPayments = payments.length;
+   164→  const totalCollected = payments.reduce((sum, p) => sum + p.amount, 0);
+   165→  const todayPayments = payments
+   166→    .filter((p) => p.date === new Date().toISOString().split('T')[0])
+   167→    .reduce((sum, p) => sum + p.amount, 0);
+   168→  const totalPending = payments.reduce((sum, p) => sum + p.balance, 0);
+   169→
+   170→  // ─── Handlers ───────────────────────────────────────────────────────────
+   171→
+   172→  const openModal = () => {
+   173→    setSelectedBill('');
+   174→    setPayAmount('');
+   175→    setPayMethod('Cash');
+   176→    setPayReference('');
+   177→    setPayCollector('');
+   178→    setPayRemarks('');
+   179→    setModalOpen(true);
+   180→  };
+   181→
+   182→  const closeModal = () => setModalOpen(false);
+   183→
+   184→  const handleSave = () => {
+   185→    if (!selectedBill || !payAmount) return;
+   186→
+   187→    const bill = availableBills.find((b) => b.billNo === selectedBill);
+   188→    if (!bill) return;
+   189→    const paidAmount = parseFloat(payAmount) || 0;
+   190→    const isFull = paidAmount >= bill.balance;
+   191→    const newBalance = isFull ? 0 : bill.balance - paidAmount;
+   192→
+   193→    const newPayment: Payment = {
+   194→      id: String(Date.now()),
+   195→      receiptNo: `RCP-${new Date().getFullYear()}-${String(payments.length + 1).padStart(4, '0')}`,
+   196→      billNo: selectedBill,
+   197→      business: bill.business,
+   198→      amount: paidAmount,
+   199→      balance: newBalance,
+   200→      date: new Date().toISOString().split('T')[0],
+   201→      collector: payCollector || 'System',
+   202→      method: payMethod,
+   203→      status: isFull ? 'Full' : 'Partial',
+   204→      reference: payReference,
+   205→      remarks: payRemarks,
+   206→    };
+   207→
+   208→    setPayments([newPayment, ...payments]);
+   209→
+   210→    // Update the bill status in billing
+   211→    setRealBills((prev) =>
+   212→      prev.map((b) => {
+   213→        if (b.billNumber !== selectedBill) return b;
+   214→        const newTotalPaid = (b.status === 'Partial' ? b.amount : 0) + paidAmount;
+   215→        return {
+   216→          ...b,
+   217→          amount: newTotalPaid,
+   218→          status: (isFull ? 'Paid' : 'Partial') as RealBill['status'],
+   219→        };
+   220→      })
+   221→    );
+   222→
+   223→    closeModal();
+   224→  };
+   225→
+   226→  const handleDelete = (id: string) => {
+   227→    setPayments((prev) => prev.filter((p) => p.id !== id));
+   228→  };
+   229→
+   230→  // ─── View Payment ───────────────────────────────────────────────────────
+   231→
+   232→  const [viewingPayment, setViewingPayment] = useState<Payment | null>(null);
+   233→
+   234→  const handleViewPayment = (p: Payment) => {
+   235→    setViewingPayment(p);
+   236→  };
+   237→
+   238→  // ── Barcode helpers ──────────────────────────────────────
+   239→  const getPayBarcodeSvg = (p: Payment, asmName: string): string => {
+   240→    const encoded = encodeBarcodeData({
+   241→      type: 'PAYMENT',
+   242→      refNo: p.receiptNo,
+   243→      issuedTo: p.business,
+   244→      entityType: 'Business',
+   245→      amount: p.amount,
+   246→      date: p.date,
+   247→      revenueItem: 'Revenue Payment',
+   248→      method: p.method,
+   249→      status: p.status,
+   250→      assemblyName: asmName,
+   251→    });
+   252→    try {
+   253→      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+   254→      JsBarcode(svg, encoded, { format: 'CODE128', width: 2, height: 50, displayValue: false, margin: 0, fontSize: 10 });
+   255→      return svg.outerHTML;
+   256→    } catch { return ''; }
+   257→  };
+   258→
+   259→  const getPayBarcodeData = (p: Payment, asmName: string): string => {
+   260→    return encodeBarcodeData({
+   261→      type: 'PAYMENT',
+   262→      refNo: p.receiptNo,
+   263→      issuedTo: p.business,
+   264→      entityType: 'Business',
+   265→      amount: p.amount,
+   266→      date: p.date,
+   267→      revenueItem: 'Revenue Payment',
+   268→      method: p.method,
+   269→      status: p.status,
+   270→      assemblyName: asmName,
+   271→    });
+   272→  };
+   273→
+   274→  const handlePrintPayment = (p: Payment) => {
+   275→    const _asmName = (() => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kumasi Metropolitan Assembly'; } catch { return 'Kumasi Metropolitan Assembly'; } })();
+   276→    const printWin = window.open('', '_blank', 'width=800,height=600');
+   277→    if (!printWin) return;
+   278→    const barcodeSvg = getPayBarcodeSvg(p, _asmName);
+   279→    const barcodeData = getPayBarcodeData(p, _asmName);
+   280→    printWin.document.write(`
+   281→      <!DOCTYPE html>
+   282→      <html>
+   283→      <head>
+   284→        <title>Payment Receipt - ${p.receiptNo}</title>
+   285→        <style>
+   286→          * { margin: 0; padding: 0; box-sizing: border-box; }
+   287→          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; color: #1e293b; }
+   288→          .header { text-align: center; border-bottom: 3px double #1e293b; padding-bottom: 16px; margin-bottom: 24px; }
+   289→          .header h1 { font-size: 20px; font-weight: 700; letter-spacing: 0.05em; }
+   290→          .header p { font-size: 12px; color: #64748b; margin-top: 4px; }
+   291→          .receipt-title { text-align: center; font-size: 16px; font-weight: 600; margin-bottom: 20px; color: #059669; }
+   292→          .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+   293→          .info-item { font-size: 13px; }
+   294→          .info-item .label { color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+   295→          .info-item .value { font-weight: 600; margin-top: 2px; }
+   296→          .section-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 12px; margin-top: 20px; }
+   297→          .amount-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+   298→          .amount-table th { text-align: left; padding: 8px 12px; background: #f8fafc; color: #64748b; font-size: 11px; text-transform: uppercase; }
+   299→          .amount-table td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; }
+   300→          .amount-table tr:last-child td { border-bottom: none; }
+   301→          .total-row td { font-size: 15px; font-weight: 700; border-top: 2px solid #1e293b; background: #f8fafc; }
+   302→          .status-badge { display: inline-block; padding: 3px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
+   303→          .status-full { background: #d1fae5; color: #065f46; }
+   304→          .status-partial { background: #fef3c7; color: #92400e; }
+   305→          .status-advance { background: #dbeafe; color: #1e40af; }
+   306→          .method-badge { display: inline-block; padding: 3px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600; background: #f1f5f9; color: #475569; }
+   307→          .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 11px; color: #94a3b8; }
+   308→          @media print { body { padding: 20px; } }
+   309→        </style>
+   310→      </head>
+   311→      <body>
+   312→        <div class="header">
+   313→          <h1>${_asmName.toUpperCase()}</h1>
+   314→          <p>Revenue Management System — Official Payment Receipt</p>
+   315→        </div>
+   316→        <div class="receipt-title">PAYMENT RECEIPT</div>
+   317→        <div class="info-grid">
+   318→          <div class="info-item"><div class="label">Receipt Number</div><div class="value">${p.receiptNo}</div></div>
+   319→          <div class="info-item"><div class="label">Payment Date</div><div class="value">${p.date}</div></div>
+   320→          <div class="info-item"><div class="label">Bill Number</div><div class="value">${p.billNo}</div></div>
+   321→          <div class="info-item"><div class="label">Payment Status</div><div class="value"><span class="status-badge status-${p.status.toLowerCase()}">${p.status.toUpperCase()}</span></div></div>
+   322→        </div>
+   323→        <div class="section-title">Payment Details</div>
+   324→        <div class="info-grid">
+   325→          <div class="info-item"><div class="label">Business / Entity</div><div class="value">${p.business}</div></div>
+   326→          <div class="info-item"><div class="label">Payment Method</div><div class="value"><span class="method-badge">${p.method}</span></div></div>
+   327→          <div class="info-item"><div class="label">Reference #</div><div class="value">${p.reference || 'N/A'}</div></div>
+   328→          <div class="info-item"><div class="label">Collector</div><div class="value">${p.collector}</div></div>
+   329→        </div>
+   330→        <div class="section-title">Amount Summary</div>
+   331→        <table class="amount-table">
+   332→          <thead><tr><th>Description</th><th style="text-align:right">Amount (GH₵)</th></tr></thead>
+   333→          <tbody>
+   334→            <tr><td>Amount Paid</td><td style="text-align:right">${formatCurrency(p.amount)}</td></tr>
+   335→            <tr><td>Outstanding Balance</td><td style="text-align:right">${p.balance > 0 ? formatCurrency(p.balance) : 'GH₵ 0.00 (Settled)'}</td></tr>
+   336→            <tr class="total-row"><td>Total Amount Paid</td><td style="text-align:right">${formatCurrency(p.amount)}</td></tr>
+   337→          </tbody>
+   338→        </table>
+   339→        ${p.remarks ? `<div style="margin-top:20px"><div class="section-title">Remarks</div><p style="font-size:13px;color:#475569;">${p.remarks}</p></div>` : ''}
+   340→        <div style="text-align:center;margin-top:30px;padding:16px;border:1px solid #e2e8f0;border-radius:8px;">
+   341→          <p style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Scan to Verify</p>
+   342→          ${barcodeSvg}
+   343→          <p style="font-size:9px;color:#94a3b8;margin-top:6px;">${getVerificationUrl(barcodeData)}</p>
+   344→        </div>
+   345→        <div class="footer">
+   346→          Thank you for your payment.<br/>
+   347→          This receipt is computer generated and does not require a signature.<br/><br/>
+   348→          Designed &amp; Powered by <strong>Clipe Consult</strong><br/>
+   349→          www.clipeconsult.com
+   350→        </div>
+   351→      </body>
+   352→      </html>
+   353→    ");
+   354→    printWin.document.close();
+   355→    printWin.onload = () => { printWin.print(); };
+   356→  };
+   357→
+   358→  // ─── Render ─────────────────────────────────────────────────────────────
+   359→
+   360→  return (
+   361→    <div className="space-y-6">
+   362→      {/* ── Header ──────────────────────────────────────────────────────── */}
+   363→      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+   364→        <div>
+   365→          <h1 className="text-2xl font-bold text-gray-900">Payment Management</h1>
+   366→          <p className="text-sm text-gray-500 mt-1">Record, track and manage all revenue payments</p>
+   367→        </div>
+   368→        <button
+   369→          onClick={openModal}
+   370→          className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 transition-colors cursor-pointer"
+   371→        >
+   372→          <Plus className="h-4 w-4" />
+   373→          Record Payment
+   374→        </button>
+   375→      </div>
+   376→
+   377→      {/* ── Stats ──────────────────────────────────────────────────────── */}
+   378→      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+   379→        {[
+   380→          { label: 'Total Payments', value: totalPayments.toLocaleString(), icon: Receipt, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+   381→          { label: 'Total Collected', value: formatCurrency(totalCollected), icon: DollarSign, color: 'text-blue-600', bg: 'bg-blue-50' },
+   382→          { label: 'Today', value: formatCurrency(todayPayments), icon: CalendarCheck, color: 'text-amber-600', bg: 'bg-amber-50' },
+   383→          { label: 'Pending Balance', value: formatCurrency(totalPending), icon: Clock, color: 'text-red-600', bg: 'bg-red-50' },
+   384→        ].map((stat) => (
+   385→          <div
+   386→            key={stat.label}
+   387→            className="flex items-center gap-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+   388→          >
+   389→            <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-lg ${stat.bg}`}>
+   390→              <stat.icon className={`h-6 w-6 ${stat.color}`} />
+   391→            </div>
+   392→            <div>
+   393→              <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">{stat.label}</p>
+   394→              <p className="text-lg font-bold text-gray-900">{stat.value}</p>
+   395→            </div>
+   396→          </div>
+   397→        ))}
+   398→      </div>
+   399→
+   400→      {/* ── Filters ─────────────────────────────────────────────────────── */}
+   401→      <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+   402→        <div className="flex items-center gap-2 mb-3">
+   403→          <Filter className="h-4 w-4 text-gray-500" />
+   404→          <span className="text-sm font-semibold text-gray-700">Filters</span>
+   405→        </div>
+   406→        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+   407→          {/* Search */}
+   408→          <div className="relative">
+   409→            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+   410→            <input
+   411→              type="text"
+   412→              placeholder="Search receipts, bills, business…"
+   413→              value={search}
+   414→              onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
+   415→              className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-3 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition"
+   416→            />
+   417→          </div>
+   418→          {/* Date From */}
+   419→          <div className="relative">
+   420→            <input
+   421→              type="date"
+   422→              value={dateFrom}
+   423→              onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1); }}
+   424→              className="w-full rounded-lg border border-gray-300 py-2 px-3 text-sm text-gray-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition"
+   425→            />
+   426→          </div>
+   427→          {/* Date To */}
+   428→          <div className="relative">
+   429→            <input
+   430→              type="date"
+   431→              value={dateTo}
+   432→              onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1); }}
+   433→              className="w-full rounded-lg border border-gray-300 py-2 px-3 text-sm text-gray-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition"
+   434→            />
+   435→          </div>
+   436→          {/* Method */}
+   437→          <div className="relative">
+   438→            <select
+   439→              value={methodFilter}
+   440→              onChange={(e) => { setMethodFilter(e.target.value); setCurrentPage(1); }}
+   441→              className="w-full appearance-none rounded-lg border border-gray-300 py-2 pl-3 pr-9 text-sm text-gray-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition cursor-pointer"
+   442→            >
+   443→              <option value="All">All Methods</option>
+   444→              <option value="Cash">Cash</option>
+   445→              <option value="Mobile Money">Mobile Money</option>
+   446→              <option value="Bank">Bank Transfer</option>
+   447→              <option value="POS">POS</option>
+   448→              <option value="Online">Online</option>
+   449→            </select>
+   450→            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+   451→          </div>
+   452→          {/* Status */}
+   453→          <div className="relative">
+   454→            <select
+   455→              value={statusFilter}
+   456→              onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
+   457→              className="w-full appearance-none rounded-lg border border-gray-300 py-2 pl-3 pr-9 text-sm text-gray-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition cursor-pointer"
+   458→            >
+   459→              <option value="All">All Statuses</option>
+   460→              <option value="Full">Full</option>
+   461→              <option value="Partial">Partial</option>
+   462→              <option value="Advance">Advance</option>
+   463→            </select>
+   464→            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+   465→          </div>
+   466→        </div>
+   467→      </div>
+   468→
+   469→      {/* ── Table ───────────────────────────────────────────────────────── */}
+   470→      <div className="rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden">
+   471→        <div className="overflow-x-auto">
+   472→          <table className="w-full min-w-[1100px] text-sm">
+   473→            <thead>
+   474→              <tr className="border-b border-gray-200 bg-gray-50">
+   475→                <th className="px-4 py-3 text-left font-semibold text-gray-600">Receipt #</th>
+   476→                <th className="px-4 py-3 text-left font-semibold text-gray-600">Bill #</th>
+   477→                <th className="px-4 py-3 text-left font-semibold text-gray-600">Business</th>
+   478→                <th className="px-4 py-3 text-right font-semibold text-gray-600">Amount</th>
+   479→                <th className="px-4 py-3 text-right font-semibold text-gray-600">Balance</th>
+   480→                <th className="px-4 py-3 text-left font-semibold text-gray-600">Date</th>
+   481→                <th className="px-4 py-3 text-left font-semibold text-gray-600">Collector</th>
+   482→                <th className="px-4 py-3 text-center font-semibold text-gray-600">Method</th>
+   483→                <th className="px-4 py-3 text-center font-semibold text-gray-600">Status</th>
+   484→                <th className="px-4 py-3 text-center font-semibold text-gray-600">Actions</th>
+   485→              </tr>
+   486→            </thead>
+   487→            <tbody className="divide-y divide-gray-100">
+   488→              {paginated.length === 0 ? (
+   489→                <tr>
+   490→                  <td colSpan={10} className="px-4 py-12 text-center text-gray-400">
+   491→                    No payments found matching your filters.
+   492→                  </td>
+   493→                </tr>
+   494→              ) : (
+   495→                paginated.map((p) => {
+   496→                  const m = methodBadge[p.method];
+   497→                  const s = statusBadge[p.status];
+   498→                  return (
+   499→                    <tr
+   500→                      key={p.id}
+   501→                      className="hover:bg-gray-50/60 transition-colors"
+   502→                    >
+   503→                      <td className="px-4 py-3 font-medium text-emerald-700">{p.receiptNo}</td>
+   504→                      <td className="px-4 py-3 text-gray-600">{p.billNo}</td>
+   505→                      <td className="px-4 py-3 text-gray-900 font-medium max-w-[200px] truncate">{p.business}</td>
+   506→                      <td className="px-4 py-3 text-right text-gray-900 font-semibold whitespace-nowrap">{formatCurrency(p.amount)}</td>
+   507→                      <td className={`px-4 py-3 text-right font-medium whitespace-nowrap ${p.balance > 0 ? 'text-amber-600' : 'text-green-600'}`}>
+   508→                        {p.balance > 0 ? formatCurrency(p.balance) : '—'}
+   509→                      </td>
+   510→                      <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{p.date}</td>
+   511→                      <td className="px-4 py-3 text-gray-700">{p.collector}</td>
+   512→                      <td className="px-4 py-3 text-center">
+   513→                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${m.bg}`}>
+   514→                          {m.text}
+   515→                        </span>
+   516→                      </td>
+   517→                      <td className="px-4 py-3 text-center">
+   518→                        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${s.bg}`}>
+   519→                          <span className={`h-1.5 w-1.5 rounded-full ${s.dot}`} />
+   520→                          {s.text}
+   521→                        </span>
+   522→                      </td>
+   523→                      <td className="px-4 py-3">
+   524→                        <div className="flex items-center justify-center gap-1">
+   525→                          <button
+   526→                            onClick={() => handleViewPayment(p)}
+   527→                            className="rounded-md p-1.5 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition cursor-pointer"
+   528→                            title="View details"
+   529→                          >
+   530→                            <Eye className="h-4 w-4" />
+   531→                          </button>
+   532→                          <button
+   533→                            className="rounded-md p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+   534→                            title="Delete"
+   535→                            onClick={() => handleDelete(p.id)}
+   536→                          >
+   537→                            <Trash2 className="h-4 w-4" />
+   538→                          </button>
+   539→                        </div>
+   540→                      </td>
+   541→                    </tr>
+   542→                  );
+   543→                })
+   544→              )}
+   545→            </tbody>
+   546→          </table>
+   547→        </div>
+   548→
+   549→        {/* Pagination */}
+   550→        {totalPages > 1 && (
+   551→          <div className="flex items-center justify-between border-t border-gray-200 px-4 py-3 bg-gray-50/50">
+   552→            <p className="text-xs text-gray-500">
+   553→              Showing {(currentPage - 1) * perPage + 1}–{Math.min(currentPage * perPage, filtered.length)} of {filtered.length} payments
+   554→            </p>
+   555→            <div className="flex items-center gap-1">
+   556→              <button
+   557→                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+   558→                disabled={currentPage === 1}
+   559→                className="rounded-md p-1.5 text-gray-500 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+   560→              >
+   561→                <ChevronLeft className="h-4 w-4" />
+   562→              </button>
+   563→              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+   564→                <button
+   565→                  key={page}
+   566→                  onClick={() => setCurrentPage(page)}
+   567→                  className={`h-8 w-8 rounded-md text-xs font-semibold transition cursor-pointer ${
+   568→                    page === currentPage
+   569→                      ? 'bg-emerald-600 text-white'
+   570→                      : 'text-gray-600 hover:bg-gray-200'
+   571→                  }`}
+   572→                >
+   573→                  {page}
+   574→                </button>
+   575→              ))}
+   576→              <button
+   577→                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+   578→                disabled={currentPage === totalPages}
+   579→                className="rounded-md p-1.5 text-gray-500 hover:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+   580→              >
+   581→                <ChevronRight className="h-4 w-4" />
+   582→              </button>
+   583→            </div>
+   584→          </div>
+   585→        )}
+   586→      </div>
+   587→
+   588→      {/* ── View Payment Modal ─────────────────────────────────────────── */}
+   589→      {viewingPayment && (
+   590→        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+   591→          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setViewingPayment(null)} />
+   592→          <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+   593→            {/* Header */}
+   594→            <div className="text-center border-b-2 border-dashed border-gray-300 dark:border-slate-600 px-6 py-5">
+   595→              <h2 className="text-base font-bold text-gray-900 dark:text-white tracking-wider uppercase">Kumasi Metropolitan Assembly</h2>
+   596→              <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">Revenue Management System</p>
+   597→              <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mt-3 tracking-wide">PAYMENT RECEIPT</p>
+   598→            </div>
+   599→
+   600→            {/* Receipt Info */}
+   601→            <div className="grid grid-cols-2 gap-x-6 gap-y-3 px-6 py-4 border-b border-gray-100 dark:border-slate-800">
+   602→              <div>
+   603→                <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-medium">Receipt #</p>
+   604→                <p className="text-sm font-mono font-semibold text-emerald-700 dark:text-emerald-400 mt-0.5">{viewingPayment.receiptNo}</p>
+   605→              </div>
+   606→              <div>
+   607→                <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-medium">Payment Date</p>
+   608→                <p className="text-sm font-medium text-gray-700 dark:text-slate-300 mt-0.5">{viewingPayment.date}</p>
+   609→              </div>
+   610→              <div>
+   611→                <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-medium">Bill #</p>
+   612→                <p className="text-sm font-mono font-medium text-gray-700 dark:text-slate-300 mt-0.5">{viewingPayment.billNo}</p>
+   613→              </div>
+   614→              <div>
+   615→                <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-medium">Status</p>
+   616→                <div className="mt-1">
+   617→                  <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${statusBadge[viewingPayment.status].bg}`}>
+   618→                    <span className={`h-1.5 w-1.5 rounded-full ${statusBadge[viewingPayment.status].dot}`} />
+   619→                    {statusBadge[viewingPayment.status].text}
+   620→                  </span>
+   621→                </div>
+   622→              </div>
+   623→            </div>
+   624→
+   625→            {/* Payment Details */}
+   626→            <div className="px-6 py-4 border-b border-gray-100 dark:border-slate-800">
+   627→              <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-medium mb-2">Payment Details</p>
+   628→              <div className="space-y-2.5 text-sm">
+   629→                <div className="flex items-center gap-2.5">
+   630→                  <User className="w-4 h-4 text-gray-400 dark:text-slate-500 shrink-0" />
+   631→                  <div>
+   632→                    <p className="text-[10px] text-gray-400 dark:text-slate-500 uppercase">Business / Entity</p>
+   633→                    <p className="font-medium text-gray-900 dark:text-white">{viewingPayment.business}</p>
+   634→                  </div>
+   635→                </div>
+   636→                <div className="flex items-center gap-2.5">
+   637→                  <DollarSign className="w-4 h-4 text-gray-400 dark:text-slate-500 shrink-0" />
+   638→                  <div>
+   639→                    <p className="text-[10px] text-gray-400 dark:text-slate-500 uppercase">Payment Method</p>
+   640→                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${methodBadge[viewingPayment.method].bg}`}>
+   641→                      {methodBadge[viewingPayment.method].text}
+   642→                    </span>
+   643→                  </div>
+   644→                </div>
+   645→                <div className="flex items-center gap-2.5">
+   646→                  <Hash className="w-4 h-4 text-gray-400 dark:text-slate-500 shrink-0" />
+   647→                  <div>
+   648→                    <p className="text-[10px] text-gray-400 dark:text-slate-500 uppercase">Reference #</p>
+   649→                    <p className="font-medium text-gray-700 dark:text-slate-300">{viewingPayment.reference || 'N/A'}</p>
+   650→                  </div>
+   651→                </div>
+   652→                <div className="flex items-center gap-2.5">
+   653→                  <FileText className="w-4 h-4 text-gray-400 dark:text-slate-500 shrink-0" />
+   654→                  <div>
+   655→                    <p className="text-[10px] text-gray-400 dark:text-slate-500 uppercase">Collector</p>
+   656→                    <p className="font-medium text-gray-700 dark:text-slate-300">{viewingPayment.collector}</p>
+   657→                  </div>
+   658→                </div>
+   659→              </div>
+   660→            </div>
+   661→
+   662→            {/* Amount Summary */}
+   663→            <div className="px-6 py-4">
+   664→              <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-medium mb-3">Amount Summary</p>
+   665→              <div className="space-y-2 text-sm">
+   666→                <div className="flex justify-between">
+   667→                  <span className="text-gray-600 dark:text-slate-400">Amount Paid</span>
+   668→                  <span className="font-semibold text-gray-900 dark:text-white">{formatCurrency(viewingPayment.amount)}</span>
+   669→                </div>
+   670→                <div className="flex justify-between">
+   671→                  <span className="text-gray-600 dark:text-slate-400">Outstanding Balance</span>
+   672→                  <span className={`font-medium ${viewingPayment.balance > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-green-600 dark:text-green-400'}`}>
+   673→                    {viewingPayment.balance > 0 ? formatCurrency(viewingPayment.balance) : 'Settled'}
+   674→                  </span>
+   675→                </div>
+   676→                <div className="border-t-2 border-gray-900 dark:border-slate-100 pt-2 mt-2 flex justify-between">
+   677→                  <span className="font-bold text-gray-900 dark:text-white">Total Paid</span>
+   678→                  <span className="font-bold text-lg text-emerald-600 dark:text-emerald-400">{formatCurrency(viewingPayment.amount)}</span>
+   679→                </div>
+   680→              </div>
+   681→            </div>
+   682→
+   683→            {viewingPayment.remarks && (
+   684→              <div className="px-6 pb-4">
+   685→                <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-medium mb-1">Remarks</p>
+   686→                <p className="text-sm text-gray-600 dark:text-slate-400">{viewingPayment.remarks}</p>
+   687→              </div>
+   688→            )}
+   689→
+   690→            {/* Actions */}
+   691→            <div className="flex items-center justify-between gap-3 border-t border-gray-200 dark:border-slate-700 px-6 py-4">
+   692→              <button
+   693→                onClick={() => navigator.clipboard.writeText(viewingPayment.receiptNo)}
+   694→                className="inline-flex items-center gap-1.5 text-xs text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 transition-colors cursor-pointer"
+   695→              >
+   696→                <Copy className="w-3.5 h-3.5" />
+   697→                Copy Receipt #
+   698→              </button>
+   699→              <div className="flex items-center gap-2">
+   700→                <button onClick={() => setViewingPayment(null)} className="rounded-lg border border-gray-300 bg-white dark:bg-slate-800 dark:border-slate-600 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition cursor-pointer">
+   701→                  Close
+   702→                </button>
+   703→                <button onClick={() => handlePrintPayment(viewingPayment)} className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 transition cursor-pointer">
+   704→                  <Printer className="h-4 w-4" />
+   705→                  Print
+   706→                </button>
+   707→              </div>
+   708→            </div>
+   709→          </div>
+   710→        </div>
+   711→      )}
+   712→
+   713→      {/* ── Record Payment Modal ─────────────────────────────────────────── */}
+   714→      {modalOpen && (
+   715→        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+   716→          {/* Backdrop */}
+   717→          <div
+   718→            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+   719→            onClick={closeModal}
+   720→          />
+   721→          {/* Panel */}
+   722→          <div className="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl animate-in fade-in zoom-in-95">
+   723→            {/* Header */}
+   724→            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+   725→              <div className="flex items-center gap-2">
+   726→                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-100">
+   727→                  <Plus className="h-5 w-5 text-emerald-600" />
+   728→                </div>
+   729→                <h2 className="text-lg font-bold text-gray-900">Record Payment</h2>
+   730→              </div>
+   731→              <button
+   732→                onClick={closeModal}
+   733→                className="rounded-md p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition cursor-pointer"
+   734→              >
+   735→                <X className="h-5 w-5" />
+   736→              </button>
+   737→            </div>
+   738→
+   739→            {/* Body */}
+   740→            <div className="max-h-[70vh] overflow-y-auto px-6 py-5 space-y-4">
+   741→              {/* Bill # Select */}
+   742→              <div>
+   743→                <label className="block text-sm font-medium text-gray-700 mb-1">
+   744→                  Bill Number <span className="text-red-500">*</span>
+   745→                </label>
+   746→                <div className="relative">
+   747→                  <select
+   748→                    value={selectedBill}
+   749→                    onChange={(e) => setSelectedBill(e.target.value)}
+   750→                    className="w-full appearance-none rounded-lg border border-gray-300 py-2.5 pl-3 pr-9 text-sm text-gray-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition cursor-pointer"
+   751→                  >
+   752→                    <option value="">Select a bill…</option>
+   753→                    {availableBills.length === 0 ? (
+   754→                      <option value="" disabled>No unpaid bills available</option>
+   755→                    ) : (
+   756→                      availableBills.map((b) => (
+   757→                        <option key={b.billNo} value={b.billNo}>
+   758→                          {b.billNo} — {b.business} ({formatCurrency(b.balance)} due)
+   759→                        </option>
+   760→                      ))
+   761→                    )}
+   762→                  </select>
+   763→                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+   764→                </div>
+   765→              </div>
+   766→
+   767→              {/* Auto-filled Business (read-only) */}
+   768→              <div>
+   769→                <label className="block text-sm font-medium text-gray-700 mb-1">Business</label>
+   770→                <input
+   771→                  type="text"
+   772→                  readOnly
+   773→                  value={autoFill.business}
+   774→                  placeholder="Auto-filled from bill"
+   775→                  className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 px-3 text-sm text-gray-500 cursor-not-allowed"
+   776→                />
+   777→              </div>
+   778→
+   779→              {/* Amount & Balance row */}
+   780→              <div className="grid grid-cols-2 gap-3">
+   781→                <div>
+   782→                  <label className="block text-sm font-medium text-gray-700 mb-1">
+   783→                    Amount (GH₵) <span className="text-red-500">*</span>
+   784→                  </label>
+   785→                  <input
+   786→                    type="number"
+   787→                    min="0"
+   788→                    step="0.01"
+   789→                    value={payAmount}
+   790→                    onChange={(e) => setPayAmount(e.target.value)}
+   791→                    placeholder="0.00"
+   792→                    className="w-full rounded-lg border border-gray-300 py-2.5 px-3 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition"
+   793→                  />
+   794→                </div>
+   795→                <div>
+   796→                  <label className="block text-sm font-medium text-gray-700 mb-1">Bill Balance</label>
+   797→                  <input
+   798→                    type="text"
+   799→                    readOnly
+   800→                    value={selectedBill ? formatCurrency(autoFill.balance) : '—'}
+   801→                    className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 px-3 text-sm text-gray-500 cursor-not-allowed"
+   802→                  />
+   803→                </div>
+   804→              </div>
+   805→
+   806→              {/* Method */}
+   807→              <div>
+   808→                <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+   809→                <div className="relative">
+   810→                  <select
+   811→                    value={payMethod}
+   812→                    onChange={(e) => setPayMethod(e.target.value as PaymentMethod)}
+   813→                    className="w-full appearance-none rounded-lg border border-gray-300 py-2.5 pl-3 pr-9 text-sm text-gray-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition cursor-pointer"
+   814→                  >
+   815→                    <option value="Cash">Cash</option>
+   816→                    <option value="Mobile Money">Mobile Money</option>
+   817→                    <option value="Bank">Bank Transfer</option>
+   818→                    <option value="POS">POS</option>
+   819→                    <option value="Online">Online</option>
+   820→                  </select>
+   821→                  <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+   822→                </div>
+   823→              </div>
+   824→
+   825→              {/* Reference & Collector row */}
+   826→              <div className="grid grid-cols-2 gap-3">
+   827→                <div>
+   828→                  <label className="block text-sm font-medium text-gray-700 mb-1">Reference #</label>
+   829→                  <input
+   830→                    type="text"
+   831→                    value={payReference}
+   832→                    onChange={(e) => setPayReference(e.target.value)}
+   833→                    placeholder="e.g. MTN-12345"
+   834→                    className="w-full rounded-lg border border-gray-300 py-2.5 px-3 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition"
+   835→                  />
+   836→                </div>
+   837→                <div>
+   838→                  <label className="block text-sm font-medium text-gray-700 mb-1">Collector</label>
+   839→                  <input
+   840→                    type="text"
+   841→                    value={payCollector}
+   842→                    onChange={(e) => setPayCollector(e.target.value)}
+   843→                    placeholder="Collector name"
+   844→                    className="w-full rounded-lg border border-gray-300 py-2.5 px-3 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition"
+   845→                  />
+   846→                </div>
+   847→              </div>
+   848→
+   849→              {/* Remarks */}
+   850→              <div>
+   851→                <label className="block text-sm font-medium text-gray-700 mb-1">Remarks</label>
+   852→                <textarea
+   853→                  rows={3}
+   854→                  value={payRemarks}
+   855→                  onChange={(e) => setPayRemarks(e.target.value)}
+   856→                  placeholder="Optional notes about this payment…"
+   857→                  className="w-full rounded-lg border border-gray-300 py-2.5 px-3 text-sm text-gray-900 placeholder-gray-400 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition resize-none"
+   858→                />
+   859→              </div>
+   860→            </div>
+   861→
+   862→            {/* Footer */}
+   863→            <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4">
+   864→              <button
+   865→                onClick={closeModal}
+   866→                className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition cursor-pointer"
+   867→              >
+   868→                Cancel
+   869→              </button>
+   870→              <button
+   871→                onClick={handleSave}
+   872→                disabled={!selectedBill || !payAmount}
+   873→                className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+   874→              >
+   875→                <Download className="h-4 w-4" />
+   876→                Save Payment
+   877→              </button>
+   878→            </div>
+   879→          </div>
+   880→        </div>
+   881→      )}
+   882→    </div>
+   883→  );
+   884→}
+   885→

@@ -3,7 +3,7 @@
 // and provides a URL for the verification landing page.
 
 export interface BarcodePayload {
-  type: 'RECEIPT' | 'INVOICE';
+  type: 'RECEIPT' | 'INVOICE' | 'PAYMENT';
   refNo: string;        // Receipt No or Bill No
   issuedTo: string;     // Entity name
   entityType: string;   // Business / Property
@@ -12,13 +12,14 @@ export interface BarcodePayload {
   revenueItem: string;  // Revenue item
   method?: string;      // Payment method (receipts only)
   status: string;       // Status
+  assemblyName: string; // Dynamic assembly name from settings
   // Internal verification fields
   checksum: string;     // Simple checksum for integrity
 }
 
 /**
  * Encode a BarcodePayload into a compact base64 string suitable for barcode scanning.
- * Format: TYPE|REF|NAME|ENTITY_TYPE|AMOUNT|DATE|REVENUE|METHOD|STATUS|CHECKSUM
+ * Format: TYPE|REF|NAME|ENTITY_TYPE|AMOUNT|DATE|REVENUE|METHOD|STATUS|ASSEMBLY|CHECKSUM
  * Then base64-encoded for compactness.
  */
 export function encodeBarcodeData(payload: Omit<BarcodePayload, 'checksum'>): string {
@@ -32,6 +33,7 @@ export function encodeBarcodeData(payload: Omit<BarcodePayload, 'checksum'>): st
     payload.revenueItem,
     payload.method || '',
     payload.status,
+    payload.assemblyName || 'Kumasi Metropolitan Assembly',
   ];
 
   // Generate simple checksum from all parts
@@ -67,12 +69,39 @@ export function decodeBarcodeData(encoded: string): BarcodePayload | null {
     }
 
     const parts = raw.split('|');
-    if (parts.length !== 10) return null;
+    // Support both old 10-part format and new 11-part format
+    if (parts.length === 10) {
+      // Legacy format: no assemblyName field
+      const [type, refNo, issuedTo, entityType, amountStr, date, revenueItem, method, status, checksumHex] = parts;
+      const checkParts = parts.slice(0, 9);
+      const checkStr = checkParts.join('|');
+      let checksum = 0;
+      for (let i = 0; i < checkStr.length; i++) {
+        checksum = ((checksum << 5) - checksum + checkStr.charCodeAt(i)) | 0;
+      }
+      const expectedChecksum = Math.abs(checksum).toString(16).toUpperCase().padStart(4, '0');
+      if (checksumHex !== expectedChecksum) return null;
+      return {
+        type: type as 'RECEIPT' | 'INVOICE' | 'PAYMENT',
+        refNo,
+        issuedTo,
+        entityType,
+        amount: parseFloat(amountStr),
+        date,
+        revenueItem,
+        method: method || undefined,
+        status,
+        assemblyName: 'Kumasi Metropolitan Assembly',
+        checksum: checksumHex,
+      };
+    }
 
-    const [type, refNo, issuedTo, entityType, amountStr, date, revenueItem, method, status, checksumHex] = parts;
+    if (parts.length !== 11) return null;
+
+    const [type, refNo, issuedTo, entityType, amountStr, date, revenueItem, method, status, assemblyName, checksumHex] = parts;
 
     // Verify checksum
-    const checkParts = parts.slice(0, 9);
+    const checkParts = parts.slice(0, 10);
     const checkStr = checkParts.join('|');
     let checksum = 0;
     for (let i = 0; i < checkStr.length; i++) {
@@ -83,7 +112,7 @@ export function decodeBarcodeData(encoded: string): BarcodePayload | null {
     if (checksumHex !== expectedChecksum) return null;
 
     return {
-      type: type as 'RECEIPT' | 'INVOICE',
+      type: type as 'RECEIPT' | 'INVOICE' | 'PAYMENT',
       refNo,
       issuedTo,
       entityType,
@@ -92,6 +121,7 @@ export function decodeBarcodeData(encoded: string): BarcodePayload | null {
       revenueItem,
       method: method || undefined,
       status,
+      assemblyName,
       checksum: checksumHex,
     };
   } catch {

@@ -118,6 +118,7 @@ export function ReceiptsPage() {
 
   // ── Generate Barcode SVG as string ─────────────────────────────────
   const getBarcodeSvg = (r: Receipt): string => {
+    const _aName = (() => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kumasi Metropolitan Assembly'; } catch { return 'Kumasi Metropolitan Assembly'; } })();
     const encoded = encodeBarcodeData({
       type: 'RECEIPT',
       refNo: r.receiptNo,
@@ -128,6 +129,7 @@ export function ReceiptsPage() {
       revenueItem: r.revenueItem,
       method: r.method,
       status: r.status,
+      assemblyName: _aName,
     });
     try {
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -146,6 +148,7 @@ export function ReceiptsPage() {
   };
 
   const getBarcodeData = (r: Receipt): string => {
+    const _aName = (() => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kumasi Metropolitan Assembly'; } catch { return 'Kumasi Metropolitan Assembly'; } })();
     return encodeBarcodeData({
       type: 'RECEIPT',
       refNo: r.receiptNo,
@@ -156,6 +159,7 @@ export function ReceiptsPage() {
       revenueItem: r.revenueItem,
       method: r.method,
       status: r.status,
+      assemblyName: _aName,
     });
   };
 
@@ -177,6 +181,7 @@ export function ReceiptsPage() {
     }
   }, [selectedReceipt]);
 
+  const _asmName = () => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kumasi Metropolitan Assembly'; } catch { return 'Kumasi Metropolitan Assembly'; } };
   const handlePrintReceipt = (r: Receipt) => {
     const barcodeSvg = getBarcodeSvg(r);
     const itemsRows = r.items.map((item) => `
@@ -225,7 +230,7 @@ export function ReceiptsPage() {
         <div style="position:relative;">
           ${r.status === 'Voided' ? '<div class="voided-stamp">VOIDED</div>' : ''}
           <div class="header">
-            <h1>KUMASI METROPOLITAN ASSEMBLY</h1>
+            <h1>${_asmName().toUpperCase()}</h1>
             <p>Revenue Management System — Official Receipt</p>
           </div>
           <div class="receipt-title">OFFICIAL RECEIPT</div>

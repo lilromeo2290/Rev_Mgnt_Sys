@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import {
   Plus,
@@ -22,7 +22,10 @@ import {
   User,
   FileText,
   Hash,
+  ScanBarcode,
 } from 'lucide-react';
+import JsBarcode from 'jsbarcode';
+import { encodeBarcodeData, getVerificationUrl } from '@/lib/barcode-utils';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -95,6 +98,7 @@ const mockPayments: Payment[] = [];
 export function PaymentsPage() {
   const [payments, setPayments] = useLocalStorage<Payment[]>('rms-payments', mockPayments);
   const [realBills, setRealBills] = useLocalStorage<RealBill[]>('rms-bills', []);
+  const asmName = useMemo(() => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kumasi Metropolitan Assembly'; } catch { return 'Kumasi Metropolitan Assembly'; } }, []);
   const [search, setSearch] = useState('');
   const [methodFilter, setMethodFilter] = useState<string>('All');
   const [statusFilter, setStatusFilter] = useState<string>('All');
@@ -232,9 +236,66 @@ export function PaymentsPage() {
     setViewingPayment(p);
   };
 
+  // ── Barcode helpers ──────────────────────────────────────
+  const getPayBarcodeSvg = (p: Payment, asmName: string): string => {
+    const encoded = encodeBarcodeData({
+      type: 'PAYMENT',
+      refNo: p.receiptNo,
+      issuedTo: p.business,
+      entityType: 'Business',
+      amount: p.amount,
+      date: p.date,
+      revenueItem: 'Revenue Payment',
+      method: p.method,
+      status: p.status,
+      assemblyName: asmName,
+    });
+    try {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      JsBarcode(svg, encoded, { format: 'CODE128', width: 2, height: 50, displayValue: false, margin: 0, fontSize: 10 });
+      return svg.outerHTML;
+    } catch { return ''; }
+  };
+
+  const getPayBarcodeData = (p: Payment, asmName: string): string => {
+    return encodeBarcodeData({
+      type: 'PAYMENT',
+      refNo: p.receiptNo,
+      issuedTo: p.business,
+      entityType: 'Business',
+      amount: p.amount,
+      date: p.date,
+      revenueItem: 'Revenue Payment',
+      method: p.method,
+      status: p.status,
+      assemblyName: asmName,
+    });
+  };
+
+  // ── Barcode canvas ref for modal ──────────────────────────────────────
+  const payBarcodeRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (viewingPayment && payBarcodeRef.current) {
+      try {
+        JsBarcode(payBarcodeRef.current, getPayBarcodeData(viewingPayment, asmName), {
+          format: 'CODE128',
+          width: 2,
+          height: 50,
+          displayValue: false,
+          margin: 0,
+          fontSize: 10,
+        });
+      } catch { /* barcode render failure */ }
+    }
+  }, [viewingPayment, asmName]);
+
   const handlePrintPayment = (p: Payment) => {
+    const _asmName = (() => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kumasi Metropolitan Assembly'; } catch { return 'Kumasi Metropolitan Assembly'; } })();
     const printWin = window.open('', '_blank', 'width=800,height=600');
     if (!printWin) return;
+    const barcodeSvg = getPayBarcodeSvg(p, _asmName);
+    const barcodeData = getPayBarcodeData(p, _asmName);
     printWin.document.write(`
       <!DOCTYPE html>
       <html>
@@ -268,7 +329,7 @@ export function PaymentsPage() {
       </head>
       <body>
         <div class="header">
-          <h1>KUMASI METROPOLITAN ASSEMBLY</h1>
+          <h1>${_asmName.toUpperCase()}</h1>
           <p>Revenue Management System — Official Payment Receipt</p>
         </div>
         <div class="receipt-title">PAYMENT RECEIPT</div>
@@ -294,7 +355,12 @@ export function PaymentsPage() {
             <tr class="total-row"><td>Total Amount Paid</td><td style="text-align:right">${formatCurrency(p.amount)}</td></tr>
           </tbody>
         </table>
-        ${p.remarks ? `<div style="margin-top:20px"><div class="section-title">Remarks</div><p style="font-size:13px;color:#475569;">${p.remarks}</p></div>` : ''}
+        ${p.remarks ? '<div style="margin-top:20px"><div class="section-title">Remarks</div><p style="font-size:13px;color:#475569;">' + p.remarks + '</p></div>' : ''}
+        <div style="text-align:center;margin-top:30px;padding:16px;border:1px solid #e2e8f0;border-radius:8px;">
+          <p style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Scan to Verify</p>
+          ${barcodeSvg}
+          <p style="font-size:9px;color:#94a3b8;margin-top:6px;">${getVerificationUrl(barcodeData)}</p>
+        </div>
         <div class="footer">
           Thank you for your payment.<br/>
           This receipt is computer generated and does not require a signature.<br/><br/>
@@ -545,7 +611,7 @@ export function PaymentsPage() {
           <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
             {/* Header */}
             <div className="text-center border-b-2 border-dashed border-gray-300 dark:border-slate-600 px-6 py-5">
-              <h2 className="text-base font-bold text-gray-900 dark:text-white tracking-wider uppercase">Kumasi Metropolitan Assembly</h2>
+              <h2 className="text-base font-bold text-gray-900 dark:text-white tracking-wider uppercase">{asmName}</h2>
               <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">Revenue Management System</p>
               <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mt-3 tracking-wide">PAYMENT RECEIPT</p>
             </div>
@@ -639,6 +705,20 @@ export function PaymentsPage() {
                 <p className="text-sm text-gray-600 dark:text-slate-400">{viewingPayment.remarks}</p>
               </div>
             )}
+
+            {/* Barcode Verification */}
+            <div className="px-6 pb-4">
+              <div className="rounded-xl border border-slate-200 dark:border-slate-700 p-4 text-center">
+                <div className="flex items-center justify-center gap-2 mb-3">
+                  <ScanBarcode className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                  <p className="text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-medium">Verification Barcode</p>
+                </div>
+                <div className="flex justify-center">
+                  <canvas ref={payBarcodeRef} className="max-w-full" />
+                </div>
+                <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-2 break-all">{viewingPayment ? getVerificationUrl(getPayBarcodeData(viewingPayment, asmName)) : ''}</p>
+              </div>
+            </div>
 
             {/* Actions */}
             <div className="flex items-center justify-between gap-3 border-t border-gray-200 dark:border-slate-700 px-6 py-4">

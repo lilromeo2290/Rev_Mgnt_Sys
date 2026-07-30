@@ -336,6 +336,7 @@ export function BillingPage() {
 
   // ── Barcode helpers ──────────────────────────────────────────────
   const getBillBarcodeSvg = (bill: Bill): string => {
+    const _aName = (() => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kumasi Metropolitan Assembly'; } catch { return 'Kumasi Metropolitan Assembly'; } })();
     const encoded = encodeBarcodeData({
       type: 'INVOICE',
       refNo: bill.billNumber,
@@ -345,6 +346,7 @@ export function BillingPage() {
       date: bill.date,
       revenueItem: bill.revenueItem,
       status: bill.status,
+      assemblyName: _aName,
     });
     try {
       const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -363,6 +365,7 @@ export function BillingPage() {
   };
 
   const getBillBarcodeData = (bill: Bill): string => {
+    const _aName = (() => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kumasi Metropolitan Assembly'; } catch { return 'Kumasi Metropolitan Assembly'; } })();
     return encodeBarcodeData({
       type: 'INVOICE',
       refNo: bill.billNumber,
@@ -372,6 +375,7 @@ export function BillingPage() {
       date: bill.date,
       revenueItem: bill.revenueItem,
       status: bill.status,
+      assemblyName: _aName,
     });
   };
 
@@ -395,6 +399,7 @@ export function BillingPage() {
 
   // ── Print bill ─────────────────────────────────────────────────────────
 
+  const _asmName = () => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kumasi Metropolitan Assembly'; } catch { return 'Kumasi Metropolitan Assembly'; } };
   const handlePrintBill = (bill: Bill) => {
     const barcodeSvg = getBillBarcodeSvg(bill);
     setViewingBill(bill);
@@ -439,7 +444,7 @@ export function BillingPage() {
         </head>
         <body>
           <div class="header">
-            <h1>KUMASI METROPOLITAN ASSEMBLY</h1>
+            <h1>${_asmName().toUpperCase()}</h1>
             <p>Revenue Management System — Official Bill</p>
           </div>
           <div class="bill-title">INVOICE / BILL</div>
@@ -957,7 +962,7 @@ export function BillingPage() {
             <div id="bill-print-content">
               {/* Header */}
               <div className="text-center border-b-2 border-dashed border-slate-300 dark:border-slate-600 px-6 py-5">
-                <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-wider uppercase">Kumasi Metropolitan Assembly</h2>
+                <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-wider uppercase">{_asmName()}</h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Revenue Management System</p>
                 <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mt-3 tracking-wide">OFFICIAL BILL</p>
               </div>

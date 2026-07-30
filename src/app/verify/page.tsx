@@ -74,7 +74,7 @@ function VerifyContent() {
             <AlertTriangle className="w-8 h-8 text-amber-600 dark:text-amber-400" />
           </div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-white mb-2">No Barcode Data</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Please scan a valid KMA receipt or invoice barcode to verify it.</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Please scan a valid receipt or invoice barcode to verify it.</p>
         </div>
       </div>
     );
@@ -89,7 +89,7 @@ function VerifyContent() {
             <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
           </div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Invalid Barcode</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">This barcode could not be verified. It may be corrupted or tampered with. Please contact KMA if you believe this is an error.</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">This barcode could not be verified. It may be corrupted or tampered with. Please contact the issuing assembly if you believe this is an error.</p>
         </div>
       </div>
     );
@@ -98,7 +98,7 @@ function VerifyContent() {
   // ── Success: Show decoded data + verification form ──
   if (!decodedData) return null;
 
-  const docType = decodedData.type === 'RECEIPT' ? 'Receipt' : 'Invoice';
+  const docType = decodedData.type === 'RECEIPT' ? 'Receipt' : decodedData.type === 'PAYMENT' ? 'Payment Receipt' : 'Invoice';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center p-4">
@@ -118,7 +118,7 @@ function VerifyContent() {
               <Shield className="w-7 h-7" />
             </div>
             <h1 className="text-xl font-bold">{docType} Verification</h1>
-            <p className="text-emerald-100 text-sm mt-1">Kumasi Metropolitan Assembly — Revenue Management System</p>
+            <p className="text-emerald-100 text-sm mt-1">${decodedData.assemblyName} — Revenue Management System</p>
           </div>
 
           <div className="p-6 space-y-6">
