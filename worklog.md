@@ -65,3 +65,27 @@ Stage Summary:
 - Fix: regex removal of all arg_key/arg_value tags from login-page.tsx
 - GitHub: Remote configured, code pushed to main branch
 - Build: Passing clean with 0 errors
+
+---
+Task ID: 4
+Agent: Main Agent
+Task: Add certificate view/print to business registration + get preview running
+
+Work Log:
+- Added BusinessCert interface with all certificate fields
+- Added viewingCert state for certificate modal
+- Added handleViewCertificate to read cert from localStorage by regNumber
+- Added handlePrintCertificate with A4 print window (double border, assembly header, details, declaration, signature block)
+- Added FileText, Printer, X icon imports
+- Added certificate view button in business table actions column
+- Added full certificate modal with details grid, declaration, signatures, and Print button
+- Added delete confirmation dialog
+- Built successfully, started standalone server on port 3000, confirmed HTTP 200
+
+Stage Summary:
+- Certificate auto-generation was already in place on business save
+- Added: View certificate button (blue FileText icon) in business list
+- Added: Professional certificate modal showing all cert details
+- Added: Print Certificate button that opens A4 print-ready layout
+- Server running on port 3000, responding 200
+

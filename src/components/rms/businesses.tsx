@@ -18,12 +18,34 @@ import {
   Save,
   Crosshair,
   Loader2,
+  Printer,
+  X,
+  FileText,
 } from 'lucide-react';
 import { useAppStore } from '@/stores/app-store';
 import { BUSINESS_CLASSES, BUSINESS_CLASS_CATEGORIES } from '@/lib/fee-schedule';
 import type { FeeCategory } from '@/lib/fee-schedule';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
+
+interface BusinessCert {
+  id: string;
+  certNumber: string;
+  regNumber: string;
+  businessName: string;
+  ownerName: string;
+  businessType: string;
+  category: string;
+  businessAddress: string;
+  dateRegistered: string;
+  dateIssued: string;
+  expiryDate: string;
+  status: string;
+  assemblyName: string;
+  assemblyAddress: string;
+  tradingName: string;
+  receiptNumber: string;
+}
 
 interface Business {
   regNumber: string;
@@ -119,6 +141,7 @@ export function BusinessesPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [locatingBusiness, setLocatingBusiness] = useState(false);
   const [locatingOwner, setLocatingOwner] = useState(false);
+  const [viewingCert, setViewingCert] = useState<BusinessCert | null>(null);
   const [businesses, setBusinesses] = useLocalStorage<Business[]>('rms-businesses', mockBusinesses);
   const itemsPerPage = 10;
 
@@ -360,7 +383,109 @@ export function BusinessesPage() {
   };
 
   const handleDelete = (regNumber: string) => {
+    if (!confirm('Are you sure you want to delete this business? This action cannot be undone.')) return;
     setBusinesses((prev) => prev.filter((b) => b.regNumber !== regNumber));
+  };
+
+  // ── Certificate View & Print ─────────────────────────────────────────────
+  const handleViewCertificate = (regNumber: string) => {
+    try {
+      const certs: BusinessCert[] = JSON.parse(localStorage.getItem('rms-business-certs') || '[]');
+      const cert = certs.find((c) => c.regNumber === regNumber);
+      if (cert) {
+        setViewingCert(cert);
+      } else {
+        alert('No certificate found for this business. Certificates are generated automatically when a business is saved.');
+      }
+    } catch {
+      alert('Error reading certificate data.');
+    }
+  };
+
+  const handlePrintCertificate = (cert: BusinessCert) => {
+    const win = window.open('', '_blank', 'width=794,height=1123');
+    if (!win) { alert('Please allow popups to print the certificate.'); return; }
+    win.document.write(`
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Business Registration Certificate - ${cert.certNumber}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    @page { size: A4; margin: 15mm; }
+    body { font-family: 'Georgia', 'Times New Roman', serif; color: #1a1a1a; padding: 30px; }
+    .cert-border { border: 3px double #1a5276; padding: 40px 30px; position: relative; }
+    .cert-border::before { content: ''; position: absolute; inset: 6px; border: 1px solid #1a5276; pointer-events: none; }
+    .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #1a5276; padding-bottom: 15px; }
+    .header .emblem { font-size: 48px; margin-bottom: 5px; }
+    .header h1 { font-size: 20px; font-weight: 700; color: #1a5276; letter-spacing: 1px; text-transform: uppercase; }
+    .header h2 { font-size: 14px; font-weight: 400; color: #555; margin-top: 4px; }
+    .title-section { text-align: center; margin: 25px 0; }
+    .title-section h2 { font-size: 26px; font-weight: 700; color: #1a5276; text-transform: uppercase; letter-spacing: 3px; }
+    .title-section .cert-no { font-size: 12px; color: #777; margin-top: 4px; }
+    .details { margin: 25px 0; }
+    .details table { width: 100%; border-collapse: collapse; }
+    .details td { padding: 8px 12px; font-size: 13px; vertical-align: top; }
+    .details .label { font-weight: 600; color: #1a5276; width: 180px; }
+    .details .value { color: #333; }
+    .declaration { margin: 25px 0; padding: 15px; background: #f8f9fa; border-left: 3px solid #1a5276; font-size: 12px; font-style: italic; color: #444; line-height: 1.6; }
+    .footer { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 15px; border-top: 1px solid #ccc; }
+    .footer .sign-block { text-align: center; }
+    .footer .sign-line { width: 180px; border-bottom: 1px solid #333; margin-bottom: 5px; height: 40px; }
+    .footer .sign-label { font-size: 11px; color: #555; }
+    .footer .date-block { text-align: right; font-size: 12px; color: #555; }
+    .status-badge { display: inline-block; padding: 3px 12px; border-radius: 3px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+    .status-active { background: #d4edda; color: #155724; }
+    .status-inactive { background: #f8d7da; color: #721c24; }
+    .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 80px; color: rgba(26, 82, 118, 0.04); font-weight: 700; pointer-events: none; white-space: nowrap; letter-spacing: 10px; }
+  </style>
+</head>
+<body>
+  <div class="cert-border">
+    <div class="watermark">OFFICIAL CERTIFICATE</div>
+    <div class="header">
+      <div class="emblem">\u2699</div>
+      <h1>${cert.assemblyName || 'Kumasi Metropolitan Assembly'}</h1>
+      ${cert.assemblyAddress ? `<h2>${cert.assemblyAddress}</h2>` : ''}
+    </div>
+    <div class="title-section">
+      <h2>Business Registration Certificate</h2>
+      <div class="cert-no">Certificate No: <strong>${cert.certNumber}</strong></div>
+    </div>
+    <div class="details">
+      <table>
+        <tr><td class="label">Registration Number:</td><td class="value">${cert.regNumber}</td></tr>
+        <tr><td class="label">Business Name:</td><td class="value">${cert.businessName}</td></tr>
+        <tr><td class="label">Trading Name:</td><td class="value">${cert.tradingName || cert.businessName}</td></tr>
+        <tr><td class="label">Owner / Proprietor:</td><td class="value">${cert.ownerName}</td></tr>
+        <tr><td class="label">Business Class:</td><td class="value">${cert.businessType}</td></tr>
+        <tr><td class="label">Category:</td><td class="value">${cert.category}</td></tr>
+        <tr><td class="label">Business Address:</td><td class="value">${cert.businessAddress || 'N/A'}</td></tr>
+        <tr><td class="label">Date Registered:</td><td class="value">${cert.dateRegistered}</td></tr>
+        <tr><td class="label">Date Issued:</td><td class="value">${cert.dateIssued}</td></tr>
+        <tr><td class="label">Expiry Date:</td><td class="value">${cert.expiryDate}</td></tr>
+        <tr><td class="label">Status:</td><td class="value"><span class="status-badge ${cert.status === 'Active' ? 'status-active' : 'status-inactive'}">${cert.status}</span></td></tr>
+        <tr><td class="label">Receipt Number:</td><td class="value">${cert.receiptNumber}</td></tr>
+      </table>
+    </div>
+    <div class="declaration">
+      This is to certify that the business named above has been duly registered with the Assembly in accordance with the relevant by-laws and regulations governing business operations within the jurisdiction. This certificate is valid from the date of issue until the expiry date shown above, subject to compliance with all applicable fees and regulations.
+    </div>
+    <div class="footer">
+      <div class="sign-block">
+        <div class="sign-line"></div>
+        <div class="sign-label">Authorized Officer</div>
+      </div>
+      <div class="date-block">
+        <div>Date Issued: <strong>${cert.dateIssued}</strong></div>
+        <div style="margin-top:4px;">Valid Until: <strong>${cert.expiryDate}</strong></div>
+      </div>
+    </div>
+  </div>
+  <script>window.onload = function() { window.print(); }</script>
+</body>
+</html>`);
+    win.document.close();
   };
 
   // ── Form Field Helper ────────────────────────────────────────────────────
@@ -474,6 +599,9 @@ export function BusinessesPage() {
                       </td>
                       <td className="px-4 py-3 text-right whitespace-nowrap">
                         <div className="inline-flex items-center gap-1">
+                          <button onClick={() => handleViewCertificate(biz.regNumber)} className="p-1.5 rounded-md text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors" title="View Certificate">
+                            <FileText className="w-4 h-4" />
+                          </button>
                           <button onClick={() => handleEdit(biz)} className="p-1.5 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors" title="Edit">
                             <Pencil className="w-4 h-4" />
                           </button>
@@ -503,6 +631,92 @@ export function BusinessesPage() {
             </button>
           </div>
         </div>
+
+        {/* ── Certificate Modal ──────────────────────────────────────────── */}
+        {viewingCert && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setViewingCert(null)}>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+              {/* Modal Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                    <Award className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Business Registration Certificate</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">{viewingCert.certNumber}</p>
+                  </div>
+                </div>
+                <button onClick={() => setViewingCert(null)} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Certificate Body */}
+              <div className="p-6">
+                <div className="border-2 border-slate-300 dark:border-slate-600 rounded-xl p-6 relative">
+                  {/* Header */}
+                  <div className="text-center border-b-2 border-blue-800 pb-4 mb-5">
+                    <div className="text-4xl mb-1">⚙</div>
+                    <h4 className="text-lg font-bold text-blue-900 dark:text-blue-300 uppercase tracking-wider">{viewingCert.assemblyName || 'Kumasi Metropolitan Assembly'}</h4>
+                    {viewingCert.assemblyAddress && <p className="text-xs text-slate-500 mt-1">{viewingCert.assemblyAddress}</p>}
+                  </div>
+
+                  {/* Title */}
+                  <div className="text-center my-5">
+                    <h5 className="text-xl font-bold text-blue-900 dark:text-blue-300 uppercase tracking-widest">Certificate of Registration</h5>
+                  </div>
+
+                  {/* Details Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 my-6 text-sm">
+                    <div><span className="font-semibold text-blue-800 dark:text-blue-400">Registration No:</span> <span className="text-slate-700 dark:text-slate-300 ml-1">{viewingCert.regNumber}</span></div>
+                    <div><span className="font-semibold text-blue-800 dark:text-blue-400">Certificate No:</span> <span className="text-slate-700 dark:text-slate-300 ml-1">{viewingCert.certNumber}</span></div>
+                    <div><span className="font-semibold text-blue-800 dark:text-blue-400">Business Name:</span> <span className="text-slate-700 dark:text-slate-300 ml-1">{viewingCert.businessName}</span></div>
+                    <div><span className="font-semibold text-blue-800 dark:text-blue-400">Owner:</span> <span className="text-slate-700 dark:text-slate-300 ml-1">{viewingCert.ownerName}</span></div>
+                    <div><span className="font-semibold text-blue-800 dark:text-blue-400">Business Class:</span> <span className="text-slate-700 dark:text-slate-300 ml-1">{viewingCert.businessType}</span></div>
+                    <div><span className="font-semibold text-blue-800 dark:text-blue-400">Category:</span> <span className="text-slate-700 dark:text-slate-300 ml-1">{viewingCert.category}</span></div>
+                    <div className="sm:col-span-2"><span className="font-semibold text-blue-800 dark:text-blue-400">Business Address:</span> <span className="text-slate-700 dark:text-slate-300 ml-1">{viewingCert.businessAddress || 'N/A'}</span></div>
+                    <div><span className="font-semibold text-blue-800 dark:text-blue-400">Date Registered:</span> <span className="text-slate-700 dark:text-slate-300 ml-1">{viewingCert.dateRegistered}</span></div>
+                    <div><span className="font-semibold text-blue-800 dark:text-blue-400">Date Issued:</span> <span className="text-slate-700 dark:text-slate-300 ml-1">{viewingCert.dateIssued}</span></div>
+                    <div><span className="font-semibold text-blue-800 dark:text-blue-400">Expiry Date:</span> <span className="text-slate-700 dark:text-slate-300 ml-1">{viewingCert.expiryDate}</span></div>
+                    <div><span className="font-semibold text-blue-800 dark:text-blue-400">Receipt No:</span> <span className="text-slate-700 dark:text-slate-300 ml-1">{viewingCert.receiptNumber}</span></div>
+                    <div><span className="font-semibold text-blue-800 dark:text-blue-400">Status:</span>
+                      <span className={`ml-1 inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${viewingCert.status === 'Active' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400' : 'bg-red-100 text-red-700'}`}>{viewingCert.status}</span>
+                    </div>
+                  </div>
+
+                  {/* Declaration */}
+                  <div className="bg-slate-50 dark:bg-slate-800/50 border-l-3 border-blue-800 p-4 my-5 text-xs italic text-slate-600 dark:text-slate-400 leading-relaxed">
+                    This is to certify that the business named above has been duly registered with the Assembly in accordance with the relevant by-laws and regulations governing business operations within the jurisdiction. This certificate is valid from the date of issue until the expiry date shown above, subject to compliance with all applicable fees and regulations.
+                  </div>
+
+                  {/* Signatures */}
+                  <div className="flex justify-between items-end mt-8 pt-4 border-t border-slate-200 dark:border-slate-700">
+                    <div className="text-center">
+                      <div className="w-40 border-b border-slate-400 mb-1 h-8"></div>
+                      <p className="text-xs text-slate-500">Authorized Officer</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-slate-500">Issued: <strong>{viewingCert.dateIssued}</strong></p>
+                      <p className="text-xs text-slate-500">Valid Until: <strong>{viewingCert.expiryDate}</strong></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 rounded-b-2xl">
+                <button onClick={() => setViewingCert(null)} className="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                  Close
+                </button>
+                <button onClick={() => handlePrintCertificate(viewingCert)} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors">
+                  <Printer className="w-4 h-4" />
+                  Print Certificate
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
