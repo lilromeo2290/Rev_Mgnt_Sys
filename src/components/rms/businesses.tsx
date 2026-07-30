@@ -402,82 +402,161 @@ export function BusinessesPage() {
   };
 
   const handlePrintCertificate = (cert: BusinessCert) => {
-    const win = window.open('', '_blank', 'width=794,height=1123');
+    const fmtDate = (d: string) => {
+      if (!d) return '..................';
+      try {
+        const dt = new Date(d);
+        return dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+      } catch { return d; }
+    };
+    const getOrdinal = (day: number) => {
+      const s = ['th','st','nd','rd'];
+      const v = day % 100;
+      return day + (s[(v-20)%10] || s[v] || s[0]);
+    };
+    let dayOrd = '..................';
+    let monthName = '..................';
+    let yearShort = '........';
+    if (cert.dateIssued) {
+      try {
+        const d = new Date(cert.dateIssued);
+        dayOrd = getOrdinal(d.getDate());
+        monthName = d.toLocaleDateString('en-US', { month: 'long' });
+        yearShort = String(d.getFullYear()).slice(-2);
+      } catch {}
+    }
+    const expiryYear = cert.expiryDate ? new Date(cert.expiryDate).getFullYear() : new Date().getFullYear() + 1;
+    const assemblyShort = (cert.assemblyName || 'Kumasi Metropolitan Assembly').replace(/\b(Metropolitan|Municipal|District|Assembly)\b/gi, '').trim().split(' ')[0];
+
+    const win = window.open('', '_blank', 'width=900,height=1200');
     if (!win) { alert('Please allow popups to print the certificate.'); return; }
-    win.document.write(`
-<!DOCTYPE html>
+    win.document.write(`<!DOCTYPE html>
 <html>
 <head>
   <title>Business Registration Certificate - ${cert.certNumber}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    @page { size: A4; margin: 15mm; }
-    body { font-family: 'Georgia', 'Times New Roman', serif; color: #1a1a1a; padding: 30px; }
-    .cert-border { border: 3px double #1a5276; padding: 40px 30px; position: relative; }
-    .cert-border::before { content: ''; position: absolute; inset: 6px; border: 1px solid #1a5276; pointer-events: none; }
-    .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #1a5276; padding-bottom: 15px; }
-    .header .emblem { font-size: 48px; margin-bottom: 5px; }
-    .header h1 { font-size: 20px; font-weight: 700; color: #1a5276; letter-spacing: 1px; text-transform: uppercase; }
-    .header h2 { font-size: 14px; font-weight: 400; color: #555; margin-top: 4px; }
-    .title-section { text-align: center; margin: 25px 0; }
-    .title-section h2 { font-size: 26px; font-weight: 700; color: #1a5276; text-transform: uppercase; letter-spacing: 3px; }
-    .title-section .cert-no { font-size: 12px; color: #777; margin-top: 4px; }
-    .details { margin: 25px 0; }
-    .details table { width: 100%; border-collapse: collapse; }
-    .details td { padding: 8px 12px; font-size: 13px; vertical-align: top; }
-    .details .label { font-weight: 600; color: #1a5276; width: 180px; }
-    .details .value { color: #333; }
-    .declaration { margin: 25px 0; padding: 15px; background: #f8f9fa; border-left: 3px solid #1a5276; font-size: 12px; font-style: italic; color: #444; line-height: 1.6; }
-    .footer { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 15px; border-top: 1px solid #ccc; }
-    .footer .sign-block { text-align: center; }
-    .footer .sign-line { width: 180px; border-bottom: 1px solid #333; margin-bottom: 5px; height: 40px; }
-    .footer .sign-label { font-size: 11px; color: #555; }
-    .footer .date-block { text-align: right; font-size: 12px; color: #555; }
-    .status-badge { display: inline-block; padding: 3px 12px; border-radius: 3px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+    @page { size: A4 portrait; margin: 12mm; }
+    body {
+      font-family: 'Inter', Arial, sans-serif;
+      color: #111;
+      background: #f0ece2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .certificate-outer {
+      width: 750px;
+      background: #fff;
+      position: relative;
+      padding: 6px;
+    }
+    .certificate-outer::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 14px solid #B5A642;
+      border-radius: 4px;
+      pointer-events: none;
+    }
+    .certificate-outer::after {
+      content: '';
+      position: absolute;
+      inset: 10px;
+      border: 2px solid #B5A642;
+      border-radius: 2px;
+      pointer-events: none;
+    }
+    .cert-inner {
+      margin: 22px;
+      padding: 40px 50px 35px;
+      position: relative;
+    }
+    .corner { position: absolute; width: 60px; height: 60px; border-color: #B5A642; border-style: solid; }
+    .corner-tl { top: 0; left: 0; border-width: 3px 0 0 3px; }
+    .corner-tr { top: 0; right: 0; border-width: 3px 3px 0 0; }
+    .corner-bl { bottom: 0; left: 0; border-width: 0 0 3px 3px; }
+    .corner-br { bottom: 0; right: 0; border-width: 0 3px 3px 0; }
+    .header-logos { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; padding: 0 20px; }
+    .logo-block { text-align: center; width: 90px; }
+    .coat-of-arms { font-size: 52px; line-height: 1; color: #1a1a1a; }
+    .logo-label { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; color: #333; }
+    .assembly-seal { font-size: 48px; line-height: 1; color: #8B0000; }
+    .assembly-name { text-align: center; font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #0a0a0a; margin-bottom: 2px; }
+    .assembly-subtitle { text-align: center; font-size: 10px; color: #666; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 18px; }
+    .cert-title { text-align: center; font-family: 'Playfair Display', serif; font-size: 34px; font-style: italic; font-weight: 700; color: #B22222; margin-bottom: 28px; letter-spacing: 1px; }
+    .cert-body { text-align: center; font-family: 'Inter', Georgia, serif; font-size: 14px; line-height: 2.2; color: #111; }
+    .cert-body .intro { font-weight: 700; font-size: 15px; margin-bottom: 6px; }
+    .dotted-field { font-family: 'Caveat', cursive; font-size: 20px; color: #00008B; font-weight: 700; border-bottom: 2px dotted #333; display: inline-block; min-width: 300px; padding: 0 8px 2px; vertical-align: baseline; }
+    .assembly-reiterate { font-weight: 800; text-transform: uppercase; font-size: 13px; letter-spacing: 1px; }
+    .gold-separator { border: none; height: 2px; background: linear-gradient(90deg, transparent, #B5A642, transparent); margin: 24px 0 20px; }
+    .cert-footer { margin-top: 30px; }
+    .issued-at { text-align: center; font-size: 13px; font-weight: 600; margin-bottom: 14px; color: #222; }
+    .date-line { text-align: center; font-size: 14px; line-height: 2; }
+    .date-line .handwritten { font-family: 'Caveat', cursive; font-size: 19px; color: #00008B; font-weight: 700; border-bottom: 2px dotted #555; display: inline-block; min-width: 70px; padding: 0 4px 1px; }
+    .validity-section { text-align: center; margin-top: 18px; }
+    .valid-until { font-size: 13px; font-weight: 700; color: #222; }
+    .renew-yearly { font-family: 'Playfair Display', serif; font-size: 14px; font-style: italic; color: #B22222; margin-top: 2px; font-weight: 700; }
+    .signature-section { margin-top: 28px; text-align: center; }
+    .sign-line { width: 260px; border-bottom: 2px dotted #333; margin: 0 auto 6px; }
+    .sign-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #333; }
+    .receipt-line { margin-top: 18px; font-size: 11px; color: #333; }
+    .receipt-line .receipt-val { font-family: 'Caveat', cursive; font-size: 16px; font-weight: 700; color: #000; }
+    .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-35deg); font-size: 72px; color: rgba(181, 166, 66, 0.06); font-weight: 900; pointer-events: none; white-space: nowrap; letter-spacing: 12px; text-transform: uppercase; z-index: 0; }
+    .flourish-top { text-align: center; font-size: 22px; color: #B5A642; margin-bottom: 6px; letter-spacing: 6px; }
+    .status-badge { display: inline-block; padding: 2px 14px; border-radius: 3px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
     .status-active { background: #d4edda; color: #155724; }
     .status-inactive { background: #f8d7da; color: #721c24; }
-    .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 80px; color: rgba(26, 82, 118, 0.04); font-weight: 700; pointer-events: none; white-space: nowrap; letter-spacing: 10px; }
+    .cert-no-small { text-align: center; font-size: 9px; color: #888; margin-top: 10px; letter-spacing: 1px; }
   </style>
 </head>
 <body>
-  <div class="cert-border">
-    <div class="watermark">OFFICIAL CERTIFICATE</div>
-    <div class="header">
-      <div class="emblem">\u2699</div>
-      <h1>${cert.assemblyName || 'Kumasi Metropolitan Assembly'}</h1>
-      ${cert.assemblyAddress ? `<h2>${cert.assemblyAddress}</h2>` : ''}
-    </div>
-    <div class="title-section">
-      <h2>Business Registration Certificate</h2>
-      <div class="cert-no">Certificate No: <strong>${cert.certNumber}</strong></div>
-    </div>
-    <div class="details">
-      <table>
-        <tr><td class="label">Registration Number:</td><td class="value">${cert.regNumber}</td></tr>
-        <tr><td class="label">Business Name:</td><td class="value">${cert.businessName}</td></tr>
-        <tr><td class="label">Trading Name:</td><td class="value">${cert.tradingName || cert.businessName}</td></tr>
-        <tr><td class="label">Owner / Proprietor:</td><td class="value">${cert.ownerName}</td></tr>
-        <tr><td class="label">Business Class:</td><td class="value">${cert.businessType}</td></tr>
-        <tr><td class="label">Category:</td><td class="value">${cert.category}</td></tr>
-        <tr><td class="label">Business Address:</td><td class="value">${cert.businessAddress || 'N/A'}</td></tr>
-        <tr><td class="label">Date Registered:</td><td class="value">${cert.dateRegistered}</td></tr>
-        <tr><td class="label">Date Issued:</td><td class="value">${cert.dateIssued}</td></tr>
-        <tr><td class="label">Expiry Date:</td><td class="value">${cert.expiryDate}</td></tr>
-        <tr><td class="label">Status:</td><td class="value"><span class="status-badge ${cert.status === 'Active' ? 'status-active' : 'status-inactive'}">${cert.status}</span></td></tr>
-        <tr><td class="label">Receipt Number:</td><td class="value">${cert.receiptNumber}</td></tr>
-      </table>
-    </div>
-    <div class="declaration">
-      This is to certify that the business named above has been duly registered with the Assembly in accordance with the relevant by-laws and regulations governing business operations within the jurisdiction. This certificate is valid from the date of issue until the expiry date shown above, subject to compliance with all applicable fees and regulations.
-    </div>
-    <div class="footer">
-      <div class="sign-block">
-        <div class="sign-line"></div>
-        <div class="sign-label">Authorized Officer</div>
+  <div class="certificate-outer">
+    <div class="cert-inner">
+      <div class="watermark">OFFICIAL CERTIFICATE</div>
+      <div class="corner corner-tl"></div>
+      <div class="corner corner-tr"></div>
+      <div class="corner corner-bl"></div>
+      <div class="corner corner-br"></div>
+      <div class="header-logos">
+        <div class="logo-block">
+          <div class="coat-of-arms">🇬🇭</div>
+          <div class="logo-label">Republic of Ghana</div>
+        </div>
+        <div class="logo-block">
+          <div class="assembly-seal">🏛️</div>
+          <div class="logo-label">Assembly Seal</div>
+        </div>
       </div>
-      <div class="date-block">
-        <div>Date Issued: <strong>${cert.dateIssued}</strong></div>
-        <div style="margin-top:4px;">Valid Until: <strong>${cert.expiryDate}</strong></div>
+      <div class="flourish-top">✦ ✦ ✦</div>
+      <div class="assembly-name">${(cert.assemblyName || 'Kumasi Metropolitan Assembly').toUpperCase()}</div>
+      ${cert.assemblyAddress ? `<div class="assembly-subtitle">${cert.assemblyAddress.toUpperCase()}</div>` : '<div class="assembly-subtitle"></div>'}
+      <div class="cert-title">Certificate Of Registration</div>
+      <div class="cert-body">
+        <div class="intro">I Hereby Certify that</div>
+        <div style="margin: 8px 0;"><span class="dotted-field">${cert.businessName.toUpperCase()}</span></div>
+        <div>Has complied with the bye-laws/directives of the</div>
+        <div class="assembly-reiterate" style="margin: 6px 0;">${(cert.assemblyName || 'Kumasi Metropolitan Assembly').toUpperCase()}</div>
+        <div>and has duly been permitted to operate within the ${assemblyShort} Municipality</div>
+        ${cert.tradingName && cert.tradingName !== cert.businessName ? `<div style="margin-top: 8px;">as <span class="dotted-field">${cert.tradingName.toUpperCase()}</span></div>` : ''}
+      </div>
+      <hr class="gold-separator">
+      <div class="cert-footer">
+        <div class="issued-at">Give under my hand at ${assemblyShort}</div>
+        <div class="date-line">this <span class="handwritten">${dayOrd}</span> day of <span class="handwritten">${monthName}</span> 20<span class="handwritten">${yearShort}</span></div>
+        <div class="validity-section">
+          <div class="valid-until">Valid until 31st December ${expiryYear}</div>
+          <div class="renew-yearly">Renew Yearly</div>
+        </div>
+        <div class="signature-section">
+          <div class="sign-line"></div>
+          <div class="sign-title">Municipal Co-ordinating Director</div>
+        </div>
+        <div class="receipt-line">RECEIPT No: <span class="receipt-val">${cert.receiptNumber}</span></div>
+        <div class="cert-no-small">${cert.certNumber} | Reg: ${cert.regNumber}</div>
       </div>
     </div>
   </div>
@@ -632,91 +711,161 @@ export function BusinessesPage() {
         </div>
 
         {/* ── Certificate Modal ──────────────────────────────────────────── */}
-        {viewingCert && (
+        {viewingCert && (() => {
+          const getOrdinal = (day: number) => {
+            const s = ['th','st','nd','rd'];
+            const v = day % 100;
+            return day + (s[(v-20)%10] || s[v] || s[0]);
+          };
+          let dayOrd = '..................';
+          let monthName = '..................';
+          let yearShort = '........';
+          if (viewingCert.dateIssued) {
+            try {
+              const d = new Date(viewingCert.dateIssued);
+              dayOrd = getOrdinal(d.getDate());
+              monthName = d.toLocaleDateString('en-US', { month: 'long' });
+              yearShort = String(d.getFullYear()).slice(-2);
+            } catch {}
+          }
+          const expiryYear = viewingCert.expiryDate ? new Date(viewingCert.expiryDate).getFullYear() : new Date().getFullYear() + 1;
+          const assemblyShort = (viewingCert.assemblyName || 'Kumasi Metropolitan Assembly').replace(/\b(Metropolitan|Municipal|District|Assembly)\b/gi, '').trim().split(' ')[0];
+
+          return (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setViewingCert(null)}>
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
               {/* Modal Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+              <div className="flex items-center justify-between px-5 py-3 bg-slate-800 rounded-t-2xl">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                    <Award className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <div className="p-1.5 rounded-lg bg-amber-500/20">
+                    <Award className="w-5 h-5 text-amber-400" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">Business Registration Certificate</h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">{viewingCert.certNumber}</p>
+                    <h3 className="text-base font-semibold text-white">Business Registration Certificate</h3>
+                    <p className="text-xs text-slate-400">{viewingCert.certNumber}</p>
                   </div>
                 </div>
-                <button onClick={() => setViewingCert(null)} className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+                <button onClick={() => setViewingCert(null)} className="p-2 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-white transition-colors">
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
-              {/* Certificate Body */}
-              <div className="p-6">
-                <div className="border-2 border-slate-300 dark:border-slate-600 rounded-xl p-6 relative">
-                  {/* Header */}
-                  <div className="text-center border-b-2 border-blue-800 pb-4 mb-5">
-                    <div className="text-4xl mb-1">⚙</div>
-                    <h4 className="text-lg font-bold text-blue-900 dark:text-blue-300 uppercase tracking-wider">{viewingCert.assemblyName || 'Kumasi Metropolitan Assembly'}</h4>
-                    {viewingCert.assemblyAddress && <p className="text-xs text-slate-500 mt-1">{viewingCert.assemblyAddress}</p>}
-                  </div>
+              {/* Certificate Preview - matches the print design */}
+              <div className="p-4">
+                <div className="bg-[#f0ece2] rounded-lg p-6">
+                  <div className="bg-white relative" style={{ padding: '6px' }}>
+                    {/* Gold border effect */}
+                    <div className="absolute inset-0 border-[10px] border-[#B5A642] rounded" style={{ pointerEvents: 'none' }} />
+                    <div className="absolute rounded" style={{ inset: '8px', border: '1.5px solid #B5A642', pointerEvents: 'none' }} />
 
-                  {/* Title */}
-                  <div className="text-center my-5">
-                    <h5 className="text-xl font-bold text-blue-900 dark:text-blue-300 uppercase tracking-widest">Certificate of Registration</h5>
-                  </div>
+                    <div className="relative mx-[16px] my-[16px] py-8 px-10">
+                      {/* Corner ornaments */}
+                      <div className="absolute top-0 left-0 w-10 h-10 border-t-2 border-l-2 border-[#B5A642]" />
+                      <div className="absolute top-0 right-0 w-10 h-10 border-t-2 border-r-2 border-[#B5A642]" />
+                      <div className="absolute bottom-0 left-0 w-10 h-10 border-b-2 border-l-2 border-[#B5A642]" />
+                      <div className="absolute bottom-0 right-0 w-10 h-10 border-b-2 border-r-2 border-[#B5A642]" />
 
-                  {/* Details Grid */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 my-6 text-sm">
-                    <div><span className="font-semibold text-blue-800 dark:text-blue-400">Registration No:</span> <span className="text-slate-700 dark:text-slate-300 ml-1">{viewingCert.regNumber}</span></div>
-                    <div><span className="font-semibold text-blue-800 dark:text-blue-400">Certificate No:</span> <span className="text-slate-700 dark:text-slate-300 ml-1">{viewingCert.certNumber}</span></div>
-                    <div><span className="font-semibold text-blue-800 dark:text-blue-400">Business Name:</span> <span className="text-slate-700 dark:text-slate-300 ml-1">{viewingCert.businessName}</span></div>
-                    <div><span className="font-semibold text-blue-800 dark:text-blue-400">Owner:</span> <span className="text-slate-700 dark:text-slate-300 ml-1">{viewingCert.ownerName}</span></div>
-                    <div><span className="font-semibold text-blue-800 dark:text-blue-400">Business Class:</span> <span className="text-slate-700 dark:text-slate-300 ml-1">{viewingCert.businessType}</span></div>
-                    <div><span className="font-semibold text-blue-800 dark:text-blue-400">Category:</span> <span className="text-slate-700 dark:text-slate-300 ml-1">{viewingCert.category}</span></div>
-                    <div className="sm:col-span-2"><span className="font-semibold text-blue-800 dark:text-blue-400">Business Address:</span> <span className="text-slate-700 dark:text-slate-300 ml-1">{viewingCert.businessAddress || 'N/A'}</span></div>
-                    <div><span className="font-semibold text-blue-800 dark:text-blue-400">Date Registered:</span> <span className="text-slate-700 dark:text-slate-300 ml-1">{viewingCert.dateRegistered}</span></div>
-                    <div><span className="font-semibold text-blue-800 dark:text-blue-400">Date Issued:</span> <span className="text-slate-700 dark:text-slate-300 ml-1">{viewingCert.dateIssued}</span></div>
-                    <div><span className="font-semibold text-blue-800 dark:text-blue-400">Expiry Date:</span> <span className="text-slate-700 dark:text-slate-300 ml-1">{viewingCert.expiryDate}</span></div>
-                    <div><span className="font-semibold text-blue-800 dark:text-blue-400">Receipt No:</span> <span className="text-slate-700 dark:text-slate-300 ml-1">{viewingCert.receiptNumber}</span></div>
-                    <div><span className="font-semibold text-blue-800 dark:text-blue-400">Status:</span>
-                      <span className={`ml-1 inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold ${viewingCert.status === 'Active' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400' : 'bg-red-100 text-red-700'}`}>{viewingCert.status}</span>
-                    </div>
-                  </div>
+                      {/* Header Logos */}
+                      <div className="flex justify-between items-start mb-3 px-4">
+                        <div className="text-center w-16">
+                          <div className="text-3xl">🇬🇭</div>
+                          <div className="text-[7px] font-bold uppercase tracking-wider text-slate-600 mt-1">Republic of Ghana</div>
+                        </div>
+                        <div className="text-center w-16">
+                          <div className="text-3xl">🏛️</div>
+                          <div className="text-[7px] font-bold uppercase tracking-wider text-slate-600 mt-1">Assembly Seal</div>
+                        </div>
+                      </div>
 
-                  {/* Declaration */}
-                  <div className="bg-slate-50 dark:bg-slate-800/50 border-l-3 border-blue-800 p-4 my-5 text-xs italic text-slate-600 dark:text-slate-400 leading-relaxed">
-                    This is to certify that the business named above has been duly registered with the Assembly in accordance with the relevant by-laws and regulations governing business operations within the jurisdiction. This certificate is valid from the date of issue until the expiry date shown above, subject to compliance with all applicable fees and regulations.
-                  </div>
+                      {/* Decorative flourish */}
+                      <div className="text-center text-[#B5A642] text-sm tracking-[6px] mb-1">✦ ✦ ✦</div>
 
-                  {/* Signatures */}
-                  <div className="flex justify-between items-end mt-8 pt-4 border-t border-slate-200 dark:border-slate-700">
-                    <div className="text-center">
-                      <div className="w-40 border-b border-slate-400 mb-1 h-8"></div>
-                      <p className="text-xs text-slate-500">Authorized Officer</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-slate-500">Issued: <strong>{viewingCert.dateIssued}</strong></p>
-                      <p className="text-xs text-slate-500">Valid Until: <strong>{viewingCert.expiryDate}</strong></p>
+                      {/* Assembly Name */}
+                      <div className="text-center text-lg font-black uppercase tracking-[2px] text-[#0a0a0a]">
+                        {(viewingCert.assemblyName || 'Kumasi Metropolitan Assembly').toUpperCase()}
+                      </div>
+                      {viewingCert.assemblyAddress && (
+                        <div className="text-center text-[9px] text-slate-500 uppercase tracking-[3px] mb-4">
+                          {viewingCert.assemblyAddress.toUpperCase()}
+                        </div>
+                      )}
+
+                      {/* Certificate Title */}
+                      <div className="text-center my-4">
+                        <span className="text-2xl italic font-bold text-[#B22222]" style={{ fontFamily: 'Georgia, serif' }}>
+                          Certificate Of Registration
+                        </span>
+                      </div>
+
+                      {/* Body */}
+                      <div className="text-center text-sm leading-[2.2] text-[#111]">
+                        <div className="font-bold text-[15px] mb-1">I Hereby Certify that</div>
+                        <div className="my-2">
+                          <span className="text-lg font-bold border-b-2 border-dotted border-slate-500 inline-block min-w-[250px] px-2 pb-0.5" style={{ color: '#00008B', fontFamily: 'Georgia, cursive' }}>
+                            {viewingCert.businessName.toUpperCase()}
+                          </span>
+                        </div>
+                        <div>Has complied with the bye-laws/directives of the</div>
+                        <div className="font-extrabold uppercase text-xs tracking-[1px] my-1">
+                          {(viewingCert.assemblyName || 'Kumasi Metropolitan Assembly').toUpperCase()}
+                        </div>
+                        <div>and has duly been permitted to operate within the {assemblyShort} Municipality</div>
+                        {viewingCert.tradingName && viewingCert.tradingName !== viewingCert.businessName && (
+                          <div className="mt-2">
+                            as <span className="text-lg font-bold border-b-2 border-dotted border-slate-500 inline-block min-w-[200px] px-2 pb-0.5" style={{ color: '#00008B', fontFamily: 'Georgia, cursive' }}>
+                              {viewingCert.tradingName.toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Gold separator */}
+                      <div className="h-[2px] my-5" style={{ background: 'linear-gradient(90deg, transparent, #B5A642, transparent)' }} />
+
+                      {/* Footer */}
+                      <div className="mt-6">
+                        <div className="text-center text-xs font-semibold text-slate-800 mb-3">
+                          Give under my hand at {assemblyShort}
+                        </div>
+                        <div className="text-center text-sm leading-[2]">
+                          this <span className="text-base font-bold border-b-2 border-dotted border-slate-400 inline-block min-w-[50px] px-1" style={{ color: '#00008B', fontFamily: 'Georgia, cursive' }}>{dayOrd}</span> day of <span className="text-base font-bold border-b-2 border-dotted border-slate-400 inline-block min-w-[70px] px-1" style={{ color: '#00008B', fontFamily: 'Georgia, cursive' }}>{monthName}</span> 20<span className="text-base font-bold border-b-2 border-dotted border-slate-400 inline-block min-w-[40px] px-1" style={{ color: '#00008B', fontFamily: 'Georgia, cursive' }}>{yearShort}</span>
+                        </div>
+                        <div className="text-center mt-4">
+                          <div className="text-xs font-bold text-slate-800">Valid until 31st December {expiryYear}</div>
+                          <div className="text-sm italic font-bold text-[#B22222] mt-0.5" style={{ fontFamily: 'Georgia, serif' }}>Renew Yearly</div>
+                        </div>
+                        <div className="text-center mt-6">
+                          <div className="w-48 border-b-2 border-dotted border-slate-500 mx-auto mb-1" />
+                          <div className="text-[9px] font-bold uppercase tracking-[1.5px] text-slate-600">
+                            Municipal Co-ordinating Director
+                          </div>
+                        </div>
+                        <div className="mt-4 text-[10px] text-slate-700 text-center">
+                          RECEIPT No: <span className="font-bold text-sm" style={{ fontFamily: 'Georgia, cursive' }}>{viewingCert.receiptNumber}</span>
+                        </div>
+                        <div className="text-center text-[8px] text-slate-400 mt-2 tracking-wide">
+                          {viewingCert.certNumber} | Reg: {viewingCert.regNumber}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Modal Footer */}
-              <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/40 rounded-b-2xl">
-                <button onClick={() => setViewingCert(null)} className="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+              <div className="flex items-center justify-end gap-3 px-5 py-3 border-t border-slate-700 bg-slate-800 rounded-b-2xl">
+                <button onClick={() => setViewingCert(null)} className="px-4 py-2 rounded-lg border border-slate-600 text-slate-300 text-sm font-medium hover:bg-slate-700 transition-colors">
                   Close
                 </button>
-                <button onClick={() => handlePrintCertificate(viewingCert)} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors">
+                <button onClick={() => handlePrintCertificate(viewingCert)} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#B5A642] hover:bg-[#9a8d38] text-white text-sm font-medium transition-colors">
                   <Printer className="w-4 h-4" />
                   Print Certificate
                 </button>
               </div>
             </div>
           </div>
-        )}
-      </div>
+          );
+        })()}      </div>
     );
   }
 
