@@ -158,6 +158,15 @@ function SidebarContent({
   onBack: () => void;
   onCloseMobile?: () => void;
 }) {
+  const currentUser = useAppStore((s) => s.currentUser);
+  const canAccess = useAppStore((s) => s.canAccess);
+
+  // Filter nav items based on current user's permissions
+  const visibleNavItems = useMemo(() => {
+    if (!currentUser) return NAV_ITEMS; // Fallback: show all if no user set
+    return NAV_ITEMS.filter((item) => canAccess(item.page));
+  }, [currentUser, canAccess]);
+
   const handleNavigate = useCallback(
     (page: RMSPage) => {
       onNavigate(page);
@@ -197,7 +206,7 @@ function SidebarContent({
           role='navigation'
           aria-label='Main navigation'
         >
-          {NAV_ITEMS.map((item) => (
+          {visibleNavItems.map((item) => (
             <SidebarNavItem
               key={item.page}
               item={item}
@@ -206,6 +215,9 @@ function SidebarContent({
               onClick={() => handleNavigate(item.page)}
             />
           ))}
+          {visibleNavItems.length === 0 && (
+            <p className='text-xs text-muted-foreground text-center py-4'>No pages assigned</p>
+          )}
         </nav>
       </ScrollArea>
 

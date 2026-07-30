@@ -21,7 +21,11 @@ import {
   Users,
   Filter,
   Save,
+  LayoutGrid,
+  Check,
+  SquareStack,
 } from 'lucide-react';
+import { ALL_RMS_PAGES, useAppStore, type RMSPage } from '@/stores/app-store';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -42,6 +46,7 @@ interface User {
   lastLogin: string;
   dateCreated: string;
   ghanaCard: string;
+  accessiblePages: RMSPage[];
 }
 
 interface UserFormData {
@@ -53,6 +58,7 @@ interface UserFormData {
   zone: string;
   ward: string;
   ghanaCard: string;
+  accessiblePages: RMSPage[];
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -71,6 +77,16 @@ const statusConfig: Record<UserStatus, { pill: string; icon: React.ElementType }
   Suspended: { pill: 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400', icon: XCircle },
 };
 
+const ALL_PAGES: RMSPage[] = ALL_RMS_PAGES.map((p) => p.page);
+
+const ROLE_DEFAULT_PAGES: Record<UserRole, RMSPage[]> = {
+  'Administrator': ALL_PAGES,
+  'Revenue Officer': ['dashboard', 'businesses', 'properties', 'billing', 'payments', 'payment-history', 'receipts', 'search'],
+  'Field Collector': ['dashboard', 'businesses', 'properties', 'payments', 'receipts', 'search'],
+  'Auditor': ['dashboard', 'businesses', 'properties', 'billing', 'payments', 'payment-history', 'receipts', 'reports', 'audit-trail', 'search'],
+  'Finance Manager': ['dashboard', 'billing', 'payments', 'payment-history', 'receipts', 'reports', 'search'],
+};
+
 const emptyForm: UserFormData = {
   firstName: '',
   lastName: '',
@@ -80,12 +96,13 @@ const emptyForm: UserFormData = {
   zone: 'Zone A',
   ward: '',
   ghanaCard: '',
+  accessiblePages: ROLE_DEFAULT_PAGES['Field Collector'],
 };
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
 const initialUsers: User[] = [
-  { id: 'USR-001', staffId: 'STF-001', firstName: 'System', lastName: 'Administrator', email: 'admin@kma.gov.gh', phone: '', role: 'Administrator', zone: 'Zone A', ward: 'Bantama', status: 'Active', lastLogin: new Date().toISOString().split('T')[0], dateCreated: new Date().toISOString().split('T')[0], ghanaCard: '' },
+  { id: 'USR-001', staffId: 'STF-001', firstName: 'System', lastName: 'Administrator', email: 'admin@kma.gov.gh', phone: '', role: 'Administrator', zone: 'Zone A', ward: 'Bantama', status: 'Active', lastLogin: new Date().toISOString().split('T')[0], dateCreated: new Date().toISOString().split('T')[0], ghanaCard: '', accessiblePages: ALL_PAGES },
 ];
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -142,9 +159,31 @@ export function UsersPage() {
       zone: user.zone,
       ward: user.ward,
       ghanaCard: user.ghanaCard,
+      accessiblePages: user.accessiblePages || ROLE_DEFAULT_PAGES[user.role],
     });
     setEditUser(user);
   };
+
+  // When role changes, auto-set default pages (admin can still customize)
+  const handleRoleChange = (role: UserRole) => {
+    setForm((prev) => ({
+      ...prev,
+      role,
+      accessiblePages: ROLE_DEFAULT_PAGES[role],
+    }));
+  };
+
+  const togglePage = (page: RMSPage) => {
+    setForm((prev) => ({
+      ...prev,
+      accessiblePages: prev.accessiblePages.includes(page)
+        ? prev.accessiblePages.filter((p) => p !== page)
+        : [...prev.accessiblePages, page],
+    }));
+  };
+
+  const selectAllPages = () => setForm((prev) => ({ ...prev, accessiblePages: [...ALL_PAGES] }));
+  const deselectAllPages = () => setForm((prev) => ({ ...prev, accessiblePages: [] }));
 
   const handleSave = () => {
     if (editUser) {
@@ -512,7 +551,7 @@ export function UsersPage() {
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Role</label>
                   <select
                     value={form.role}
-                    onChange={(e) => updateForm('role', e.target.value)}
+                    onChange={(e) => handleRoleChange(e.target.value as UserRole)}
                     className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   >
                     <option value="Field Collector">Field Collector</option>
@@ -555,6 +594,68 @@ export function UsersPage() {
                   className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
                   placeholder="GHA-123456789-0"
                 />
+              </div>
+
+              {/* ── Navigation Permissions ── */}
+              <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <LayoutGrid className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                      Navigation Access
+                    </label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={selectAllPages}
+                      className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
+                    >
+                      Select All
+                    </button>
+                    <span className="text-slate-300 dark:text-slate-600">|</span>
+                    <button
+                      type="button"
+                      onClick={deselectAllPages}
+                      className="text-xs text-red-500 dark:text-red-400 hover:underline font-medium"
+                    >
+                      Clear All
+                    </button>
+                  </div>
+                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+                  Choose which pages this user can access. Defaults are set by role — customize as needed.
+                </p>
+                <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-700 p-2 bg-slate-50 dark:bg-slate-900/50">
+                  {ALL_RMS_PAGES.map((p) => {
+                    const isSelected = form.accessiblePages.includes(p.page);
+                    return (
+                      <button
+                        key={p.page}
+                        type="button"
+                        onClick={() => togglePage(p.page)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-left text-xs font-medium transition-all ${
+                          isSelected
+                            ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700'
+                            : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-transparent hover:border-slate-300 dark:hover:border-slate-600'
+                        }`}
+                      >
+                        <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${
+                          isSelected
+                            ? 'bg-emerald-600 border-emerald-600'
+                            : 'border-slate-300 dark:border-slate-600'
+                        }`}>
+                          {isSelected && <Check className="w-3 h-3 text-white" />}
+                        </div>
+                        {p.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="mt-2 flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
+                  <SquareStack className="w-3 h-3" />
+                  {form.accessiblePages.length} of {ALL_PAGES.length} pages selected
+                </div>
               </div>
             </div>
 
@@ -616,6 +717,27 @@ export function UsersPage() {
                 </div>
                 <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                   <MapPin className="w-4 h-4" />Created: {viewUser.dateCreated}
+                </div>
+              </div>
+              {/* Accessible Pages */}
+              <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+                <p className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium mb-2">Accessible Navigation Pages</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {ALL_RMS_PAGES.map((p) => {
+                    const hasAccess = viewUser.accessiblePages?.includes(p.page);
+                    return (
+                      <span
+                        key={p.page}
+                        className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium ${
+                          hasAccess
+                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                            : 'bg-slate-100 text-slate-400 dark:bg-slate-700 dark:text-slate-500 line-through'
+                        }`}
+                      >
+                        {p.label}
+                      </span>
+                    );
+                  })}
                 </div>
               </div>
             </div>
