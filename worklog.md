@@ -32,3 +32,32 @@ Stage Summary:
 - Admin can use "Login As" to test any user's perspective instantly
 - Header shows the logged-in user's name and avatar initials
 - User data persists in localStorage across refreshes
+
+---
+Task ID: 2
+Agent: Main
+Task: Fix dashboard to read real data + migrate data persistence + redesign certificate
+
+Work Log:
+- Found dashboard had all 4 data arrays hardcoded as empty [] - never read from localStorage
+- Rewrote dashboard.tsx to read from localStorage (rms-businesses, rms-properties, rms-bills, rms-payments)
+- Added stat cards: total businesses, properties, amount collected, outstanding, bills paid, bills overdue
+- Added charts: businesses by category (pie), bills by status (bar), revenue by bill category (pie), business status (pie)
+- Added tables: recent business registrations, recent payments, top revenue collectors
+- Added collection rate in header, "No Data Yet" banner when system is empty
+- Migrated billing.tsx, payments.tsx, properties.tsx from useState to useLocalStorage for persistence
+- Analyzed uploaded certificate design with VLM - extracted full layout, fonts, colors, structure
+- Completely rewrote certificate print template (handlePrintCertificate) matching the reference design
+- Redesigned certificate modal preview to match print version
+- Design features: gold ornate border, corner ornaments, Ghana Coat of Arms + Assembly Seal logos
+- Certificate body: "I Hereby Certify that" format with dotted underlines, handwritten blue fields
+- Uses Google Fonts: Caveat (handwriting), Playfair Display (title), Inter (body)
+- Extracted real logos from uploaded certificate image using image-edit AI
+- Saved Ghana Coat of Arms and Assembly Seal to /public/logos/
+- Updated both print and modal certificate to use real <img> logo tags instead of emojis
+
+Stage Summary:
+- Dashboard now shows live analytics from all registered data
+- All pages (businesses, properties, billing, payments) persist to localStorage
+- Certificate redesigned to match official Ghana district assembly format
+- Real logo images (Ghana Coat of Arms + Assembly Seal) embedded in certificates

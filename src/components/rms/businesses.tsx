@@ -482,9 +482,9 @@ export function BusinessesPage() {
     .corner-br { bottom: 0; right: 0; border-width: 0 3px 3px 0; }
     .header-logos { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; padding: 0 20px; }
     .logo-block { text-align: center; width: 90px; }
-    .coat-of-arms { font-size: 52px; line-height: 1; color: #1a1a1a; }
+    .coat-of-arms { line-height: 1; color: #1a1a1a; }
     .logo-label { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; color: #333; }
-    .assembly-seal { font-size: 48px; line-height: 1; color: #8B0000; }
+    .assembly-seal { line-height: 1; color: #8B0000; }
     .assembly-name { text-align: center; font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #0a0a0a; margin-bottom: 2px; }
     .assembly-subtitle { text-align: center; font-size: 10px; color: #666; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 18px; }
     .cert-title { text-align: center; font-family: 'Playfair Display', serif; font-size: 34px; font-style: italic; font-weight: 700; color: #B22222; margin-bottom: 28px; letter-spacing: 1px; }
@@ -523,11 +523,11 @@ export function BusinessesPage() {
       <div class="corner corner-br"></div>
       <div class="header-logos">
         <div class="logo-block">
-          <div class="coat-of-arms">🇬🇭</div>
+          <div class="coat-of-arms"><img src="/logos/ghana-coat-of-arms.png" style="width:70px; height:70px; object-fit:contain;" /></div>
           <div class="logo-label">Republic of Ghana</div>
         </div>
         <div class="logo-block">
-          <div class="assembly-seal">🏛️</div>
+          <div class="assembly-seal"><img src="/logos/assembly-seal.png" style="width:70px; height:70px; object-fit:contain;" /></div>
           <div class="logo-label">Assembly Seal</div>
         </div>
       </div>
@@ -768,11 +768,11 @@ export function BusinessesPage() {
                       {/* Header Logos */}
                       <div className="flex justify-between items-start mb-3 px-4">
                         <div className="text-center w-16">
-                          <div className="text-3xl">🇬🇭</div>
+                          <img src="/logos/ghana-coat-of-arms.png" className="w-14 h-14 object-contain" />
                           <div className="text-[7px] font-bold uppercase tracking-wider text-slate-600 mt-1">Republic of Ghana</div>
                         </div>
                         <div className="text-center w-16">
-                          <div className="text-3xl">🏛️</div>
+                          <img src="/logos/assembly-seal.png" className="w-14 h-14 object-contain" />
                           <div className="text-[7px] font-bold uppercase tracking-wider text-slate-600 mt-1">Assembly Seal</div>
                         </div>
                       </div>
