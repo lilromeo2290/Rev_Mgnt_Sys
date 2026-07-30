@@ -481,7 +481,7 @@ export function BusinessesPage() {
     .corner-bl { bottom: 0; left: 0; border-width: 0 0 3px 3px; }
     .corner-br { bottom: 0; right: 0; border-width: 0 3px 3px 0; }
     .header-logos { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; padding: 0 20px; }
-    .logo-block { text-align: center; width: 90px; }
+    .logo-block { text-align: center; width: 160px; }
     .coat-of-arms { line-height: 1; color: #1a1a1a; }
     .logo-label { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; color: #333; }
     .assembly-seal { line-height: 1; color: #8B0000; }
@@ -523,12 +523,12 @@ export function BusinessesPage() {
       <div class="corner corner-br"></div>
       <div class="header-logos">
         <div class="logo-block">
-          <div class="coat-of-arms"><img src="/logos/ghana-coat-of-arms.webp" style="width:110px; height:110px; object-fit:contain;" /></div>
+          <div class="coat-of-arms"><img src="/logos/ghana-coat-of-arms.webp" style="width:150px; height:150px; object-fit:contain;" /></div>
           <div class="logo-label">Republic of Ghana</div>
         </div>
         <div class="logo-block">
-          <div class="assembly-seal"><img src="/logos/assembly-seal.png" style="width:110px; height:110px; object-fit:contain;" /></div>
-          <div class="logo-label">Assembly Seal</div>
+          <div class="assembly-seal"><img src="/logos/assembly-seal.png" style="width:150px; height:150px; object-fit:contain;" /></div>
+          <div class="logo-label">${(cert.assemblyName || "").toUpperCase()}</div>
         </div>
       </div>
       <div class="flourish-top">✦ ✦ ✦</div>
@@ -767,13 +767,13 @@ export function BusinessesPage() {
 
                       {/* Header Logos */}
                       <div className="flex justify-between items-start mb-3 px-4">
-                        <div className="text-center w-16">
-                          <img src="/logos/ghana-coat-of-arms.webp" className="w-24 h-24 object-contain" />
+                        <div className="text-center w-28">
+                          <img src="/logos/ghana-coat-of-arms.webp" className="w-36 h-36 object-contain" />
                           <div className="text-[7px] font-bold uppercase tracking-wider text-slate-600 mt-1">Republic of Ghana</div>
                         </div>
-                        <div className="text-center w-16">
-                          <img src="/logos/assembly-seal.png" className="w-24 h-24 object-contain" />
-                          <div className="text-[7px] font-bold uppercase tracking-wider text-slate-600 mt-1">Assembly Seal</div>
+                        <div className="text-center w-28">
+                          <img src="/logos/assembly-seal.png" className="w-36 h-36 object-contain" />
+                          <div className="text-[7px] font-bold uppercase tracking-wider text-slate-600 mt-1">{(viewingCert.assemblyName || "").toUpperCase()}</div>
                         </div>
                       </div>
 
