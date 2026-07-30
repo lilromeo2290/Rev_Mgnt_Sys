@@ -51,6 +51,22 @@ interface MockBill {
   balance: number;
 }
 
+interface RealBill {
+  id: string;
+  billNumber: string;
+  date: string;
+  entityName: string;
+  entityType: 'Business' | 'Property';
+  category: string;
+  revenueItem: string;
+  amount: number;
+  previousBalance: number;
+  penalty: number;
+  totalDue: number;
+  status: 'Paid' | 'Partial' | 'Unpaid' | 'Overdue';
+  dueDate: string;
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const formatCurrency = (amount: number): string =>
@@ -74,12 +90,11 @@ const statusBadge: Record<PaymentStatus, { bg: string; text: string; dot: string
 
 const mockPayments: Payment[] = [];
 
-const mockBills: MockBill[] = [];
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function PaymentsPage() {
   const [payments, setPayments] = useLocalStorage<Payment[]>('rms-payments', mockPayments);
+  const [realBills, setRealBills] = useLocalStorage<RealBill[]>('rms-bills', []);
   const [search, setSearch] = useState('');
   const [methodFilter, setMethodFilter] = useState<string>('All');
   const [statusFilter, setStatusFilter] = useState<string>('All');
@@ -99,11 +114,23 @@ export function PaymentsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const perPage = 8;
 
+  // Derive available bills (only unpaid/partial with balance > 0)
+  const availableBills = useMemo(() => {
+    return realBills
+      .filter((b) => b.status !== 'Paid' && b.totalDue > 0)
+      .map((b) => ({
+        billNo: b.billNumber,
+        business: b.entityName,
+        totalAmount: b.totalDue,
+        balance: b.totalDue - (b.status === 'Partial' ? b.amount : 0),
+      }));
+  }, [realBills]);
+
   const autoFill = useMemo(() => {
-    const bill = mockBills.find((b) => b.billNo === selectedBill);
+    const bill = availableBills.find((b) => b.billNo === selectedBill);
     if (!bill) return { business: '', balance: 0, totalAmount: 0 };
     return { business: bill.business, balance: bill.balance, totalAmount: bill.totalAmount };
-  }, [selectedBill]);
+  }, [selectedBill, availableBills]);
 
   // ─── Filtering ───────────────────────────────────────────────────────────
 
@@ -133,7 +160,7 @@ export function PaymentsPage() {
   const totalPayments = payments.length;
   const totalCollected = payments.reduce((sum, p) => sum + p.amount, 0);
   const todayPayments = payments
-    .filter((p) => p.date === '2024-12-15')
+    .filter((p) => p.date === new Date().toISOString().split('T')[0])
     .reduce((sum, p) => sum + p.amount, 0);
   const totalPending = payments.reduce((sum, p) => sum + p.balance, 0);
 
@@ -154,25 +181,42 @@ export function PaymentsPage() {
   const handleSave = () => {
     if (!selectedBill || !payAmount) return;
 
-    const bill = mockBills.find((b) => b.billNo === selectedBill);
+    const bill = availableBills.find((b) => b.billNo === selectedBill);
     if (!bill) return;
+    const paidAmount = parseFloat(payAmount) || 0;
+    const isFull = paidAmount >= bill.balance;
+    const newBalance = isFull ? 0 : bill.balance - paidAmount;
 
     const newPayment: Payment = {
       id: String(Date.now()),
-      receiptNo: `RCP-2024-${String(payments.length + 1).padStart(4, '0')}`,
+      receiptNo: `RCP-${new Date().getFullYear()}-${String(payments.length + 1).padStart(4, '0')}`,
       billNo: selectedBill,
       business: bill.business,
-      amount: parseFloat(payAmount) || 0,
-      balance: parseFloat(payAmount) >= bill.totalAmount ? 0 : bill.balance - (parseFloat(payAmount) || 0),
+      amount: paidAmount,
+      balance: newBalance,
       date: new Date().toISOString().split('T')[0],
       collector: payCollector || 'System',
       method: payMethod,
-      status: parseFloat(payAmount) >= bill.totalAmount ? 'Full' : 'Partial',
+      status: isFull ? 'Full' : 'Partial',
       reference: payReference,
       remarks: payRemarks,
     };
 
     setPayments([newPayment, ...payments]);
+
+    // Update the bill status in billing
+    setRealBills((prev) =>
+      prev.map((b) => {
+        if (b.billNumber !== selectedBill) return b;
+        const newTotalPaid = (b.status === 'Partial' ? b.amount : 0) + paidAmount;
+        return {
+          ...b,
+          amount: newTotalPaid,
+          status: (isFull ? 'Paid' : 'Partial') as RealBill['status'],
+        };
+      })
+    );
+
     closeModal();
   };
 
@@ -659,11 +703,15 @@ export function PaymentsPage() {
                     className="w-full appearance-none rounded-lg border border-gray-300 py-2.5 pl-3 pr-9 text-sm text-gray-900 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none transition cursor-pointer"
                   >
                     <option value="">Select a bill…</option>
-                    {mockBills.map((b) => (
-                      <option key={b.billNo} value={b.billNo}>
-                        {b.billNo} — {b.business} ({formatCurrency(b.balance)} due)
-                      </option>
-                    ))}
+                    {availableBills.length === 0 ? (
+                      <option value="" disabled>No unpaid bills available</option>
+                    ) : (
+                      availableBills.map((b) => (
+                        <option key={b.billNo} value={b.billNo}>
+                          {b.billNo} — {b.business} ({formatCurrency(b.balance)} due)
+                        </option>
+                      ))
+                    )}
                   </select>
                   <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                 </div>
