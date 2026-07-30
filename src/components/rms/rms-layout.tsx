@@ -71,6 +71,7 @@ const PAGE_TITLES: Record<RMSPage, string> = {
   rates: 'Rate Configuration',
   billing: 'Billing',
   payments: 'Payments',
+  'payment-history': 'Payment History',
   receipts: 'Receipts',
   reports: 'Reports',
   users: 'User Management',
@@ -256,7 +257,7 @@ function SidebarContent({
 
 export function RmsLayout({ children }: { children: React.ReactNode }) {
   const isMobile = useIsMobile();
-  const { rmsPage, setRMSPage, logout } = useAppStore();
+  const { rmsPage, setRMSPage, logout, currentUser } = useAppStore();
 
   // Local state: sidebar collapsed (desktop only)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -297,7 +298,9 @@ export function RmsLayout({ children }: { children: React.ReactNode }) {
             </Button>
             <Avatar className='h-8 w-8'>
               <AvatarImage src='' alt='User avatar' />
-              <AvatarFallback className='text-xs'>AD</AvatarFallback>
+              <AvatarFallback className='text-xs'>
+                {currentUser ? `${currentUser.firstName[0]}${currentUser.lastName[0]}` : 'AD'}
+              </AvatarFallback>
             </Avatar>
           </div>
         </header>
@@ -380,10 +383,12 @@ export function RmsLayout({ children }: { children: React.ReactNode }) {
             <div className='flex items-center gap-2'>
               <Avatar className='h-8 w-8'>
                 <AvatarImage src='' alt='User avatar' />
-                <AvatarFallback className='text-xs'>AD</AvatarFallback>
+                <AvatarFallback className='text-xs'>
+                  {currentUser ? `${currentUser.firstName[0]}${currentUser.lastName[0]}` : 'AD'}
+                </AvatarFallback>
               </Avatar>
               <span className='text-sm font-medium text-foreground hidden lg:inline'>
-                Admin User
+                {currentUser ? `${currentUser.firstName} ${currentUser.lastName}` : 'Admin User'}
               </span>
               <Button
                 variant='ghost'

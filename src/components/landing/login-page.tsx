@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
-import { useAppStore } from '@/stores/app-store';
+import { useAppStore, type AppUser } from '@/stores/app-store';
 import { ParticleBackground } from './particle-background';
 import { ThemeToggle } from './theme-toggle';
 import {
@@ -15,11 +15,34 @@ import {
   Loader2,
   AlertCircle,
   Shield,
+  UserX,
 } from 'lucide-react';
 
-const VALID_USERS = [
-  { username: 'admin', password: 'admin123', name: 'System Administrator', role: 'Admin' },
-];
+const USERS_STORAGE_KEY = 'rms-users';
+
+interface StoredUser {
+  id: string;
+  staffId: string;
+  username: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  status: string;
+  accessiblePages: string[];
+}
+
+function loadStoredUsers(): StoredUser[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(USERS_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch { /* ignore */ }
+  return [];
+}
 
 export function LoginPage() {
   const { resolvedTheme } = useTheme();
@@ -48,12 +71,36 @@ export function LoginPage() {
 
     // Simulate authentication delay
     setTimeout(() => {
-      const user = VALID_USERS.find(
+      // Try to find the user in stored users first
+      const storedUsers = loadStoredUsers();
+      const matched = storedUsers.find(
         (u) => u.username === username.trim() && u.password === password
       );
 
-      if (user) {
-        loginSuccess();
+      if (matched) {
+        // Check if user is suspended
+        if (matched.status === 'Suspended') {
+          setError('Your account has been suspended. Contact the administrator.');
+          setLoading(false);
+          return;
+        }
+        // Check if user is inactive
+        if (matched.status === 'Inactive') {
+          setError('Your account is inactive. Contact the administrator to activate it.');
+          setLoading(false);
+          return;
+        }
+
+        // Login with the user's stored permissions
+        const appUser: AppUser = {
+          id: matched.id,
+          staffId: matched.staffId,
+          firstName: matched.firstName,
+          lastName: matched.lastName,
+          role: matched.role,
+          accessiblePages: (matched.accessiblePages || []) as AppUser['accessiblePages'],
+        };
+        loginSuccess(appUser);
       } else {
         setError('Invalid username or password. Please try again.');
         setLoading(false);
@@ -199,7 +246,11 @@ export function LoginPage() {
                     exit={{ opacity: 0, y: -10, height: 0 }}
                     className="flex items-start gap-2.5 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40"
                   >
-                    <AlertCircle className="w-4 h-4 text-red-500 dark:text-red-400 mt-0.5 shrink-0" />
+                    {error.includes('suspended') || error.includes('inactive') ? (
+                      <UserX className="w-4 h-4 text-red-500 dark:text-red-400 mt-0.5 shrink-0" />
+                    ) : (
+                      <AlertCircle className="w-4 h-4 text-red-500 dark:text-red-400 mt-0.5 shrink-0" />
+                    )}
                     <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
                   </motion.div>
                 )}

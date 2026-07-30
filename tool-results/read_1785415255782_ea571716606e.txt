@@ -1,0 +1,474 @@
+   290→            <p className="text-sm text-slate-500 dark:text-slate-400">Suspended</p>
+   291→            <p className="text-xl font-bold text-slate-900 dark:text-white">{suspendedCount}</p>
+   292→          </div>
+   293→        </div>
+   294→      </div>
+   295→
+   296→      {/* Table Card */}
+   297→      <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden">
+   298→        {/* Toolbar */}
+   299→        <div className="p-4 border-b border-slate-200 dark:border-slate-700 space-y-3">
+   300→          <div className="flex flex-col sm:flex-row gap-3">
+   301→            <div className="relative flex-1">
+   302→              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+   303→              <input
+   304→                type="text"
+   305→                placeholder="Search by name, staff ID, email, or zone..."
+   306→                value={search}
+   307→                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+   308→                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-4 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-shadow"
+   309→              />
+   310→            </div>
+   311→            <button
+   312→              onClick={() => setShowFilters((v) => !v)}
+   313→              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+   314→            >
+   315→              <Filter className="w-4 h-4" />
+   316→              Filters
+   317→            </button>
+   318→          </div>
+   319→
+   320→          {showFilters && (
+   321→            <div className="flex flex-wrap gap-3">
+   322→              <select
+   323→                value={roleFilter}
+   324→                onChange={(e) => { setRoleFilter(e.target.value as 'All' | UserRole); setPage(1); }}
+   325→                className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   326→              >
+   327→                <option value="All">All Roles</option>
+   328→                <option value="Administrator">Administrator</option>
+   329→                <option value="Revenue Officer">Revenue Officer</option>
+   330→                <option value="Field Collector">Field Collector</option>
+   331→                <option value="Auditor">Auditor</option>
+   332→                <option value="Finance Manager">Finance Manager</option>
+   333→              </select>
+   334→              <select
+   335→                value={statusFilter}
+   336→                onChange={(e) => { setStatusFilter(e.target.value as 'All' | UserStatus); setPage(1); }}
+   337→                className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   338→              >
+   339→                <option value="All">All Statuses</option>
+   340→                <option value="Active">Active</option>
+   341→                <option value="Inactive">Inactive</option>
+   342→                <option value="Suspended">Suspended</option>
+   343→              </select>
+   344→            </div>
+   345→          )}
+   346→        </div>
+   347→
+   348→        {/* Table */}
+   349→        <div className="overflow-x-auto max-h-96 overflow-y-auto">
+   350→          <table className="w-full text-left">
+   351→            <thead className="bg-slate-50 dark:bg-slate-900/50 sticky top-0 z-10">
+   352→              <tr className="border-b border-slate-200 dark:border-slate-700">
+   353→                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Staff ID</th>
+   354→                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Name</th>
+   355→                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Role</th>
+   356→                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Zone / Ward</th>
+   357→                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Status</th>
+   358→                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Last Login</th>
+   359→                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3 text-center">Actions</th>
+   360→              </tr>
+   361→            </thead>
+   362→            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
+   363→              {paginated.length === 0 ? (
+   364→                <tr>
+   365→                  <td colSpan={7} className="text-center py-12 text-sm text-slate-400 dark:text-slate-500">
+   366→                    No users found matching your criteria.
+   367→                  </td>
+   368→                </tr>
+   369→              ) : (
+   370→                paginated.map((u) => {
+   371→                  const StatusIcon = statusConfig[u.status].icon;
+   372→                  return (
+   373→                    <tr key={u.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+   374→                      <td className="px-4 py-3 text-sm font-mono text-slate-900 dark:text-white">{u.staffId}</td>
+   375→                      <td className="px-4 py-3">
+   376→                        <div className="flex items-center gap-2.5">
+   377→                          <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-700 dark:text-emerald-400 text-xs font-bold shrink-0">
+   378→                            {u.firstName[0]}{u.lastName[0]}
+   379→                          </div>
+   380→                          <div>
+   381→                            <p className="text-sm font-medium text-slate-900 dark:text-white">{u.firstName} {u.lastName}</p>
+   382→                            <p className="text-xs text-slate-500 dark:text-slate-400">{u.email}</p>
+   383→                          </div>
+   384→                        </div>
+   385→                      </td>
+   386→                      <td className="px-4 py-3">
+   387→                        <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${roleIcon[u.role]}`}>
+   388→                          {u.role}
+   389→                        </span>
+   390→                      </td>
+   391→                      <td className="px-4 py-3">
+   392→                        <p className="text-sm text-slate-700 dark:text-slate-300">{u.zone}</p>
+   393→                        <p className="text-xs text-slate-400 dark:text-slate-500">{u.ward}</p>
+   394→                      </td>
+   395→                      <td className="px-4 py-3">
+   396→                        <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${statusConfig[u.status].pill}`}>
+   397→                          <StatusIcon className="w-3 h-3" />
+   398→                          {u.status}
+   399→                        </span>
+   400→                      </td>
+   401→                      <td className="px-4 py-3">
+   402→                        <div className="text-sm text-slate-600 dark:text-slate-400">{u.lastLogin.split(' ')[0]}</div>
+   403→                        <div className="text-xs text-slate-400 dark:text-slate-500">{u.lastLogin.split(' ')[1]}</div>
+   404→                      </td>
+   405→                      <td className="px-4 py-3">
+   406→                        <div className="flex items-center justify-center gap-1">
+   407→                          <button
+   408→                            onClick={() => setViewUser(u)}
+   409→                            className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+   410→                            title="View user"
+   411→                          >
+   412→                            <Eye className="w-4 h-4" />
+   413→                          </button>
+   414→                          <button
+   415→                            onClick={() => openEdit(u)}
+   416→                            className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+   417→                            title="Edit user"
+   418→                          >
+   419→                            <Pencil className="w-4 h-4" />
+   420→                          </button>
+   421→                          <button
+   422→                            onClick={() => toggleStatus(u.id)}
+   423→                            className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+   424→                            title={u.status === 'Active' ? 'Deactivate' : 'Activate'}
+   425→                          >
+   426→                            <Shield className="w-4 h-4" />
+   427→                          </button>
+   428→                          <button
+   429→                            onClick={() => handleDelete(u.id)}
+   430→                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+   431→                            title="Delete user"
+   432→                          >
+   433→                            <Trash2 className="w-4 h-4" />
+   434→                          </button>
+   435→                        </div>
+   436→                      </td>
+   437→                    </tr>
+   438→                  );
+   439→                })
+   440→              )}
+   441→            </tbody>
+   442→          </table>
+   443→        </div>
+   444→
+   445→        {/* Pagination */}
+   446→        <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 dark:border-slate-700">
+   447→          <p className="text-sm text-slate-500 dark:text-slate-400">
+   448→            Showing {paginated.length} of {filtered.length} users
+   449→          </p>
+   450→          <div className="flex items-center gap-1">
+   451→            <button
+   452→              onClick={() => setPage((p) => Math.max(1, p - 1))}
+   453→              disabled={page === 1}
+   454→              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+   455→            >
+   456→              <ChevronLeft className="w-4 h-4" />
+   457→            </button>
+   458→            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+   459→              <button
+   460→                key={p}
+   461→                onClick={() => setPage(p)}
+   462→                className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
+   463→                  p === page
+   464→                    ? 'bg-emerald-600 text-white'
+   465→                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
+   466→                }`}
+   467→              >
+   468→                {p}
+   469→              </button>
+   470→            ))}
+   471→            <button
+   472→              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+   473→              disabled={page === totalPages}
+   474→              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+   475→            >
+   476→              <ChevronRight className="w-4 h-4" />
+   477→            </button>
+   478→          </div>
+   479→        </div>
+   480→      </div>
+   481→
+   482→      {/* Add/Edit Modal */}
+   483→      {(showAddModal || editUser) && (
+   484→        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+   485→          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => { setShowAddModal(false); setEditUser(null); setForm(emptyForm); }} />
+   486→          <div className="relative bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xl w-full max-w-md">
+   487→            {/* Modal Header */}
+   488→            <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-700">
+   489→              <div className="flex items-center gap-3">
+   490→                <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
+   491→                  <UserCog className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+   492→                </div>
+   493→                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+   494→                  {editUser ? 'Edit User' : 'Add New User'}
+   495→                </h2>
+   496→              </div>
+   497→              <button
+   498→                onClick={() => { setShowAddModal(false); setEditUser(null); setForm(emptyForm); }}
+   499→                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+   500→              >
+   501→                <X className="w-5 h-5" />
+   502→              </button>
+   503→            </div>
+   504→
+   505→            {/* Modal Body */}
+   506→            <div className="p-5 space-y-4">
+   507→              <div className="grid grid-cols-2 gap-4">
+   508→                <div>
+   509→                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">First Name</label>
+   510→                  <input
+   511→                    type="text"
+   512→                    value={form.firstName}
+   513→                    onChange={(e) => updateForm('firstName', e.target.value)}
+   514→                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   515→                    placeholder="Kwame"
+   516→                  />
+   517→                </div>
+   518→                <div>
+   519→                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Last Name</label>
+   520→                  <input
+   521→                    type="text"
+   522→                    value={form.lastName}
+   523→                    onChange={(e) => updateForm('lastName', e.target.value)}
+   524→                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   525→                    placeholder="Mensah"
+   526→                  />
+   527→                </div>
+   528→              </div>
+   529→              <div>
+   530→                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email</label>
+   531→                <input
+   532→                  type="email"
+   533→                  value={form.email}
+   534→                  onChange={(e) => updateForm('email', e.target.value)}
+   535→                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   536→                  placeholder="kwame.mensah@kma.gov.gh"
+   537→                />
+   538→              </div>
+   539→              <div>
+   540→                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Phone</label>
+   541→                <input
+   542→                  type="tel"
+   543→                  value={form.phone}
+   544→                  onChange={(e) => updateForm('phone', e.target.value)}
+   545→                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   546→                  placeholder="+233 24 567 8901"
+   547→                />
+   548→              </div>
+   549→              <div className="grid grid-cols-2 gap-4">
+   550→                <div>
+   551→                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Role</label>
+   552→                  <select
+   553→                    value={form.role}
+   554→                    onChange={(e) => handleRoleChange(e.target.value as UserRole)}
+   555→                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   556→                  >
+   557→                    <option value="Field Collector">Field Collector</option>
+   558→                    <option value="Revenue Officer">Revenue Officer</option>
+   559→                    <option value="Auditor">Auditor</option>
+   560→                    <option value="Finance Manager">Finance Manager</option>
+   561→                    <option value="Administrator">Administrator</option>
+   562→                  </select>
+   563→                </div>
+   564→                <div>
+   565→                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Zone</label>
+   566→                  <select
+   567→                    value={form.zone}
+   568→                    onChange={(e) => updateForm('zone', e.target.value)}
+   569→                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   570→                  >
+   571→                    <option value="Zone A">Zone A</option>
+   572→                    <option value="Zone B">Zone B</option>
+   573→                    <option value="Zone C">Zone C</option>
+   574→                    <option value="Zone D">Zone D</option>
+   575→                  </select>
+   576→                </div>
+   577→              </div>
+   578→              <div>
+   579→                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Ward</label>
+   580→                <input
+   581→                  type="text"
+   582→                  value={form.ward}
+   583→                  onChange={(e) => updateForm('ward', e.target.value)}
+   584→                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   585→                  placeholder="Bantama"
+   586→                />
+   587→              </div>
+   588→              <div>
+   589→                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Ghana Card No.</label>
+   590→                <input
+   591→                  type="text"
+   592→                  value={form.ghanaCard}
+   593→                  onChange={(e) => updateForm('ghanaCard', e.target.value)}
+   594→                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   595→                  placeholder="GHA-123456789-0"
+   596→                />
+   597→              </div>
+   598→
+   599→              {/* ── Navigation Permissions ── */}
+   600→              <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+   601→                <div className="flex items-center justify-between mb-3">
+   602→                  <div className="flex items-center gap-2">
+   603→                    <LayoutGrid className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+   604→                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+   605→                      Navigation Access
+   606→                    </label>
+   607→                  </div>
+   608→                  <div className="flex items-center gap-2">
+   609→                    <button
+   610→                      type="button"
+   611→                      onClick={selectAllPages}
+   612→                      className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
+   613→                    >
+   614→                      Select All
+   615→                    </button>
+   616→                    <span className="text-slate-300 dark:text-slate-600">|</span>
+   617→                    <button
+   618→                      type="button"
+   619→                      onClick={deselectAllPages}
+   620→                      className="text-xs text-red-500 dark:text-red-400 hover:underline font-medium"
+   621→                    >
+   622→                      Clear All
+   623→                    </button>
+   624→                  </div>
+   625→                </div>
+   626→                <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+   627→                  Choose which pages this user can access. Defaults are set by role — customize as needed.
+   628→                </p>
+   629→                <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-700 p-2 bg-slate-50 dark:bg-slate-900/50">
+   630→                  {ALL_RMS_PAGES.map((p) => {
+   631→                    const isSelected = form.accessiblePages.includes(p.page);
+   632→                    return (
+   633→                      <button
+   634→                        key={p.page}
+   635→                        type="button"
+   636→                        onClick={() => togglePage(p.page)}
+   637→                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-left text-xs font-medium transition-all ${
+   638→                          isSelected
+   639→                            ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700'
+   640→                            : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-transparent hover:border-slate-300 dark:hover:border-slate-600'
+   641→                        }`}
+   642→                      >
+   643→                        <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${
+   644→                          isSelected
+   645→                            ? 'bg-emerald-600 border-emerald-600'
+   646→                            : 'border-slate-300 dark:border-slate-600'
+   647→                        }`}>
+   648→                          {isSelected && <Check className="w-3 h-3 text-white" />}
+   649→                        </div>
+   650→                        {p.label}
+   651→                      </button>
+   652→                    );
+   653→                  })}
+   654→                </div>
+   655→                <div className="mt-2 flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
+   656→                  <SquareStack className="w-3 h-3" />
+   657→                  {form.accessiblePages.length} of {ALL_PAGES.length} pages selected
+   658→                </div>
+   659→              </div>
+   660→            </div>
+   661→
+   662→            {/* Modal Footer */}
+   663→            <div className="flex items-center justify-end gap-2 p-5 border-t border-slate-200 dark:border-slate-700">
+   664→              <button
+   665→                onClick={() => { setShowAddModal(false); setEditUser(null); setForm(emptyForm); }}
+   666→                className="rounded-lg border border-slate-200 dark:border-slate-700 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+   667→              >
+   668→                Cancel
+   669→              </button>
+   670→              <button
+   671→                onClick={handleSave}
+   672→                disabled={!isValid}
+   673→                className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 text-sm font-medium transition-colors"
+   674→              >
+   675→                <Save className="w-4 h-4" />
+   676→                {editUser ? 'Update User' : 'Create User'}
+   677→              </button>
+   678→            </div>
+   679→          </div>
+   680→        </div>
+   681→      )}
+   682→
+   683→      {/* View User Modal */}
+   684→      {viewUser && (
+   685→        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+   686→          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setViewUser(null)} />
+   687→          <div className="relative bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xl w-full max-w-md">
+   688→            <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-700">
+   689→              <div className="flex items-center gap-3">
+   690→                <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-700 dark:text-emerald-400 text-sm font-bold">
+   691→                  {viewUser.firstName[0]}{viewUser.lastName[0]}
+   692→                </div>
+   693→                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{viewUser.firstName} {viewUser.lastName}</h2>
+   694→              </div>
+   695→              <button onClick={() => setViewUser(null)} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+   696→                <X className="w-5 h-5" />
+   697→              </button>
+   698→            </div>
+   699→            <div className="p-5 space-y-4">
+   700→              <div className="grid grid-cols-2 gap-4">
+   701→                <ViewField label="Staff ID" value={viewUser.staffId} />
+   702→                <ViewField label="Ghana Card" value={viewUser.ghanaCard} />
+   703→                <ViewField label="Role" value={viewUser.role} />
+   704→                <ViewField label="Status" value={viewUser.status} />
+   705→                <ViewField label="Zone" value={viewUser.zone} />
+   706→                <ViewField label="Ward" value={viewUser.ward} />
+   707→              </div>
+   708→              <div className="border-t border-slate-200 dark:border-slate-700 pt-4 space-y-3">
+   709→                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+   710→                  <Mail className="w-4 h-4" />{viewUser.email}
+   711→                </div>
+   712→                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+   713→                  <Phone className="w-4 h-4" />{viewUser.phone}
+   714→                </div>
+   715→                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+   716→                  <Clock className="w-4 h-4" />Last login: {viewUser.lastLogin}
+   717→                </div>
+   718→                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+   719→                  <MapPin className="w-4 h-4" />Created: {viewUser.dateCreated}
+   720→                </div>
+   721→              </div>
+   722→              {/* Accessible Pages */}
+   723→              <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+   724→                <p className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium mb-2">Accessible Navigation Pages</p>
+   725→                <div className="flex flex-wrap gap-1.5">
+   726→                  {ALL_RMS_PAGES.map((p) => {
+   727→                    const hasAccess = viewUser.accessiblePages?.includes(p.page);
+   728→                    return (
+   729→                      <span
+   730→                        key={p.page}
+   731→                        className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium ${
+   732→                          hasAccess
+   733→                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+   734→                            : 'bg-slate-100 text-slate-400 dark:bg-slate-700 dark:text-slate-500 line-through'
+   735→                        }`}
+   736→                      >
+   737→                        {p.label}
+   738→                      </span>
+   739→                    );
+   740→                  })}
+   741→                </div>
+   742→              </div>
+   743→            </div>
+   744→          </div>
+   745→        </div>
+   746→      )}
+   747→    </div>
+   748→  );
+   749→}
+   750→
+   751→// ─── Sub-components ────────────────────────────────────────────────────────────
+   752→
+   753→function ViewField({ label, value }: { label: string; value: string }) {
+   754→  return (
+   755→    <div>
+   756→      <p className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">{label}</p>
+   757→      <p className="text-sm font-medium text-slate-900 dark:text-white">{value}</p>
+   758→    </div>
+   759→  );
+   760→}
+   761→
+   762→export { UsersPage };
+   763→

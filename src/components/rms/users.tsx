@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   Search,
   Plus,
@@ -24,6 +24,9 @@ import {
   LayoutGrid,
   Check,
   SquareStack,
+  LogIn,
+  KeyRound,
+  UserCircle,
 } from 'lucide-react';
 import { ALL_RMS_PAGES, useAppStore, type RMSPage } from '@/stores/app-store';
 
@@ -35,6 +38,8 @@ type UserStatus = 'Active' | 'Inactive' | 'Suspended';
 interface User {
   id: string;
   staffId: string;
+  username: string;
+  password: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -50,6 +55,8 @@ interface User {
 }
 
 interface UserFormData {
+  username: string;
+  password: string;
   firstName: string;
   lastName: string;
   email: string;
@@ -88,6 +95,8 @@ const ROLE_DEFAULT_PAGES: Record<UserRole, RMSPage[]> = {
 };
 
 const emptyForm: UserFormData = {
+  username: '',
+  password: '',
   firstName: '',
   lastName: '',
   email: '',
@@ -101,16 +110,50 @@ const emptyForm: UserFormData = {
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
-const initialUsers: User[] = [
-  { id: 'USR-001', staffId: 'STF-001', firstName: 'System', lastName: 'Administrator', email: 'admin@kma.gov.gh', phone: '', role: 'Administrator', zone: 'Zone A', ward: 'Bantama', status: 'Active', lastLogin: new Date().toISOString().split('T')[0], dateCreated: new Date().toISOString().split('T')[0], ghanaCard: '', accessiblePages: ALL_PAGES },
+const USERS_STORAGE_KEY = 'rms-users';
+
+const defaultUsers: User[] = [
+  { id: 'USR-001', staffId: 'STF-001', username: 'admin', password: 'admin123', firstName: 'System', lastName: 'Administrator', email: 'admin@kma.gov.gh', phone: '', role: 'Administrator', zone: 'Zone A', ward: 'Bantama', status: 'Active', lastLogin: new Date().toISOString().split('T')[0], dateCreated: new Date().toISOString().split('T')[0], ghanaCard: '', accessiblePages: ALL_PAGES },
 ];
+
+function loadUsers(): User[] {
+  if (typeof window === 'undefined') return defaultUsers;
+  try {
+    const stored = localStorage.getItem(USERS_STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch { /* ignore */ }
+  return defaultUsers;
+}
+
+function saveUsers(users: User[]) {
+  if (typeof window === 'undefined') return;
+  try { localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users)); } catch { /* ignore */ }
+}
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 const ITEMS_PER_PAGE = 8;
 
 export function UsersPage() {
-  const [users, setUsers] = useState<User[]>(initialUsers);
+  const [users, setUsers] = useState<User[]>(defaultUsers);
+  const loginSuccess = useAppStore((s) => s.loginSuccess);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    setUsers(loadUsers());
+  }, []);
+
+  // Persist to localStorage on every change
+  const updateUsers = useCallback((updater: (prev: User[]) => User[]) => {
+    setUsers((prev) => {
+      const next = updater(prev);
+      saveUsers(next);
+      return next;
+    });
+  }, []);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<'All' | UserRole>('All');
   const [statusFilter, setStatusFilter] = useState<'All' | UserStatus>('All');
@@ -151,6 +194,8 @@ export function UsersPage() {
 
   const openEdit = (user: User) => {
     setForm({
+      username: user.username || '',
+      password: '', // leave blank so admin can optionally reset
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
@@ -187,10 +232,10 @@ export function UsersPage() {
 
   const handleSave = () => {
     if (editUser) {
-      setUsers((prev) =>
+      updateUsers((prev) =>
         prev.map((u) =>
           u.id === editUser.id
-            ? { ...u, ...form }
+            ? { ...u, ...form, password: form.password || u.password } // keep old password if blank
             : u
         )
       );
@@ -204,18 +249,18 @@ export function UsersPage() {
         lastLogin: 'Never',
         dateCreated: new Date().toISOString().slice(0, 10),
       };
-      setUsers((prev) => [newUser, ...prev]);
+      updateUsers((prev) => [newUser, ...prev]);
       setShowAddModal(false);
     }
     setForm(emptyForm);
   };
 
   const handleDelete = (id: string) => {
-    setUsers((prev) => prev.filter((u) => u.id !== id));
+    updateUsers((prev) => prev.filter((u) => u.id !== id));
   };
 
   const toggleStatus = (id: string) => {
-    setUsers((prev) =>
+    updateUsers((prev) =>
       prev.map((u) =>
         u.id === id
           ? { ...u, status: u.status === 'Active' ? 'Inactive' : 'Active' }
@@ -224,11 +269,32 @@ export function UsersPage() {
     );
   };
 
+  const handleLoginAs = (user: User) => {
+    if (user.status === 'Suspended') return;
+    // Update last login
+    const now = new Date();
+    const lastLogin = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 8);
+    updateUsers((prev) =>
+      prev.map((u) => (u.id === user.id ? { ...u, lastLogin } : u))
+    );
+    // Login as this user with their exact permissions
+    loginSuccess({
+      id: user.id,
+      staffId: user.staffId,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+      accessiblePages: user.accessiblePages,
+    });
+  };
+
   const updateForm = (field: keyof UserFormData, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const isValid =
+    form.username.trim() !== '' &&
+    (editUser || form.password.trim() !== '') &&
     form.firstName.trim() !== '' &&
     form.lastName.trim() !== '' &&
     form.email.trim() !== '' &&
@@ -350,7 +416,7 @@ export function UsersPage() {
           <table className="w-full text-left">
             <thead className="bg-slate-50 dark:bg-slate-900/50 sticky top-0 z-10">
               <tr className="border-b border-slate-200 dark:border-slate-700">
-                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Staff ID</th>
+                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Username</th>
                 <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Name</th>
                 <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Role</th>
                 <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Zone / Ward</th>
@@ -371,7 +437,7 @@ export function UsersPage() {
                   const StatusIcon = statusConfig[u.status].icon;
                   return (
                     <tr key={u.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                      <td className="px-4 py-3 text-sm font-mono text-slate-900 dark:text-white">{u.staffId}</td>
+                      <td className="px-4 py-3 text-sm font-mono text-slate-900 dark:text-white">{u.username}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
                           <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-700 dark:text-emerald-400 text-xs font-bold shrink-0">
@@ -420,10 +486,18 @@ export function UsersPage() {
                           </button>
                           <button
                             onClick={() => toggleStatus(u.id)}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+                            className={`p-1.5 rounded-lg transition-colors ${u.status === 'Active' ? 'text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20' : 'text-amber-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20'}`}
                             title={u.status === 'Active' ? 'Deactivate' : 'Activate'}
                           >
                             <Shield className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleLoginAs(u)}
+                            className={`p-1.5 rounded-lg transition-colors ${u.status === 'Suspended' ? 'text-slate-300 dark:text-slate-600 cursor-not-allowed' : 'text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'}`}
+                            title={u.status === 'Suspended' ? 'User is suspended' : `Login as ${u.firstName} ${u.lastName}`}
+                            disabled={u.status === 'Suspended'}
+                          >
+                            <LogIn className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDelete(u.id)}
@@ -504,6 +578,38 @@ export function UsersPage() {
 
             {/* Modal Body */}
             <div className="p-5 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Username</label>
+                  <div className="relative">
+                    <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="text"
+                      value={form.username}
+                      onChange={(e) => updateForm('username', e.target.value)}
+                      className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-9 pr-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      placeholder="e.g. kmensah"
+                      autoComplete="off"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Password {editUser && <span className="text-slate-400 font-normal">(leave blank to keep)</span>}
+                  </label>
+                  <div className="relative">
+                    <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="text"
+                      value={form.password}
+                      onChange={(e) => updateForm('password', e.target.value)}
+                      className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-9 pr-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                      placeholder={editUser ? '********' : 'Set login password'}
+                      autoComplete="new-password"
+                    />
+                  </div>
+                </div>
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">First Name</label>
@@ -698,6 +804,7 @@ export function UsersPage() {
             </div>
             <div className="p-5 space-y-4">
               <div className="grid grid-cols-2 gap-4">
+                <ViewField label="Username" value={viewUser.username} />
                 <ViewField label="Staff ID" value={viewUser.staffId} />
                 <ViewField label="Ghana Card" value={viewUser.ghanaCard} />
                 <ViewField label="Role" value={viewUser.role} />
@@ -740,6 +847,22 @@ export function UsersPage() {
                   })}
                 </div>
               </div>
+
+              {/* Login As Button */}
+              {viewUser.status !== 'Suspended' && (
+                <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+                  <button
+                    onClick={() => { handleLoginAs(viewUser); setViewUser(null); }}
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 text-sm font-medium transition-colors"
+                  >
+                    <LogIn className="w-4 h-4" />
+                    Login as {viewUser.firstName} {viewUser.lastName}
+                  </button>
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-2 text-center">
+                    Switch to this user's session with their exact navigation permissions
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -758,5 +881,3 @@ function ViewField({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
-
-export { UsersPage };
