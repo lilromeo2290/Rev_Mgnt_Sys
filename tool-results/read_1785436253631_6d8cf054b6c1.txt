@@ -1,0 +1,1250 @@
+     1→'use client';
+     2→
+     3→import { useState, useMemo, useEffect, useRef } from 'react';
+     4→import {
+     5→  Search,
+     6→  Plus,
+     7→  ChevronLeft,
+     8→  ChevronRight,
+     9→  Eye,
+    10→  Printer,
+    11→  XCircle,
+    12→  FileText,
+    13→  Zap,
+    14→  DollarSign,
+    15→  AlertTriangle,
+    16→  Clock,
+    17→  X,
+    18→  Save,
+    19→  CheckCircle2,
+    20→  Copy,
+    21→  ScanBarcode,
+    22→} from 'lucide-react';
+    23→import JsBarcode from 'jsbarcode';
+    24→import { encodeBarcodeData, getVerificationUrl } from '@/lib/barcode-utils';
+    25→
+    26→// ─── Types ───────────────────────────────────────────────────────────────────
+    27→
+    28→interface Bill {
+    29→  id: string;
+    30→  billNumber: string;
+    31→  date: string;
+    32→  entityName: string;
+    33→  entityType: 'Business' | 'Property';
+    34→  category: string;
+    35→  revenueItem: string;
+    36→  amount: number;
+    37→  previousBalance: number;
+    38→  penalty: number;
+    39→  totalDue: number;
+    40→  status: 'Paid' | 'Partial' | 'Unpaid' | 'Overdue';
+    41→  dueDate: string;
+    42→}
+    43→
+    44→interface BillFormData {
+    45→  entityName: string;
+    46→  entityType: 'Business' | 'Property';
+    47→  revenueItem: string;
+    48→  amount: number;
+    49→  previousBalance: number;
+    50→  penalty: number;
+    51→  dueDate: string;
+    52→}
+    53→
+    54→// ─── Mock Data ───────────────────────────────────────────────────────────────
+    55→
+    56→const REVENUE_ITEMS = [
+    57→  'Business Operating Permit',
+    58→  'Property Rate',
+    59→  'Market Toll',
+    60→  'Signage Fees',
+    61→  'Building Permit Fees',
+    62→  'Environmental Fees',
+    63→  'Liquor License',
+    64→  'Food Vendor Permit',
+    65→  'Advertising Levy',
+    66→  'Development Levy',
+    67→  'Sanitation Fees',
+    68→  'Fire Safety Cert',
+    69→];
+    70→
+    71→const RATE_AMOUNTS: Record<string, number> = {
+    72→  'Business Operating Permit': 300,
+    73→  'Property Rate': 600,
+    74→  'Market Toll': 50,
+    75→  'Signage Fees': 100,
+    76→  'Building Permit Fees': 500,
+    77→  'Environmental Fees': 75,
+    78→  'Liquor License': 200,
+    79→  'Food Vendor Permit': 80,
+    80→  'Advertising Levy': 300,
+    81→  'Development Levy': 150,
+    82→  'Sanitation Fees': 60,
+    83→  'Fire Safety Cert': 350,
+    84→};
+    85→
+    86→const ENTITIES: { id: string; name: string; type: string; category?: string }[] = [];
+    87→
+    88→const initialBills: Bill[] = [];
+    89→
+    90→// ─── Helpers ─────────────────────────────────────────────────────────────────
+    91→
+    92→function formatCurrency(amount: number): string {
+    93→  return `GH₵ ${amount.toLocaleString(undefined, { minimumFractionDigits: amount % 1 === 0 ? 0 : 2, maximumFractionDigits: 2 })}`;
+    94→}
+    95→
+    96→// ─── Component ───────────────────────────────────────────────────────────────
+    97→
+    98→export function BillingPage() {
+    99→  const [bills, setBills] = useState<Bill[]>(initialBills);
+   100→  const [searchQuery, setSearchQuery] = useState('');
+   101→  const [statusFilter, setStatusFilter] = useState<string>('All');
+   102→  const [categoryFilter, setCategoryFilter] = useState<string>('All');
+   103→  const [revenueAreaFilter, setRevenueAreaFilter] = useState<string>('All');
+   104→  const [dateFrom, setDateFrom] = useState('');
+   105→  const [dateTo, setDateTo] = useState('');
+   106→  const [currentPage, setCurrentPage] = useState(1);
+   107→  const [showModal, setShowModal] = useState(false);
+   108→  const [showBulkModal, setShowBulkModal] = useState(false);
+   109→  const [bulkForm, setBulkForm] = useState({
+   110→    entityType: 'All' as 'All' | 'Business' | 'Property',
+   111→    category: 'All',
+   112→    revenueItem: '',
+   113→    dueDate: '',
+   114→  });
+   115→  const [viewingBill, setViewingBill] = useState<Bill | null>(null);
+   116→  const [bulkProgress, setBulkProgress] = useState<'idle' | 'generating' | 'done'>('idle');
+   117→  const [bulkGeneratedCount, setBulkGeneratedCount] = useState(0);
+   118→  const itemsPerPage = 8;
+   119→
+   120→  // ── Form data ───────────────────────────────────────────────────────────
+   121→
+   122→  const [formData, setFormData] = useState<BillFormData>({
+   123→    entityName: '',
+   124→    entityType: 'Business',
+   125→    revenueItem: '',
+   126→    amount: 0,
+   127→    previousBalance: 0,
+   128→    penalty: 0,
+   129→    dueDate: '',
+   130→  });
+   131→
+   132→  // ── Filtering ───────────────────────────────────────────────────────────
+   133→
+   134→  const filtered = useMemo(() => {
+   135→    return bills.filter((b) => {
+   136→      const matchSearch =
+   137→        searchQuery === '' ||
+   138→        b.entityName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+   139→        b.billNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+   140→        b.revenueItem.toLowerCase().includes(searchQuery.toLowerCase());
+   141→      const matchStatus =
+   142→        statusFilter === 'All' || b.status === statusFilter;
+   143→      const matchCategory =
+   144→        categoryFilter === 'All' || b.category === categoryFilter;
+   145→      const matchRevenueArea =
+   146→        revenueAreaFilter === 'All' ||
+   147→        (b.entityType === revenueAreaFilter);
+   148→      const matchDateFrom =
+   149→        dateFrom === '' || b.date >= dateFrom;
+   150→      const matchDateTo =
+   151→        dateTo === '' || b.date <= dateTo;
+   152→      return matchSearch && matchStatus && matchCategory && matchRevenueArea && matchDateFrom && matchDateTo;
+   153→    });
+   154→  }, [bills, searchQuery, statusFilter, categoryFilter, revenueAreaFilter, dateFrom, dateTo]);
+   155→
+   156→  // ── Pagination ──────────────────────────────────────────────────────────
+   157→
+   158→  const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+   159→  const safeCurrentPage = Math.min(currentPage, totalPages);
+   160→  const startIdx = (safeCurrentPage - 1) * itemsPerPage;
+   161→  const paged = filtered.slice(startIdx, startIdx + itemsPerPage);
+   162→  const showingFrom = filtered.length === 0 ? 0 : startIdx + 1;
+   163→  const showingTo = Math.min(startIdx + itemsPerPage, filtered.length);
+   164→
+   165→  // ── Status badge ───────────────────────────────────────────────────────
+   166→
+   167→  const StatusBadge = ({ status }: { status: Bill['status'] }) => {
+   168→    const styles: Record<Bill['status'], string> = {
+   169→      Paid: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400',
+   170→      Partial: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400',
+   171→      Unpaid: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400',
+   172→      Overdue: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400',
+   173→    };
+   174→    return (
+   175→      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold ${styles[status]}`}>
+   176→        {status === 'Overdue' && (
+   177→          <span className="relative flex h-2 w-2">
+   178→            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+   179→            <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+   180→          </span>
+   181→        )}
+   182→        {status}
+   183→      </span>
+   184→    );
+   185→  };
+   186→
+   187→  // ── Stats ──────────────────────────────────────────────────────────────
+   188→
+   189→  const stats = useMemo(() => {
+   190→    const totalBilled = bills.reduce((sum, b) => sum + b.totalDue, 0);
+   191→    const paid = bills
+   192→      .filter((b) => b.status === 'Paid')
+   193→      .reduce((sum, b) => sum + b.totalDue, 0);
+   194→    const outstanding = totalBilled - paid;
+   195→    const overdue = bills
+   196→      .filter((b) => b.status === 'Overdue')
+   197→      .reduce((sum, b) => sum + b.totalDue, 0);
+   198→    return {
+   199→      total: bills.length,
+   200→      totalBilled,
+   201→      outstanding,
+   202→      overdue,
+   203→    };
+   204→  }, [bills]);
+   205→
+   206→  // ── Auto-fill amount when revenue item changes ──────────────────────────
+   207→
+   208→  const handleRevenueItemChange = (item: string) => {
+   209→    const amount = RATE_AMOUNTS[item] || 0;
+   210→    const penalty = Math.round(amount * 0.05 * 100) / 100;
+   211→    setFormData((p) => ({
+   212→      ...p,
+   213→      revenueItem: item,
+   214→      amount,
+   215→      penalty,
+   216→    }));
+   217→  };
+   218→
+   219→  // ── Generate bill ──────────────────────────────────────────────────────
+   220→
+   221→  const handleGenerateBill = () => {
+   222→    if (!formData.entityName || !formData.revenueItem || formData.amount <= 0) return;
+   223→
+   224→    const newBillNumber = `BILL-2024-${String(bills.length + 156).padStart(4, '0')}`;
+   225→    const totalDue = formData.amount + formData.previousBalance + formData.penalty;
+   226→
+   227→    const newBill: Bill = {
+   228→      id: String(bills.length + 1),
+   229→      billNumber: newBillNumber,
+   230→      date: new Date().toISOString().split('T')[0],
+   231→      entityName: formData.entityName,
+   232→      entityType: formData.entityType,
+   233→      category: ENTITIES.find((e) => e.name === formData.entityName)?.category ?? 'General',
+   234→      revenueItem: formData.revenueItem,
+   235→      amount: formData.amount,
+   236→      previousBalance: formData.previousBalance,
+   237→      penalty: formData.penalty,
+   238→      totalDue,
+   239→      status: 'Unpaid',
+   240→      dueDate: formData.dueDate || '',
+   241→    };
+   242→
+   243→    setBills((prev) => [newBill, ...prev]);
+   244→    setShowModal(false);
+   245→    setFormData({
+   246→      entityName: '',
+   247→      entityType: 'Business',
+   248→      revenueItem: '',
+   249→      amount: 0,
+   250→      previousBalance: 0,
+   251→      penalty: 0,
+   252→      dueDate: '',
+   253→    });
+   254→    setCurrentPage(1);
+   255→  };
+   256→
+   257→  // ── Cancel bill ────────────────────────────────────────────────────────
+   258→
+   259→  const handleCancelBill = (id: string) => {
+   260→    setBills((prev) => prev.filter((b) => b.id !== id));
+   261→  };
+   262→
+   263→  // ── Bulk eligible count ───────────────────────────────────────────────
+   264→
+   265→  const bulkEligibleCount = useMemo(() => {
+   266→    if (!bulkForm.revenueItem) return 0;
+   267→    return ENTITIES.filter((e) => {
+   268→      if (bulkForm.entityType !== 'All' && e.type !== bulkForm.entityType) return false;
+   269→      if (bulkForm.category !== 'All' && e.category !== bulkForm.category) return false;
+   270→      const exists = bills.find(
+   271→        (b) => b.entityName === e.name && b.revenueItem === bulkForm.revenueItem,
+   272→      );
+   273→      return !exists;
+   274→    }).length;
+   275→  }, [bulkForm, bills]);
+   276→
+   277→  // ── Bulk generate bills ────────────────────────────────────────────────
+   278→
+   279→  const handleBulkGenerate = () => {
+   280→    if (!bulkForm.revenueItem || bulkEligibleCount === 0) return;
+   281→
+   282→    setBulkProgress('generating');
+   283→
+   284→    const amount = RATE_AMOUNTS[bulkForm.revenueItem] || 0;
+   285→    const penalty = Math.round(amount * 0.05 * 100) / 100;
+   286→
+   287→    setTimeout(() => {
+   288→      const eligibleEntities = ENTITIES.filter((e) => {
+   289→        if (bulkForm.entityType !== 'All' && e.type !== bulkForm.entityType) return false;
+   290→        if (bulkForm.category !== 'All' && e.category !== bulkForm.category) return false;
+   291→        const exists = bills.find(
+   292→          (b) => b.entityName === e.name && b.revenueItem === bulkForm.revenueItem,
+   293→        );
+   294→        return !exists;
+   295→      });
+   296→
+   297→      const newBills: Bill[] = eligibleEntities.map((entity, idx) => {
+   298→        const totalDue = amount + penalty;
+   299→        return {
+   300→          id: String(Date.now() + idx),
+   301→          billNumber: `BILL-2024-${String(bills.length + 156 + idx).padStart(4, '0')}`,
+   302→          date: new Date().toISOString().split('T')[0],
+   303→          entityName: entity.name,
+   304→          entityType: entity.type as 'Business' | 'Property',
+   305→          category: entity.category || 'General',
+   306→          revenueItem: bulkForm.revenueItem,
+   307→          amount,
+   308→          previousBalance: 0,
+   309→          penalty,
+   310→          totalDue,
+   311→          status: 'Unpaid' as const,
+   312→          dueDate: bulkForm.dueDate || new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
+   313→        };
+   314→      });
+   315→
+   316→      setBills((prev) => [...newBills.reverse(), ...prev]);
+   317→      setBulkGeneratedCount(newBills.length);
+   318→      setBulkProgress('done');
+   319→      setCurrentPage(1);
+   320→    }, 800);
+   321→  };
+   322→
+   323→  const handleCloseBulkModal = () => {
+   324→    setShowBulkModal(false);
+   325→    setBulkForm({ entityType: 'All', category: 'All', revenueItem: '', dueDate: '' });
+   326→    setBulkProgress('idle');
+   327→    setBulkGeneratedCount(0);
+   328→  };
+   329→
+   330→  // ── View bill ──────────────────────────────────────────────────────────
+   331→
+   332→  const handleViewBill = (bill: Bill) => {
+   333→    setViewingBill(bill);
+   334→  };
+   335→
+   336→  // ── Barcode helpers ──────────────────────────────────────────────
+   337→  const getBillBarcodeSvg = (bill: Bill): string => {
+   338→    const encoded = encodeBarcodeData({
+   339→      type: 'INVOICE',
+   340→      refNo: bill.billNumber,
+   341→      issuedTo: bill.entityName,
+   342→      entityType: bill.entityType,
+   343→      amount: bill.totalDue,
+   344→      date: bill.date,
+   345→      revenueItem: bill.revenueItem,
+   346→      status: bill.status,
+   347→    });
+   348→    try {
+   349→      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+   350→      JsBarcode(svg, encoded, {
+   351→        format: 'CODE128',
+   352→        width: 2,
+   353→        height: 50,
+   354→        displayValue: false,
+   355→        margin: 0,
+   356→        fontSize: 10,
+   357→      });
+   358→      return svg.outerHTML;
+   359→    } catch {
+   360→      return '';
+   361→    }
+   362→  };
+   363→
+   364→  const getBillBarcodeData = (bill: Bill): string => {
+   365→    return encodeBarcodeData({
+   366→      type: 'INVOICE',
+   367→      refNo: bill.billNumber,
+   368→      issuedTo: bill.entityName,
+   369→      entityType: bill.entityType,
+   370→      amount: bill.totalDue,
+   371→      date: bill.date,
+   372→      revenueItem: bill.revenueItem,
+   373→      status: bill.status,
+   374→    });
+   375→  };
+   376→
+   377→  // ── Barcode canvas ref for bill view modal ────────────────────────────
+   378→  const billBarcodeRef = useRef<HTMLCanvasElement>(null);
+   379→
+   380→  useEffect(() => {
+   381→    if (viewingBill && billBarcodeRef.current) {
+   382→      try {
+   383→        JsBarcode(billBarcodeRef.current, getBillBarcodeData(viewingBill), {
+   384→          format: 'CODE128',
+   385→          width: 2,
+   386→          height: 50,
+   387→          displayValue: false,
+   388→          margin: 0,
+   389→          fontSize: 10,
+   390→        });
+   391→      } catch { /* barcode render failure */ }
+   392→    }
+   393→  }, [viewingBill]);
+   394→
+   395→  // ── Print bill ─────────────────────────────────────────────────────────
+   396→
+   397→  const handlePrintBill = (bill: Bill) => {
+   398→    const barcodeSvg = getBillBarcodeSvg(bill);
+   399→    setViewingBill(bill);
+   400→    setTimeout(() => {
+   401→      const printContent = document.getElementById('bill-print-content');
+   402→      if (!printContent) return;
+   403→
+   404→      const printWindow = window.open('', '_blank', 'width=800,height=600');
+   405→      if (!printWindow) return;
+   406→
+   407→      printWindow.document.write(`
+   408→        <!DOCTYPE html>
+   409→        <html>
+   410→        <head>
+   411→          <title>Bill - ${bill.billNumber}</title>
+   412→          <style>
+   413→            * { margin: 0; padding: 0; box-sizing: border-box; }
+   414→            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; color: #1e293b; }
+   415→            .header { text-align: center; border-bottom: 3px double #1e293b; padding-bottom: 16px; margin-bottom: 24px; }
+   416→            .header h1 { font-size: 20px; font-weight: 700; letter-spacing: 0.05em; }
+   417→            .header p { font-size: 12px; color: #64748b; margin-top: 4px; }
+   418→            .bill-title { text-align: center; font-size: 16px; font-weight: 600; margin-bottom: 20px; color: #059669; }
+   419→            .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+   420→            .info-item { font-size: 13px; }
+   421→            .info-item .label { color: #64748b; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; }
+   422→            .info-item .value { font-weight: 600; margin-top: 2px; }
+   423→            .section-title { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 12px; margin-top: 20px; }
+   424→            .amount-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+   425→            .amount-table th { text-align: left; padding: 8px 12px; background: #f8fafc; color: #64748b; font-size: 11px; text-transform: uppercase; }
+   426→            .amount-table td { padding: 8px 12px; border-bottom: 1px solid #f1f5f9; }
+   427→            .amount-table tr:last-child td { border-bottom: none; }
+   428→            .total-row td { font-size: 15px; font-weight: 700; border-top: 2px solid #1e293b; background: #f8fafc; }
+   429→            .status-badge { display: inline-block; padding: 3px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
+   430→            .status-paid { background: #d1fae5; color: #065f46; }
+   431→            .status-unpaid { background: #fee2e2; color: #991b1b; }
+   432→            .status-partial { background: #fef3c7; color: #92400e; }
+   433→            .status-overdue { background: #fee2e2; color: #991b1b; }
+   434→            .footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 11px; color: #94a3b8; }
+   435→            .qr-placeholder { width: 80px; height: 80px; border: 2px dashed #cbd5e1; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #94a3b8; margin: 16px auto 0; }
+   436→            @media print { body { padding: 20px; } }
+   437→          </style>
+   438→        </head>
+   439→        <body>
+   440→          <div class="header">
+   441→            <h1>KUMASI METROPOLITAN ASSEMBLY</h1>
+   442→            <p>Revenue Management System — Official Bill</p>
+   443→          </div>
+   444→          <div class="bill-title">INVOICE / BILL</div>
+   445→          <div class="info-grid">
+   446→            <div class="info-item"><div class="label">Bill Number</div><div class="value">${bill.billNumber}</div></div>
+   447→            <div class="info-item"><div class="label">Bill Date</div><div class="value">${bill.date}</div></div>
+   448→            <div class="info-item"><div class="label">Due Date</div><div class="value">${bill.dueDate || 'N/A'}</div></div>
+   449→            <div class="info-item"><div class="label">Status</div><div class="value"><span class="status-badge status-${bill.status.toLowerCase()}">${bill.status.toUpperCase()}</span></div></div>
+   450→          </div>
+   451→          <div class="section-title">Billed Entity</div>
+   452→          <div class="info-grid">
+   453→            <div class="info-item"><div class="label">Entity Name</div><div class="value">${bill.entityName}</div></div>
+   454→            <div class="info-item"><div class="label">Entity Type</div><div class="value">${bill.entityType}</div></div>
+   455→            <div class="info-item"><div class="label">Category</div><div class="value">${bill.category}</div></div>
+   456→            <div class="info-item"><div class="label">Revenue Item</div><div class="value">${bill.revenueItem}</div></div>
+   457→          </div>
+   458→          <div class="section-title">Amount Breakdown</div>
+   459→          <table class="amount-table">
+   460→            <thead><tr><th>Description</th><th style="text-align:right">Amount (GH₵)</th></tr></thead>
+   461→            <tbody>
+   462→              <tr><td>Current Charge</td><td style="text-align:right">${formatCurrency(bill.amount)}</td></tr>
+   463→              <tr><td>Previous Balance</td><td style="text-align:right">${formatCurrency(bill.previousBalance)}</td></tr>
+   464→              <tr><td>Penalty</td><td style="text-align:right">${formatCurrency(bill.penalty)}</td></tr>
+   465→              <tr class="total-row"><td>Total Due</td><td style="text-align:right">${formatCurrency(bill.totalDue)}</td></tr>
+   466→            </tbody>
+   467→          </table>
+   468→          <div style="text-align:center;margin-top:30px;padding:16px;border:1px solid #e2e8f0;border-radius:8px;">
+   469→            <p style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Scan to Verify</p>
+   470→            ${barcodeSvg}
+   471→            <p style="font-size:9px;color:#94a3b8;margin-top:6px;">${getVerificationUrl(getBillBarcodeData(bill))}</p>
+   472→          </div>
+   473→          <div class="footer">
+   474→            This is a computer-generated document and does not require a signature.<br/><br/>
+   475→            Designed, Developed &amp; Maintained by <strong>Clipe Consult</strong><br/>
+   476→            www.clipeconsult.com
+   477→          </div>
+   478→        </body>
+   479→        </html>
+   480→      `);
+   481→      printWindow.document.close();
+   482→      printWindow.onload = () => { printWindow.print(); };
+   483→    }, 100);
+   484→  };
+   485→
+   486→  // ── CSS classes ──────────────────────────────────────────────────────────
+   487→
+   488→  const inputClass =
+   489→    'w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition';
+   490→  const labelClass =
+   491→    'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5';
+   492→  const btnPrimary =
+   493→    'inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap';
+   494→  const btnSecondary =
+   495→    'inline-flex items-center gap-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm font-medium px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap';
+   496→
+   497→  // ══════════════════════════════════════════════════════════════════════════
+   498→  //  RENDER
+   499→  // ══════════════════════════════════════════════════════════════════════════
+   500→
+   501→  return (
+   502→    <div className="space-y-6">
+   503→      {/* ── Header ──────────────────────────────────────────────────────── */}
+   504→      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+   505→        <div>
+   506→          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+   507→            Bill Management
+   508→          </h1>
+   509→          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+   510→            Generate, track, and manage revenue bills for businesses and properties.
+   511→          </p>
+   512→        </div>
+   513→        <div className="flex items-center gap-2">
+   514→          <button onClick={() => setShowModal(true)} className={btnPrimary}>
+   515→            <Plus className="w-4 h-4" />
+   516→            Generate Bill
+   517→          </button>
+   518→          <button onClick={() => { setShowBulkModal(true); setBulkProgress('idle'); setBulkGeneratedCount(0); }} className={btnSecondary}>
+   519→            <Zap className="w-4 h-4" />
+   520→            Bulk Generate
+   521→          </button>
+   522→        </div>
+   523→      </div>
+   524→
+   525→      {/* ── Stats Row ───────────────────────────────────────────────────── */}
+   526→      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+   527→        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
+   528→          <div className="flex items-center gap-3">
+   529→            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-900/30">
+   530→              <FileText className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+   531→            </div>
+   532→            <div>
+   533→              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Bills Generated</p>
+   534→              <p className="text-xl font-bold text-slate-900 dark:text-white">{stats.total.toLocaleString()}</p>
+   535→            </div>
+   536→          </div>
+   537→        </div>
+   538→        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
+   539→          <div className="flex items-center gap-3">
+   540→            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-900/30">
+   541→              <DollarSign className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+   542→            </div>
+   543→            <div>
+   544→              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Billed</p>
+   545→              <p className="text-xl font-bold text-slate-900 dark:text-white">{formatCurrency(stats.totalBilled)}</p>
+   546→            </div>
+   547→          </div>
+   548→        </div>
+   549→        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
+   550→          <div className="flex items-center gap-3">
+   551→            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-900/30">
+   552→              <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+   553→            </div>
+   554→            <div>
+   555→              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Outstanding</p>
+   556→              <p className="text-xl font-bold text-amber-700 dark:text-amber-400">{formatCurrency(stats.outstanding)}</p>
+   557→            </div>
+   558→          </div>
+   559→        </div>
+   560→        <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
+   561→          <div className="flex items-center gap-3">
+   562→            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-red-50 dark:bg-red-900/30">
+   563→              <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
+   564→            </div>
+   565→            <div>
+   566→              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Overdue</p>
+   567→              <p className="text-xl font-bold text-red-700 dark:text-red-400">{formatCurrency(stats.overdue)}</p>
+   568→            </div>
+   569→          </div>
+   570→        </div>
+   571→      </div>
+   572→
+   573→      {/* ── Filters ────────────────────────────────────────────────────── */}
+   574→      <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
+   575→        <div className="relative flex-1 min-w-[200px]">
+   576→          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+   577→          <input
+   578→            type="text"
+   579→            placeholder="Search by bill #, entity, or revenue item..."
+   580→            value={searchQuery}
+   581→            onChange={(e) => {
+   582→              setSearchQuery(e.target.value);
+   583→              setCurrentPage(1);
+   584→            }}
+   585→            className={`${inputClass} pl-10`}
+   586→          />
+   587→        </div>
+   588→        <input
+   589→          type="date"
+   590→          value={dateFrom}
+   591→          onChange={(e) => {
+   592→            setDateFrom(e.target.value);
+   593→            setCurrentPage(1);
+   594→          }}
+   595→          className={`${inputClass} w-full sm:w-40`}
+   596→          title="From date"
+   597→        />
+   598→        <input
+   599→          type="date"
+   600→          value={dateTo}
+   601→          onChange={(e) => {
+   602→            setDateTo(e.target.value);
+   603→            setCurrentPage(1);
+   604→          }}
+   605→          className={`${inputClass} w-full sm:w-40`}
+   606→          title="To date"
+   607→        />
+   608→        <select
+   609→          value={statusFilter}
+   610→          onChange={(e) => {
+   611→            setStatusFilter(e.target.value);
+   612→            setCurrentPage(1);
+   613→          }}
+   614→          className={`${inputClass} w-full sm:w-40`}
+   615→        >
+   616→          <option value="All">All Statuses</option>
+   617→          <option value="Paid">Paid</option>
+   618→          <option value="Partial">Partial</option>
+   619→          <option value="Unpaid">Unpaid</option>
+   620→          <option value="Overdue">Overdue</option>
+   621→        </select>
+   622→        <select
+   623→          value={revenueAreaFilter}
+   624→          onChange={(e) => {
+   625→            setRevenueAreaFilter(e.target.value);
+   626→            setCurrentPage(1);
+   627→          }}
+   628→          className={`${inputClass} w-full sm:w-40`}
+   629→        >
+   630→          <option value="All">All Revenue Areas</option>
+   631→          <option value="Business">Business</option>
+   632→          <option value="Property">Property</option>
+   633→        </select>
+   634→        <select
+   635→          value={categoryFilter}
+   636→          onChange={(e) => {
+   637→            setCategoryFilter(e.target.value);
+   638→            setCurrentPage(1);
+   639→          }}
+   640→          className={`${inputClass} w-full sm:w-44`}
+   641→        >
+   642→          <option value="All">All Categories</option>
+   643→          <option value="Healthcare">Healthcare</option>
+   644→          <option value="Hospitality">Hospitality</option>
+   645→          <option value="Food & Beverage">Food & Beverage</option>
+   646→          <option value="Industry">Industry</option>
+   647→          <option value="Retail">Retail</option>
+   648→          <option value="Personal Care">Personal Care</option>
+   649→          <option value="Energy">Energy</option>
+   650→          <option value="Residential">Residential</option>
+   651→          <option value="Commercial">Commercial</option>
+   652→          <option value="Education">Education</option>
+   653→        </select>
+   654→      </div>
+   655→
+   656→      {/* ── Table ───────────────────────────────────────────────────────── */}
+   657→      <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+   658→        <div className="overflow-x-auto">
+   659→          <table className="w-full text-sm">
+   660→            <thead>
+   661→              <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700">
+   662→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   663→                  Bill #
+   664→                </th>
+   665→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   666→                  Date
+   667→                </th>
+   668→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   669→                  Entity
+   670→                </th>
+   671→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden lg:table-cell">
+   672→                  Category
+   673→                </th>
+   674→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden md:table-cell">
+   675→                  Revenue Item
+   676→                </th>
+   677→                <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   678→                  Amount
+   679→                </th>
+   680→                <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden xl:table-cell">
+   681→                  Prev. Bal.
+   682→                </th>
+   683→                <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden xl:table-cell">
+   684→                  Penalty
+   685→                </th>
+   686→                <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   687→                  Total Due
+   688→                </th>
+   689→                <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   690→                  Status
+   691→                </th>
+   692→                <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   693→                  Actions
+   694→                </th>
+   695→              </tr>
+   696→            </thead>
+   697→            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+   698→              {paged.length === 0 ? (
+   699→                <tr>
+   700→                  <td
+   701→                    colSpan={11}
+   702→                    className="text-center py-12 text-slate-400 dark:text-slate-500"
+   703→                  >
+   704→                    <FileText className="w-10 h-10 mx-auto mb-3 opacity-40" />
+   705→                    No bills found matching your criteria.
+   706→                  </td>
+   707→                </tr>
+   708→              ) : (
+   709→                paged.map((bill) => (
+   710→                  <tr
+   711→                    key={bill.id}
+   712→                    className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+   713→                  >
+   714→                    <td className="px-4 py-3 font-mono text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+   715→                      {bill.billNumber}
+   716→                    </td>
+   717→                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400 whitespace-nowrap">
+   718→                      {bill.date}
+   719→                    </td>
+   720→                    <td className="px-4 py-3 whitespace-nowrap">
+   721→                      <div>
+   722→                        <p className="font-medium text-slate-900 dark:text-white text-sm">
+   723→                          {bill.entityName}
+   724→                        </p>
+   725→                        <p className="text-xs text-slate-400 dark:text-slate-500">
+   726→                          {bill.entityType}
+   727→                        </p>
+   728→                      </div>
+   729→                    </td>
+   730→                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400 whitespace-nowrap hidden lg:table-cell">
+   731→                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
+   732→                        {bill.category}
+   733→                      </span>
+   734→                    </td>
+   735→                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap hidden md:table-cell">
+   736→                      {bill.revenueItem}
+   737→                    </td>
+   738→                    <td className="px-4 py-3 text-right font-medium text-slate-900 dark:text-white whitespace-nowrap">
+   739→                      {formatCurrency(bill.amount)}
+   740→                    </td>
+   741→                    <td className="px-4 py-3 text-right text-slate-500 dark:text-slate-400 whitespace-nowrap hidden xl:table-cell">
+   742→                      {bill.previousBalance > 0 ? formatCurrency(bill.previousBalance) : '—'}
+   743→                    </td>
+   744→                    <td className="px-4 py-3 text-right text-red-600 dark:text-red-400 whitespace-nowrap hidden xl:table-cell">
+   745→                      {bill.penalty > 0 ? formatCurrency(bill.penalty) : '—'}
+   746→                    </td>
+   747→                    <td className="px-4 py-3 text-right font-bold text-slate-900 dark:text-white whitespace-nowrap">
+   748→                      {formatCurrency(bill.totalDue)}
+   749→                    </td>
+   750→                    <td className="px-4 py-3 whitespace-nowrap">
+   751→                      <StatusBadge status={bill.status} />
+   752→                    </td>
+   753→                    <td className="px-4 py-3 text-right whitespace-nowrap">
+   754→                      <div className="inline-flex items-center gap-1">
+   755→                        <button
+   756→                          onClick={() => handleViewBill(bill)}
+   757→                          className="p-1.5 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+   758→                          title="View Bill"
+   759→                        >
+   760→                          <Eye className="w-4 h-4" />
+   761→                        </button>
+   762→                        <button
+   763→                          onClick={() => handlePrintBill(bill)}
+   764→                          className="p-1.5 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+   765→                          title="Print Bill"
+   766→                        >
+   767→                          <Printer className="w-4 h-4" />
+   768→                        </button>
+   769→                        {bill.status !== 'Paid' && (
+   770→                          <button
+   771→                            onClick={() => handleCancelBill(bill.id)}
+   772→                            className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+   773→                            title="Cancel Bill"
+   774→                          >
+   775→                            <XCircle className="w-4 h-4" />
+   776→                          </button>
+   777→                        )}
+   778→                      </div>
+   779→                    </td>
+   780→                  </tr>
+   781→                ))
+   782→              )}
+   783→            </tbody>
+   784→          </table>
+   785→        </div>
+   786→      </div>
+   787→
+   788→      {/* ── Pagination ────────────────────────────────────────────────── */}
+   789→      <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+   790→        <p className="text-xs text-slate-500 dark:text-slate-400">
+   791→          Showing {showingFrom}–{showingTo} of {filtered.length} bills
+   792→        </p>
+   793→        <div className="flex items-center gap-1">
+   794→          <button
+   795→            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+   796→            disabled={safeCurrentPage === 1}
+   797→            className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+   798→          >
+   799→            <ChevronLeft className="w-4 h-4" />
+   800→          </button>
+   801→          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+   802→            <button
+   803→              key={page}
+   804→              onClick={() => setCurrentPage(page)}
+   805→              className={`w-9 h-9 rounded-lg text-sm font-medium transition-colors ${
+   806→                page === safeCurrentPage
+   807→                  ? 'bg-emerald-600 text-white'
+   808→                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700'
+   809→              }`}
+   810→            >
+   811→              {page}
+   812→            </button>
+   813→          ))}
+   814→          <button
+   815→            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+   816→            disabled={safeCurrentPage === totalPages}
+   817→            className="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+   818→          >
+   819→            <ChevronRight className="w-4 h-4" />
+   820→          </button>
+   821→        </div>
+   822→      </div>
+   823→
+   824→      {/* ── Bulk Generate Modal ────────────────────────────────────────── */}
+   825→      {showBulkModal && (
+   826→        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+   827→          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={handleCloseBulkModal} />
+   828→          <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+   829→            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-6 py-4">
+   830→              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Bulk Generate Bills</h2>
+   831→              <button onClick={handleCloseBulkModal} className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+   832→                <X className="w-5 h-5" />
+   833→              </button>
+   834→            </div>
+   835→
+   836→            {bulkProgress === 'done' ? (
+   837→              <div className="px-6 py-12 text-center">
+   838→                <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-4">
+   839→                  <CheckCircle2 className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+   840→                </div>
+   841→                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Bills Generated Successfully</h3>
+   842→                <p className="text-slate-500 dark:text-slate-400 mb-6">
+   843→                  {bulkGeneratedCount} bill{bulkGeneratedCount !== 1 ? 's were' : ' was'} generated for <span className="font-medium text-slate-700 dark:text-slate-200">{bulkForm.revenueItem}</span>.
+   844→                </p>
+   845→                <button onClick={handleCloseBulkModal} className={btnPrimary}>
+   846→                  Done
+   847→                </button>
+   848→              </div>
+   849→            ) : (
+   850→              <>
+   851→                <div className="px-6 py-5 space-y-4">
+   852→                  <div>
+   853→                    <label className={labelClass}>Entity Type</label>
+   854→                    <select
+   855→                      value={bulkForm.entityType}
+   856→                      onChange={(e) => setBulkForm((p) => ({ ...p, entityType: e.target.value as 'All' | 'Business' | 'Property' }))}
+   857→                      className={inputClass}
+   858→                    >
+   859→                      <option value="All">All Types</option>
+   860→                      <option value="Business">Business Only</option>
+   861→                      <option value="Property">Property Only</option>
+   862→                    </select>
+   863→                  </div>
+   864→                  <div>
+   865→                    <label className={labelClass}>Category</label>
+   866→                    <select
+   867→                      value={bulkForm.category}
+   868→                      onChange={(e) => setBulkForm((p) => ({ ...p, category: e.target.value }))}
+   869→                      className={inputClass}
+   870→                    >
+   871→                      <option value="All">All Categories</option>
+   872→                      {['Healthcare', 'Hospitality', 'Food & Beverage', 'Industry', 'Retail', 'Personal Care', 'Energy', 'Residential', 'Commercial', 'Education'].map((c) => (
+   873→                        <option key={c} value={c}>{c}</option>
+   874→                      ))}
+   875→                    </select>
+   876→                  </div>
+   877→                  <div>
+   878→                    <label className={labelClass}>Revenue Item <span className="text-red-500">*</span></label>
+   879→                    <select
+   880→                      value={bulkForm.revenueItem}
+   881→                      onChange={(e) => setBulkForm((p) => ({ ...p, revenueItem: e.target.value }))}
+   882→                      className={inputClass}
+   883→                    >
+   884→                      <option value="">Select revenue item...</option>
+   885→                      {REVENUE_ITEMS.map((item) => (
+   886→                        <option key={item} value={item}>{item} ({formatCurrency(RATE_AMOUNTS[item])})</option>
+   887→                      ))}
+   888→                    </select>
+   889→                  </div>
+   890→                  <div>
+   891→                    <label className={labelClass}>Due Date</label>
+   892→                    <input
+   893→                      type="date"
+   894→                      value={bulkForm.dueDate}
+   895→                      onChange={(e) => setBulkForm((p) => ({ ...p, dueDate: e.target.value }))}
+   896→                      className={inputClass}
+   897→                    />
+   898→                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Defaults to 30 days from today if not set.</p>
+   899→                  </div>
+   900→
+   901→                  {bulkForm.revenueItem && (
+   902→                    <div className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20 px-4 py-3">
+   903→                      <div className="flex items-center justify-between text-sm">
+   904→                        <span className="text-blue-700 dark:text-blue-300 font-medium">Eligible entities (no existing bill):</span>
+   905→                        <span className="text-lg font-bold text-blue-700 dark:text-blue-300">{bulkEligibleCount}</span>
+   906→                      </div>
+   907→                      <p className="text-xs text-blue-600/70 dark:text-blue-400/70 mt-1">
+   908→                        Rate: {formatCurrency(RATE_AMOUNTS[bulkForm.revenueItem])} per entity | Penalty: {formatCurrency(Math.round((RATE_AMOUNTS[bulkForm.revenueItem] || 0) * 0.05 * 100) / 100)} (5%)
+   909→                      </p>
+   910→                      {bulkEligibleCount > 0 && (
+   911→                        <p className="text-xs text-blue-600/70 dark:text-blue-400/70 mt-0.5">
+   912→                          Estimated total: {formatCurrency(bulkEligibleCount * ((RATE_AMOUNTS[bulkForm.revenueItem] || 0) * 1.05))}
+   913→                        </p>
+   914→                      )}
+   915→                      {bulkEligibleCount === 0 && bulkForm.revenueItem && (
+   916→                        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1 font-medium">All eligible entities already have a bill for this revenue item.</p>
+   917→                      )}
+   918→                    </div>
+   919→                  )}
+   920→                </div>
+   921→
+   922→                <div className="flex items-center justify-end gap-3 border-t border-slate-200 dark:border-slate-700 px-6 py-4">
+   923→                  <button onClick={handleCloseBulkModal} className={btnSecondary}>
+   924→                    <X className="w-4 h-4" />
+   925→                    Cancel
+   926→                  </button>
+   927→                  <button
+   928→                    onClick={handleBulkGenerate}
+   929→                    disabled={!bulkForm.revenueItem || bulkEligibleCount === 0 || bulkProgress === 'generating'}
+   930→                    className={btnPrimary}
+   931→                  >
+   932→                    {bulkProgress === 'generating' ? (
+   933→                      <>
+   934→                        <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+   935→                        Generating...
+   936→                      </>
+   937→                    ) : (
+   938→                      <>
+   939→                        <Zap className="w-4 h-4" />
+   940→                        Generate {bulkEligibleCount > 0 ? `${bulkEligibleCount} Bill${bulkEligibleCount !== 1 ? 's' : ''}` : ''}
+   941→                      </>
+   942→                    )}
+   943→                  </button>
+   944→                </div>
+   945→              </>
+   946→            )}
+   947→          </div>
+   948→        </div>
+   949→      )}
+   950→
+   951→      {/* ── View / Print Bill Modal ─────────────────────────────────────── */}
+   952→      {viewingBill && (
+   953→        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+   954→          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setViewingBill(null)} />
+   955→          <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+   956→            <div id="bill-print-content">
+   957→              {/* Header */}
+   958→              <div className="text-center border-b-2 border-dashed border-slate-300 dark:border-slate-600 px-6 py-5">
+   959→                <h2 className="text-base font-bold text-slate-900 dark:text-white tracking-wider uppercase">Kumasi Metropolitan Assembly</h2>
+   960→                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Revenue Management System</p>
+   961→                <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mt-3 tracking-wide">OFFICIAL BILL</p>
+   962→              </div>
+   963→
+   964→              {/* Bill Info Grid */}
+   965→              <div className="grid grid-cols-2 gap-x-6 gap-y-3 px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+   966→                <div>
+   967→                  <p className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-medium">Bill Number</p>
+   968→                  <p className="text-sm font-mono font-semibold text-slate-900 dark:text-white mt-0.5">{viewingBill.billNumber}</p>
+   969→                </div>
+   970→                <div>
+   971→                  <p className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-medium">Bill Date</p>
+   972→                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mt-0.5">{viewingBill.date}</p>
+   973→                </div>
+   974→                <div>
+   975→                  <p className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-medium">Due Date</p>
+   976→                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mt-0.5">{viewingBill.dueDate || 'N/A'}</p>
+   977→                </div>
+   978→                <div>
+   979→                  <p className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-medium">Status</p>
+   980→                  <div className="mt-1"><StatusBadge status={viewingBill.status} /></div>
+   981→                </div>
+   982→              </div>
+   983→
+   984→              {/* Entity Section */}
+   985→              <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-800">
+   986→                <p className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-medium mb-2">Billed Entity</p>
+   987→                <p className="text-sm font-semibold text-slate-900 dark:text-white">{viewingBill.entityName}</p>
+   988→                <div className="flex items-center gap-3 mt-1.5">
+   989→                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">{viewingBill.entityType}</span>
+   990→                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">{viewingBill.category}</span>
+   991→                </div>
+   992→                <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">{viewingBill.revenueItem}</p>
+   993→              </div>
+   994→
+   995→              {/* Amount Breakdown */}
+   996→              <div className="px-6 py-4">
+   997→                <p className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-medium mb-3">Amount Breakdown</p>
+   998→                <div className="space-y-2 text-sm">
+   999→                  <div className="flex justify-between">
+  1000→                    <span className="text-slate-600 dark:text-slate-400">Current Charge</span>
+  1001→                    <span className="font-medium text-slate-900 dark:text-white">{formatCurrency(viewingBill.amount)}</span>
+  1002→                  </div>
+  1003→                  <div className="flex justify-between">
+  1004→                    <span className="text-slate-600 dark:text-slate-400">Previous Balance</span>
+  1005→                    <span className="font-medium text-slate-900 dark:text-white">{formatCurrency(viewingBill.previousBalance)}</span>
+  1006→                  </div>
+  1007→                  <div className="flex justify-between">
+  1008→                    <span className="text-slate-600 dark:text-slate-400">Penalty</span>
+  1009→                    <span className="font-medium text-red-600 dark:text-red-400">{formatCurrency(viewingBill.penalty)}</span>
+  1010→                  </div>
+  1011→                  <div className="border-t-2 border-slate-900 dark:border-slate-100 pt-2 mt-2 flex justify-between">
+  1012→                    <span className="font-bold text-slate-900 dark:text-white">Total Due</span>
+  1013→                    <span className="font-bold text-lg text-emerald-600 dark:text-emerald-400">{formatCurrency(viewingBill.totalDue)}</span>
+  1014→                  </div>
+  1015→                </div>
+  1016→              </div>
+  1017→
+  1018→              {/* Barcode Verification */}
+  1019→              <div className="flex justify-center pb-2">
+  1020→                <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-3 w-full">
+  1021→                  <div className="flex items-center gap-2 mb-2 justify-center">
+  1022→                    <ScanBarcode className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+  1023→                    <p className="text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-medium">Verification Barcode</p>
+  1024→                  </div>
+  1025→                  <div className="flex justify-center bg-white dark:bg-slate-800 rounded p-2">
+  1026→                    <canvas ref={billBarcodeRef} className="max-w-full" />
+  1027→                  </div>
+  1028→                </div>
+  1029→              </div>
+  1030→            </div>
+  1031→
+  1032→            {/* Modal Actions */}
+  1033→            <div className="flex items-center justify-between gap-3 border-t border-slate-200 dark:border-slate-700 px-6 py-4">
+  1034→              <button
+  1035→                onClick={() => {
+  1036→                  navigator.clipboard.writeText(viewingBill.billNumber);
+  1037→                }}
+  1038→                className="inline-flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+  1039→              >
+  1040→                <Copy className="w-3.5 h-3.5" />
+  1041→                Copy Bill #
+  1042→              </button>
+  1043→              <div className="flex items-center gap-2">
+  1044→                <button onClick={() => setViewingBill(null)} className={btnSecondary}>
+  1045→                  Close
+  1046→                </button>
+  1047→                <button onClick={() => handlePrintBill(viewingBill)} className={btnPrimary}>
+  1048→                  <Printer className="w-4 h-4" />
+  1049→                  Print
+  1050→                </button>
+  1051→              </div>
+  1052→            </div>
+  1053→          </div>
+  1054→        </div>
+  1055→      )}
+  1056→
+  1057→      {/* ── Generate Bill Modal ────────────────────────────────────────── */}
+  1058→      {showModal && (
+  1059→        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+  1060→          {/* Backdrop */}
+  1061→          <div
+  1062→            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+  1063→            onClick={() => setShowModal(false)}
+  1064→          />
+  1065→
+  1066→          {/* Modal */}
+  1067→          <div className="relative bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+  1068→            {/* Modal Header */}
+  1069→            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-6 py-4">
+  1070→              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+  1071→                Generate New Bill
+  1072→              </h2>
+  1073→              <button
+  1074→                onClick={() => setShowModal(false)}
+  1075→                className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+  1076→              >
+  1077→                <X className="w-5 h-5" />
+  1078→              </button>
+  1079→            </div>
+  1080→
+  1081→            {/* Modal Body */}
+  1082→            <div className="px-6 py-5 space-y-4">
+  1083→              {/* Entity Selection */}
+  1084→              <div>
+  1085→                <label className={labelClass}>Business / Property</label>
+  1086→                <select
+  1087→                  value={formData.entityName}
+  1088→                  onChange={(e) => {
+  1089→                    const entity = ENTITIES.find((ent) => ent.name === e.target.value);
+  1090→                    setFormData((p) => ({
+  1091→                      ...p,
+  1092→                      entityName: e.target.value,
+  1093→                      entityType: (entity?.type ?? 'Business') as 'Business' | 'Property',
+  1094→                    }));
+  1095→                  }}
+  1096→                  className={inputClass}
+  1097→                >
+  1098→                  <option value="">Select entity...</option>
+  1099→                  {ENTITIES.map((e) => (
+  1100→                    <option key={e.name} value={e.name}>
+  1101→                      {e.name} ({e.type} – {e.category})
+  1102→                    </option>
+  1103→                  ))}
+  1104→                </select>
+  1105→              </div>
+  1106→
+  1107→              {/* Revenue Item */}
+  1108→              <div>
+  1109→                <label className={labelClass}>Revenue Item</label>
+  1110→                <select
+  1111→                  value={formData.revenueItem}
+  1112→                  onChange={(e) => handleRevenueItemChange(e.target.value)}
+  1113→                  className={inputClass}
+  1114→                >
+  1115→                  <option value="">Select revenue item...</option>
+  1116→                  {REVENUE_ITEMS.map((item) => (
+  1117→                    <option key={item} value={item}>
+  1118→                      {item} ({formatCurrency(RATE_AMOUNTS[item])})
+  1119→                    </option>
+  1120→                  ))}
+  1121→                </select>
+  1122→              </div>
+  1123→
+  1124→              {/* Amount (auto-filled) */}
+  1125→              <div>
+  1126→                <label className={labelClass}>Amount (GH₵)</label>
+  1127→                <input
+  1128→                  type="number"
+  1129→                  min={0}
+  1130→                  value={formData.amount || ''}
+  1131→                  onChange={(e) =>
+  1132→                    setFormData((p) => ({
+  1133→                      ...p,
+  1134→                      amount: Number(e.target.value),
+  1135→                    }))
+  1136→                  }
+  1137→                  className={inputClass}
+  1138→                />
+  1139→              </div>
+  1140→
+  1141→              {/* Previous Balance */}
+  1142→              <div>
+  1143→                <label className={labelClass}>Previous Balance (GH₵)</label>
+  1144→                <input
+  1145→                  type="number"
+  1146→                  min={0}
+  1147→                  value={formData.previousBalance || ''}
+  1148→                  onChange={(e) =>
+  1149→                    setFormData((p) => ({
+  1150→                      ...p,
+  1151→                      previousBalance: Number(e.target.value),
+  1152→                    }))
+  1153→                  }
+  1154→                  placeholder="0"
+  1155→                  className={inputClass}
+  1156→                />
+  1157→              </div>
+  1158→
+  1159→              {/* Penalty (auto-calculated) */}
+  1160→              <div>
+  1161→                <label className={labelClass}>Penalty (GH₵)</label>
+  1162→                <input
+  1163→                  type="number"
+  1164→                  min={0}
+  1165→                  value={formData.penalty || ''}
+  1166→                  onChange={(e) =>
+  1167→                    setFormData((p) => ({
+  1168→                      ...p,
+  1169→                      penalty: Number(e.target.value),
+  1170→                    }))
+  1171→                  }
+  1172→                  className={inputClass}
+  1173→                />
+  1174→                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+  1175→                  Auto-calculated as 5% of amount. Adjust manually if needed.
+  1176→                </p>
+  1177→              </div>
+  1178→
+  1179→              {/* Due Date */}
+  1180→              <div>
+  1181→                <label className={labelClass}>Due Date</label>
+  1182→                <input
+  1183→                  type="date"
+  1184→                  value={formData.dueDate}
+  1185→                  onChange={(e) =>
+  1186→                    setFormData((p) => ({
+  1187→                      ...p,
+  1188→                      dueDate: e.target.value,
+  1189→                    }))
+  1190→                  }
+  1191→                  className={inputClass}
+  1192→                />
+  1193→              </div>
+  1194→
+  1195→              {/* Preview Summary */}
+  1196→              {formData.revenueItem && formData.amount > 0 && (
+  1197→                <div className="rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/20 px-4 py-3">
+  1198→                  <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400 mb-2">
+  1199→                    Bill Preview
+  1200→                  </p>
+  1201→                  <div className="space-y-1 text-sm text-slate-600 dark:text-slate-300">
+  1202→                    <div className="flex justify-between">
+  1203→                      <span>Amount:</span>
+  1204→                      <span className="font-medium">{formatCurrency(formData.amount)}</span>
+  1205→                    </div>
+  1206→                    <div className="flex justify-between">
+  1207→                      <span>Previous Balance:</span>
+  1208→                      <span className="font-medium">{formatCurrency(formData.previousBalance)}</span>
+  1209→                    </div>
+  1210→                    <div className="flex justify-between">
+  1211→                      <span>Penalty:</span>
+  1212→                      <span className="font-medium text-red-600 dark:text-red-400">{formatCurrency(formData.penalty)}</span>
+  1213→                    </div>
+  1214→                    <div className="border-t border-emerald-200 dark:border-emerald-800 pt-1 mt-1 flex justify-between">
+  1215→                      <span className="font-semibold text-emerald-700 dark:text-emerald-400">Total Due:</span>
+  1216→                      <span className="font-bold text-emerald-700 dark:text-emerald-400">
+  1217→                        {formatCurrency(formData.amount + formData.previousBalance + formData.penalty)}
+  1218→                      </span>
+  1219→                    </div>
+  1220→                  </div>
+  1221→                </div>
+  1222→              )}
+  1223→            </div>
+  1224→
+  1225→            {/* Modal Footer */}
+  1226→            <div className="flex items-center justify-end gap-3 border-t border-slate-200 dark:border-slate-700 px-6 py-4">
+  1227→              <button onClick={() => setShowModal(false)} className={btnSecondary}>
+  1228→                <X className="w-4 h-4" />
+  1229→                Cancel
+  1230→              </button>
+  1231→              <button
+  1232→                onClick={handleGenerateBill}
+  1233→                className={btnPrimary}
+  1234→                disabled={
+  1235→                  !formData.entityName ||
+  1236→                  !formData.revenueItem ||
+  1237→                  formData.amount <= 0
+  1238→                }
+  1239→              >
+  1240→                <Save className="w-4 h-4" />
+  1241→                Generate Bill
+  1242→              </button>
+  1243→            </div>
+  1244→          </div>
+  1245→        </div>
+  1246→      )}
+  1247→    </div>
+  1248→  );
+  1249→}
+  1250→

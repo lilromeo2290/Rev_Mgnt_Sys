@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useLocalStorage } from '@/hooks/use-local-storage';
 import {
   Plus,
   Search,
@@ -78,7 +79,7 @@ const mockBills: MockBill[] = [];
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function PaymentsPage() {
-  const [payments, setPayments] = useState<Payment[]>(mockPayments);
+  const [payments, setPayments] = useLocalStorage<Payment[]>('rms-payments', mockPayments);
   const [search, setSearch] = useState('');
   const [methodFilter, setMethodFilter] = useState<string>('All');
   const [statusFilter, setStatusFilter] = useState<string>('All');

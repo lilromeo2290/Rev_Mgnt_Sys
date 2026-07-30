@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useLocalStorage } from '@/hooks/use-local-storage';
 import {
   Search,
   Plus,
@@ -104,7 +105,7 @@ export function PropertiesPage() {
   const [typeFilter, setTypeFilter] = useState<string>('All');
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [currentPage, setCurrentPage] = useState(1);
-  const [properties, setProperties] = useState<Property[]>(mockProperties);
+  const [properties, setProperties] = useLocalStorage<Property[]>('rms-properties', mockProperties);
   const itemsPerPage = 10;
 
   // ── Form State ───────────────────────────────────────────────────────────
