@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import {
   Search,
   Eye,
@@ -19,7 +19,10 @@ import {
   FileCheck,
   Copy,
   Check,
+  ScanBarcode,
 } from 'lucide-react';
+import JsBarcode from 'jsbarcode';
+import { encodeBarcodeData, getVerificationUrl } from '@/lib/barcode-utils';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -113,7 +116,69 @@ export function ReceiptsPage() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
+  // ── Generate Barcode SVG as string ─────────────────────────────────
+  const getBarcodeSvg = (r: Receipt): string => {
+    const encoded = encodeBarcodeData({
+      type: 'RECEIPT',
+      refNo: r.receiptNo,
+      issuedTo: r.issuedTo,
+      entityType: r.entityType,
+      amount: r.totalPaid,
+      date: r.date,
+      revenueItem: r.revenueItem,
+      method: r.method,
+      status: r.status,
+    });
+    try {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      JsBarcode(svg, encoded, {
+        format: 'CODE128',
+        width: 2,
+        height: 50,
+        displayValue: false,
+        margin: 0,
+        fontSize: 10,
+      });
+      return svg.outerHTML;
+    } catch {
+      return '';
+    }
+  };
+
+  const getBarcodeData = (r: Receipt): string => {
+    return encodeBarcodeData({
+      type: 'RECEIPT',
+      refNo: r.receiptNo,
+      issuedTo: r.issuedTo,
+      entityType: r.entityType,
+      amount: r.totalPaid,
+      date: r.date,
+      revenueItem: r.revenueItem,
+      method: r.method,
+      status: r.status,
+    });
+  };
+
+  // ── Barcode canvas ref for modal ──────────────────────────────────────
+  const barcodeCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (selectedReceipt && barcodeCanvasRef.current) {
+      try {
+        JsBarcode(barcodeCanvasRef.current, getBarcodeData(selectedReceipt), {
+          format: 'CODE128',
+          width: 2,
+          height: 50,
+          displayValue: false,
+          margin: 0,
+          fontSize: 10,
+        });
+      } catch { /* barcode render failure */ }
+    }
+  }, [selectedReceipt]);
+
   const handlePrintReceipt = (r: Receipt) => {
+    const barcodeSvg = getBarcodeSvg(r);
     const itemsRows = r.items.map((item) => `
               <tr>
                 <td style="padding:6px 12px;border-bottom:1px solid #f1f5f9;">${item.description}</td>
@@ -202,6 +267,11 @@ export function ReceiptsPage() {
               </tr>
             </tfoot>
           </table>
+          <div class="barcode-section" style="text-align:center;margin-top:30px;padding:16px;border:1px solid #e2e8f0;border-radius:8px;">
+            <p style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Scan to Verify</p>
+            ${barcodeSvg}
+            <p style="font-size:9px;color:#94a3b8;margin-top:6px;">${getVerificationUrl(getBarcodeData(r))}</p>
+          </div>
           <div class="footer">
             Thank you for your payment.<br/>
             This receipt is computer generated and does not require a signature.<br/><br/>
@@ -532,6 +602,20 @@ export function ReceiptsPage() {
                       </tr>
                     </tfoot>
                   </table>
+                </div>
+              </div>
+
+              {/* Barcode Section */}
+              <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <ScanBarcode className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                  <p className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium">Verification Barcode</p>
+                </div>
+                <div className="flex flex-col items-center bg-white dark:bg-slate-900 rounded-lg p-3">
+                  <canvas ref={barcodeCanvasRef} className="max-w-full" />
+                  <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-2 text-center break-all">
+                    Scan barcode or visit verify page to confirm authenticity
+                  </p>
                 </div>
               </div>
 

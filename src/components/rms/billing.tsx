@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import {
   Search,
   Plus,
@@ -18,7 +18,10 @@ import {
   Save,
   CheckCircle2,
   Copy,
+  ScanBarcode,
 } from 'lucide-react';
+import JsBarcode from 'jsbarcode';
+import { encodeBarcodeData, getVerificationUrl } from '@/lib/barcode-utils';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -330,9 +333,69 @@ export function BillingPage() {
     setViewingBill(bill);
   };
 
+  // ── Barcode helpers ──────────────────────────────────────────────
+  const getBillBarcodeSvg = (bill: Bill): string => {
+    const encoded = encodeBarcodeData({
+      type: 'INVOICE',
+      refNo: bill.billNumber,
+      issuedTo: bill.entityName,
+      entityType: bill.entityType,
+      amount: bill.totalDue,
+      date: bill.date,
+      revenueItem: bill.revenueItem,
+      status: bill.status,
+    });
+    try {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      JsBarcode(svg, encoded, {
+        format: 'CODE128',
+        width: 2,
+        height: 50,
+        displayValue: false,
+        margin: 0,
+        fontSize: 10,
+      });
+      return svg.outerHTML;
+    } catch {
+      return '';
+    }
+  };
+
+  const getBillBarcodeData = (bill: Bill): string => {
+    return encodeBarcodeData({
+      type: 'INVOICE',
+      refNo: bill.billNumber,
+      issuedTo: bill.entityName,
+      entityType: bill.entityType,
+      amount: bill.totalDue,
+      date: bill.date,
+      revenueItem: bill.revenueItem,
+      status: bill.status,
+    });
+  };
+
+  // ── Barcode canvas ref for bill view modal ────────────────────────────
+  const billBarcodeRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (viewingBill && billBarcodeRef.current) {
+      try {
+        JsBarcode(billBarcodeRef.current, getBillBarcodeData(viewingBill), {
+          format: 'CODE128',
+          width: 2,
+          height: 50,
+          displayValue: false,
+          margin: 0,
+          fontSize: 10,
+        });
+      } catch { /* barcode render failure */ }
+    }
+  }, [viewingBill]);
+
   // ── Print bill ─────────────────────────────────────────────────────────
 
   const handlePrintBill = (bill: Bill) => {
+    const barcodeSvg = getBillBarcodeSvg(bill);
     setViewingBill(bill);
     setTimeout(() => {
       const printContent = document.getElementById('bill-print-content');
@@ -402,7 +465,11 @@ export function BillingPage() {
               <tr class="total-row"><td>Total Due</td><td style="text-align:right">${formatCurrency(bill.totalDue)}</td></tr>
             </tbody>
           </table>
-          <div class="qr-placeholder">QR Code</div>
+          <div style="text-align:center;margin-top:30px;padding:16px;border:1px solid #e2e8f0;border-radius:8px;">
+            <p style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Scan to Verify</p>
+            ${barcodeSvg}
+            <p style="font-size:9px;color:#94a3b8;margin-top:6px;">${getVerificationUrl(getBillBarcodeData(bill))}</p>
+          </div>
           <div class="footer">
             This is a computer-generated document and does not require a signature.<br/><br/>
             Designed, Developed &amp; Maintained by <strong>Clipe Consult</strong><br/>
@@ -948,10 +1015,16 @@ export function BillingPage() {
                 </div>
               </div>
 
-              {/* QR Placeholder */}
+              {/* Barcode Verification */}
               <div className="flex justify-center pb-2">
-                <div className="w-20 h-20 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg flex items-center justify-center">
-                  <span className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">QR CODE</span>
+                <div className="rounded-lg border border-slate-200 dark:border-slate-700 p-3 w-full">
+                  <div className="flex items-center gap-2 mb-2 justify-center">
+                    <ScanBarcode className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                    <p className="text-[10px] uppercase tracking-wider text-slate-500 dark:text-slate-400 font-medium">Verification Barcode</p>
+                  </div>
+                  <div className="flex justify-center bg-white dark:bg-slate-800 rounded p-2">
+                    <canvas ref={billBarcodeRef} className="max-w-full" />
+                  </div>
                 </div>
               </div>
             </div>
