@@ -61,3 +61,46 @@ Stage Summary:
 - All pages (businesses, properties, billing, payments) persist to localStorage
 - Certificate redesigned to match official Ghana district assembly format
 - Real logo images (Ghana Coat of Arms + Assembly Seal) embedded in certificates
+
+---
+Task ID: 3
+Agent: Main
+Task: Settings page save fix + dynamic assembly name on certificate + bigger logos + form restructure
+
+Work Log:
+- **Settings page (settings.tsx)**: Found all Assembly Info inputs used dead `defaultValue=""` — the Save button only showed a "Saved!" animation but never wrote to localStorage
+- Added `AssemblyInfo` interface, `loadAssemblySettings()` / `saveAssemblySettings()` helpers using key `rms-settings-assembly`
+- Converted AssemblySettings from uncontrolled inputs (defaultValue) to controlled state (value + onChange) passed via props
+- `handleSave()` now calls `saveAssemblySettings(assembly)` + dispatches a StorageEvent so other components react
+- Data loads back from localStorage on mount via useEffect
+
+- **Dynamic assembly name on certificate (businesses.tsx)**:
+  - `handlePrintCertificate` now reads `localStorage('rms-settings-assembly')` at print time via `_asmSettings`
+  - Uses `dynAssemblyName = _asmSettings.name || cert.assemblyName || 'Kumasi Metropolitan Assembly'`
+  - Uses `dynAssemblyAddress = _asmSettings.address || cert.assemblyAddress || ''`
+  - All 6 references to hardcoded/fallback assembly name in print template replaced with `dynAssemblyName`
+  - Modal preview IIFE also reads settings dynamically at view time with its own `dynAssemblyName`
+  - Fixed a bug where the helper code was placed OUTSIDE the function (causing `cert is not defined` ReferenceError)
+
+- **Logo sizes increased**:
+  - Print certificate: `width:150px` → `width:180px` for both Coat of Arms and Assembly Seal
+  - Modal preview: `w-36 h-36` → `w-44 h-44` for both logos
+
+- **Business registration form restructured** to match user's uploaded reference screenshots:
+  - Replaced 5 loose sections (Fee Schedule, Business Details, Location, Owner Details, Additional Info) with 3 cards
+  - **Card 1 — Location** (MapPin icon, light gray header): Street Name, House No., Street Code, GhanaPost GPS (with GPS button), Locality Code, Business Address (full width)
+  - **Card 2 — Business Information** (Briefcase icon): Business Class, Business Name (2-col), DA Assignment No., Business Certificate, Business Permit, Category, Business TIN, Employees, Year Established, Fee Amount (read-only), Date Registered, Active Status dropdown + "Excluded from fees" checkbox (same row)
+  - **Card 3 — Owner Information** (User icon): Owner Name (full width), Owner Address (2-col), Owner GhanaPost GPS, Phone, Email, TIN, National ID, Comments (full width textarea)
+  - Action buttons: gray "✕ Cancel" + green "✓ Save" right-aligned
+  - Removed unused `sectionHeaderClass` variable
+  - 3-column responsive grid inside each card matching the reference layout
+
+Stage Summary:
+- Settings → Assembly Info now persists to localStorage and loads back on revisit
+- Certificate (print + modal) reads assembly name/address dynamically from settings — no more hardcoded fallback
+- Logos are larger: 180px print, w-44 (176px) modal
+- Business registration form restructured into 3 cards matching reference design
+- All changes compile cleanly (next build passes)
+- Key files modified: `settings.tsx`, `businesses.tsx`
+- Logo files unchanged: `/public/logos/ghana-coat-of-arms.webp`, `/public/logos/assembly-seal.png`
+- localStorage key for assembly settings: `rms-settings-assembly`
