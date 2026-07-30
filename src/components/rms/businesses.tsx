@@ -523,11 +523,11 @@ export function BusinessesPage() {
       <div class="corner corner-br"></div>
       <div class="header-logos">
         <div class="logo-block">
-          <div class="coat-of-arms"><img src="/logos/ghana-coat-of-arms.webp" style="width:70px; height:70px; object-fit:contain;" /></div>
+          <div class="coat-of-arms"><img src="/logos/ghana-coat-of-arms.webp" style="width:110px; height:110px; object-fit:contain;" /></div>
           <div class="logo-label">Republic of Ghana</div>
         </div>
         <div class="logo-block">
-          <div class="assembly-seal"><img src="/logos/assembly-seal.png" style="width:70px; height:70px; object-fit:contain;" /></div>
+          <div class="assembly-seal"><img src="/logos/assembly-seal.png" style="width:110px; height:110px; object-fit:contain;" /></div>
           <div class="logo-label">Assembly Seal</div>
         </div>
       </div>
@@ -768,11 +768,11 @@ export function BusinessesPage() {
                       {/* Header Logos */}
                       <div className="flex justify-between items-start mb-3 px-4">
                         <div className="text-center w-16">
-                          <img src="/logos/ghana-coat-of-arms.webp" className="w-14 h-14 object-contain" />
+                          <img src="/logos/ghana-coat-of-arms.webp" className="w-24 h-24 object-contain" />
                           <div className="text-[7px] font-bold uppercase tracking-wider text-slate-600 mt-1">Republic of Ghana</div>
                         </div>
                         <div className="text-center w-16">
-                          <img src="/logos/assembly-seal.png" className="w-14 h-14 object-contain" />
+                          <img src="/logos/assembly-seal.png" className="w-24 h-24 object-contain" />
                           <div className="text-[7px] font-bold uppercase tracking-wider text-slate-600 mt-1">Assembly Seal</div>
                         </div>
                       </div>
