@@ -572,11 +572,9 @@ export function BusinessesPage() {
 
   // ── Form Field Helper ────────────────────────────────────────────────────
   const inputClass =
-    'w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition';
+    'w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition';
   const labelClass =
     'text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5';
-  const sectionHeaderClass =
-    'text-lg font-semibold text-slate-900 dark:text-white mb-4 pb-2 border-b border-slate-200 dark:border-slate-700';
 
   // ══════════════════════════════════════════════════════════════════════════
   //  LIST VIEW
@@ -896,228 +894,219 @@ export function BusinessesPage() {
         </div>
       </div>
 
-      <div className="space-y-8">
-        {/* ─── Section 1: Fee Schedule (Business Class / Category / Amount) ── */}
-        <section>
-          <h2 className={sectionHeaderClass}>
-            <span className="inline-flex items-center gap-2"><Briefcase className="w-5 h-5" /> Fee Schedule Classification</span>
-          </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
-            {/* Business Class */}
-            <div>
-              <label className={`${labelClass} block`}>Business Class <span className="text-red-500">*</span></label>
-              <select name="type" value={form.type} onChange={handleFormChange} className={inputClass}>
-                <option value="">Select business class</option>
-                {businessTypes.map((t) => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Category (dynamic from fee schedule) */}
-            <div>
-              <label className={`${labelClass} block`}>Category <span className="text-red-500">*</span></label>
-              <select name="category" value={form.category} onChange={handleFormChange} className={inputClass} disabled={!form.type}>
-                <option value="">Select category</option>
-                {availableCategories.map((c) => (
-                  <option key={c.name} value={c.name}>{c.name}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Amount (auto-filled from fee schedule) */}
-            <div>
-              <label className={`${labelClass} block`}>Amount</label>
-              <input type="text" value={selectedCategoryFee ? `GH\u20b5 ${selectedCategoryFee.amount.toLocaleString()}` : ''} readOnly placeholder="Select a category to see amount" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-emerald-700 dark:text-emerald-400 font-semibold`} />
-            </div>
-
-            {/* Ceiling (auto-filled from fee schedule) */}
-            <div>
-              <label className={`${labelClass} block`}>Ceiling</label>
-              <input type="text" value={selectedCategoryFee?.ceiling ? `GH\u20b5 ${selectedCategoryFee.ceiling.toLocaleString()}` : ''} readOnly placeholder="No ceiling" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-amber-700 dark:text-amber-400 font-semibold`} />
-            </div>
-
-            {/* Unit (auto-filled from fee schedule) */}
-            <div>
-              <label className={`${labelClass} block`}>Unit</label>
-              <input type="text" value={selectedCategoryFee?.unit || ''} readOnly placeholder="—" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-purple-700 dark:text-purple-400 font-semibold`} />
-            </div>
+      <div className="space-y-6">
+        {/* ════════════════════════════════════════════════════════════════════
+            CARD 1: LOCATION
+           ════════════════════════════════════════════════════════════════════ */}
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="flex items-center gap-2.5 px-5 py-3 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700">
+            <MapPin className="w-4.5 h-4.5 text-slate-600 dark:text-slate-400" />
+            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Location</h2>
           </div>
-        </section>
-
-        {/* ─── Section 2: Business Details ──────────────────────────────── */}
-        <section>
-          <h2 className={sectionHeaderClass}>
-            <span className="inline-flex items-center gap-2"><Building2 className="w-5 h-5" /> Business Details</span>
-          </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <div>
-              <label className={`${labelClass} block`}>Business Registration Number</label>
-              <input type="text" name="regNumber" value={form.regNumber} onChange={handleFormChange} placeholder="Auto-generated if blank" className={inputClass} />
-            </div>
-            <div>
-              <label className={`${labelClass} block`}>Business Name <span className="text-red-500">*</span></label>
-              <input type="text" name="name" value={form.name} onChange={handleFormChange} placeholder="Enter business name" className={inputClass} />
-            </div>
-            <div>
-              <label className={`${labelClass} block`}>Tax Identification Number (TIN)</label>
-              <input type="text" name="tin" value={form.tin} onChange={handleFormChange} placeholder="e.g. TIN-1234567890" className={inputClass} />
-            </div>
-            <div>
-              <label className={`${labelClass} block`}>Business License Number</label>
-              <input type="text" name="licenseNumber" value={form.licenseNumber} onChange={handleFormChange} placeholder="e.g. LIC-PH-2024-001" className={inputClass} />
-            </div>
-            <div>
-              <label className={`${labelClass} block`}>Date Registered</label>
-              <input type="date" name="dateRegistered" value={form.dateRegistered} onChange={handleFormChange} className={inputClass} />
-            </div>
-            <div>
-              <label className={`${labelClass} block`}>Business Status</label>
-              <select name="status" value={form.status} onChange={handleFormChange} className={inputClass}>
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-            </div>
-            <div>
-              <label className={`${labelClass} block`}>Business Address <span className="text-red-500">*</span></label>
-              <input type="text" name="businessAddress" value={form.businessAddress} onChange={handleFormChange} placeholder="Enter business address" className={inputClass} />
-            </div>
-            <div>
-              <label className={`${labelClass} block`}>Phone Number</label>
-              <input type="tel" name="phone" value={form.phone} onChange={handleFormChange} placeholder="e.g. +233 24 567 8901" className={inputClass} />
-            </div>
-            <div>
-              <label className={`${labelClass} block`}>Email Address</label>
-              <input type="email" name="email" value={form.email} onChange={handleFormChange} placeholder="e.g. business@email.com" className={inputClass} />
-            </div>
-            <div>
-              <label className={`${labelClass} block`}>Year Established</label>
-              <input type="text" name="yearEstablished" value={form.yearEstablished} onChange={handleFormChange} placeholder="e.g. 2020" className={inputClass} />
-            </div>
-            <div>
-              <label className={`${labelClass} block`}>Number of Employees</label>
-              <input type="text" name="employees" value={form.employees} onChange={handleFormChange} placeholder="e.g. 15" className={inputClass} />
-            </div>
-          </div>
-        </section>
-
-        {/* ─── Section 3: Business Location / GPS ────────────────────────── */}
-        <section>
-          <h2 className={sectionHeaderClass}>
-            <span className="inline-flex items-center gap-2"><MapPin className="w-5 h-5" /> Business Location</span>
-          </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <div>
-              <label className={`${labelClass} block`}>GhanaPost GPS Address</label>
-              <div className="flex gap-2">
-                <input type="text" name="gpsAddress" value={form.gpsAddress} onChange={handleFormChange} placeholder="e.g. AK-034-5521 or lat, lng" className={`${inputClass} flex-1`} />
-                <button onClick={() => fetchGpsFromLocation('business')} disabled={locatingBusiness} className="inline-flex items-center gap-2 px-3 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors whitespace-nowrap" title="Use device GPS to get coordinates">
-                  {locatingBusiness ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crosshair className="w-4 h-4" />}
-                  {locatingBusiness ? 'Locating...' : 'Use Location'}
-                </button>
+          <div className="p-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
+              {/* Street Name */}
+              <div>
+                <label className={`${labelClass} block`}>Street Name</label>
+                <input type="text" name="streetName" value={form.streetName} onChange={handleFormChange} placeholder="e.g. Powder St" className={inputClass} />
               </div>
-              {form.gpsAddress && !locatingBusiness && (
-                <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
-                  GPS coordinates captured
-                </p>
-              )}
-            </div>
-            <div>
-              <label className={`${labelClass} block`}>Digital Address</label>
-              <input type="text" name="digitalAddress" value={form.digitalAddress} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={inputClass} />
-            </div>
-            <div>
-              <label className={`${labelClass} block`}>Street Name</label>
-              <input type="text" name="streetName" value={form.streetName} onChange={handleFormChange} placeholder="Enter street name" className={inputClass} />
-            </div>
-            <div>
-              <label className={`${labelClass} block`}>House Number</label>
-              <input type="text" name="houseNo" value={form.houseNo} onChange={handleFormChange} placeholder="e.g. 24" className={inputClass} />
-            </div>
-            <div>
-              <label className={`${labelClass} block`}>Ward</label>
-              <input type="text" name="ward" value={form.ward} onChange={handleFormChange} placeholder="Enter ward" className={inputClass} />
-            </div>
-            <div>
-              <label className={`${labelClass} block`}>Electoral Area</label>
-              <input type="text" name="electoralArea" value={form.electoralArea} onChange={handleFormChange} placeholder="Enter electoral area" className={inputClass} />
-            </div>
-            <div>
-              <label className={`${labelClass} block`}>Zone</label>
-              <input type="text" name="zone" value={form.zone} onChange={handleFormChange} placeholder="e.g. Zone A" className={inputClass} />
-            </div>
-            <div>
-              <label className={`${labelClass} block`}>Revenue Area</label>
-              <input type="text" name="revenueArea" value={form.revenueArea} onChange={handleFormChange} placeholder="Enter revenue area" className={inputClass} />
-            </div>
-          </div>
-        </section>
-
-        {/* ─── Section 4: Owner Details ────────────────────────────────── */}
-        <section>
-          <h2 className={sectionHeaderClass}>
-            <span className="inline-flex items-center gap-2"><User className="w-5 h-5" /> Owner Details</span>
-          </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <div>
-              <label className={`${labelClass} block`}>Owner Name <span className="text-red-500">*</span></label>
-              <input type="text" name="ownerName" value={form.ownerName} onChange={handleFormChange} placeholder="Enter full name of owner" className={inputClass} />
-            </div>
-            <div>
-              <label className={`${labelClass} block`}>Ghana Card Number</label>
-              <input type="text" name="ghanaCard" value={form.ghanaCard} onChange={handleFormChange} placeholder="e.g. GHA-123456789-0" className={inputClass} />
-            </div>
-            <div>
-              <label className={`${labelClass} block`}>Owner Phone</label>
-              <input type="tel" name="phone" value={form.phone} onChange={handleFormChange} placeholder="e.g. +233 24 567 8901" className={inputClass} />
-            </div>
-            <div>
-              <label className={`${labelClass} block`}>Owner Address</label>
-              <input type="text" name="ownerAddress" value={form.ownerAddress} onChange={handleFormChange} placeholder="Enter owner's residential address" className={inputClass} />
-            </div>
-            <div>
-              <label className={`${labelClass} block`}>Owner GPS</label>
-              <div className="flex gap-2">
-                <input type="text" name="ownerGps" value={form.ownerGps} onChange={handleFormChange} placeholder="Owner's GPS coordinates" className={`${inputClass} flex-1`} />
-                <button onClick={() => fetchGpsFromLocation('owner')} disabled={locatingOwner} className="inline-flex items-center gap-2 px-3 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors whitespace-nowrap" title="Use device GPS for owner location">
-                  {locatingOwner ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crosshair className="w-4 h-4" />}
-                  {locatingOwner ? 'Locating...' : 'Use Location'}
-                </button>
+              {/* House No */}
+              <div>
+                <label className={`${labelClass} block`}>House No.</label>
+                <input type="text" name="houseNo" value={form.houseNo} onChange={handleFormChange} placeholder="e.g. 26" className={inputClass} />
               </div>
-              {form.ownerGps && !locatingOwner && (
-                <p className="mt-1.5 text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
-                  Owner GPS captured
-                </p>
-              )}
-            </div>
-            <div>
-              <label className={`${labelClass} block`}>Owner TIN</label>
-              <input type="text" name="ownerTin" value={form.ownerTin} onChange={handleFormChange} placeholder="Owner's TIN" className={inputClass} />
+              {/* Street Code */}
+              <div>
+                <label className={`${labelClass} block`}>Street Code</label>
+                <input type="text" name="streetCode" value={form.streetCode} onChange={handleFormChange} placeholder="Enter street code" className={inputClass} />
+              </div>
+              {/* GhanaPost GPS */}
+              <div>
+                <label className={`${labelClass} block`}>GhanaPost GPS</label>
+                <div className="flex gap-2">
+                  <input type="text" name="gpsAddress" value={form.gpsAddress} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={`${inputClass} flex-1`} />
+                  <button onClick={() => fetchGpsFromLocation('business')} disabled={locatingBusiness} className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors whitespace-nowrap" title="Use device GPS">
+                    {locatingBusiness ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crosshair className="w-4 h-4" />}
+                    {locatingBusiness ? '...' : 'GPS'}
+                  </button>
+                </div>
+              </div>
+              {/* Locality Code */}
+              <div>
+                <label className={`${labelClass} block`}>Locality Code</label>
+                <input type="text" name="localityCode" value={form.localityCode} onChange={handleFormChange} placeholder="Enter locality code" className={inputClass} />
+              </div>
+              {/* Business Address (full width) */}
+              <div className="sm:col-span-2 lg:col-span-3">
+                <label className={`${labelClass} block`}>Business Address <span className="text-red-500">*</span></label>
+                <input type="text" name="businessAddress" value={form.businessAddress} onChange={handleFormChange} placeholder="Full business address" className={inputClass} />
+              </div>
             </div>
           </div>
-        </section>
+        </div>
 
-        {/* ─── Section 5: Additional Info ────────────────────────────────── */}
-        <section>
-          <h2 className={sectionHeaderClass}>Additional Information</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <div className="lg:col-span-2">
-              <label className={`${labelClass} block`}>Comments / Notes</label>
-              <textarea name="comments" value={form.comments} onChange={handleFormChange} placeholder="Any additional notes about this business..." rows={3} className={inputClass} />
+        {/* ════════════════════════════════════════════════════════════════════
+            CARD 2: BUSINESS INFORMATION
+           ════════════════════════════════════════════════════════════════════ */}
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="flex items-center gap-2.5 px-5 py-3 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700">
+            <Briefcase className="w-4.5 h-4.5 text-slate-600 dark:text-slate-400" />
+            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Business Information</h2>
+          </div>
+          <div className="p-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
+              {/* Business Class */}
+              <div>
+                <label className={`${labelClass} block`}>Business Class <span className="text-red-500">*</span></label>
+                <select name="type" value={form.type} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Type to filter business class...</option>
+                  {businessTypes.map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+              {/* Business Name */}
+              <div className="sm:col-span-2">
+                <label className={`${labelClass} block`}>Business Name <span className="text-red-500">*</span></label>
+                <input type="text" name="name" value={form.name} onChange={handleFormChange} placeholder="Enter business name" className={inputClass} />
+              </div>
+              {/* DA Assignment No */}
+              <div>
+                <label className={`${labelClass} block`}>DA Assignment No.</label>
+                <input type="text" name="daAssignmentNo" value={form.daAssignmentNo} onChange={handleFormChange} placeholder="e.g. DA-2026-001" className={inputClass} />
+              </div>
+              {/* Business Certificate */}
+              <div>
+                <label className={`${labelClass} block`}>Business Certificate</label>
+                <input type="text" name="businessCertNo" value={form.businessCertNo} onChange={handleFormChange} placeholder="Certificate number" className={inputClass} />
+              </div>
+              {/* Business Permit */}
+              <div>
+                <label className={`${labelClass} block`}>Business Permit</label>
+                <input type="text" name="businessPermit" value={form.businessPermit} onChange={handleFormChange} placeholder="Permit number" className={inputClass} />
+              </div>
+              {/* Category (dynamic from fee schedule) */}
+              <div>
+                <label className={`${labelClass} block`}>Category</label>
+                <select name="category" value={form.category} onChange={handleFormChange} className={inputClass} disabled={!form.type}>
+                  <option value="">Select category</option>
+                  {availableCategories.map((c) => (
+                    <option key={c.name} value={c.name}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+              {/* Business TIN */}
+              <div>
+                <label className={`${labelClass} block`}>Business TIN</label>
+                <input type="text" name="tin" value={form.tin} onChange={handleFormChange} placeholder="e.g. TIN-1234567890" className={inputClass} />
+              </div>
+              {/* Employees */}
+              <div>
+                <label className={`${labelClass} block`}>Employees</label>
+                <input type="text" name="employees" value={form.employees} onChange={handleFormChange} placeholder="e.g. 15" className={inputClass} />
+              </div>
+              {/* Year Established */}
+              <div>
+                <label className={`${labelClass} block`}>Year Established</label>
+                <input type="text" name="yearEstablished" value={form.yearEstablished} onChange={handleFormChange} placeholder="e.g. 2020" className={inputClass} />
+              </div>
+              {/* Fee Amount (read-only) */}
+              <div>
+                <label className={`${labelClass} block`}>Fee Amount</label>
+                <input type="text" value={selectedCategoryFee ? `GH\u20b5 ${selectedCategoryFee.amount.toLocaleString()}` : ''} readOnly placeholder="Select a category" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-emerald-700 dark:text-emerald-400 font-semibold`} />
+              </div>
+              {/* Date Registered */}
+              <div>
+                <label className={`${labelClass} block`}>Date Registered</label>
+                <input type="date" name="dateRegistered" value={form.dateRegistered} onChange={handleFormChange} className={inputClass} />
+              </div>
+              {/* Active Status + Excluded from fees (same row) */}
+              <div className="flex items-end gap-6">
+                <div className="flex-1">
+                  <label className={`${labelClass} block`}>Active Status</label>
+                  <select name="status" value={form.status} onChange={handleFormChange} className={inputClass}>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                  </select>
+                </div>
+                <label className="flex items-center gap-2 pb-2.5 cursor-pointer select-none">
+                  <input type="checkbox" name="excludedFromFees" checked={form.excludedFromFees} onChange={handleFormChange} className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                  <span className="text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">Excluded from fees</span>
+                </label>
+              </div>
             </div>
           </div>
-        </section>
+        </div>
+
+        {/* ════════════════════════════════════════════════════════════════════
+            CARD 3: OWNER INFORMATION
+           ════════════════════════════════════════════════════════════════════ */}
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="flex items-center gap-2.5 px-5 py-3 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700">
+            <User className="w-4.5 h-4.5 text-slate-600 dark:text-slate-400" />
+            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Owner Information</h2>
+          </div>
+          <div className="p-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
+              {/* Owner Name - full width */}
+              <div className="sm:col-span-2 lg:col-span-3">
+                <label className={`${labelClass} block`}>Owner Name <span className="text-red-500">*</span></label>
+                <input type="text" name="ownerName" value={form.ownerName} onChange={handleFormChange} placeholder="Enter full name of owner" className={inputClass} />
+              </div>
+              {/* Owner Address - wider */}
+              <div className="lg:col-span-2">
+                <label className={`${labelClass} block`}>Owner Address</label>
+                <input type="text" name="ownerAddress" value={form.ownerAddress} onChange={handleFormChange} placeholder="Owner's residential address" className={inputClass} />
+              </div>
+              {/* Owner GhanaPost GPS */}
+              <div>
+                <label className={`${labelClass} block`}>Owner GhanaPost GPS</label>
+                <div className="flex gap-2">
+                  <input type="text" name="ownerGps" value={form.ownerGps} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={`${inputClass} flex-1`} />
+                  <button onClick={() => fetchGpsFromLocation('owner')} disabled={locatingOwner} className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors whitespace-nowrap" title="Use device GPS">
+                    {locatingOwner ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crosshair className="w-4 h-4" />}
+                    {locatingOwner ? '...' : 'GPS'}
+                  </button>
+                </div>
+              </div>
+              {/* Phone */}
+              <div>
+                <label className={`${labelClass} block`}>Phone</label>
+                <input type="tel" name="phone" value={form.phone} onChange={handleFormChange} placeholder="e.g. +233 24 567 8901" className={inputClass} />
+              </div>
+              {/* Email */}
+              <div>
+                <label className={`${labelClass} block`}>Email</label>
+                <input type="email" name="email" value={form.email} onChange={handleFormChange} placeholder="e.g. owner@email.com" className={inputClass} />
+              </div>
+              {/* Owner TIN */}
+              <div>
+                <label className={`${labelClass} block`}>TIN</label>
+                <input type="text" name="ownerTin" value={form.ownerTin} onChange={handleFormChange} placeholder="Owner's TIN" className={inputClass} />
+              </div>
+              {/* National ID (Ghana Card) */}
+              <div>
+                <label className={`${labelClass} block`}>National ID</label>
+                <input type="text" name="ghanaCard" value={form.ghanaCard} onChange={handleFormChange} placeholder="e.g. GHA-123456789-0" className={inputClass} />
+              </div>
+              {/* Comments - full width */}
+              <div className="sm:col-span-2 lg:col-span-3">
+                <label className={`${labelClass} block`}>Comments</label>
+                <textarea name="comments" value={form.comments} onChange={handleFormChange} placeholder="Any additional notes..." rows={3} className={`${inputClass} resize-none`} />
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* ─── Action Buttons ──────────────────────────────────────────── */}
-        <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-          <button onClick={handleCancel} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+        <div className="flex items-center justify-end gap-3 pt-2">
+          <button onClick={handleCancel} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-500 hover:bg-slate-600 text-white text-sm font-medium transition-colors">
+            <X className="w-4 h-4" />
             Cancel
           </button>
-          <button onClick={handleSave} className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors">
+          <button onClick={handleSave} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors">
             <Save className="w-4 h-4" />
-            {editingRegNumber ? 'Update Business' : 'Save Business'}
+            {editingRegNumber ? 'Update' : 'Save'}
           </button>
         </div>
       </div>
