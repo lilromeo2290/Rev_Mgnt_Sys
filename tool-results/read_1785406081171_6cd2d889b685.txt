@@ -1,0 +1,787 @@
+     1→'use client';
+     2→
+     3→import { useState } from 'react';
+     4→import {
+     5→  Search,
+     6→  Plus,
+     7→  ArrowLeft,
+     8→  Pencil,
+     9→  Trash2,
+    10→  ChevronLeft,
+    11→  ChevronRight,
+    12→  Upload,
+    13→  Building2,
+    14→} from 'lucide-react';
+    15→
+    16→// ─── Types ───────────────────────────────────────────────────────────────────
+    17→
+    18→interface Business {
+    19→  regNumber: string;
+    20→  name: string;
+    21→  owner: string;
+    22→  type: string;
+    23→  category: string;
+    24→  tin: string;
+    25→  status: 'Active' | 'Inactive';
+    26→  dateRegistered: string;
+    27→  ghanaCard: string;
+    28→  phone: string;
+    29→  email: string;
+    30→  gpsAddress: string;
+    31→  digitalAddress: string;
+    32→  residentialAddress: string;
+    33→  businessAddress: string;
+    34→  ward: string;
+    35→  electoralArea: string;
+    36→  zone: string;
+    37→  revenueArea: string;
+    38→  licenseNumber: string;
+    39→  subCategory: string;
+    40→}
+    41→
+    42→// ─── Mock Data ───────────────────────────────────────────────────────────────
+    43→
+    44→const mockBusinesses: Business[] = [];
+    45→
+    46→// ─── Business Type → Category mapping ────────────────────────────────────────
+    47→
+    48→const businessTypeCategories: Record<string, string[]> = {
+    49→  Pharmacy: ['Healthcare', 'Pharmaceutical'],
+    50→  Hotel: ['Hospitality', 'Tourism'],
+    51→  Restaurant: ['Food & Beverage', 'Hospitality'],
+    52→  'Drinking Spot': ['Food & Beverage', 'Entertainment'],
+    53→  'Cold Store': ['Retail', 'Food & Beverage'],
+    54→  Supermarket: ['Retail', 'Wholesale'],
+    55→  'Fuel Station': ['Energy', 'Transportation'],
+    56→  'Barbering Salon': ['Personal Care', 'Services'],
+    57→  'Hair Salon': ['Personal Care', 'Services'],
+    58→  Clinic: ['Healthcare', 'Medical Services'],
+    59→  Hospital: ['Healthcare', 'Medical Services'],
+    60→  School: ['Education', 'Social Services'],
+    61→  Bank: ['Finance', 'Services'],
+    62→  NGO: ['Social Services', 'Non-Profit'],
+    63→  Church: ['Religious', 'Non-Profit'],
+    64→  Manufacturing: ['Industry', 'Production'],
+    65→  'Retail Shop': ['Retail', 'Commerce'],
+    66→  Other: ['General', 'Services'],
+    67→};
+    68→
+    69→const businessTypes = Object.keys(businessTypeCategories);
+    70→
+    71→// ─── Component ───────────────────────────────────────────────────────────────
+    72→
+    73→export function BusinessesPage() {
+    74→  const [view, setView] = useState<'list' | 'form'>('list');
+    75→  const [searchQuery, setSearchQuery] = useState('');
+    76→  const [statusFilter, setStatusFilter] = useState<string>('All');
+    77→  const [typeFilter, setTypeFilter] = useState<string>('All');
+    78→  const [currentPage, setCurrentPage] = useState(1);
+    79→  const [businesses, setBusinesses] = useState<Business[]>(mockBusinesses);
+    80→  const itemsPerPage = 10;
+    81→
+    82→  // ── Form State ───────────────────────────────────────────────────────────
+    83→  const [form, setForm] = useState({
+    84→    regNumber: '',
+    85→    name: '',
+    86→    type: '',
+    87→    category: '',
+    88→    subCategory: '',
+    89→    tin: '',
+    90→    licenseNumber: '',
+    91→    dateRegistered: '',
+    92→    status: 'Active',
+    93→    ownerName: '',
+    94→    ghanaCard: '',
+    95→    phone: '',
+    96→    email: '',
+    97→    gpsAddress: '',
+    98→    digitalAddress: '',
+    99→    residentialAddress: '',
+   100→    businessAddress: '',
+   101→    ward: '',
+   102→    electoralArea: '',
+   103→    zone: '',
+   104→    revenueArea: '',
+   105→  });
+   106→
+   107→  // ── Derived categories based on selected business type ───────────────────
+   108→  const availableCategories = form.type
+   109→    ? businessTypeCategories[form.type] || []
+   110→    : [];
+   111→
+   112→  // ── Filtering & Pagination ───────────────────────────────────────────────
+   113→  const filtered = businesses.filter((b) => {
+   114→    const matchSearch =
+   115→      searchQuery === '' ||
+   116→      b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+   117→      b.owner.toLowerCase().includes(searchQuery.toLowerCase()) ||
+   118→      b.regNumber.toLowerCase().includes(searchQuery.toLowerCase());
+   119→    const matchStatus = statusFilter === 'All' || b.status === statusFilter;
+   120→    const matchType = typeFilter === 'All' || b.type === typeFilter;
+   121→    return matchSearch && matchStatus && matchType;
+   122→  });
+   123→
+   124→  const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+   125→  const safeCurrentPage = Math.min(currentPage, totalPages);
+   126→  const startIdx = (safeCurrentPage - 1) * itemsPerPage;
+   127→  const paged = filtered.slice(startIdx, startIdx + itemsPerPage);
+   128→  const showingFrom = filtered.length === 0 ? 0 : startIdx + 1;
+   129→  const showingTo = Math.min(startIdx + itemsPerPage, filtered.length);
+   130→
+   131→  // ── Handlers ─────────────────────────────────────────────────────────────
+   132→  const handleFormChange = (
+   133→    e: React.ChangeEvent<
+   134→      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+   135→    >
+   136→  ) => {
+   137→    const { name, value } = e.target;
+   138→    setForm((prev) => {
+   139→      const updated = { ...prev, [name]: value };
+   140→      // Reset category and sub-category when type changes
+   141→      if (name === 'type') {
+   142→        updated.category = '';
+   143→        updated.subCategory = '';
+   144→      }
+   145→      return updated;
+   146→    });
+   147→  };
+   148→
+   149→  const handleSave = () => {
+   150→    setView('list');
+   151→  };
+   152→
+   153→  const handleCancel = () => {
+   154→    setView('list');
+   155→  };
+   156→
+   157→  const handleDelete = (regNumber: string) => {
+   158→    setBusinesses((prev) => prev.filter((b) => b.regNumber !== regNumber));
+   159→  };
+   160→
+   161→  // ── Form Field Helper ────────────────────────────────────────────────────
+   162→  const inputClass =
+   163→    'w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition';
+   164→  const labelClass =
+   165→    'text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5';
+   166→  const sectionHeaderClass =
+   167→    'text-lg font-semibold text-slate-900 dark:text-white mb-4 pb-2 border-b border-slate-200 dark:border-slate-700';
+   168→
+   169→  // ══════════════════════════════════════════════════════════════════════════
+   170→  //  LIST VIEW
+   171→  // ══════════════════════════════════════════════════════════════════════════
+   172→  if (view === 'list') {
+   173→    return (
+   174→      <div className="space-y-6">
+   175→        {/* ── Header ──────────────────────────────────────────────────────── */}
+   176→        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+   177→          <div>
+   178→            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+   179→              Business Registration
+   180→            </h1>
+   181→            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+   182→              Manage and register businesses within the assembly. Track revenue
+   183→              collection and compliance.
+   184→            </p>
+   185→          </div>
+   186→          <button
+   187→            onClick={() => setView('form')}
+   188→            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap"
+   189→          >
+   190→            <Plus className="w-4 h-4" />
+   191→            Register New Business
+   192→          </button>
+   193→        </div>
+   194→
+   195→        {/* ── Search & Filters ────────────────────────────────────────────── */}
+   196→        <div className="flex flex-col sm:flex-row gap-3">
+   197→          <div className="relative flex-1">
+   198→            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+   199→            <input
+   200→              type="text"
+   201→              placeholder="Search by name, owner, or registration number..."
+   202→              value={searchQuery}
+   203→              onChange={(e) => {
+   204→                setSearchQuery(e.target.value);
+   205→                setCurrentPage(1);
+   206→              }}
+   207→              className={`${inputClass} pl-10`}
+   208→            />
+   209→          </div>
+   210→          <select
+   211→            value={statusFilter}
+   212→            onChange={(e) => {
+   213→              setStatusFilter(e.target.value);
+   214→              setCurrentPage(1);
+   215→            }}
+   216→            className={`${inputClass} w-full sm:w-44`}
+   217→          >
+   218→            <option value="All">All Statuses</option>
+   219→            <option value="Active">Active</option>
+   220→            <option value="Inactive">Inactive</option>
+   221→          </select>
+   222→          <select
+   223→            value={typeFilter}
+   224→            onChange={(e) => {
+   225→              setTypeFilter(e.target.value);
+   226→              setCurrentPage(1);
+   227→            }}
+   228→            className={`${inputClass} w-full sm:w-48`}
+   229→          >
+   230→            <option value="All">All Business Types</option>
+   231→            {businessTypes.map((t) => (
+   232→              <option key={t} value={t}>
+   233→                {t}
+   234→              </option>
+   235→            ))}
+   236→          </select>
+   237→        </div>
+   238→
+   239→        {/* ── Table ───────────────────────────────────────────────────────── */}
+   240→        <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+   241→          <div className="overflow-x-auto">
+   242→            <table className="w-full text-sm">
+   243→              <thead>
+   244→                <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700">
+   245→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   246→                    Reg #
+   247→                  </th>
+   248→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   249→                    Business Name
+   250→                  </th>
+   251→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   252→                    Owner
+   253→                  </th>
+   254→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   255→                    Type
+   256→                  </th>
+   257→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden lg:table-cell">
+   258→                    Category
+   259→                  </th>
+   260→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden md:table-cell">
+   261→                    TIN
+   262→                  </th>
+   263→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   264→                    Status
+   265→                  </th>
+   266→                  <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   267→                    Actions
+   268→                  </th>
+   269→                </tr>
+   270→              </thead>
+   271→              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+   272→                {paged.length === 0 ? (
+   273→                  <tr>
+   274→                    <td
+   275→                      colSpan={8}
+   276→                      className="text-center py-12 text-slate-400 dark:text-slate-500"
+   277→                    >
+   278→                      <Building2 className="w-10 h-10 mx-auto mb-3 opacity-40" />
+   279→                      No businesses found matching your criteria.
+   280→                    </td>
+   281→                  </tr>
+   282→                ) : (
+   283→                  paged.map((biz) => (
+   284→                    <tr
+   285→                      key={biz.regNumber}
+   286→                      className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+   287→                    >
+   288→                      <td className="px-4 py-3 font-mono text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+   289→                        {biz.regNumber}
+   290→                      </td>
+   291→                      <td className="px-4 py-3 font-medium text-slate-900 dark:text-white whitespace-nowrap">
+   292→                        {biz.name}
+   293→                      </td>
+   294→                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   295→                        {biz.owner}
+   296→                      </td>
+   297→                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   298→                        {biz.type}
+   299→                      </td>
+   300→                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap hidden lg:table-cell">
+   301→                        {biz.category}
+   302→                      </td>
+   303→                      <td className="px-4 py-3 font-mono text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap hidden md:table-cell">
+   304→                        {biz.tin}
+   305→                      </td>
+   306→                      <td className="px-4 py-3 whitespace-nowrap">
+   307→                        <span
+   308→                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+   309→                            biz.status === 'Active'
+   310→                              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400'
+   311→                              : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400'
+   312→                          }`}
+   313→                        >
+   314→                          {biz.status}
+   315→                        </span>
+   316→                      </td>
+   317→                      <td className="px-4 py-3 text-right whitespace-nowrap">
+   318→                        <div className="inline-flex items-center gap-1">
+   319→                          <button
+   320→                            className="p-1.5 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+   321→                            title="Edit"
+   322→                          >
+   323→                            <Pencil className="w-4 h-4" />
+   324→                          </button>
+   325→                          <button
+   326→                            onClick={() => handleDelete(biz.regNumber)}
+   327→                            className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+   328→                            title="Delete"
+   329→                          >
+   330→                            <Trash2 className="w-4 h-4" />
+   331→                          </button>
+   332→                        </div>
+   333→                      </td>
+   334→                    </tr>
+   335→                  ))
+   336→                )}
+   337→              </tbody>
+   338→            </table>
+   339→          </div>
+   340→        </div>
+   341→
+   342→        {/* ── Pagination ──────────────────────────────────────────────────── */}
+   343→        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+   344→          <p className="text-slate-500 dark:text-slate-400">
+   345→            Showing {showingFrom}-{showingTo} of {filtered.length}
+   346→          </p>
+   347→          <div className="flex items-center gap-2">
+   348→            <button
+   349→              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+   350→              disabled={safeCurrentPage <= 1}
+   351→              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+   352→            >
+   353→              <ChevronLeft className="w-4 h-4" />
+   354→              Previous
+   355→            </button>
+   356→            <span className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium">
+   357→              {safeCurrentPage} / {totalPages}
+   358→            </span>
+   359→            <button
+   360→              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+   361→              disabled={safeCurrentPage >= totalPages}
+   362→              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+   363→            >
+   364→              Next
+   365→              <ChevronRight className="w-4 h-4" />
+   366→            </button>
+   367→          </div>
+   368→        </div>
+   369→      </div>
+   370→    );
+   371→  }
+   372→
+   373→  // ══════════════════════════════════════════════════════════════════════════
+   374→  //  FORM VIEW
+   375→  // ══════════════════════════════════════════════════════════════════════════
+   376→  return (
+   377→    <div className="space-y-6">
+   378→      {/* ── Header ────────────────────────────────────────────────────────── */}
+   379→      <div className="flex items-center gap-4">
+   380→        <button
+   381→          onClick={handleCancel}
+   382→          className="p-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+   383→        >
+   384→          <ArrowLeft className="w-5 h-5" />
+   385→        </button>
+   386→        <div>
+   387→          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+   388→            Register New Business
+   389→          </h1>
+   390→          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+   391→            Fill in the details below to register a new business.
+   392→          </p>
+   393→        </div>
+   394→      </div>
+   395→
+   396→      <div className="space-y-8">
+   397→        {/* ─── Section 1: Business Details ──────────────────────────────── */}
+   398→        <section>
+   399→          <h2 className={sectionHeaderClass}>Business Details</h2>
+   400→          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+   401→            {/* Business Registration Number */}
+   402→            <div>
+   403→              <label className={`${labelClass} block`}>
+   404→                Business Registration Number
+   405→              </label>
+   406→              <input
+   407→                type="text"
+   408→                name="regNumber"
+   409→                value={form.regNumber}
+   410→                onChange={handleFormChange}
+   411→                placeholder="e.g. BIZ-2024-013"
+   412→                className={inputClass}
+   413→              />
+   414→            </div>
+   415→
+   416→            {/* Business Name */}
+   417→            <div>
+   418→              <label className={`${labelClass} block`}>Business Name</label>
+   419→              <input
+   420→                type="text"
+   421→                name="name"
+   422→                value={form.name}
+   423→                onChange={handleFormChange}
+   424→                placeholder="Enter business name"
+   425→                className={inputClass}
+   426→              />
+   427→            </div>
+   428→
+   429→            {/* Business Type */}
+   430→            <div>
+   431→              <label className={`${labelClass} block`}>Business Type</label>
+   432→              <select
+   433→                name="type"
+   434→                value={form.type}
+   435→                onChange={handleFormChange}
+   436→                className={inputClass}
+   437→              >
+   438→                <option value="">Select business type</option>
+   439→                {businessTypes.map((t) => (
+   440→                  <option key={t} value={t}>
+   441→                    {t}
+   442→                  </option>
+   443→                ))}
+   444→              </select>
+   445→            </div>
+   446→
+   447→            {/* Category */}
+   448→            <div>
+   449→              <label className={`${labelClass} block`}>Category</label>
+   450→              <select
+   451→                name="category"
+   452→                value={form.category}
+   453→                onChange={handleFormChange}
+   454→                disabled={availableCategories.length === 0}
+   455→                className={`${inputClass} ${availableCategories.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+   456→              >
+   457→                <option value="">
+   458→                  {form.type ? 'Select category' : 'Select a business type first'}
+   459→                </option>
+   460→                {availableCategories.map((c) => (
+   461→                  <option key={c} value={c}>
+   462→                    {c}
+   463→                  </option>
+   464→                ))}
+   465→              </select>
+   466→            </div>
+   467→
+   468→            {/* Sub-category */}
+   469→            <div>
+   470→              <label className={`${labelClass} block`}>Sub-category</label>
+   471→              <input
+   472→                type="text"
+   473→                name="subCategory"
+   474→                value={form.subCategory}
+   475→                onChange={handleFormChange}
+   476→                placeholder="Enter sub-category"
+   477→                className={inputClass}
+   478→              />
+   479→            </div>
+   480→
+   481→            {/* Tax Identification Number */}
+   482→            <div>
+   483→              <label className={`${labelClass} block`}>
+   484→                Tax Identification Number (TIN)
+   485→              </label>
+   486→              <input
+   487→                type="text"
+   488→                name="tin"
+   489→                value={form.tin}
+   490→                onChange={handleFormChange}
+   491→                placeholder="e.g. TIN-1234567890"
+   492→                className={inputClass}
+   493→              />
+   494→            </div>
+   495→
+   496→            {/* Business License Number */}
+   497→            <div>
+   498→              <label className={`${labelClass} block`}>
+   499→                Business License Number
+   500→              </label>
+   501→              <input
+   502→                type="text"
+   503→                name="licenseNumber"
+   504→                value={form.licenseNumber}
+   505→                onChange={handleFormChange}
+   506→                placeholder="e.g. LIC-PH-2024-001"
+   507→                className={inputClass}
+   508→              />
+   509→            </div>
+   510→
+   511→            {/* Date Registered */}
+   512→            <div>
+   513→              <label className={`${labelClass} block`}>Date Registered</label>
+   514→              <input
+   515→                type="date"
+   516→                name="dateRegistered"
+   517→                value={form.dateRegistered}
+   518→                onChange={handleFormChange}
+   519→                className={inputClass}
+   520→              />
+   521→            </div>
+   522→
+   523→            {/* Business Status */}
+   524→            <div>
+   525→              <label className={`${labelClass} block`}>Business Status</label>
+   526→              <select
+   527→                name="status"
+   528→                value={form.status}
+   529→                onChange={handleFormChange}
+   530→                className={inputClass}
+   531→              >
+   532→                <option value="Active">Active</option>
+   533→                <option value="Inactive">Inactive</option>
+   534→              </select>
+   535→            </div>
+   536→          </div>
+   537→        </section>
+   538→
+   539→        {/* ─── Section 2: Owner Details ────────────────────────────────── */}
+   540→        <section>
+   541→          <h2 className={sectionHeaderClass}>Owner Details</h2>
+   542→          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+   543→            {/* Owner Name */}
+   544→            <div>
+   545→              <label className={`${labelClass} block`}>Owner Name</label>
+   546→              <input
+   547→                type="text"
+   548→                name="ownerName"
+   549→                value={form.ownerName}
+   550→                onChange={handleFormChange}
+   551→                placeholder="Enter full name of owner"
+   552→                className={inputClass}
+   553→              />
+   554→            </div>
+   555→
+   556→            {/* Ghana Card Number */}
+   557→            <div>
+   558→              <label className={`${labelClass} block`}>
+   559→                Ghana Card Number
+   560→              </label>
+   561→              <input
+   562→                type="text"
+   563→                name="ghanaCard"
+   564→                value={form.ghanaCard}
+   565→                onChange={handleFormChange}
+   566→                placeholder="e.g. GHA-123456789-0"
+   567→                className={inputClass}
+   568→              />
+   569→            </div>
+   570→
+   571→            {/* Phone Number */}
+   572→            <div>
+   573→              <label className={`${labelClass} block`}>Phone Number</label>
+   574→              <input
+   575→                type="tel"
+   576→                name="phone"
+   577→                value={form.phone}
+   578→                onChange={handleFormChange}
+   579→                placeholder="e.g. +233 24 567 8901"
+   580→                className={inputClass}
+   581→              />
+   582→            </div>
+   583→
+   584→            {/* Email Address */}
+   585→            <div>
+   586→              <label className={`${labelClass} block`}>Email Address</label>
+   587→              <input
+   588→                type="email"
+   589→                name="email"
+   590→                value={form.email}
+   591→                onChange={handleFormChange}
+   592→                placeholder="e.g. owner@email.com"
+   593→                className={inputClass}
+   594→              />
+   595→            </div>
+   596→          </div>
+   597→        </section>
+   598→
+   599→        {/* ─── Section 3: Address Details ──────────────────────────────── */}
+   600→        <section>
+   601→          <h2 className={sectionHeaderClass}>Address Details</h2>
+   602→          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+   603→            {/* GPS Address */}
+   604→            <div>
+   605→              <label className={`${labelClass} block`}>GPS Address</label>
+   606→              <input
+   607→                type="text"
+   608→                name="gpsAddress"
+   609→                value={form.gpsAddress}
+   610→                onChange={handleFormChange}
+   611→                placeholder="e.g. AK-034-5521"
+   612→                className={inputClass}
+   613→              />
+   614→            </div>
+   615→
+   616→            {/* Digital Address */}
+   617→            <div>
+   618→              <label className={`${labelClass} block`}>Digital Address</label>
+   619→              <input
+   620→                type="text"
+   621→                name="digitalAddress"
+   622→                value={form.digitalAddress}
+   623→                onChange={handleFormChange}
+   624→                placeholder="e.g. AK-034-5521"
+   625→                className={inputClass}
+   626→              />
+   627→            </div>
+   628→
+   629→            {/* Residential Address */}
+   630→            <div>
+   631→              <label className={`${labelClass} block`}>
+   632→                Residential Address
+   633→              </label>
+   634→              <input
+   635→                type="text"
+   636→                name="residentialAddress"
+   637→                value={form.residentialAddress}
+   638→                onChange={handleFormChange}
+   639→                placeholder="Enter residential address"
+   640→                className={inputClass}
+   641→              />
+   642→            </div>
+   643→
+   644→            {/* Business Address */}
+   645→            <div>
+   646→              <label className={`${labelClass} block`}>
+   647→                Business Address
+   648→              </label>
+   649→              <input
+   650→                type="text"
+   651→                name="businessAddress"
+   652→                value={form.businessAddress}
+   653→                onChange={handleFormChange}
+   654→                placeholder="Enter business address"
+   655→                className={inputClass}
+   656→              />
+   657→            </div>
+   658→
+   659→            {/* Ward */}
+   660→            <div>
+   661→              <label className={`${labelClass} block`}>Ward</label>
+   662→              <input
+   663→                type="text"
+   664→                name="ward"
+   665→                value={form.ward}
+   666→                onChange={handleFormChange}
+   667→                placeholder="Enter ward"
+   668→                className={inputClass}
+   669→              />
+   670→            </div>
+   671→
+   672→            {/* Electoral Area */}
+   673→            <div>
+   674→              <label className={`${labelClass} block`}>Electoral Area</label>
+   675→              <input
+   676→                type="text"
+   677→                name="electoralArea"
+   678→                value={form.electoralArea}
+   679→                onChange={handleFormChange}
+   680→                placeholder="Enter electoral area"
+   681→                className={inputClass}
+   682→              />
+   683→            </div>
+   684→
+   685→            {/* Zone */}
+   686→            <div>
+   687→              <label className={`${labelClass} block`}>Zone</label>
+   688→              <input
+   689→                type="text"
+   690→                name="zone"
+   691→                value={form.zone}
+   692→                onChange={handleFormChange}
+   693→                placeholder="e.g. Zone A"
+   694→                className={inputClass}
+   695→              />
+   696→            </div>
+   697→
+   698→            {/* Revenue Area */}
+   699→            <div>
+   700→              <label className={`${labelClass} block`}>Revenue Area</label>
+   701→              <input
+   702→                type="text"
+   703→                name="revenueArea"
+   704→                value={form.revenueArea}
+   705→                onChange={handleFormChange}
+   706→                placeholder="Enter revenue area"
+   707→                className={inputClass}
+   708→              />
+   709→            </div>
+   710→          </div>
+   711→        </section>
+   712→
+   713→        {/* ─── Section 4: Documents ────────────────────────────────────── */}
+   714→        <section>
+   715→          <h2 className={sectionHeaderClass}>Documents</h2>
+   716→          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+   717→            {/* Business Photograph */}
+   718→            <div>
+   719→              <label className={`${labelClass} block`}>
+   720→                Business Photograph
+   721→              </label>
+   722→              <div className="relative">
+   723→                <input
+   724→                  type="file"
+   725→                  accept="image/*"
+   726→                  className="hidden"
+   727→                  id="business-photo"
+   728→                />
+   729→                <label
+   730→                  htmlFor="business-photo"
+   731→                  className={`${inputClass} flex items-center justify-center gap-2 cursor-pointer hover:border-emerald-400 dark:hover:border-emerald-500 transition-colors py-8 border-dashed`}
+   732→                >
+   733→                  <Upload className="w-5 h-5 text-slate-400" />
+   734→                  <span className="text-slate-500 dark:text-slate-400">
+   735→                    Click to upload business photograph
+   736→                  </span>
+   737→                </label>
+   738→              </div>
+   739→            </div>
+   740→
+   741→            {/* Supporting Documents */}
+   742→            <div>
+   743→              <label className={`${labelClass} block`}>
+   744→                Supporting Documents
+   745→              </label>
+   746→              <div className="relative">
+   747→                <input
+   748→                  type="file"
+   749→                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+   750→                  multiple
+   751→                  className="hidden"
+   752→                  id="supporting-docs"
+   753→                />
+   754→                <label
+   755→                  htmlFor="supporting-docs"
+   756→                  className={`${inputClass} flex items-center justify-center gap-2 cursor-pointer hover:border-emerald-400 dark:hover:border-emerald-500 transition-colors py-8 border-dashed`}
+   757→                >
+   758→                  <Upload className="w-5 h-5 text-slate-400" />
+   759→                  <span className="text-slate-500 dark:text-slate-400">
+   760→                    Click to upload supporting documents
+   761→                  </span>
+   762→                </label>
+   763→              </div>
+   764→            </div>
+   765→          </div>
+   766→        </section>
+   767→
+   768→        {/* ─── Action Buttons ──────────────────────────────────────────── */}
+   769→        <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+   770→          <button
+   771→            onClick={handleCancel}
+   772→            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+   773→          >
+   774→            Cancel
+   775→          </button>
+   776→          <button
+   777→            onClick={handleSave}
+   778→            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors"
+   779→          >
+   780→            Save Business
+   781→          </button>
+   782→        </div>
+   783→      </div>
+   784→    </div>
+   785→  );
+   786→}
+   787→
