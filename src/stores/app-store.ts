@@ -83,7 +83,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   canAccess: (page) => {
     const { currentUser } = get();
     if (!currentUser) return false;
-    // Admin with all pages or page explicitly listed
+    // If accessiblePages is empty, grant all access (safety fallback)
+    if (currentUser.accessiblePages.length === 0) return true;
     return currentUser.accessiblePages.includes(page);
   },
 }));

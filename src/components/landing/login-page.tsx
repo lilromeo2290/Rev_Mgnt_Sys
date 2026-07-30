@@ -20,6 +20,8 @@ import {
 
 const USERS_STORAGE_KEY = 'rms-users';
 
+const ALL_PAGES = ['dashboard','businesses','properties','rates','billing','payments','payment-history','receipts','reports','users','settings','search','audit-trail'];
+
 interface StoredUser {
   id: string;
   staffId: string;
@@ -38,10 +40,23 @@ function loadStoredUsers(): StoredUser[] {
     const raw = localStorage.getItem(USERS_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     }
   } catch { /* ignore */ }
-  return [];
+  // Seed the default admin if nothing is stored
+  const defaultAdmin: StoredUser = {
+    id: 'USR-001',
+    staffId: 'STF-001',
+    username: 'admin',
+    password: 'admin123',
+    firstName: 'System',
+    lastName: 'Administrator',
+    role: 'Administrator',
+    status: 'Active',
+    accessiblePages: ALL_PAGES,
+  };
+  try { localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify([defaultAdmin])); } catch { /* ignore */ }
+  return [defaultAdmin];
 }
 
 export function LoginPage() {
