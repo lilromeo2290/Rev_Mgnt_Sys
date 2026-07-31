@@ -980,11 +980,6 @@ export function BusinessesPage() {
                   ))}
                 </select>
               </div>
-              {/* Code */}
-              <div>
-                <label className={`${labelClass} block`}>Code</label>
-                <input type="text" name="code" value={form.code} readOnly placeholder="Auto-generated from locality" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
-              </div>
               {/* Street Name */}
               <div>
                 <label className={`${labelClass} block`}>Street Name</label>
@@ -1059,6 +1054,11 @@ export function BusinessesPage() {
               <div>
                 <label className={`${labelClass} block`}>Revenue Description</label>
                 <input type="text" name="revenueDescription" value={form.revenueDescription} onChange={handleFormChange} placeholder="Enter revenue description" className={inputClass} />
+              </div>
+              {/* Code */}
+              <div>
+                <label className={`${labelClass} block`}>Code</label>
+                <input type="text" name="code" value={form.code} readOnly placeholder="Auto-generated" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
               </div>
               {/* Revenue Description 2 */}
               <div>
