@@ -1,0 +1,679 @@
+   215→      ghanaCard: user.ghanaCard,
+   216→      accessiblePages: user.accessiblePages || ROLE_DEFAULT_PAGES[user.role],
+   217→    });
+   218→    setEditUser(user);
+   219→  };
+   220→
+   221→  // When role changes, auto-set default pages (admin can still customize)
+   222→  const handleRoleChange = (role: UserRole) => {
+   223→    setForm((prev) => ({
+   224→      ...prev,
+   225→      role,
+   226→      accessiblePages: ROLE_DEFAULT_PAGES[role],
+   227→    }));
+   228→  };
+   229→
+   230→  const togglePage = (page: RMSPage) => {
+   231→    setForm((prev) => ({
+   232→      ...prev,
+   233→      accessiblePages: prev.accessiblePages.includes(page)
+   234→        ? prev.accessiblePages.filter((p) => p !== page)
+   235→        : [...prev.accessiblePages, page],
+   236→    }));
+   237→  };
+   238→
+   239→  const selectAllPages = () => setForm((prev) => ({ ...prev, accessiblePages: [...ALL_PAGES] }));
+   240→  const deselectAllPages = () => setForm((prev) => ({ ...prev, accessiblePages: [] }));
+   241→
+   242→  const handleSave = () => {
+   243→    if (editUser) {
+   244→      updateUsers((prev) =>
+   245→        prev.map((u) =>
+   246→          u.id === editUser.id
+   247→            ? { ...u, ...form, password: form.password || u.password } // keep old password if blank
+   248→            : u
+   249→        )
+   250→      );
+   251→      setEditUser(null);
+   252→    } else {
+   253→      const newUser: User = {
+   254→        id: String(Date.now()),
+   255→        staffId: `STF-${String(users.length + 1).padStart(3, '0')}`,
+   256→        ...form,
+   257→        status: 'Active',
+   258→        lastLogin: 'Never',
+   259→        dateCreated: new Date().toISOString().slice(0, 10),
+   260→      };
+   261→      updateUsers((prev) => [newUser, ...prev]);
+   262→      setShowAddModal(false);
+   263→    }
+   264→    setForm(emptyForm);
+   265→  };
+   266→
+   267→  const handleDelete = (id: string) => {
+   268→    updateUsers((prev) => prev.filter((u) => u.id !== id));
+   269→  };
+   270→
+   271→  const toggleStatus = (id: string) => {
+   272→    updateUsers((prev) =>
+   273→      prev.map((u) =>
+   274→        u.id === id
+   275→          ? { ...u, status: u.status === 'Active' ? 'Inactive' : 'Active' }
+   276→          : u
+   277→      )
+   278→    );
+   279→  };
+   280→
+   281→  const handleLoginAs = (user: User) => {
+   282→    if (user.status === 'Suspended') return;
+   283→    // Update last login
+   284→    const now = new Date();
+   285→    const lastLogin = now.toISOString().slice(0, 10) + ' ' + now.toTimeString().slice(0, 8);
+   286→    updateUsers((prev) =>
+   287→      prev.map((u) => (u.id === user.id ? { ...u, lastLogin } : u))
+   288→    );
+   289→    // Login as this user with their exact permissions
+   290→    loginSuccess({
+   291→      id: user.id,
+   292→      staffId: user.staffId,
+   293→      firstName: user.firstName,
+   294→      lastName: user.lastName,
+   295→      role: user.role,
+   296→      accessiblePages: user.accessiblePages,
+   297→    });
+   298→  };
+   299→
+   300→  const updateForm = (field: keyof UserFormData, value: string) => {
+   301→    setForm((prev) => ({ ...prev, [field]: value }));
+   302→  };
+   303→
+   304→  const isValid =
+   305→    form.username.trim() !== '' &&
+   306→    (editUser || form.password.trim() !== '') &&
+   307→    form.firstName.trim() !== '' &&
+   308→    form.lastName.trim() !== '' &&
+   309→    form.email.trim() !== '' &&
+   310→    form.phone.trim() !== '';
+   311→
+   312→  return (
+   313→    <div className="space-y-6">
+   314→      {/* Header */}
+   315→      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+   316→        <div>
+   317→          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">User Management</h1>
+   318→          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+   319→            Manage system users, roles, and access permissions
+   320→          </p>
+   321→        </div>
+   322→        <button
+   323→          onClick={openAdd}
+   324→          className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 text-sm font-medium transition-colors"
+   325→        >
+   326→          <Plus className="w-4 h-4" />
+   327→          Add User
+   328→        </button>
+   329→      </div>
+   330→
+   331→      {/* Summary Cards */}
+   332→      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+   333→        <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 flex items-center gap-4">
+   334→          <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
+   335→            <Users className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+   336→          </div>
+   337→          <div>
+   338→            <p className="text-sm text-slate-500 dark:text-slate-400">Total Users</p>
+   339→            <p className="text-xl font-bold text-slate-900 dark:text-white">{users.length}</p>
+   340→          </div>
+   341→        </div>
+   342→        <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 flex items-center gap-4">
+   343→          <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
+   344→            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+   345→          </div>
+   346→          <div>
+   347→            <p className="text-sm text-slate-500 dark:text-slate-400">Active</p>
+   348→            <p className="text-xl font-bold text-slate-900 dark:text-white">{activeCount}</p>
+   349→          </div>
+   350→        </div>
+   351→        <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 flex items-center gap-4">
+   352→          <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+   353→            <Clock className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+   354→          </div>
+   355→          <div>
+   356→            <p className="text-sm text-slate-500 dark:text-slate-400">Inactive</p>
+   357→            <p className="text-xl font-bold text-slate-900 dark:text-white">{inactiveCount}</p>
+   358→          </div>
+   359→        </div>
+   360→        <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 flex items-center gap-4">
+   361→          <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+   362→            <XCircle className="w-5 h-5 text-red-500" />
+   363→          </div>
+   364→          <div>
+   365→            <p className="text-sm text-slate-500 dark:text-slate-400">Suspended</p>
+   366→            <p className="text-xl font-bold text-slate-900 dark:text-white">{suspendedCount}</p>
+   367→          </div>
+   368→        </div>
+   369→      </div>
+   370→
+   371→      {/* Table Card */}
+   372→      <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden">
+   373→        {/* Toolbar */}
+   374→        <div className="p-4 border-b border-slate-200 dark:border-slate-700 space-y-3">
+   375→          <div className="flex flex-col sm:flex-row gap-3">
+   376→            <div className="relative flex-1">
+   377→              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+   378→              <input
+   379→                type="text"
+   380→                placeholder="Search by name, staff ID, email, or zone..."
+   381→                value={search}
+   382→                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+   383→                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-10 pr-4 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-shadow"
+   384→              />
+   385→            </div>
+   386→            <button
+   387→              onClick={() => setShowFilters((v) => !v)}
+   388→              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+   389→            >
+   390→              <Filter className="w-4 h-4" />
+   391→              Filters
+   392→            </button>
+   393→          </div>
+   394→
+   395→          {showFilters && (
+   396→            <div className="flex flex-wrap gap-3">
+   397→              <select
+   398→                value={roleFilter}
+   399→                onChange={(e) => { setRoleFilter(e.target.value as 'All' | UserRole); setPage(1); }}
+   400→                className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   401→              >
+   402→                <option value="All">All Roles</option>
+   403→                <option value="Administrator">Administrator</option>
+   404→                <option value="Revenue Officer">Revenue Officer</option>
+   405→                <option value="Field Collector">Field Collector</option>
+   406→                <option value="Auditor">Auditor</option>
+   407→                <option value="Finance Manager">Finance Manager</option>
+   408→              </select>
+   409→              <select
+   410→                value={statusFilter}
+   411→                onChange={(e) => { setStatusFilter(e.target.value as 'All' | UserStatus); setPage(1); }}
+   412→                className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   413→              >
+   414→                <option value="All">All Statuses</option>
+   415→                <option value="Active">Active</option>
+   416→                <option value="Inactive">Inactive</option>
+   417→                <option value="Suspended">Suspended</option>
+   418→              </select>
+   419→            </div>
+   420→          )}
+   421→        </div>
+   422→
+   423→        {/* Table */}
+   424→        <div className="overflow-x-auto max-h-96 overflow-y-auto">
+   425→          <table className="w-full text-left">
+   426→            <thead className="bg-slate-50 dark:bg-slate-900/50 sticky top-0 z-10">
+   427→              <tr className="border-b border-slate-200 dark:border-slate-700">
+   428→                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Username</th>
+   429→                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Name</th>
+   430→                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Role</th>
+   431→                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Zone / Ward</th>
+   432→                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Status</th>
+   433→                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3">Last Login</th>
+   434→                <th className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium px-4 py-3 text-center">Actions</th>
+   435→              </tr>
+   436→            </thead>
+   437→            <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
+   438→              {paginated.length === 0 ? (
+   439→                <tr>
+   440→                  <td colSpan={7} className="text-center py-12 text-sm text-slate-400 dark:text-slate-500">
+   441→                    No users found matching your criteria.
+   442→                  </td>
+   443→                </tr>
+   444→              ) : (
+   445→                paginated.map((u) => {
+   446→                  const StatusIcon = statusConfig[u.status].icon;
+   447→                  return (
+   448→                    <tr key={u.id} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+   449→                      <td className="px-4 py-3 text-sm font-mono text-slate-900 dark:text-white">{u.username}</td>
+   450→                      <td className="px-4 py-3">
+   451→                        <div className="flex items-center gap-2.5">
+   452→                          <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-700 dark:text-emerald-400 text-xs font-bold shrink-0">
+   453→                            {u.firstName[0]}{u.lastName[0]}
+   454→                          </div>
+   455→                          <div>
+   456→                            <p className="text-sm font-medium text-slate-900 dark:text-white">{u.firstName} {u.lastName}</p>
+   457→                            <p className="text-xs text-slate-500 dark:text-slate-400">{u.email}</p>
+   458→                          </div>
+   459→                        </div>
+   460→                      </td>
+   461→                      <td className="px-4 py-3">
+   462→                        <span className={`inline-flex text-xs font-medium px-2 py-0.5 rounded-full ${roleIcon[u.role]}`}>
+   463→                          {u.role}
+   464→                        </span>
+   465→                      </td>
+   466→                      <td className="px-4 py-3">
+   467→                        <p className="text-sm text-slate-700 dark:text-slate-300">{u.zone}</p>
+   468→                        <p className="text-xs text-slate-400 dark:text-slate-500">{u.ward}</p>
+   469→                      </td>
+   470→                      <td className="px-4 py-3">
+   471→                        <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${statusConfig[u.status].pill}`}>
+   472→                          <StatusIcon className="w-3 h-3" />
+   473→                          {u.status}
+   474→                        </span>
+   475→                      </td>
+   476→                      <td className="px-4 py-3">
+   477→                        <div className="text-sm text-slate-600 dark:text-slate-400">{(u.lastLogin || 'Never').split(' ')[0]}</div>
+   478→                        <div className="text-xs text-slate-400 dark:text-slate-500">{(u.lastLogin || '').split(' ')[1] || ''}</div>
+   479→                      </td>
+   480→                      <td className="px-4 py-3">
+   481→                        <div className="flex items-center justify-center gap-1">
+   482→                          <button
+   483→                            onClick={() => setViewUser(u)}
+   484→                            className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+   485→                            title="View user"
+   486→                          >
+   487→                            <Eye className="w-4 h-4" />
+   488→                          </button>
+   489→                          <button
+   490→                            onClick={() => openEdit(u)}
+   491→                            className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+   492→                            title="Edit user"
+   493→                          >
+   494→                            <Pencil className="w-4 h-4" />
+   495→                          </button>
+   496→                          <button
+   497→                            onClick={() => toggleStatus(u.id)}
+   498→                            className={`p-1.5 rounded-lg transition-colors ${u.status === 'Active' ? 'text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/20' : 'text-amber-500 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20'}`}
+   499→                            title={u.status === 'Active' ? 'Deactivate' : 'Activate'}
+   500→                          >
+   501→                            <Shield className="w-4 h-4" />
+   502→                          </button>
+   503→                          <button
+   504→                            onClick={() => handleLoginAs(u)}
+   505→                            className={`p-1.5 rounded-lg transition-colors ${u.status === 'Suspended' ? 'text-slate-300 dark:text-slate-600 cursor-not-allowed' : 'text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'}`}
+   506→                            title={u.status === 'Suspended' ? 'User is suspended' : `Login as ${u.firstName} ${u.lastName}`}
+   507→                            disabled={u.status === 'Suspended'}
+   508→                          >
+   509→                            <LogIn className="w-4 h-4" />
+   510→                          </button>
+   511→                          <button
+   512→                            onClick={() => handleDelete(u.id)}
+   513→                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+   514→                            title="Delete user"
+   515→                          >
+   516→                            <Trash2 className="w-4 h-4" />
+   517→                          </button>
+   518→                        </div>
+   519→                      </td>
+   520→                    </tr>
+   521→                  );
+   522→                })
+   523→              )}
+   524→            </tbody>
+   525→          </table>
+   526→        </div>
+   527→
+   528→        {/* Pagination */}
+   529→        <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200 dark:border-slate-700">
+   530→          <p className="text-sm text-slate-500 dark:text-slate-400">
+   531→            Showing {paginated.length} of {filtered.length} users
+   532→          </p>
+   533→          <div className="flex items-center gap-1">
+   534→            <button
+   535→              onClick={() => setPage((p) => Math.max(1, p - 1))}
+   536→              disabled={page === 1}
+   537→              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+   538→            >
+   539→              <ChevronLeft className="w-4 h-4" />
+   540→            </button>
+   541→            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+   542→              <button
+   543→                key={p}
+   544→                onClick={() => setPage(p)}
+   545→                className={`w-8 h-8 rounded-lg text-sm font-medium transition-colors ${
+   546→                  p === page
+   547→                    ? 'bg-emerald-600 text-white'
+   548→                    : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'
+   549→                }`}
+   550→              >
+   551→                {p}
+   552→              </button>
+   553→            ))}
+   554→            <button
+   555→              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+   556→              disabled={page === totalPages}
+   557→              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+   558→            >
+   559→              <ChevronRight className="w-4 h-4" />
+   560→            </button>
+   561→          </div>
+   562→        </div>
+   563→      </div>
+   564→
+   565→      {/* Add/Edit Modal */}
+   566→      {(showAddModal || editUser) && (
+   567→        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+   568→          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => { setShowAddModal(false); setEditUser(null); setForm(emptyForm); }} />
+   569→          <div className="relative bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xl w-full max-w-md">
+   570→            {/* Modal Header */}
+   571→            <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-700">
+   572→              <div className="flex items-center gap-3">
+   573→                <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center">
+   574→                  <UserCog className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+   575→                </div>
+   576→                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+   577→                  {editUser ? 'Edit User' : 'Add New User'}
+   578→                </h2>
+   579→              </div>
+   580→              <button
+   581→                onClick={() => { setShowAddModal(false); setEditUser(null); setForm(emptyForm); }}
+   582→                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+   583→              >
+   584→                <X className="w-5 h-5" />
+   585→              </button>
+   586→            </div>
+   587→
+   588→            {/* Modal Body */}
+   589→            <div className="p-5 space-y-4">
+   590→              <div className="grid grid-cols-2 gap-4">
+   591→                <div>
+   592→                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Username</label>
+   593→                  <div className="relative">
+   594→                    <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+   595→                    <input
+   596→                      type="text"
+   597→                      value={form.username}
+   598→                      onChange={(e) => updateForm('username', e.target.value)}
+   599→                      className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-9 pr-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   600→                      placeholder="e.g. kmensah"
+   601→                      autoComplete="off"
+   602→                    />
+   603→                  </div>
+   604→                </div>
+   605→                <div>
+   606→                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+   607→                    Password {editUser && <span className="text-slate-400 font-normal">(leave blank to keep)</span>}
+   608→                  </label>
+   609→                  <div className="relative">
+   610→                    <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+   611→                    <input
+   612→                      type="text"
+   613→                      value={form.password}
+   614→                      onChange={(e) => updateForm('password', e.target.value)}
+   615→                      className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 pl-9 pr-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   616→                      placeholder={editUser ? '********' : 'Set login password'}
+   617→                      autoComplete="new-password"
+   618→                    />
+   619→                  </div>
+   620→                </div>
+   621→              </div>
+   622→              <div className="grid grid-cols-2 gap-4">
+   623→                <div>
+   624→                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">First Name</label>
+   625→                  <input
+   626→                    type="text"
+   627→                    value={form.firstName}
+   628→                    onChange={(e) => updateForm('firstName', e.target.value)}
+   629→                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   630→                    placeholder="Kwame"
+   631→                  />
+   632→                </div>
+   633→                <div>
+   634→                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Last Name</label>
+   635→                  <input
+   636→                    type="text"
+   637→                    value={form.lastName}
+   638→                    onChange={(e) => updateForm('lastName', e.target.value)}
+   639→                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   640→                    placeholder="Mensah"
+   641→                  />
+   642→                </div>
+   643→              </div>
+   644→              <div>
+   645→                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email</label>
+   646→                <input
+   647→                  type="email"
+   648→                  value={form.email}
+   649→                  onChange={(e) => updateForm('email', e.target.value)}
+   650→                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   651→                  placeholder="kwame.mensah@kma.gov.gh"
+   652→                />
+   653→              </div>
+   654→              <div>
+   655→                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Phone</label>
+   656→                <input
+   657→                  type="tel"
+   658→                  value={form.phone}
+   659→                  onChange={(e) => updateForm('phone', e.target.value)}
+   660→                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   661→                  placeholder="+233 24 567 8901"
+   662→                />
+   663→              </div>
+   664→              <div className="grid grid-cols-2 gap-4">
+   665→                <div>
+   666→                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Role</label>
+   667→                  <select
+   668→                    value={form.role}
+   669→                    onChange={(e) => handleRoleChange(e.target.value as UserRole)}
+   670→                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   671→                  >
+   672→                    <option value="Field Collector">Field Collector</option>
+   673→                    <option value="Revenue Officer">Revenue Officer</option>
+   674→                    <option value="Auditor">Auditor</option>
+   675→                    <option value="Finance Manager">Finance Manager</option>
+   676→                    <option value="Administrator">Administrator</option>
+   677→                  </select>
+   678→                </div>
+   679→                <div>
+   680→                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Zone</label>
+   681→                  <select
+   682→                    value={form.zone}
+   683→                    onChange={(e) => updateForm('zone', e.target.value)}
+   684→                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   685→                  >
+   686→                    <option value="Zone A">Zone A</option>
+   687→                    <option value="Zone B">Zone B</option>
+   688→                    <option value="Zone C">Zone C</option>
+   689→                    <option value="Zone D">Zone D</option>
+   690→                  </select>
+   691→                </div>
+   692→              </div>
+   693→              <div>
+   694→                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Ward</label>
+   695→                <input
+   696→                  type="text"
+   697→                  value={form.ward}
+   698→                  onChange={(e) => updateForm('ward', e.target.value)}
+   699→                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   700→                  placeholder="Bantama"
+   701→                />
+   702→              </div>
+   703→              <div>
+   704→                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Ghana Card No.</label>
+   705→                <input
+   706→                  type="text"
+   707→                  value={form.ghanaCard}
+   708→                  onChange={(e) => updateForm('ghanaCard', e.target.value)}
+   709→                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+   710→                  placeholder="GHA-123456789-0"
+   711→                />
+   712→              </div>
+   713→
+   714→              {/* ── Navigation Permissions ── */}
+   715→              <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+   716→                <div className="flex items-center justify-between mb-3">
+   717→                  <div className="flex items-center gap-2">
+   718→                    <LayoutGrid className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+   719→                    <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+   720→                      Navigation Access
+   721→                    </label>
+   722→                  </div>
+   723→                  <div className="flex items-center gap-2">
+   724→                    <button
+   725→                      type="button"
+   726→                      onClick={selectAllPages}
+   727→                      className="text-xs text-emerald-600 dark:text-emerald-400 hover:underline font-medium"
+   728→                    >
+   729→                      Select All
+   730→                    </button>
+   731→                    <span className="text-slate-300 dark:text-slate-600">|</span>
+   732→                    <button
+   733→                      type="button"
+   734→                      onClick={deselectAllPages}
+   735→                      className="text-xs text-red-500 dark:text-red-400 hover:underline font-medium"
+   736→                    >
+   737→                      Clear All
+   738→                    </button>
+   739→                  </div>
+   740→                </div>
+   741→                <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
+   742→                  Choose which pages this user can access. Defaults are set by role — customize as needed.
+   743→                </p>
+   744→                <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-700 p-2 bg-slate-50 dark:bg-slate-900/50">
+   745→                  {ALL_RMS_PAGES.map((p) => {
+   746→                    const isSelected = form.accessiblePages.includes(p.page);
+   747→                    return (
+   748→                      <button
+   749→                        key={p.page}
+   750→                        type="button"
+   751→                        onClick={() => togglePage(p.page)}
+   752→                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-left text-xs font-medium transition-all ${
+   753→                          isSelected
+   754→                            ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700'
+   755→                            : 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-transparent hover:border-slate-300 dark:hover:border-slate-600'
+   756→                        }`}
+   757→                      >
+   758→                        <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${
+   759→                          isSelected
+   760→                            ? 'bg-emerald-600 border-emerald-600'
+   761→                            : 'border-slate-300 dark:border-slate-600'
+   762→                        }`}>
+   763→                          {isSelected && <Check className="w-3 h-3 text-white" />}
+   764→                        </div>
+   765→                        {p.label}
+   766→                      </button>
+   767→                    );
+   768→                  })}
+   769→                </div>
+   770→                <div className="mt-2 flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
+   771→                  <SquareStack className="w-3 h-3" />
+   772→                  {form.accessiblePages.length} of {ALL_PAGES.length} pages selected
+   773→                </div>
+   774→              </div>
+   775→            </div>
+   776→
+   777→            {/* Modal Footer */}
+   778→            <div className="flex items-center justify-end gap-2 p-5 border-t border-slate-200 dark:border-slate-700">
+   779→              <button
+   780→                onClick={() => { setShowAddModal(false); setEditUser(null); setForm(emptyForm); }}
+   781→                className="rounded-lg border border-slate-200 dark:border-slate-700 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+   782→              >
+   783→                Cancel
+   784→              </button>
+   785→              <button
+   786→                onClick={handleSave}
+   787→                disabled={!isValid}
+   788→                className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-2 text-sm font-medium transition-colors"
+   789→              >
+   790→                <Save className="w-4 h-4" />
+   791→                {editUser ? 'Update User' : 'Create User'}
+   792→              </button>
+   793→            </div>
+   794→          </div>
+   795→        </div>
+   796→      )}
+   797→
+   798→      {/* View User Modal */}
+   799→      {viewUser && (
+   800→        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+   801→          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setViewUser(null)} />
+   802→          <div className="relative bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-2xl w-full max-w-md">
+   803→            <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-700">
+   804→              <div className="flex items-center gap-3">
+   805→                <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-700 dark:text-emerald-400 text-sm font-bold">
+   806→                  {viewUser.firstName[0]}{viewUser.lastName[0]}
+   807→                </div>
+   808→                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{viewUser.firstName} {viewUser.lastName}</h2>
+   809→              </div>
+   810→              <button onClick={() => setViewUser(null)} className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+   811→                <X className="w-5 h-5" />
+   812→              </button>
+   813→            </div>
+   814→            <div className="p-5 space-y-4">
+   815→              <div className="grid grid-cols-2 gap-4">
+   816→                <ViewField label="Username" value={viewUser.username} />
+   817→                <ViewField label="Staff ID" value={viewUser.staffId} />
+   818→                <ViewField label="Ghana Card" value={viewUser.ghanaCard} />
+   819→                <ViewField label="Role" value={viewUser.role} />
+   820→                <ViewField label="Status" value={viewUser.status} />
+   821→                <ViewField label="Zone" value={viewUser.zone} />
+   822→                <ViewField label="Ward" value={viewUser.ward} />
+   823→              </div>
+   824→              <div className="border-t border-slate-200 dark:border-slate-700 pt-4 space-y-3">
+   825→                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+   826→                  <Mail className="w-4 h-4" />{viewUser.email}
+   827→                </div>
+   828→                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+   829→                  <Phone className="w-4 h-4" />{viewUser.phone}
+   830→                </div>
+   831→                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+   832→                  <Clock className="w-4 h-4" />Last login: {viewUser.lastLogin}
+   833→                </div>
+   834→                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+   835→                  <MapPin className="w-4 h-4" />Created: {viewUser.dateCreated}
+   836→                </div>
+   837→              </div>
+   838→              {/* Accessible Pages */}
+   839→              <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+   840→                <p className="text-xs uppercase text-slate-500 dark:text-slate-400 font-medium mb-2">Accessible Navigation Pages</p>
+   841→                <div className="flex flex-wrap gap-1.5">
+   842→                  {ALL_RMS_PAGES.map((p) => {
+   843→                    const hasAccess = viewUser.accessiblePages?.includes(p.page);
+   844→                    return (
+   845→                      <span
+   846→                        key={p.page}
+   847→                        className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium ${
+   848→                          hasAccess
+   849→                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+   850→                            : 'bg-slate-100 text-slate-400 dark:bg-slate-700 dark:text-slate-500 line-through'
+   851→                        }`}
+   852→                      >
+   853→                        {p.label}
+   854→                      </span>
+   855→                    );
+   856→                  })}
+   857→                </div>
+   858→              </div>
+   859→
+   860→              {/* Login As Button */}
+   861→              {viewUser.status !== 'Suspended' && (
+   862→                <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
+   863→                  <button
+   864→                    onClick={() => { handleLoginAs(viewUser); setViewUser(null); }}
+   865→                    className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 text-sm font-medium transition-colors"
+   866→                  >
+   867→                    <LogIn className="w-4 h-4" />
+   868→                    Login as {viewUser.firstName} {viewUser.lastName}
+   869→                  </button>
+   870→                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-2 text-center">
+   871→                    Switch to this user's session with their exact navigation permissions
+   872→                  </p>
+   873→                </div>
+   874→              )}
+   875→            </div>
+   876→          </div>
+   877→        </div>
+   878→      )}
+   879→    </div>
+   880→  );
+   881→}
+   882→
+   883→// ─── Sub-components ────────────────────────────────────────────────────────────
+   884→
+   885→function ViewField({ label, value }: { label: string; value: string }) {
+   886→  return (
+   887→    <div>
+   888→      <p className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">{label}</p>
+   889→      <p className="text-sm font-medium text-slate-900 dark:text-white">{value}</p>
+   890→    </div>
+   891→  );
+   892→}
+   893→

@@ -223,6 +223,7 @@ export function UsersPage() {
     setForm((prev) => ({
       ...prev,
       role,
+      zone: (role === 'Revenue Officer' || role === 'Field Collector') ? prev.zone : '',
       accessiblePages: ROLE_DEFAULT_PAGES[role],
     }));
   };
@@ -464,7 +465,7 @@ export function UsersPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <p className="text-sm text-slate-700 dark:text-slate-300">{u.zone}</p>
+                        <p className="text-sm text-slate-700 dark:text-slate-300">{(u.role === 'Revenue Officer' || u.role === 'Field Collector') ? u.zone : '—'}</p>
                         <p className="text-xs text-slate-400 dark:text-slate-500">{u.ward}</p>
                       </td>
                       <td className="px-4 py-3">
@@ -661,7 +662,7 @@ export function UsersPage() {
                   placeholder="+233 24 567 8901"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className={`grid gap-4 ${(form.role === 'Revenue Officer' || form.role === 'Field Collector') ? 'grid-cols-2' : ''}`}>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Role</label>
                   <select
@@ -676,19 +677,21 @@ export function UsersPage() {
                     <option value="Administrator">Administrator</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Zone</label>
-                  <select
-                    value={form.zone}
-                    onChange={(e) => updateForm('zone', e.target.value)}
-                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  >
-                    <option value="Zone A">Zone A</option>
-                    <option value="Zone B">Zone B</option>
-                    <option value="Zone C">Zone C</option>
-                    <option value="Zone D">Zone D</option>
-                  </select>
-                </div>
+                {(form.role === 'Revenue Officer' || form.role === 'Field Collector') && (
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Zone</label>
+                    <select
+                      value={form.zone}
+                      onChange={(e) => updateForm('zone', e.target.value)}
+                      className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                    >
+                      <option value="Zone A">Zone A</option>
+                      <option value="Zone B">Zone B</option>
+                      <option value="Zone C">Zone C</option>
+                      <option value="Zone D">Zone D</option>
+                    </select>
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Ward</label>
@@ -818,7 +821,9 @@ export function UsersPage() {
                 <ViewField label="Ghana Card" value={viewUser.ghanaCard} />
                 <ViewField label="Role" value={viewUser.role} />
                 <ViewField label="Status" value={viewUser.status} />
-                <ViewField label="Zone" value={viewUser.zone} />
+                {(viewUser.role === 'Revenue Officer' || viewUser.role === 'Field Collector') && (
+                  <ViewField label="Zone" value={viewUser.zone} />
+                )}
                 <ViewField label="Ward" value={viewUser.ward} />
               </div>
               <div className="border-t border-slate-200 dark:border-slate-700 pt-4 space-y-3">
