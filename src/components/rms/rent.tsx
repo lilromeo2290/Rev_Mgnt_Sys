@@ -426,9 +426,7 @@ export function RentPage() {
       </header>
 
       <div className="max-w-4xl mx-auto px-6 py-6">
-        {/* ════════════════════════════════════════════════════════════════
-           CARD 1: LOCATION
-           ════════════════════════════════════════════════════════════════ */
+        {{/* CARD 1: LOCATION */}
         <div className={cardClass}>
           <div className={cardHeaderClass}>
             <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
@@ -478,9 +476,7 @@ export function RentPage() {
           </div>
         </div>
 
-        {/* ════════════════════════════════════════════════════════════════
-           CARD 2: RENT OBJECT
-           ════════════════════════════════════════════════════════════════ */
+        {{/* CARD 2: RENT OBJECT */}
         <div className={cardClass}>
           <div className={cardHeaderClass}>
             <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
@@ -533,9 +529,7 @@ export function RentPage() {
           </div>
         </div>
 
-        {/* ════════════════════════════════════════════════════════════════
-           CARD 3: CONTRACT
-           ════════════════════════════════════════════════════════════════ */
+        {{/* CARD 3: CONTRACT */}
         <div className={cardClass}>
           <div className={cardHeaderClass}>
             <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
@@ -576,9 +570,7 @@ export function RentPage() {
           </div>
         </div>
 
-        {/* ════════════════════════════════════════════════════════════════
-           CARD 4: RENTER INFORMATION
-           ════════════════════════════════════════════════════════════════ */
+        {{/* CARD 4: RENTER INFORMATION */}
         <div className={cardClass}>
           <div className={cardHeaderClass}>
             <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
@@ -634,9 +626,7 @@ export function RentPage() {
           </div>
         </div>
 
-        {/* ════════════════════════════════════════════════════════════════
-           CARD 5: OTHER
-           ════════════════════════════════════════════════════════════════ */
+        {{/* CARD 5: OTHER */}
         <div className={cardClass}>
           <div className={cardHeaderClass}>
             <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700/30 flex items-center justify-center">
