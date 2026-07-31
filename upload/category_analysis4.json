@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "CAT A\nCAT B\nCAT C\nCAT A - Large\nCAT B - Medium\nCAT C - Small\nAssembly conference room\nCommunity centres\nSub-district/Metro Halls\nAssembly Forecourt\nOthers\nCAT A- In CBD (Central Business District)\nCAT B- Satellite Markets\nCAT C- Outside CBD\nCAT D- Sub District Store\nCAT A- In CBD\nCAT B- Satellite Market\nCAT C- Outside CBD\nCAT D- Sub District Store\nCAT A- In CBD\nCAT B- Satellite Markets\nCAT C- Outside CBD\nCAT D- Sub District Store\nRent of Undeveloped Lands\nCAT A- Government Recreational Park\nCAT B- Lorry Park (space rent)\nCAT C- Parade Grounds (Jubilee Parks)\nCAT D- School Compound (Social functions)\nRent on Leased Buildings\nRent for Vendor Stands\nGuest House\nRestaurant/Canteen\nClub House\nStadium",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785474884,
+  "id": "20260731131442aecfc4279d114ad4",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260731131442aecfc4279d114ad4",
+  "usage": {
+    "completion_tokens": 198,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 454,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 652
+  }
+}

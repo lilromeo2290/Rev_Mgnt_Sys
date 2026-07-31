@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "- CLASS: CAT A\n  Category: CAT A, CAT A - Large, CAT A - In CBD (Central Business District), CAT A - In CBD, CAT A - Satellite Market, CAT A - In CBD, CAT A - Satellite Markets, CAT A - Government Recreational Park\n- CLASS: CAT B\n  Category: CAT B, CAT B - Medium, CAT B - Satellite Markets, CAT B - Satellite Market, CAT B - Outside CBD, CAT B - Lorry Park (space rental), CAT C - Parade Grounds (Jubilee Parks)\n- CLASS: CAT C\n  Category: CAT C, CAT C - Small, CAT C - Outside CBD, CAT C - Outside CBD, CAT C - Sub District Store\n- CLASS: CAT D\n  Category: CAT D - Sub District Store, CAT D - Sub District Store, CAT D - School Compound (Social functions)\n- CLASS: Assembly conference room\n  Category: Assembly conference room\n- CLASS: Community centres\n  Category: Community centres\n- CLASS: Sub-district/Metro Halls\n  Category: Sub-district/Metro Halls\n- CLASS: Assembly Forecourt\n  Category: Assembly Forecourt\n- CLASS: Others\n  Category: Others\n- CLASS: Rent of Undeveloped Lands\n  Category: Rent of Undeveloped Lands\n- CLASS: Rent on Leased Buildings\n  Category: Rent on Leased Buildings\n- CLASS: Rent for Vendor Stands\n  Category: Rent for Vendor Stands\n- CLASS: Guest House\n  Category: Guest House\n- CLASS: Restaurant/Canteen\n  Category: Restaurant/Canteen\n- CLASS: Club House\n  Category: Club House\n- CLASS: Stadium\n  Category: Stadium",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785474683,
+  "id": "20260731131120706debb2c7e34f74",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "20260731131120706debb2c7e34f74",
+  "usage": {
+    "completion_tokens": 365,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 391,
+    "prompt_tokens_details": {
+      "cached_tokens": 2
+    },
+    "total_tokens": 756
+  }
+}

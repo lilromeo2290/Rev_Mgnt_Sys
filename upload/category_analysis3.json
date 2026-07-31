@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Based on the visual structure of the image, here is the exact breakdown of the table:\n\n**1. Table Structure**\n*   **Number of Columns:** 1\n*   **Header:** Category\n\n**2. Row-by-Row Data**\n*   **Row 1:** Category\n*   **Row 2:** CAT A\n*   **Row 3:** CAT B\n*   **Row 4:** CAT C\n*   **Row 5:** CAT A - Large\n*   **Row 6:** CAT B- Medium\n*   **Row 7:** CAT C - Small\n*   **Row 8:** Assembly conference room\n*   **Row 9:** Community centres\n*   **Row 10:** Sub-district/Metro Halls\n*   **Row 11:** Assembly Forecourt\n*   **Row 12:** Others\n*   **Row 13:** CAT A - In CBD (Central Business District)\n*   **Row 14:** CAT B- Satellite Markets\n*   **Row 15:** CAT C- Outside CBD\n*   **Row 16:** CAT D- Sub District Store\n*   **Row 17:** CAT A - In CBD\n*   **Row 18:** CAT B- Satellite Market\n*   **Row 19:** CAT C- Outside CBD\n*   **Row 20:** CAT D- Sub District Store\n*   **Row 21:** CAT A - In CBD\n*   **Row 22:** CAT B- Satellite Markets\n*   **Row 23:** CAT C- Outside CBD\n*   **Row 24:** CAT D- Sub District Store\n*   **Row 25:** Rent of Undeveloped Lands\n*   **Row 26:** CAT A- Government Recreational Park\n*   **Row 27:** CAT B- Lorry Park (space rent)\n*   **Row 28:** CAT C- Parade Grounds (Jubilee Parks)\n*   **Row 29:** CAT D- School Compound (Social functions)\n*   **Row 30:** Rent on Leased Buildings\n*   **Row 31:** Rent for Vendor Stands\n*   **Row 32:** Guest House\n*   **Row 33:** Restaurant/Canteen\n*   **Row 34:** Club House\n*   **Row 35:** Stadium",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785474730,
+  "id": "202607311312016b19c8899bf645a9",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "202607311312016b19c8899bf645a9",
+  "usage": {
+    "completion_tokens": 494,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 418,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "total_tokens": 912
+  }
+}
