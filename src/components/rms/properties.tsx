@@ -407,10 +407,11 @@ export function PropertiesPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>GhanaPost GPS</label>
-                <div className="relative">
-                  <input type="text" name="ghanaPostGPS" value={form.ghanaPostGPS} onChange={handleFormChange} placeholder="XX-XXX-XXXX" className={`${inputClass} pr-10`} />
-                  <button type="button" onClick={() => fetchGpsFromLocation('property')} disabled={locatingProperty} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-slate-400 hover:text-emerald-600 transition-colors cursor-pointer disabled:opacity-50" title="Use device GPS">
+                <div className="flex gap-2">
+                  <input type="text" name="ghanaPostGPS" value={form.ghanaPostGPS} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={`${inputClass} flex-1`} />
+                  <button type="button" onClick={() => fetchGpsFromLocation('property')} disabled={locatingProperty} className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors whitespace-nowrap" title="Use device GPS">
                     {locatingProperty ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crosshair className="w-4 h-4" />}
+                    {locatingProperty ? '...' : 'GPS'}
                   </button>
                 </div>
               </div>
@@ -446,10 +447,11 @@ export function PropertiesPage() {
               </div>
               <div>
                 <label className={labelClass}>Owner GhanaPost GPS</label>
-                <div className="relative">
-                  <input type="text" name="ownerGPS" value={form.ownerGPS} onChange={handleFormChange} placeholder="XX-XXX-XXXX" className={`${inputClass} pr-10`} />
-                  <button type="button" onClick={() => fetchGpsFromLocation('owner')} disabled={locatingOwner} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-slate-400 hover:text-emerald-600 transition-colors cursor-pointer disabled:opacity-50" title="Use device GPS">
+                <div className="flex gap-2">
+                  <input type="text" name="ownerGPS" value={form.ownerGPS} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={`${inputClass} flex-1`} />
+                  <button type="button" onClick={() => fetchGpsFromLocation('owner')} disabled={locatingOwner} className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors whitespace-nowrap" title="Use device GPS">
                     {locatingOwner ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crosshair className="w-4 h-4" />}
+                    {locatingOwner ? '...' : 'GPS'}
                   </button>
                 </div>
               </div>
