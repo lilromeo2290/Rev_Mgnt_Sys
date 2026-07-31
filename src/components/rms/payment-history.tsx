@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useLocalStorage } from '@/hooks/use-local-storage';
 import {
   Search,
   Printer,
@@ -27,8 +28,7 @@ interface Payment {
   id: string;
   receiptNo: string;
   billNo: string;
-  entity: string;
-  entityType: 'Business' | 'Property';
+  business: string;
   amount: number;
   balance: number;
   date: string;
@@ -36,7 +36,7 @@ interface Payment {
   method: PaymentMethod;
   status: PaymentStatus;
   reference: string;
-  revenueItem: string;
+  remarks: string;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -45,11 +45,10 @@ const fmt = (n: number) => `GH₵ ${n.toLocaleString('en-GH')}`;
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
 
-const payments: Payment[] = [];
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function PaymentHistoryPage() {
+  const [storedPayments] = useLocalStorage<Payment[]>('rms-payments', []);
   const [entitySearch, setEntitySearch] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
@@ -60,14 +59,14 @@ export function PaymentHistoryPage() {
   const perPage = 10;
 
   const filtered = useMemo(() => {
-    return payments.filter((p) => {
+    return storedPayments.filter((p) => {
       const q = entitySearch.toLowerCase();
-      const matchEntity = !q || p.entity.toLowerCase().includes(q) || p.receiptNo.toLowerCase().includes(q) || p.revenueItem.toLowerCase().includes(q);
+      const matchEntity = !q || p.business.toLowerCase().includes(q) || p.receiptNo.toLowerCase().includes(q) || p.billNo.toLowerCase().includes(q);
       const matchFrom = !dateFrom || p.date >= dateFrom;
       const matchTo = !dateTo || p.date <= dateTo;
       const matchMethod = methodFilter === 'All' || p.method === methodFilter;
       const matchStatus = statusFilter === 'All' || p.status === statusFilter;
-      const matchEntityType = entityTypeFilter === 'All' || p.entityType === entityTypeFilter;
+      const matchEntityType = true;
       return matchEntity && matchFrom && matchTo && matchMethod && matchStatus && matchEntityType;
     });
   }, [entitySearch, dateFrom, dateTo, methodFilter, statusFilter, entityTypeFilter]);
@@ -82,7 +81,7 @@ export function PaymentHistoryPage() {
     totalAmount: filtered.reduce((s, p) => s + p.amount, 0),
     totalBalance: filtered.reduce((s, p) => s + p.balance, 0),
     count: filtered.length,
-    entities: new Set(filtered.map((p) => p.entity)).size,
+    entities: new Set(filtered.map((p) => p.business)).size,
   }), [filtered]);
 
   // ─── Print Functions ─────────────────────────────────────────────────────
@@ -94,15 +93,15 @@ export function PaymentHistoryPage() {
       <tr>
         <td style="padding:5px 8px;border-bottom:1px solid #e2e8f0;font-size:11px;">${p.receiptNo}</td>
         <td style="padding:5px 8px;border-bottom:1px solid #e2e8f0;font-size:11px;">${p.date}</td>
-        <td style="padding:5px 8px;border-bottom:1px solid #e2e8f0;font-size:11px;">${p.entity} <span style="color:#94a3b8;">(${p.entityType})</span></td>
-        <td style="padding:5px 8px;border-bottom:1px solid #e2e8f0;font-size:11px;">${p.revenueItem}</td>
+        <td style="padding:5px 8px;border-bottom:1px solid #e2e8f0;font-size:11px;">${p.business}</td>
+        <td style="padding:5px 8px;border-bottom:1px solid #e2e8f0;font-size:11px;">${p.billNo}</td>
         <td style="padding:5px 8px;border-bottom:1px solid #e2e8f0;font-size:11px;">${p.collector}</td>
         <td style="padding:5px 8px;border-bottom:1px solid #e2e8f0;font-size:11px;">${p.method}</td>
         <td style="padding:5px 8px;border-bottom:1px solid #e2e8f0;font-size:11px;text-align:right;">${fmt(p.amount)}</td>
         <td style="padding:5px 8px;border-bottom:1px solid #e2e8f0;font-size:11px;text-align:right;">${p.balance > 0 ? fmt(p.balance) : '—'}</td>
       </tr>`).join('');
 
-    return `<!DOCTYPE html><html><head><title>Payment History Report</title><style>@page{size:A4;margin:12mm;}*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Segoe UI',Tahoma,sans-serif;color:#1e293b;padding:0;}.header{text-align:center;border-bottom:3px double #1e293b;padding-bottom:12px;margin-bottom:12px;}.header h1{font-size:17px;font-weight:700;letter-spacing:0.05em;}.header p{font-size:11px;color:#64748b;margin-top:3px;}.rpt-title{text-align:center;font-size:14px;font-weight:600;margin-bottom:2px;color:#059669;}.rpt-meta{text-align:center;font-size:10px;color:#94a3b8;margin-bottom:16px;}table{width:100%;border-collapse:collapse;font-size:11px;}thead th{text-align:left;padding:6px 8px;background:#f8fafc;color:#64748b;font-size:10px;text-transform:uppercase;border-bottom:2px solid #e2e8f0;}tfoot td{padding:6px 8px;font-size:11px;font-weight:700;border-top:2px solid #1e293b;background:#f8fafc;}.footer{margin-top:24px;padding-top:10px;border-top:1px solid #e2e8f0;text-align:center;font-size:10px;color:#94a3b8;}</style></head><body><div class="header"><h1>KUMASI METROPOLITAN ASSEMBLY</h1><p>Revenue Management System — Payment History Report</p></div><div class="rpt-title">${reportTitle}</div><div class="rpt-meta">Generated: ${new Date().toLocaleString()} | ${data.length} payment(s)</div><table><thead><tr><th>Receipt #</th><th>Date</th><th>Entity</th><th>Revenue Item</th><th>Collector</th><th>Method</th><th style="text-align:right;">Amount</th><th style="text-align:right;">Balance</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td colspan="6" style="text-align:right;">Total</td><td style="text-align:right;">${fmt(totalAmt)}</td><td style="text-align:right;color:${totalBal>0?'#dc2626':'#059669'};">${totalBal>0?fmt(totalBal):'—'}</td></tr></tfoot></table><div class="footer">This is a computer-generated document and does not require a signature.<br/>Designed, Developed &amp; Maintained by <strong>Clipe Consult</strong> | www.clipeconsult.com</div></body></html>`;
+    return `<!DOCTYPE html><html><head><title>Payment History Report</title><style>@page{size:A4;margin:12mm;}*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Segoe UI',Tahoma,sans-serif;color:#1e293b;padding:0;}.header{text-align:center;border-bottom:3px double #1e293b;padding-bottom:12px;margin-bottom:12px;}.header h1{font-size:17px;font-weight:700;letter-spacing:0.05em;}.header p{font-size:11px;color:#64748b;margin-top:3px;}.rpt-title{text-align:center;font-size:14px;font-weight:600;margin-bottom:2px;color:#059669;}.rpt-meta{text-align:center;font-size:10px;color:#94a3b8;margin-bottom:16px;}table{width:100%;border-collapse:collapse;font-size:11px;}thead th{text-align:left;padding:6px 8px;background:#f8fafc;color:#64748b;font-size:10px;text-transform:uppercase;border-bottom:2px solid #e2e8f0;}tfoot td{padding:6px 8px;font-size:11px;font-weight:700;border-top:2px solid #1e293b;background:#f8fafc;}.footer{margin-top:24px;padding-top:10px;border-top:1px solid #e2e8f0;text-align:center;font-size:10px;color:#94a3b8;}</style></head><body><div class="header"><h1>KUMASI METROPOLITAN ASSEMBLY</h1><p>Revenue Management System — Payment History Report</p></div><div class="rpt-title">${reportTitle}</div><div class="rpt-meta">Generated: ${new Date().toLocaleString()} | ${data.length} payment(s)</div><table><thead><tr><th>Receipt #</th><th>Date</th><th>Entity</th><th>Bill No</th><th>Collector</th><th>Method</th><th style="text-align:right;">Amount</th><th style="text-align:right;">Balance</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td colspan="6" style="text-align:right;">Total</td><td style="text-align:right;">${fmt(totalAmt)}</td><td style="text-align:right;color:${totalBal>0?'#dc2626':'#059669'};">${totalBal>0?fmt(totalBal):'—'}</td></tr></tfoot></table><div class="footer">This is a computer-generated document and does not require a signature.<br/>Designed, Developed &amp; Maintained by <strong>Clipe Consult</strong> | www.clipeconsult.com</div></body></html>`;
   };
 
   const handlePrintAll = () => {
@@ -117,7 +116,7 @@ export function PaymentHistoryPage() {
   };
 
   const handlePrintEntity = (entityName: string) => {
-    const entityPayments = filtered.filter((p) => p.entity === entityName);
+    const entityPayments = filtered.filter((p) => p.business === entityName);
     if (entityPayments.length === 0) return;
     const w = window.open('', '_blank', 'width=794,height=1123');
     if (!w) return;
@@ -131,12 +130,12 @@ export function PaymentHistoryPage() {
   const uniqueEntities = useMemo(() => {
  const map = new Map<string, { name: string; type: string; count: number; total: number }>();
     filtered.forEach((p) => {
-      const existing = map.get(p.entity);
+      const existing = map.get(p.business);
       if (existing) {
         existing.count += 1;
         existing.total += p.amount;
       } else {
-        map.set(p.entity, { name: p.entity, type: p.entityType, count: 1, total: p.amount });
+        map.set(p.business, { name: p.business, type: '', count: 1, total: p.amount });
       }
     });
     return Array.from(map.values()).sort((a, b) => b.total - a.total);
@@ -251,7 +250,7 @@ export function PaymentHistoryPage() {
                 <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Receipt #</th>
                 <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Date</th>
                 <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Entity</th>
-                <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden lg:table-cell">Revenue Item</th>
+                <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden lg:table-cell">Bill No</th>
                 <th className="px-4 py-3 text-left font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden md:table-cell">Collector</th>
                 <th className="px-4 py-3 text-center font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Method</th>
                 <th className="px-4 py-3 text-center font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Status</th>
@@ -269,10 +268,9 @@ export function PaymentHistoryPage() {
                     <td className="px-4 py-3 font-mono text-xs text-emerald-700 dark:text-emerald-400 whitespace-nowrap">{p.receiptNo}</td>
                     <td className="px-4 py-3 text-slate-500 dark:text-slate-400 whitespace-nowrap">{p.date}</td>
                     <td className="px-4 py-3 whitespace-nowrap">
-                      <p className="text-sm font-medium text-slate-900 dark:text-white">{p.entity}</p>
-                      <p className="text-xs text-slate-400 dark:text-slate-500">{p.entityType}</p>
+                      <p className="text-sm font-medium text-slate-900 dark:text-white">{p.business}</p>
                     </td>
-                    <td className="px-4 py-3 text-slate-600 dark:text-slate-400 whitespace-nowrap hidden lg:table-cell">{p.revenueItem}</td>
+                    <td className="px-4 py-3 text-slate-600 dark:text-slate-400 whitespace-nowrap hidden lg:table-cell">{p.billNo}</td>
                     <td className="px-4 py-3 text-slate-600 dark:text-slate-400 whitespace-nowrap hidden md:table-cell">{p.collector}</td>
                     <td className="px-4 py-3 text-center">
                       <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-semibold ${p.method === 'Cash' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' : p.method === 'Mobile Money' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' : p.method === 'Bank' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' : p.method === 'POS' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400' : 'bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-400'}`}>
@@ -288,7 +286,7 @@ export function PaymentHistoryPage() {
                     <td className={`px-4 py-3 text-right font-medium whitespace-nowrap ${p.balance > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-green-600 dark:text-green-400'}`}>{p.balance > 0 ? fmt(p.balance) : '—'}</td>
                     <td className="px-4 py-3 text-center">
                       <button
-                        onClick={() => handlePrintEntity(p.entity)}
+                        onClick={() => handlePrintEntity(p.business)}
                         className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors cursor-pointer"
                         title="Print all payments for this entity"
                       >
