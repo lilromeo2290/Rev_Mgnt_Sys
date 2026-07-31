@@ -41,6 +41,7 @@ interface Rent {
   // Rent Object
   rentObjectName: string;
   rentClass: string;
+  rentCategory: string;
   rentUnit: string;
   rentValue: string;
   vacant: string;
@@ -69,26 +70,30 @@ const mockRents: Rent[] = [];
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
-const RENT_CLASSES = [
-  'Bill Boards',
-  'Assembly Hall',
-  'Assembly Conference Room',
-  'Community Centres',
-  'Sub-district/Metro Halls',
-  'Assembly Forecourt',
-  'Others',
-  'Stores',
-  'Stalls',
-  'Sheds',
-  'Rent of Undeveloped Lands',
-  'Hiring of Parks',
-  'Rent on Leased Buildings',
-  'Rent for Vendor Stands',
-  'Guest House',
-  'Restaurant/Canteen',
-  'Club House',
-  'Stadium',
-];
+const RENT_CLASS_CATEGORIES: Record<string, string> = {
+  'Bill Boards': 'Advertising',
+  'Assembly Hall': 'Assembly Facilities',
+  'Assembly Conference Room': 'Assembly Facilities',
+  'Community Centres': 'Community Facilities',
+  'Sub-district/Metro Halls': 'Community Facilities',
+  'Assembly Forecourt': 'Assembly Facilities',
+  'Others': 'Others',
+  'Stores': 'Retail/Storage',
+  'Stalls': 'Retail/Storage',
+  'Sheds': 'Retail/Storage',
+  'Rent of Undeveloped Lands': 'Land & Property',
+  'Hiring of Parks': 'Parks & Recreation',
+  'Rent on Leased Buildings': 'Land & Property',
+  'Rent for Vendor Stands': 'Retail/Storage',
+  'Guest House': 'Hospitality',
+  'Restaurant/Canteen': 'Hospitality',
+  'Club House': 'Hospitality',
+  'Stadium': 'Recreation & Sports',
+};
+
+const RENT_CATEGORIES = [...new Set(Object.values(RENT_CLASS_CATEGORIES))];
+
+const RENT_CLASSES = Object.keys(RENT_CLASS_CATEGORIES);
 
 const RENT_UNITS = [
   'Whole Building',
@@ -124,6 +129,7 @@ export function RentPage() {
     doorNo: '',
     rentObjectName: '',
     rentClass: '',
+    rentCategory: '',
     rentUnit: '',
     rentValue: '',
     vacant: 'No',
@@ -208,6 +214,10 @@ export function RentPage() {
     const { name, value, type } = e.target;
     if (type === 'checkbox') {
       setForm((prev) => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
+    } else if (name === 'rentClass') {
+      // Auto-fill category when class is selected
+      const cat = RENT_CLASS_CATEGORIES[value] || '';
+      setForm((prev) => ({ ...prev, rentClass: value, rentCategory: cat }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
@@ -242,6 +252,7 @@ export function RentPage() {
       doorNo: rent.doorNo,
       rentObjectName: rent.rentObjectName,
       rentClass: rent.rentClass,
+      rentCategory: rent.rentCategory || RENT_CLASS_CATEGORIES[rent.rentClass] || '',
       rentUnit: rent.rentUnit,
       rentValue: rent.rentValue,
       vacant: rent.vacant,
@@ -497,7 +508,7 @@ export function RentPage() {
               <label className={labelClass}>Rent Object Name</label>
               <input type="text" name="rentObjectName" value={form.rentObjectName} onChange={handleFormChange} placeholder="Enter rent object name" className={inputClass} />
             </div>
-            {/* Rent Class | Rent Unit — 2-column */}
+            {/* Rent Class | Category — 2-column */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>Rent Class</label>
@@ -508,6 +519,18 @@ export function RentPage() {
                   ))}
                 </select>
               </div>
+              <div>
+                <label className={labelClass}>Category</label>
+                <select name="rentCategory" value={form.rentCategory} onChange={handleFormChange} disabled={!form.rentClass} className={inputClass}>
+                  <option value="">{form.rentClass ? 'Category auto-filled' : 'Select class first'}</option>
+                  {RENT_CATEGORIES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            {/* Rent Unit | Rent Value — 2-column */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>Rent Unit</label>
                 <select name="rentUnit" value={form.rentUnit} onChange={handleFormChange} className={inputClass}>
