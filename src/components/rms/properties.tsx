@@ -521,7 +521,7 @@ export function PropertiesPage() {
             {/* Property Use Type | Category — 2-column */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className={labelClass}>Property Use Type <span className="text-red-500">*</span></label>
+                <label className={labelClass}>Property Use Type (Class) <span className="text-red-500">*</span></label>
                 <select name="propertyUseType" value={form.propertyUseType} onChange={handleFormChange} className={inputClass}>
                   <option value="">Select use type</option>
                   {propertyUseTypes.map((t) => (
