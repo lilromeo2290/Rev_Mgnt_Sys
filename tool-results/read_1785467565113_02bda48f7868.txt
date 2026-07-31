@@ -1,0 +1,808 @@
+     1→'use client';
+     2→
+     3→import { useState } from 'react';
+     4→import { useLocalStorage } from '@/hooks/use-local-storage';
+     5→import {
+     6→  Search,
+     7→  Plus,
+     8→  ArrowLeft,
+     9→  Pencil,
+    10→  Trash2,
+    11→  ChevronLeft,
+    12→  ChevronRight,
+    13→  Upload,
+    14→  Home,
+    15→} from 'lucide-react';
+    16→
+    17→// ─── Types ───────────────────────────────────────────────────────────────────
+    18→
+    19→interface Property {
+    20→  propNumber: string;
+    21→  owner: string;
+    22→  ownerContact: string;
+    23→  propertyType: string;
+    24→  category: string;
+    25→  floors: number;
+    26→  rooms: number;
+    27→  propertyUse: string;
+    28→  valuation: number;
+    29→  occupancyStatus: 'Occupied' | 'Vacant' | 'Under Construction';
+    30→  buildingPermit: string;
+    31→  gpsCoordinates: string;
+    32→  digitalAddress: string;
+    33→  plotNumber: string;
+    34→  streetName: string;
+    35→  ward: string;
+    36→  electoralArea: string;
+    37→  zone: string;
+    38→}
+    39→
+    40→// ─── Mock Data ───────────────────────────────────────────────────────────────
+    41→
+    42→const mockProperties: Property[] = [];
+    43→
+    44→// ─── Constants ──────────────────────────────────────────────────────────────
+    45→
+    46→const propertyTypes = [
+    47→  'Residential',
+    48→  'Commercial',
+    49→  'Industrial',
+    50→  'Institutional',
+    51→  'Mixed Use',
+    52→  'Vacant Land',
+    53→];
+    54→
+    55→const occupancyStatuses = ['All', 'Occupied', 'Vacant', 'Under Construction'];
+    56→
+    57→const propertyCategories: Record<string, string[]> = {
+    58→  Residential: [
+    59→    'Single Family Home',
+    60→    'Apartment Block',
+    61→    'Townhouse',
+    62→    'Duplex',
+    63→    'Bungalow',
+    64→    'Compound House',
+    65→  ],
+    66→  Commercial: [
+    67→    'Office Complex',
+    68→    'Shopping Mall',
+    69→    'Retail Store',
+    70→    'Hotel',
+    71→    'Restaurant Building',
+    72→    'Warehouse',
+    73→  ],
+    74→  Industrial: [
+    75→    'Warehouse / Factory',
+    76→    'Processing Plant',
+    77→    'Workshop',
+    78→    'Cold Storage',
+    79→    'Heavy Industrial',
+    80→  ],
+    81→  Institutional: [
+    82→    'School Building',
+    83→    'Hospital / Clinic Building',
+    84→    'Church / Religious Building',
+    85→    'Government Building',
+    86→    'Community Centre',
+    87→  ],
+    88→  'Mixed Use': [
+    89→    'Commercial-Residential Block',
+    90→    'Retail-Office Hybrid',
+    91→    'Live-Work Space',
+    92→  ],
+    93→  'Vacant Land': [
+    94→    'Undeveloped Plot',
+    95→    'Agricultural Land',
+    96→    'Future Development Plot',
+    97→  ],
+    98→};
+    99→
+   100→// ─── Component ───────────────────────────────────────────────────────────────
+   101→
+   102→export function PropertiesPage() {
+   103→  const [view, setView] = useState<'list' | 'form'>('list');
+   104→  const [searchQuery, setSearchQuery] = useState('');
+   105→  const [typeFilter, setTypeFilter] = useState<string>('All');
+   106→  const [statusFilter, setStatusFilter] = useState<string>('All');
+   107→  const [currentPage, setCurrentPage] = useState(1);
+   108→  const [properties, setProperties] = useLocalStorage<Property[]>('rms-properties', mockProperties);
+   109→  const itemsPerPage = 10;
+   110→
+   111→  // ── Form State ───────────────────────────────────────────────────────────
+   112→  const [form, setForm] = useState({
+   113→    propNumber: '',
+   114→    owner: '',
+   115→    ownerContact: '',
+   116→    propertyType: '',
+   117→    category: '',
+   118→    floors: '',
+   119→    rooms: '',
+   120→    propertyUse: '',
+   121→    valuation: '',
+   122→    occupancyStatus: 'Occupied',
+   123→    buildingPermit: '',
+   124→    gpsCoordinates: '',
+   125→    digitalAddress: '',
+   126→    plotNumber: '',
+   127→    streetName: '',
+   128→    ward: '',
+   129→    electoralArea: '',
+   130→    zone: '',
+   131→  });
+   132→
+   133→  // ── Derived categories based on selected property type ──────────────────
+   134→  const availableCategories = form.propertyType
+   135→    ? propertyCategories[form.propertyType] || []
+   136→    : [];
+   137→
+   138→  // ── Filtering & Pagination ───────────────────────────────────────────────
+   139→  const filtered = properties.filter((p) => {
+   140→    const matchSearch =
+   141→      searchQuery === '' ||
+   142→      p.owner.toLowerCase().includes(searchQuery.toLowerCase()) ||
+   143→      p.propNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+   144→      p.streetName.toLowerCase().includes(searchQuery.toLowerCase());
+   145→    const matchType = typeFilter === 'All' || p.propertyType === typeFilter;
+   146→    const matchStatus =
+   147→      statusFilter === 'All' || p.occupancyStatus === statusFilter;
+   148→    return matchSearch && matchType && matchStatus;
+   149→  });
+   150→
+   151→  const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+   152→  const safeCurrentPage = Math.min(currentPage, totalPages);
+   153→  const startIdx = (safeCurrentPage - 1) * itemsPerPage;
+   154→  const paged = filtered.slice(startIdx, startIdx + itemsPerPage);
+   155→  const showingFrom = filtered.length === 0 ? 0 : startIdx + 1;
+   156→  const showingTo = Math.min(startIdx + itemsPerPage, filtered.length);
+   157→
+   158→  // ── Handlers ─────────────────────────────────────────────────────────────
+   159→  const handleFormChange = (
+   160→    e: React.ChangeEvent<
+   161→      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+   162→    >
+   163→  ) => {
+   164→    const { name, value } = e.target;
+   165→    setForm((prev) => {
+   166→      const updated = { ...prev, [name]: value };
+   167→      if (name === 'propertyType') {
+   168→        updated.category = '';
+   169→      }
+   170→      return updated;
+   171→    });
+   172→  };
+   173→
+   174→  const handleSave = () => {
+   175→    if (!form.owner || !form.propertyType) return;
+   176→    const newProp: Property = {
+   177→      propNumber: form.propNumber || `PROP-${String(properties.length + 1).padStart(4, '0')}`,
+   178→      owner: form.owner,
+   179→      ownerContact: form.ownerContact,
+   180→      propertyType: form.propertyType,
+   181→      category: form.category,
+   182→      floors: parseInt(form.floors) || 1,
+   183→      rooms: parseInt(form.rooms) || 1,
+   184→      propertyUse: form.propertyUse,
+   185→      valuation: parseFloat(form.valuation) || 0,
+   186→      occupancyStatus: (form.occupancyStatus as 'Occupied' | 'Vacant' | 'Under Construction') || 'Occupied',
+   187→      buildingPermit: form.buildingPermit,
+   188→      gpsCoordinates: form.gpsCoordinates,
+   189→      digitalAddress: form.digitalAddress,
+   190→      plotNumber: form.plotNumber,
+   191→      streetName: form.streetName,
+   192→      ward: form.ward,
+   193→      electoralArea: form.electoralArea,
+   194→      zone: form.zone,
+   195→    };
+   196→    setProperties((prev) => [...prev, newProp]);
+   197→    setForm({
+   198→      propNumber: '', owner: '', ownerContact: '', propertyType: '', category: '', floors: '', rooms: '', propertyUse: '', valuation: '', occupancyStatus: 'Occupied', buildingPermit: '', gpsCoordinates: '', digitalAddress: '', plotNumber: '', streetName: '', ward: '', electoralArea: '', zone: '',
+   199→    });
+   200→    setView('list');
+   201→  };
+   202→
+   203→  const handleCancel = () => {
+   204→    setView('list');
+   205→  };
+   206→
+   207→  const handleDelete = (propNumber: string) => {
+   208→    setProperties((prev) => prev.filter((p) => p.propNumber !== propNumber));
+   209→  };
+   210→
+   211→  // ── Form Field Helper ────────────────────────────────────────────────────
+   212→  const inputClass =
+   213→    'w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition';
+   214→  const labelClass =
+   215→    'text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5';
+   216→  const sectionHeaderClass =
+   217→    'text-lg font-semibold text-slate-900 dark:text-white mb-4 pb-2 border-b border-slate-200 dark:border-slate-700';
+   218→
+   219→  // ── Status Badge Helper ─────────────────────────────────────────────────
+   220→  const statusBadge = (status: Property['occupancyStatus']) => {
+   221→    const styles: Record<
+   222→      Property['occupancyStatus'],
+   223→      string
+   224→    > = {
+   225→      Occupied:
+   226→        'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400',
+   227→      Vacant:
+   228→        'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400',
+   229→      'Under Construction':
+   230→        'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400',
+   231→    };
+   232→    return (
+   233→      <span
+   234→        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${styles[status]}`}
+   235→      >
+   236→        {status}
+   237→      </span>
+   238→    );
+   239→  };
+   240→
+   241→  // ── Format Valuation ────────────────────────────────────────────────────
+   242→  const formatValuation = (amount: number) =>
+   243→    amount.toLocaleString('en-GH');
+   244→
+   245→  // ══════════════════════════════════════════════════════════════════════════
+   246→  //  LIST VIEW
+   247→  // ══════════════════════════════════════════════════════════════════════════
+   248→  if (view === 'list') {
+   249→    return (
+   250→      <div className="space-y-6">
+   251→        {/* ── Header ──────────────────────────────────────────────────────── */}
+   252→        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+   253→          <div>
+   254→            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+   255→              Property Registration
+   256→            </h1>
+   257→            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+   258→              Manage and register properties within the assembly. Track
+   259→              valuations, occupancy, and rates collection.
+   260→            </p>
+   261→          </div>
+   262→          <button
+   263→            onClick={() => setView('form')}
+   264→            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap"
+   265→          >
+   266→            <Plus className="w-4 h-4" />
+   267→            Register New Property
+   268→          </button>
+   269→        </div>
+   270→
+   271→        {/* ── Search & Filters ────────────────────────────────────────────── */}
+   272→        <div className="flex flex-col sm:flex-row gap-3">
+   273→          <div className="relative flex-1">
+   274→            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+   275→            <input
+   276→              type="text"
+   277→              placeholder="Search by property number, owner, or street..."
+   278→              value={searchQuery}
+   279→              onChange={(e) => {
+   280→                setSearchQuery(e.target.value);
+   281→                setCurrentPage(1);
+   282→              }}
+   283→              className={`${inputClass} pl-10`}
+   284→            />
+   285→          </div>
+   286→          <select
+   287→            value={typeFilter}
+   288→            onChange={(e) => {
+   289→              setTypeFilter(e.target.value);
+   290→              setCurrentPage(1);
+   291→            }}
+   292→            className={`${inputClass} w-full sm:w-48`}
+   293→          >
+   294→            <option value="All">All Property Types</option>
+   295→            {propertyTypes.map((t) => (
+   296→              <option key={t} value={t}>
+   297→                {t}
+   298→              </option>
+   299→            ))}
+   300→          </select>
+   301→          <select
+   302→            value={statusFilter}
+   303→            onChange={(e) => {
+   304→              setStatusFilter(e.target.value);
+   305→              setCurrentPage(1);
+   306→            }}
+   307→            className={`${inputClass} w-full sm:w-48`}
+   308→          >
+   309→            {occupancyStatuses.map((s) => (
+   310→              <option key={s} value={s}>
+   311→                {s === 'All' ? 'All Occupancy Statuses' : s}
+   312→              </option>
+   313→            ))}
+   314→          </select>
+   315→        </div>
+   316→
+   317→        {/* ── Table ───────────────────────────────────────────────────────── */}
+   318→        <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+   319→          <div className="overflow-x-auto">
+   320→            <table className="w-full text-sm">
+   321→              <thead>
+   322→                <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700">
+   323→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   324→                    Property #
+   325→                  </th>
+   326→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   327→                    Owner
+   328→                  </th>
+   329→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   330→                    Property Type
+   331→                  </th>
+   332→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden lg:table-cell">
+   333→                    Category
+   334→                  </th>
+   335→                  <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   336→                    Valuation
+   337→                  </th>
+   338→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   339→                    Status
+   340→                  </th>
+   341→                  <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   342→                    Actions
+   343→                  </th>
+   344→                </tr>
+   345→              </thead>
+   346→              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+   347→                {paged.length === 0 ? (
+   348→                  <tr>
+   349→                    <td
+   350→                      colSpan={7}
+   351→                      className="text-center py-12 text-slate-400 dark:text-slate-500"
+   352→                    >
+   353→                      <Home className="w-10 h-10 mx-auto mb-3 opacity-40" />
+   354→                      No properties found matching your criteria.
+   355→                    </td>
+   356→                  </tr>
+   357→                ) : (
+   358→                  paged.map((prop) => (
+   359→                    <tr
+   360→                      key={prop.propNumber}
+   361→                      className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
+   362→                    >
+   363→                      <td className="px-4 py-3 font-mono text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
+   364→                        {prop.propNumber}
+   365→                      </td>
+   366→                      <td className="px-4 py-3 font-medium text-slate-900 dark:text-white whitespace-nowrap">
+   367→                        {prop.owner}
+   368→                      </td>
+   369→                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">
+   370→                        {prop.propertyType}
+   371→                      </td>
+   372→                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap hidden lg:table-cell">
+   373→                        {prop.category}
+   374→                      </td>
+   375→                      <td className="px-4 py-3 text-right font-medium text-slate-700 dark:text-slate-200 whitespace-nowrap">
+   376→                        GH₵ {formatValuation(prop.valuation)}
+   377→                      </td>
+   378→                      <td className="px-4 py-3 whitespace-nowrap">
+   379→                        {statusBadge(prop.occupancyStatus)}
+   380→                      </td>
+   381→                      <td className="px-4 py-3 text-right whitespace-nowrap">
+   382→                        <div className="inline-flex items-center gap-1">
+   383→                          <button
+   384→                            className="p-1.5 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors"
+   385→                            title="Edit"
+   386→                          >
+   387→                            <Pencil className="w-4 h-4" />
+   388→                          </button>
+   389→                          <button
+   390→                            onClick={() => handleDelete(prop.propNumber)}
+   391→                            className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+   392→                            title="Delete"
+   393→                          >
+   394→                            <Trash2 className="w-4 h-4" />
+   395→                          </button>
+   396→                        </div>
+   397→                      </td>
+   398→                    </tr>
+   399→                  ))
+   400→                )}
+   401→              </tbody>
+   402→            </table>
+   403→          </div>
+   404→        </div>
+   405→
+   406→        {/* ── Pagination ──────────────────────────────────────────────────── */}
+   407→        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+   408→          <p className="text-slate-500 dark:text-slate-400">
+   409→            Showing {showingFrom}-{showingTo} of {filtered.length}
+   410→          </p>
+   411→          <div className="flex items-center gap-2">
+   412→            <button
+   413→              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+   414→              disabled={safeCurrentPage <= 1}
+   415→              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+   416→            >
+   417→              <ChevronLeft className="w-4 h-4" />
+   418→              Previous
+   419→            </button>
+   420→            <span className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium">
+   421→              {safeCurrentPage} / {totalPages}
+   422→            </span>
+   423→            <button
+   424→              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+   425→              disabled={safeCurrentPage >= totalPages}
+   426→              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+   427→            >
+   428→              Next
+   429→              <ChevronRight className="w-4 h-4" />
+   430→            </button>
+   431→          </div>
+   432→        </div>
+   433→      </div>
+   434→    );
+   435→  }
+   436→
+   437→  // ══════════════════════════════════════════════════════════════════════════
+   438→  //  FORM VIEW
+   439→  // ══════════════════════════════════════════════════════════════════════════
+   440→  return (
+   441→    <div className="space-y-6">
+   442→      {/* ── Header ────────────────────────────────────────────────────────── */}
+   443→      <div className="flex items-center gap-4">
+   444→        <button
+   445→          onClick={handleCancel}
+   446→          className="p-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+   447→        >
+   448→          <ArrowLeft className="w-5 h-5" />
+   449→        </button>
+   450→        <div>
+   451→          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+   452→            Register New Property
+   453→          </h1>
+   454→          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+   455→            Fill in the details below to register a new property.
+   456→          </p>
+   457→        </div>
+   458→      </div>
+   459→
+   460→      <div className="space-y-8">
+   461→        {/* ─── Section 1: Property Details ──────────────────────────────── */}
+   462→        <section>
+   463→          <h2 className={sectionHeaderClass}>Property Details</h2>
+   464→          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+   465→            {/* Property Number */}
+   466→            <div>
+   467→              <label className={`${labelClass} block`}>Property Number</label>
+   468→              <input
+   469→                type="text"
+   470→                name="propNumber"
+   471→                value={form.propNumber}
+   472→                onChange={handleFormChange}
+   473→                placeholder="e.g. PRP-2024-011"
+   474→                className={inputClass}
+   475→              />
+   476→            </div>
+   477→
+   478→            {/* Property Owner */}
+   479→            <div>
+   480→              <label className={`${labelClass} block`}>Property Owner</label>
+   481→              <input
+   482→                type="text"
+   483→                name="owner"
+   484→                value={form.owner}
+   485→                onChange={handleFormChange}
+   486→                placeholder="Enter full name of property owner"
+   487→                className={inputClass}
+   488→              />
+   489→            </div>
+   490→
+   491→            {/* Owner Contact */}
+   492→            <div>
+   493→              <label className={`${labelClass} block`}>Owner Contact</label>
+   494→              <input
+   495→                type="tel"
+   496→                name="ownerContact"
+   497→                value={form.ownerContact}
+   498→                onChange={handleFormChange}
+   499→                placeholder="e.g. +233 24 567 8901"
+   500→                className={inputClass}
+   501→              />
+   502→            </div>
+   503→
+   504→            {/* Property Type */}
+   505→            <div>
+   506→              <label className={`${labelClass} block`}>Property Type</label>
+   507→              <select
+   508→                name="propertyType"
+   509→                value={form.propertyType}
+   510→                onChange={handleFormChange}
+   511→                className={inputClass}
+   512→              >
+   513→                <option value="">Select property type</option>
+   514→                {propertyTypes.map((t) => (
+   515→                  <option key={t} value={t}>
+   516→                    {t}
+   517→                  </option>
+   518→                ))}
+   519→              </select>
+   520→            </div>
+   521→
+   522→            {/* Property Category */}
+   523→            <div>
+   524→              <label className={`${labelClass} block`}>Property Category</label>
+   525→              <select
+   526→                name="category"
+   527→                value={form.category}
+   528→                onChange={handleFormChange}
+   529→                disabled={availableCategories.length === 0}
+   530→                className={`${inputClass} ${availableCategories.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+   531→              >
+   532→                <option value="">
+   533→                  {form.propertyType
+   534→                    ? 'Select category'
+   535→                    : 'Select a property type first'}
+   536→                </option>
+   537→                {availableCategories.map((c) => (
+   538→                  <option key={c} value={c}>
+   539→                    {c}
+   540→                  </option>
+   541→                ))}
+   542→              </select>
+   543→            </div>
+   544→
+   545→            {/* Number of Floors */}
+   546→            <div>
+   547→              <label className={`${labelClass} block`}>Number of Floors</label>
+   548→              <input
+   549→                type="number"
+   550→                name="floors"
+   551→                value={form.floors}
+   552→                onChange={handleFormChange}
+   553→                placeholder="e.g. 2"
+   554→                min="0"
+   555→                className={inputClass}
+   556→              />
+   557→            </div>
+   558→
+   559→            {/* Number of Rooms */}
+   560→            <div>
+   561→              <label className={`${labelClass} block`}>Number of Rooms</label>
+   562→              <input
+   563→                type="number"
+   564→                name="rooms"
+   565→                value={form.rooms}
+   566→                onChange={handleFormChange}
+   567→                placeholder="e.g. 8"
+   568→                min="0"
+   569→                className={inputClass}
+   570→              />
+   571→            </div>
+   572→
+   573→            {/* Property Use */}
+   574→            <div>
+   575→              <label className={`${labelClass} block`}>Property Use</label>
+   576→              <input
+   577→                type="text"
+   578→                name="propertyUse"
+   579→                value={form.propertyUse}
+   580→                onChange={handleFormChange}
+   581→                placeholder="e.g. Private Residence"
+   582→                className={inputClass}
+   583→              />
+   584→            </div>
+   585→
+   586→            {/* Valuation */}
+   587→            <div>
+   588→              <label className={`${labelClass} block`}>Valuation (GH₵)</label>
+   589→              <div className="relative">
+   590→                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-500 dark:text-slate-400 font-medium">
+   591→                  GH₵
+   592→                </span>
+   593→                <input
+   594→                  type="number"
+   595→                  name="valuation"
+   596→                  value={form.valuation}
+   597→                  onChange={handleFormChange}
+   598→                  placeholder="e.g. 450000"
+   599→                  min="0"
+   600→                  className={`${inputClass} pl-14`}
+   601→                />
+   602→              </div>
+   603→            </div>
+   604→
+   605→            {/* Occupancy Status */}
+   606→            <div>
+   607→              <label className={`${labelClass} block`}>Occupancy Status</label>
+   608→              <select
+   609→                name="occupancyStatus"
+   610→                value={form.occupancyStatus}
+   611→                onChange={handleFormChange}
+   612→                className={inputClass}
+   613→              >
+   614→                <option value="Occupied">Occupied</option>
+   615→                <option value="Vacant">Vacant</option>
+   616→                <option value="Under Construction">Under Construction</option>
+   617→              </select>
+   618→            </div>
+   619→
+   620→            {/* Building Permit Number */}
+   621→            <div>
+   622→              <label className={`${labelClass} block`}>
+   623→                Building Permit Number
+   624→              </label>
+   625→              <input
+   626→                type="text"
+   627→                name="buildingPermit"
+   628→                value={form.buildingPermit}
+   629→                onChange={handleFormChange}
+   630→                placeholder="e.g. BP-KMA-2024-0111"
+   631→                className={inputClass}
+   632→              />
+   633→            </div>
+   634→          </div>
+   635→        </section>
+   636→
+   637→        {/* ─── Section 2: Location ──────────────────────────────────────── */}
+   638→        <section>
+   639→          <h2 className={sectionHeaderClass}>Location</h2>
+   640→          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+   641→            {/* GPS Coordinates */}
+   642→            <div>
+   643→              <label className={`${labelClass} block`}>GPS Coordinates</label>
+   644→              <input
+   645→                type="text"
+   646→                name="gpsCoordinates"
+   647→                value={form.gpsCoordinates}
+   648→                onChange={handleFormChange}
+   649→                placeholder="e.g. AK-034-5521"
+   650→                className={inputClass}
+   651→              />
+   652→            </div>
+   653→
+   654→            {/* Digital Address */}
+   655→            <div>
+   656→              <label className={`${labelClass} block`}>Digital Address</label>
+   657→              <input
+   658→                type="text"
+   659→                name="digitalAddress"
+   660→                value={form.digitalAddress}
+   661→                onChange={handleFormChange}
+   662→                placeholder="e.g. AK-034-5521"
+   663→                className={inputClass}
+   664→              />
+   665→            </div>
+   666→
+   667→            {/* Plot Number */}
+   668→            <div>
+   669→              <label className={`${labelClass} block`}>Plot Number</label>
+   670→              <input
+   671→                type="text"
+   672→                name="plotNumber"
+   673→                value={form.plotNumber}
+   674→                onChange={handleFormChange}
+   675→                placeholder="e.g. BLK-A/LOT-12"
+   676→                className={inputClass}
+   677→              />
+   678→            </div>
+   679→
+   680→            {/* Street Name */}
+   681→            <div>
+   682→              <label className={`${labelClass} block`}>Street Name</label>
+   683→              <input
+   684→                type="text"
+   685→                name="streetName"
+   686→                value={form.streetName}
+   687→                onChange={handleFormChange}
+   688→                placeholder="e.g. Kejetia Road"
+   689→                className={inputClass}
+   690→              />
+   691→            </div>
+   692→
+   693→            {/* Ward */}
+   694→            <div>
+   695→              <label className={`${labelClass} block`}>Ward</label>
+   696→              <input
+   697→                type="text"
+   698→                name="ward"
+   699→                value={form.ward}
+   700→                onChange={handleFormChange}
+   701→                placeholder="Enter ward"
+   702→                className={inputClass}
+   703→              />
+   704→            </div>
+   705→
+   706→            {/* Electoral Area */}
+   707→            <div>
+   708→              <label className={`${labelClass} block`}>Electoral Area</label>
+   709→              <input
+   710→                type="text"
+   711→                name="electoralArea"
+   712→                value={form.electoralArea}
+   713→                onChange={handleFormChange}
+   714→                placeholder="Enter electoral area"
+   715→                className={inputClass}
+   716→              />
+   717→            </div>
+   718→
+   719→            {/* Zone */}
+   720→            <div>
+   721→              <label className={`${labelClass} block`}>Zone</label>
+   722→              <input
+   723→                type="text"
+   724→                name="zone"
+   725→                value={form.zone}
+   726→                onChange={handleFormChange}
+   727→                placeholder="e.g. Zone A"
+   728→                className={inputClass}
+   729→              />
+   730→            </div>
+   731→          </div>
+   732→        </section>
+   733→
+   734→        {/* ─── Section 3: Documents ────────────────────────────────────── */}
+   735→        <section>
+   736→          <h2 className={sectionHeaderClass}>Documents</h2>
+   737→          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+   738→            {/* Property Photograph */}
+   739→            <div>
+   740→              <label className={`${labelClass} block`}>
+   741→                Property Photograph
+   742→              </label>
+   743→              <div className="relative">
+   744→                <input
+   745→                  type="file"
+   746→                  accept="image/*"
+   747→                  className="hidden"
+   748→                  id="property-photo"
+   749→                />
+   750→                <label
+   751→                  htmlFor="property-photo"
+   752→                  className={`${inputClass} flex items-center justify-center gap-2 cursor-pointer hover:border-emerald-400 dark:hover:border-emerald-500 transition-colors py-8 border-dashed`}
+   753→                >
+   754→                  <Upload className="w-5 h-5 text-slate-400" />
+   755→                  <span className="text-slate-500 dark:text-slate-400">
+   756→                    Click to upload property photograph
+   757→                  </span>
+   758→                </label>
+   759→              </div>
+   760→            </div>
+   761→
+   762→            {/* Supporting Documents */}
+   763→            <div>
+   764→              <label className={`${labelClass} block`}>
+   765→                Supporting Documents
+   766→              </label>
+   767→              <div className="relative">
+   768→                <input
+   769→                  type="file"
+   770→                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+   771→                  multiple
+   772→                  className="hidden"
+   773→                  id="property-docs"
+   774→                />
+   775→                <label
+   776→                  htmlFor="property-docs"
+   777→                  className={`${inputClass} flex items-center justify-center gap-2 cursor-pointer hover:border-emerald-400 dark:hover:border-emerald-500 transition-colors py-8 border-dashed`}
+   778→                >
+   779→                  <Upload className="w-5 h-5 text-slate-400" />
+   780→                  <span className="text-slate-500 dark:text-slate-400">
+   781→                    Click to upload supporting documents
+   782→                  </span>
+   783→                </label>
+   784→              </div>
+   785→            </div>
+   786→          </div>
+   787→        </section>
+   788→
+   789→        {/* ─── Action Buttons ──────────────────────────────────────────── */}
+   790→        <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+   791→          <button
+   792→            onClick={handleCancel}
+   793→            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+   794→          >
+   795→            Cancel
+   796→          </button>
+   797→          <button
+   798→            onClick={handleSave}
+   799→            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors"
+   800→          >
+   801→            Save Property
+   802→          </button>
+   803→        </div>
+   804→      </div>
+   805→    </div>
+   806→  );
+   807→}
+   808→
