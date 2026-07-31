@@ -110,7 +110,7 @@ export function PropertiesPage() {
     ownershipType: '',
     propertyUseType: '',
     category: '',
-    value: ''
+    value: '',
     rooms: '',
     hasBuildingPermit: 'No',
     permitNumber: '',
