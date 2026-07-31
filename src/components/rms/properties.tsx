@@ -522,17 +522,17 @@ export function PropertiesPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>Property Use Type <span className="text-red-500">*</span></label>
-                <select name="propertyUseType" value={form.propertyUseType} onChange={handleFormChange} className={inputClass} disabled={!form.category}>
-                  <option value="">{form.category ? 'Select use type' : 'Select a category first'}</option>
-                  {(form.category ? subCategories : propertyUseTypes).map((t) => (
+                <select name="propertyUseType" value={form.propertyUseType} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Select use type</option>
+                  {propertyUseTypes.map((t) => (
                     <option key={t} value={t}>{t}</option>
                   ))}
                 </select>
               </div>
               <div>
                 <label className={labelClass}>Category <span className="text-red-500">*</span></label>
-                <select name="category" value={form.category} onChange={handleFormChange} className={inputClass}>
-                  <option value="">Select category</option>
+                <select name="category" value={form.category} onChange={handleFormChange} className={inputClass} disabled={!form.propertyUseType}>
+                  <option value="">{form.propertyUseType ? 'Category auto-filled' : 'Select use type first'}</option>
                   {categories.map((c) => (
                     <option key={c} value={c}>{c}</option>
                   ))}
