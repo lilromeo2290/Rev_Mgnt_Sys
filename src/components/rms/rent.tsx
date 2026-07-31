@@ -70,28 +70,28 @@ const mockRents: Rent[] = [];
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
-const RENT_CLASS_CATEGORIES: Record<string, string> = {
-  'Bill Boards': 'Advertising',
-  'Assembly Hall': 'Assembly Facilities',
-  'Assembly Conference Room': 'Assembly Facilities',
-  'Community Centres': 'Community Facilities',
-  'Sub-district/Metro Halls': 'Community Facilities',
-  'Assembly Forecourt': 'Assembly Facilities',
-  'Others': 'Others',
-  'Stores': 'Retail/Storage',
-  'Stalls': 'Retail/Storage',
-  'Sheds': 'Retail/Storage',
-  'Rent of Undeveloped Lands': 'Land & Property',
-  'Hiring of Parks': 'Parks & Recreation',
-  'Rent on Leased Buildings': 'Land & Property',
-  'Rent for Vendor Stands': 'Retail/Storage',
-  'Guest House': 'Hospitality',
-  'Restaurant/Canteen': 'Hospitality',
-  'Club House': 'Hospitality',
-  'Stadium': 'Recreation & Sports',
+const RENT_CLASS_CATEGORIES: Record<string, string[]> = {
+  'Bill Boards': ['CAT A- Large', 'CAT B- Medium', 'CAT C- Small'],
+  'Assembly Hall': ['CAT A', 'CAT B', 'CAT C'],
+  'Assembly Conference Room': ['Assembly Conference Room'],
+  'Community Centres': ['Community Centres'],
+  'Sub-district/Metro Halls': ['Sub-district/Metro Halls'],
+  'Assembly Forecourt': ['Assembly Forecourt'],
+  'Others': ['Others'],
+  'Stores': ['CAT A- In CBD (Central Business District)', 'CAT B- Satellite Markets', 'CAT C- Outside CBD', 'CAT D- Sub District Store'],
+  'Stalls': ['CAT A- In CBD', 'CAT B- Satellite Market', 'CAT C- Outside CBD', 'CAT D- Sub District Store'],
+  'Sheds': ['CAT A- In CBD', 'CAT B- Satellite Markets', 'CAT C- Outside CBD', 'CAT D- Sub District Store'],
+  'Rent of Undeveloped Lands': ['Rent of Undeveloped Lands'],
+  'Hiring of Parks': ['CAT A- Government Recreational Park', 'CAT B- Lorry Park (space rent)', 'CAT C- Parade Grounds (Jubilee Parks)', 'CAT D- School Compound (Social functions)'],
+  'Rent on Leased Buildings': ['Rent on Leased Buildings'],
+  'Rent for Vendor Stands': ['Rent for Vendor Stands'],
+  'Guest House': ['Guest House'],
+  'Restaurant/Canteen': ['Restaurant/Canteen'],
+  'Club House': ['Club House'],
+  'Stadium': ['Stadium'],
 };
 
-const RENT_CATEGORIES = [...new Set(Object.values(RENT_CLASS_CATEGORIES))];
+const RENT_CATEGORIES = [...new Set(Object.values(RENT_CLASS_CATEGORIES).flat())];
 
 const RENT_CLASSES = Object.keys(RENT_CLASS_CATEGORIES);
 
@@ -215,9 +215,9 @@ export function RentPage() {
     if (type === 'checkbox') {
       setForm((prev) => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
     } else if (name === 'rentClass') {
-      // Auto-fill category when class is selected
-      const cat = RENT_CLASS_CATEGORIES[value] || '';
-      setForm((prev) => ({ ...prev, rentClass: value, rentCategory: cat }));
+      // Auto-fill category: if only one option, select it; otherwise reset
+      const cats = RENT_CLASS_CATEGORIES[value] || [];
+      setForm((prev) => ({ ...prev, rentClass: value, rentCategory: cats.length === 1 ? cats[0] : '' }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
@@ -252,7 +252,7 @@ export function RentPage() {
       doorNo: rent.doorNo,
       rentObjectName: rent.rentObjectName,
       rentClass: rent.rentClass,
-      rentCategory: rent.rentCategory || RENT_CLASS_CATEGORIES[rent.rentClass] || '',
+      rentCategory: rent.rentCategory || (RENT_CLASS_CATEGORIES[rent.rentClass]?.[0]) || '',
       rentUnit: rent.rentUnit,
       rentValue: rent.rentValue,
       vacant: rent.vacant,
@@ -522,8 +522,8 @@ export function RentPage() {
               <div>
                 <label className={labelClass}>Category</label>
                 <select name="rentCategory" value={form.rentCategory} onChange={handleFormChange} disabled={!form.rentClass} className={inputClass}>
-                  <option value="">{form.rentClass ? 'Category auto-filled' : 'Select class first'}</option>
-                  {RENT_CATEGORIES.map((c) => (
+                  <option value="">{form.rentClass ? (RENT_CLASS_CATEGORIES[form.rentClass]?.length === 1 ? RENT_CLASS_CATEGORIES[form.rentClass][0] : 'Select category') : 'Select class first'}</option>
+                  {(RENT_CLASS_CATEGORIES[form.rentClass] || []).map((c) => (
                     <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
