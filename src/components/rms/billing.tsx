@@ -913,7 +913,7 @@ export function BillingPage() {
                     >
                       <option value="">Select revenue item...</option>
                       {REVENUE_ITEMS.map((item) => (
-                        <option key={item} value={item}>{item} ({formatCurrency(RATE_AMOUNTS[item])})</option>
+                        <option key={item} value={item}>{item}</option>
                       ))}
                     </select>
                   </div>
@@ -1145,7 +1145,7 @@ export function BillingPage() {
                   <option value="">Select revenue item...</option>
                   {REVENUE_ITEMS.map((item) => (
                     <option key={item} value={item}>
-                      {item} ({formatCurrency(RATE_AMOUNTS[item])})
+                      {item}
                     </option>
                   ))}
                 </select>
