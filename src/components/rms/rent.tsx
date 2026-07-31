@@ -553,11 +553,6 @@ export function RentPage() {
               <label className={labelClass}>Rent Object Name</label>
               <input type="text" name="rentObjectName" value={form.rentObjectName} onChange={handleFormChange} placeholder="Enter rent object name" className={inputClass} />
             </div>
-            {/* Code — full width, auto-filled */}
-            <div>
-              <label className={labelClass}>Code</label>
-              <input type="text" name="rentCode" value={form.rentCode} readOnly className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed`} placeholder="Auto-filled when class & category are selected" />
-            </div>
             {/* Rent Class | Category — 2-column */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -579,7 +574,7 @@ export function RentPage() {
                 </select>
               </div>
             </div>
-            {/* Rent Unit | Rent Value — 2-column */}
+            {/* Rent Unit | Code — 2-column */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>Rent Unit</label>
@@ -589,6 +584,10 @@ export function RentPage() {
                     <option key={u} value={u}>{u}</option>
                   ))}
                 </select>
+              </div>
+              <div>
+                <label className={labelClass}>Code</label>
+                <input type="text" name="rentCode" value={form.rentCode} readOnly className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed`} placeholder="Auto-filled" />
               </div>
             </div>
             {/* Rent Value | Vacant — 2-column */}
