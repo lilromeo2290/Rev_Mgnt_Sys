@@ -983,7 +983,7 @@ export function BusinessesPage() {
               </div>
               {/* Business Address (full width) */}
               <div className="sm:col-span-2 lg:col-span-3">
-                <label className={`${labelClass} block`}>Business Address <span className="text-red-500">*</span></label>
+                <label className={`${labelClass} block`}>Exact Business Address <span className="text-red-500">*</span></label>
                 <input type="text" name="businessAddress" value={form.businessAddress} onChange={handleFormChange} placeholder="Full business address" className={inputClass} />
               </div>
             </div>
