@@ -223,6 +223,17 @@ export function PropertiesPage() {
       // When propertyUseType changes, auto-fill category
       const cat = value ? value.split(':')[1]?.trim() || '' : '';
       setForm((prev) => ({ ...prev, [name]: value, category: cat }));
+    } else if (name === 'locality') {
+      const loc = value;
+      if (loc) {
+        const prefix = `${loc}/BP/`;
+        const existing = properties.filter((p) => (p as any).code && (p as any).code.startsWith(prefix));
+        const count = existing.length;
+        const newCode = `${prefix}${String(count + 1).padStart(3, '0')}`;
+        setForm((prev) => ({ ...prev, [name]: value, code: newCode }));
+      } else {
+        setForm((prev) => ({ ...prev, [name]: value, code: '' }));
+      }
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
@@ -475,7 +486,7 @@ export function PropertiesPage() {
               </div>
               <div>
                 <label className={labelClass}>Code</label>
-                <input type="text" name="code" value={form.code} onChange={handleFormChange} placeholder="Enter code" className={inputClass} />
+                <input type="text" name="code" value={form.code} readOnly placeholder="Auto-generated from locality" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
               </div>
             </div>
           </div>

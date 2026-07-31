@@ -251,6 +251,21 @@ export function BusinessesPage() {
         updated.category = '';
         updated.subCategory = '';
       }
+      // Auto-generate code when locality changes
+      if (name === 'locality') {
+        const loc = (e.target as HTMLSelectElement).value;
+        if (loc) {
+          const prefix = `${loc}/BP/`;
+          const existing = businesses.filter((b) => (b as any).code && (b as any).code.startsWith(prefix));
+          // Exclude current editing item
+          const count = editingRegNumber
+            ? existing.filter((b) => b.regNumber !== editingRegNumber).length
+            : existing.length;
+          updated.code = `${prefix}${String(count + 1).padStart(3, '0')}`;
+        } else {
+          updated.code = '';
+        }
+      }
       return updated;
     });
   };
@@ -952,7 +967,7 @@ export function BusinessesPage() {
               {/* Code */}
               <div>
                 <label className={`${labelClass} block`}>Code</label>
-                <input type="text" name="code" value={form.code} onChange={handleFormChange} placeholder="Enter code" className={inputClass} />
+                <input type="text" name="code" value={form.code} readOnly placeholder="Auto-generated from locality" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
               </div>
               {/* Street Name */}
               <div>
