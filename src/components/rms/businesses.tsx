@@ -83,6 +83,10 @@ interface Business {
   daAssignmentNo: string;
   businessCertNo: string;
   businessPermit: string;
+  businessUniqueNumber: string;
+  revenueDescription: string;
+  revenueDescription2: string;
+  revenueCode: string;
   employees: string;
   yearEstablished: string;
   excludedFromFees: boolean;
@@ -133,6 +137,10 @@ const defaultForm = {
   daAssignmentNo: '',
   businessCertNo: '',
   businessPermit: '',
+  businessUniqueNumber: '',
+  revenueDescription: '',
+  revenueDescription2: '',
+  revenueCode: '',
   employees: '',
   yearEstablished: '',
   excludedFromFees: false,
@@ -306,6 +314,10 @@ export function BusinessesPage() {
       daAssignmentNo: form.daAssignmentNo,
       businessCertNo: form.businessCertNo,
       businessPermit: form.businessPermit,
+      businessUniqueNumber: form.businessUniqueNumber,
+      revenueDescription: form.revenueDescription,
+      revenueDescription2: form.revenueDescription2,
+      revenueCode: form.revenueCode,
       employees: form.employees,
       yearEstablished: form.yearEstablished,
       excludedFromFees: form.excludedFromFees,
@@ -409,6 +421,10 @@ export function BusinessesPage() {
       daAssignmentNo: (biz as any).daAssignmentNo || '',
       businessCertNo: (biz as any).businessCertNo || '',
       businessPermit: (biz as any).businessPermit || '',
+      businessUniqueNumber: (biz as any).businessUniqueNumber || '',
+      revenueDescription: (biz as any).revenueDescription || '',
+      revenueDescription2: (biz as any).revenueDescription2 || '',
+      revenueCode: (biz as any).revenueCode || '',
       employees: (biz as any).employees || '',
       yearEstablished: (biz as any).yearEstablished || '',
       excludedFromFees: (biz as any).excludedFromFees || false,
@@ -1015,6 +1031,45 @@ export function BusinessesPage() {
           </div>
           <div className="p-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
+              {/* Business Name */}
+              <div className="sm:col-span-2 lg:col-span-3">
+                <label className={`${labelClass} block`}>Business Name <span className="text-red-500">*</span></label>
+                <input type="text" name="name" value={form.name} onChange={handleFormChange} placeholder="Enter business name" className={inputClass} />
+              </div>
+              {/* DA Assignment No. / Business Permit (same row) */}
+              <div>
+                <label className={`${labelClass} block`}>DA Assignment No. / Business Permit</label>
+                <input type="text" name="daAssignmentNo" value={form.daAssignmentNo} onChange={handleFormChange} placeholder="e.g. DA-2026-001" className={inputClass} />
+              </div>
+              <div>
+                <label className={`${labelClass} block`}>Business Permit</label>
+                <input type="text" name="businessPermit" value={form.businessPermit} onChange={handleFormChange} placeholder="Permit number" className={inputClass} />
+              </div>
+              {/* Business Unique Number */}
+              <div>
+                <label className={`${labelClass} block`}>Business Unique Number</label>
+                <input type="text" name="businessUniqueNumber" value={form.businessUniqueNumber} onChange={handleFormChange} placeholder="Enter unique number" className={inputClass} />
+              </div>
+              {/* Business Certificate Number */}
+              <div>
+                <label className={`${labelClass} block`}>Business Certificate Number</label>
+                <input type="text" name="businessCertNo" value={form.businessCertNo} onChange={handleFormChange} placeholder="Certificate number" className={inputClass} />
+              </div>
+              {/* Revenue Description */}
+              <div>
+                <label className={`${labelClass} block`}>Revenue Description</label>
+                <input type="text" name="revenueDescription" value={form.revenueDescription} onChange={handleFormChange} placeholder="Enter revenue description" className={inputClass} />
+              </div>
+              {/* Revenue Description 2 */}
+              <div>
+                <label className={`${labelClass} block`}>Revenue Description</label>
+                <input type="text" name="revenueDescription2" value={form.revenueDescription2} onChange={handleFormChange} placeholder="Enter revenue description" className={inputClass} />
+              </div>
+              {/* Revenue Code */}
+              <div>
+                <label className={`${labelClass} block`}>Revenue Code</label>
+                <input type="text" name="revenueCode" value={form.revenueCode} onChange={handleFormChange} placeholder="Enter revenue code" className={inputClass} />
+              </div>
               {/* Business Class */}
               <div>
                 <label className={`${labelClass} block`}>Business Class <span className="text-red-500">*</span></label>
@@ -1022,36 +1077,6 @@ export function BusinessesPage() {
                   <option value="">Type to filter business class...</option>
                   {businessTypes.map((t) => (
                     <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
-              </div>
-              {/* Business Name */}
-              <div className="sm:col-span-2">
-                <label className={`${labelClass} block`}>Business Name <span className="text-red-500">*</span></label>
-                <input type="text" name="name" value={form.name} onChange={handleFormChange} placeholder="Enter business name" className={inputClass} />
-              </div>
-              {/* DA Assignment No */}
-              <div>
-                <label className={`${labelClass} block`}>DA Assignment No.</label>
-                <input type="text" name="daAssignmentNo" value={form.daAssignmentNo} onChange={handleFormChange} placeholder="e.g. DA-2026-001" className={inputClass} />
-              </div>
-              {/* Business Certificate */}
-              <div>
-                <label className={`${labelClass} block`}>Business Certificate</label>
-                <input type="text" name="businessCertNo" value={form.businessCertNo} onChange={handleFormChange} placeholder="Certificate number" className={inputClass} />
-              </div>
-              {/* Business Permit */}
-              <div>
-                <label className={`${labelClass} block`}>Business Permit</label>
-                <input type="text" name="businessPermit" value={form.businessPermit} onChange={handleFormChange} placeholder="Permit number" className={inputClass} />
-              </div>
-              {/* Category (dynamic from fee schedule) */}
-              <div>
-                <label className={`${labelClass} block`}>Category</label>
-                <select name="category" value={form.category} onChange={handleFormChange} className={inputClass} disabled={!form.type}>
-                  <option value="">Select category</option>
-                  {availableCategories.map((c, i) => (
-                    <option key={`cat-${i}`} value={c.name}>{c.name}</option>
                   ))}
                 </select>
               </div>
