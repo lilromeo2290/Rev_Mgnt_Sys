@@ -84,7 +84,29 @@ const RATE_AMOUNTS: Record<string, number> = {
   'Fire Safety Cert': 350,
 };
 
-const ENTITIES: { id: string; name: string; type: string; category?: string }[] = [];
+function loadEntities(): { id: string; name: string; type: string; category?: string }[] {
+  try {
+    const businesses = JSON.parse(localStorage.getItem('rms-businesses') || '[]') as { regNumber: string; name: string; type: string; category: string }[];
+    const properties = JSON.parse(localStorage.getItem('rms-properties') || '[]') as { propNumber: string; ownerName: string; propertyUseType: string; category: string }[];
+    const rents = JSON.parse(localStorage.getItem('rms-rents') || '[]') as { id: string; rentObjectName: string; rentClass: string; rentCategory: string }[];
+
+    const list: { id: string; name: string; type: string; category?: string }[] = [];
+
+    for (const b of businesses) {
+      if (b.name) list.push({ id: b.regNumber || String(Date.now()), name: b.name, type: 'Business', category: b.category || b.type || '' });
+    }
+    for (const p of properties) {
+      if (p.ownerName) list.push({ id: p.propNumber || String(Date.now()), name: p.ownerName, type: 'Property', category: p.category || p.propertyUseType || '' });
+    }
+    for (const r of rents) {
+      if (r.rentObjectName) list.push({ id: r.id || String(Date.now()), name: r.rentObjectName, type: 'Rent', category: r.rentClass || r.rentCategory || '' });
+    }
+
+    return list;
+  } catch {
+    return [];
+  }
+}
 
 const initialBills: Bill[] = [];
 
@@ -107,6 +129,7 @@ export function BillingPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
+  const [entities, setEntities] = useState(loadEntities());
   const [bulkForm, setBulkForm] = useState({
     entityType: 'All' as 'All' | 'Business' | 'Property' | 'Rent',
     category: 'All',
@@ -231,7 +254,7 @@ export function BillingPage() {
       date: new Date().toISOString().split('T')[0],
       entityName: formData.entityName,
       entityType: formData.entityType,
-      category: ENTITIES.find((e) => e.name === formData.entityName)?.category ?? 'General',
+      category: entities.find((e) => e.name === formData.entityName)?.category ?? 'General',
       revenueItem: formData.revenueItem,
       amount: formData.amount,
       previousBalance: formData.previousBalance,
@@ -265,7 +288,7 @@ export function BillingPage() {
 
   const bulkEligibleCount = useMemo(() => {
     if (!bulkForm.revenueItem) return 0;
-    return ENTITIES.filter((e) => {
+    return entities.filter((e) => {
       if (bulkForm.entityType !== 'All' && e.type !== bulkForm.entityType) return false;
       if (bulkForm.category !== 'All' && e.category !== bulkForm.category) return false;
       const exists = bills.find(
@@ -286,7 +309,7 @@ export function BillingPage() {
     const penalty = Math.round(amount * 0.05 * 100) / 100;
 
     setTimeout(() => {
-      const eligibleEntities = ENTITIES.filter((e) => {
+      const eligibleEntities = entities.filter((e) => {
         if (bulkForm.entityType !== 'All' && e.type !== bulkForm.entityType) return false;
         if (bulkForm.category !== 'All' && e.category !== bulkForm.category) return false;
         const exists = bills.find(
@@ -517,11 +540,11 @@ export function BillingPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setShowModal(true)} className={btnPrimary}>
+          <button onClick={() => { setEntities(loadEntities()); setShowModal(true); }} className={btnPrimary}>
             <Plus className="w-4 h-4" />
             Generate Bill
           </button>
-          <button onClick={() => { setShowBulkModal(true); setBulkProgress('idle'); setBulkGeneratedCount(0); }} className={btnSecondary}>
+          <button onClick={() => { setEntities(loadEntities()); setShowBulkModal(true); setBulkProgress('idle'); setBulkGeneratedCount(0); }} className={btnSecondary}>
             <Zap className="w-4 h-4" />
             Bulk Generate
           </button>
@@ -1093,7 +1116,7 @@ export function BillingPage() {
                 <select
                   value={formData.entityName}
                   onChange={(e) => {
-                    const entity = ENTITIES.find((ent) => ent.name === e.target.value);
+                    const entity = entities.find((ent) => ent.name === e.target.value);
                     setFormData((p) => ({
                       ...p,
                       entityName: e.target.value,
@@ -1103,7 +1126,7 @@ export function BillingPage() {
                   className={inputClass}
                 >
                   <option value="">Select entity...</option>
-                  {ENTITIES.map((e, i) => (
+                  {entities.map((e, i) => (
                     <option key={`entity-${i}`} value={e.name}>
                       {e.name} ({e.type} – {e.category})
                     </option>
