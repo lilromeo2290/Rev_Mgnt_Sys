@@ -788,7 +788,7 @@ export function PaymentsPage() {
                     ) : (
                       availableBills.map((b) => (
                         <option key={b.billNo} value={b.billNo}>
-                          {b.billNo} — {b.business} ({formatCurrency(b.balance)} due)
+                          {b.billNo}
                         </option>
                       ))
                     )}
