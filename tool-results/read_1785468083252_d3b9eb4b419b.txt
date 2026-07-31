@@ -1,0 +1,524 @@
+     1→'use client';
+     2→
+     3→import { useState } from 'react';
+     4→import { useLocalStorage } from '@/hooks/use-local-storage';
+     5→import {
+     6→  Search,
+     7→  Plus,
+     8→  ArrowLeft,
+     9→  Pencil,
+    10→  Trash2,
+    11→  ChevronLeft,
+    12→  ChevronRight,
+    13→  Home,
+    14→  MapPin,
+    15→  User,
+    16→  Building2,
+    17→  Crosshair,
+    18→  Save,
+    19→  X,
+    20→} from 'lucide-react';
+    21→
+    22→// ─── Types ───────────────────────────────────────────────────────────────────
+    23→
+    24→interface Property {
+    25→  propNumber: string;
+    26→  streetName: string;
+    27→  houseNo: string;
+    28→  streetCode: string;
+    29→  ghanaPostGPS: string;
+    30→  localityCode: string;
+    31→  ownerName: string;
+    32→  ownerAddress: string;
+    33→  ownerGPS: string;
+    34→  phone: string;
+    35→  email: string;
+    36→  tin: string;
+    37→  nationalId: string;
+    38→  ownershipType: string;
+    39→  propertyUseType: string;
+    40→  value: string;
+    41→  rooms: string;
+    42→  hasBuildingPermit: string;
+    43→  permitNumber: string;
+    44→  excludedFromRating: boolean;
+    45→  comments: string;
+    46→}
+    47→
+    48→// ─── Mock Data ───────────────────────────────────────────────────────────────
+    49→
+    50→const mockProperties: Property[] = [];
+    51→
+    52→// ─── Constants ──────────────────────────────────────────────────────────────
+    53→
+    54→const OWNERSHIP_TYPES = [
+    55→  'Private Individual',
+    56→  'Private Company',
+    57→  'Government',
+    58→  'State Enterprise',
+    59→  'Religious Body',
+    60→  'Traditional Authority',
+    61→  'Joint Ownership',
+    62→  'Other',
+    63→];
+    64→
+    65→const propertyUseTypes = [
+    66→  '20121 : Residential : 3rd Class Residential : 420',
+    67→  '20122 : Residential : 2nd Class Residential : 520',
+    68→  '20123 : Residential : 1st Class Residential : 750',
+    69→  '20201 : Commercial : 3rd Class Commercial : 650',
+    70→  '20202 : Commercial : 2nd Class Commercial : 850',
+    71→  '20203 : Commercial : 1st Class Commercial : 1200',
+    72→  '20301 : Industrial : Light Industrial : 500',
+    73→  '20302 : Industrial : Heavy Industrial : 800',
+    74→  '20401 : Institutional : Educational : 400',
+    75→  '20402 : Institutional : Health : 450',
+    76→  '20501 : Mixed Use : Residential-Commercial : 900',
+    77→];
+    78→
+    79→const propertyTypes = ['All', 'Residential', 'Commercial', 'Industrial', 'Institutional', 'Mixed Use'];
+    80→const occupancyStatuses = ['All', 'Occupied', 'Vacant', 'Under Construction'];
+    81→
+    82→// ─── Component ───────────────────────────────────────────────────────────────
+    83→
+    84→export function PropertiesPage() {
+    85→  const [view, setView] = useState<'list' | 'form'>('list');
+    86→  const [searchQuery, setSearchQuery] = useState('');
+    87→  const [typeFilter, setTypeFilter] = useState<string>('All');
+    88→  const [statusFilter, setStatusFilter] = useState<string>('All');
+    89→  const [currentPage, setCurrentPage] = useState(1);
+    90→  const [properties, setProperties] = useLocalStorage<Property[]>('rms-properties', mockProperties);
+    91→  const itemsPerPage = 10;
+    92→
+    93→  // ── Form State ───────────────────────────────────────────────────────────
+    94→  const defaultForm = {
+    95→    propNumber: '',
+    96→    streetName: '',
+    97→    houseNo: '',
+    98→    streetCode: '',
+    99→    ghanaPostGPS: '',
+   100→    localityCode: '',
+   101→    ownerName: '',
+   102→    ownerAddress: '',
+   103→    ownerGPS: '',
+   104→    phone: '',
+   105→    email: '',
+   106→    tin: '',
+   107→    nationalId: '',
+   108→    ownershipType: '',
+   109→    propertyUseType: '',
+   110→    value: '',
+   111→    rooms: '',
+   112→    hasBuildingPermit: 'No',
+   113→    permitNumber: '',
+   114→    excludedFromRating: false,
+   115→    comments: '',
+   116→  };
+   117→
+   118→  const [form, setForm] = useState(defaultForm);
+   119→
+   120→  // ── Filtering ─────────────────────────────────────────────────────────────
+   121→  const filtered = properties.filter((p) => {
+   122→    const matchSearch =
+   123→      searchQuery === '' ||
+   124→      p.ownerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+   125→      p.propNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+   126→      p.streetName.toLowerCase().includes(searchQuery.toLowerCase());
+   127→    const matchType = typeFilter === 'All' || p.propertyUseType.toLowerCase().includes(typeFilter.toLowerCase());
+   128→    return matchSearch && matchType;
+   129→  });
+   130→
+   131→  const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+   132→  const safeCurrentPage = Math.min(currentPage, totalPages);
+   133→  const startIdx = (safeCurrentPage - 1) * itemsPerPage;
+   134→  const paged = filtered.slice(startIdx, startIdx + itemsPerPage);
+   135→  const showingFrom = filtered.length === 0 ? 0 : startIdx + 1;
+   136→  const showingTo = Math.min(startIdx + itemsPerPage, filtered.length);
+   137→
+   138→  // ── Handlers ─────────────────────────────────────────────────────────────
+   139→  const handleFormChange = (
+   140→    e: React.ChangeEvent<
+   141→      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+   142→    >
+   143→  ) => {
+   144→    const { name, value, type } = e.target;
+   145→    if (type === 'checkbox') {
+   146→      setForm((prev) => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
+   147→    } else {
+   148→      setForm((prev) => ({ ...prev, [name]: value }));
+   149→    }
+   150→  };
+   151→
+   152→  const handleSave = () => {
+   153→    if (!form.ownerName || !form.propertyUseType) return;
+   154→    const newProp: Property = {
+   155→      propNumber: form.propNumber || `UPN-${String(properties.length + 1).padStart(4, '0')}`,
+   156→      ...form,
+   157→    };
+   158→    setProperties((prev) => [...prev, newProp]);
+   159→    setForm({ ...defaultForm });
+   160→    setView('list');
+   161→  };
+   162→
+   163→  const handleCancel = () => {
+   164→    setView('list');
+   165→  };
+   166→
+   167→  const handleDelete = (propNumber: string) => {
+   168→    setProperties((prev) => prev.filter((p) => p.propNumber !== propNumber));
+   169→  };
+   170→
+   171→  // ── Form Helpers ─────────────────────────────────────────────────────────
+   172→  const inputClass =
+   173→    'w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition';
+   174→  const labelClass =
+   175→    'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1';
+   176→
+   177→  const cardClass = 'rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-hidden';
+   178→  const cardHeaderClass = 'flex items-center gap-2.5 px-5 py-3.5 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700';
+   179→  const cardBodyClass = 'p-5 space-y-4';
+   180→
+   181→  const statusBadge = (status: string) => {
+   182→    const styles: Record<string, string> = {
+   183→      Occupied: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400',
+   184→      Vacant: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400',
+   185→      'Under Construction': 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400',
+   186→    };
+   187→    return (
+   188→      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${styles[status] || 'bg-slate-100 text-slate-600'}`}>
+   189→        {status}
+   190→      </span>
+   191→    );
+   192→  };
+   193→
+   194→  const formatVal = (v: string) => {
+   195→    const n = parseFloat(v);
+   196→    if (isNaN(n)) return 'GH₵ 0';
+   197→    return `GH\u20b5 ${n.toLocaleString('en-GH')}`;
+   198→  };
+   199→
+   200→  // ══════════════════════════════════════════════════════════════════════════
+   201→  //  LIST VIEW
+   202→  // ══════════════════════════════════════════════════════════════════════════
+   203→  if (view === 'list') {
+   204→    return (
+   205→      <div className="space-y-6">
+   206→        {/* ── Header ──────────────────────────────────────────────────────── */}
+   207→        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+   208→          <div>
+   209→            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Property Registration</h1>
+   210→            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+   211→              Manage and register properties within the assembly.
+   212→            </p>
+   213→          </div>
+   214→          <button
+   215→            onClick={() => setView('form')}
+   216→            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer"
+   217→          >
+   218→            <Plus className="w-4 h-4" />
+   219→            Register New Property
+   220→          </button>
+   221→        </div>
+   222→
+   223→        {/* ── Search & Filters ────────────────────────────────────────────── */}
+   224→        <div className="flex flex-col sm:flex-row gap-3">
+   225→          <div className="relative flex-1">
+   226→            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+   227→            <input
+   228→              type="text"
+   229→              placeholder="Search by UPN, owner, or street..."
+   230→              value={searchQuery}
+   231→              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+   232→              className={`${inputClass} pl-10`}
+   233→            />
+   234→          </div>
+   235→          <select
+   236→            value={typeFilter}
+   237→            onChange={(e) => { setTypeFilter(e.target.value); setCurrentPage(1); }}
+   238→            className={`${inputClass} w-full sm:w-48`}
+   239→          >
+   240→            {propertyTypes.map((t) => (
+   241→              <option key={t} value={t}>{t === 'All' ? 'All Property Types' : t}</option>
+   242→            ))}
+   243→          </select>
+   244→          <select
+   245→            value={statusFilter}
+   246→            onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
+   247→            className={`${inputClass} w-full sm:w-48`}
+   248→          >
+   249→            {occupancyStatuses.map((s) => (
+   250→              <option key={s} value={s}>{s === 'All' ? 'All Statuses' : s}</option>
+   251→            ))}
+   252→          </select>
+   253→        </div>
+   254→
+   255→        {/* ── Table ───────────────────────────────────────────────────────── */}
+   256→        <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+   257→          <div className="overflow-x-auto">
+   258→            <table className="w-full text-sm">
+   259→              <thead>
+   260→                <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700">
+   261→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">UPN</th>
+   262→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Owner</th>
+   263→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Property Use Type</th>
+   264→                  <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Value</th>
+   265→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Street</th>
+   266→                  <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Actions</th>
+   267→                </tr>
+   268→              </thead>
+   269→              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+   270→                {paged.length === 0 ? (
+   271→                  <tr>
+   272→                    <td colSpan={6} className="text-center py-12 text-slate-400 dark:text-slate-500">
+   273→                      <Home className="w-10 h-10 mx-auto mb-3 opacity-40" />
+   274→                      No properties found.
+   275→                    </td>
+   276→                  </tr>
+   277→                ) : (
+   278→                  paged.map((prop) => (
+   279→                    <tr key={prop.propNumber} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+   280→                      <td className="px-4 py-3 font-mono text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">{prop.propNumber}</td>
+   281→                      <td className="px-4 py-3 font-medium text-slate-900 dark:text-white whitespace-nowrap">{prop.ownerName}</td>
+   282→                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap max-w-[200px] truncate">{prop.propertyUseType.split(':')[1] ? prop.propertyUseType.split(':')[1].trim() : prop.propertyUseType}</td>
+   283→                      <td className="px-4 py-3 text-right font-medium text-slate-700 dark:text-slate-200 whitespace-nowrap">{formatVal(prop.value)}</td>
+   284→                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">{prop.streetName}</td>
+   285→                      <td className="px-4 py-3 text-right whitespace-nowrap">
+   286→                        <div className="inline-flex items-center gap-1">
+   287→                          <button className="p-1.5 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors cursor-pointer" title="Edit"><Pencil className="w-4 h-4" /></button>
+   288→                          <button onClick={() => handleDelete(prop.propNumber)} className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer" title="Delete"><Trash2 className="w-4 h-4" /></button>
+   289→                        </div>
+   290→                      </td>
+   291→                    </tr>
+   292→                  ))
+   293→                )}
+   294→              </tbody>
+   295→            </table>
+   296→          </div>
+   297→        </div>
+   298→
+   299→        {/* ── Pagination ──────────────────────────────────────────────────── */}
+   300→        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+   301→          <p className="text-slate-500 dark:text-slate-400">Showing {showingFrom}-{showingTo} of {filtered.length}</p>
+   302→          <div className="flex items-center gap-2">
+   303→            <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={safeCurrentPage <= 1} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
+   304→              <ChevronLeft className="w-4 h-4" /> Previous
+   305→            </button>
+   306→            <span className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium">{safeCurrentPage} / {totalPages}</span>
+   307→            <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={safeCurrentPage >= totalPages} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors cursor-pointer">
+   308→              Next <ChevronRight className="w-4 h-4" />
+   309→            </button>
+   310→          </div>
+   311→        </div>
+   312→      </div>
+   313→    );
+   314→  }
+   315→
+   316→  // ══════════════════════════════════════════════════════════════════════════
+   317→  //  FORM VIEW — 3-Card Layout
+   318→  // ══════════════════════════════════════════════════════════════════════════
+   319→  return (
+   320→    <div className="space-y-6">
+   321→      {/* ── Header ────────────────────────────────────────────────────────── */}
+   322→      <div className="flex items-center gap-4">
+   323→        <button onClick={handleCancel} className="p-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer">
+   324→          <ArrowLeft className="w-5 h-5" />
+   325→        </button>
+   326→        <div>
+   327→          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Register New Property</h1>
+   328→          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Fill in the details below to register a new property.</p>
+   329→        </div>
+   330→      </div>
+   331→
+   332→      <div className="space-y-5">
+   333→        {/* ════════════════════════════════════════════════════════════════
+   334→           CARD 1: LOCATION
+   335→           ════════════════════════════════════════════════════════════════ */}
+   336→        <div className={cardClass}>
+   337→          <div className={cardHeaderClass}>
+   338→            <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+   339→              <MapPin className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+   340→            </div>
+   341→            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Location</h2>
+   342→          </div>
+   343→          <div className={cardBodyClass}>
+   344→            {/* Row 1: Street Name (wider) | House No. | Street Code */}
+   345→            <div className="grid grid-cols-12 gap-4">
+   346→              <div className="col-span-12 sm:col-span-5">
+   347→                <label className={labelClass}>Street Name</label>
+   348→                <input type="text" name="streetName" value={form.streetName} onChange={handleFormChange} placeholder="Enter street name" className={inputClass} />
+   349→              </div>
+   350→              <div className="col-span-6 sm:col-span-3">
+   351→                <label className={labelClass}>House No.</label>
+   352→                <input type="text" name="houseNo" value={form.houseNo} onChange={handleFormChange} placeholder="e.g. 26" className={inputClass} />
+   353→              </div>
+   354→              <div className="col-span-6 sm:col-span-4">
+   355→                <label className={labelClass}>Street Code</label>
+   356→                <input type="text" name="streetCode" value={form.streetCode} onChange={handleFormChange} placeholder="Enter code" className={inputClass} />
+   357→              </div>
+   358→            </div>
+   359→            {/* Row 2: GhanaPost GPS (with button) | Locality Code */}
+   360→            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+   361→              <div>
+   362→                <label className={labelClass}>GhanaPost GPS</label>
+   363→                <div className="relative">
+   364→                  <input type="text" name="ghanaPostGPS" value={form.ghanaPostGPS} onChange={handleFormChange} placeholder="XX-XXX-XXXX" className={`${inputClass} pr-10`} />
+   365→                  <button type="button" className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-slate-400 hover:text-emerald-600 transition-colors cursor-pointer" title="Get GPS">
+   366→                    <Crosshair className="w-4 h-4" />
+   367→                  </button>
+   368→                </div>
+   369→              </div>
+   370→              <div>
+   371→                <label className={labelClass}>Locality Code</label>
+   372→                <input type="text" name="localityCode" value={form.localityCode} onChange={handleFormChange} placeholder="Enter locality code" className={inputClass} />
+   373→              </div>
+   374→            </div>
+   375→          </div>
+   376→        </div>
+   377→
+   378→        {/* ════════════════════════════════════════════════════════════════
+   379→           CARD 2: OWNER INFORMATION
+   380→           ════════════════════════════════════════════════════════════════ */}
+   381→        <div className={cardClass}>
+   382→          <div className={cardHeaderClass}>
+   383→            <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+   384→              <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+   385→            </div>
+   386→            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Owner Information</h2>
+   387→          </div>
+   388→          <div className={cardBodyClass}>
+   389→            {/* Owner Name — full width */}
+   390→            <div>
+   391→              <label className={labelClass}>Owner Name <span className="text-red-500">*</span></label>
+   392→              <input type="text" name="ownerName" value={form.ownerName} onChange={handleFormChange} placeholder="Enter full name of property owner" className={inputClass} />
+   393→            </div>
+   394→            {/* Owner Address | Owner GhanaPost GPS */}
+   395→            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+   396→              <div>
+   397→                <label className={labelClass}>Owner Address</label>
+   398→                <input type="text" name="ownerAddress" value={form.ownerAddress} onChange={handleFormChange} placeholder="Enter owner address" className={inputClass} />
+   399→              </div>
+   400→              <div>
+   401→                <label className={labelClass}>Owner GhanaPost GPS</label>
+   402→                <input type="text" name="ownerGPS" value={form.ownerGPS} onChange={handleFormChange} placeholder="XX-XXX-XXXX" className={inputClass} />
+   403→              </div>
+   404→            </div>
+   405→            {/* Phone | Email | TIN — 3-column */}
+   406→            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+   407→              <div>
+   408→                <label className={labelClass}>Phone <span className="text-red-500">*</span></label>
+   409→                <input type="tel" name="phone" value={form.phone} onChange={handleFormChange} placeholder="e.g. 0544370388" className={inputClass} />
+   410→              </div>
+   411→              <div>
+   412→                <label className={labelClass}>Email</label>
+   413→                <input type="email" name="email" value={form.email} onChange={handleFormChange} placeholder="name@example.com" className={inputClass} />
+   414→              </div>
+   415→              <div>
+   416→                <label className={labelClass}>TIN</label>
+   417→                <input type="text" name="tin" value={form.tin} onChange={handleFormChange} placeholder="Enter TIN" className={inputClass} />
+   418→              </div>
+   419→            </div>
+   420→            {/* National ID | Ownership Type */}
+   421→            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+   422→              <div>
+   423→                <label className={labelClass}>National ID</label>
+   424→                <input type="text" name="nationalId" value={form.nationalId} onChange={handleFormChange} placeholder="Enter national ID number" className={inputClass} />
+   425→              </div>
+   426→              <div>
+   427→                <label className={labelClass}>Ownership Type</label>
+   428→                <select name="ownershipType" value={form.ownershipType} onChange={handleFormChange} className={inputClass}>
+   429→                  <option value="">Select type</option>
+   430→                  {OWNERSHIP_TYPES.map((t) => (
+   431→                    <option key={t} value={t}>{t}</option>
+   432→                  ))}
+   433→                </select>
+   434→              </div>
+   435→            </div>
+   436→          </div>
+   437→        </div>
+   438→
+   439→        {/* ════════════════════════════════════════════════════════════════
+   440→           CARD 3: PROPERTY INFORMATION
+   441→           ════════════════════════════════════════════════════════════════ */}
+   442→        <div className={cardClass}>
+   443→          <div className={cardHeaderClass}>
+   444→            <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+   445→              <Building2 className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+   446→            </div>
+   447→            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Property Information</h2>
+   448→          </div>
+   449→          <div className={cardBodyClass}>
+   450→            {/* Property Use Type | Value (GHS) | Rooms — 3-column */}
+   451→            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+   452→              <div>
+   453→                <label className={labelClass}>Property Use Type <span className="text-red-500">*</span></label>
+   454→                <select name="propertyUseType" value={form.propertyUseType} onChange={handleFormChange} className={inputClass}>
+   455→                  <option value="">Select use type</option>
+   456→                  {propertyUseTypes.map((t) => (
+   457→                    <option key={t} value={t}>{t}</option>
+   458→                  ))}
+   459→                </select>
+   460→              </div>
+   461→              <div>
+   462→                <label className={labelClass}>Value (GHS)</label>
+   463→                <input type="number" name="value" value={form.value} onChange={handleFormChange} placeholder="0.00" min="0" className={inputClass} />
+   464→              </div>
+   465→              <div>
+   466→                <label className={labelClass}>Rooms</label>
+   467→                <input type="number" name="rooms" value={form.rooms} onChange={handleFormChange} placeholder="e.g. 3" min="0" className={inputClass} />
+   468→              </div>
+   469→            </div>
+   470→            {/* Building Permit (radio) | Permit Number */}
+   471→            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+   472→              <div>
+   473→                <label className={labelClass}>Building Permit</label>
+   474→                <div className="flex items-center gap-6 mt-1">
+   475→                  <label className="inline-flex items-center gap-2 cursor-pointer">
+   476→                    <input type="radio" name="hasBuildingPermit" value="Yes" checked={form.hasBuildingPermit === 'Yes'} onChange={handleFormChange} className="accent-emerald-600 w-4 h-4" />
+   477→                    <span className="text-sm text-slate-700 dark:text-slate-300">Yes</span>
+   478→                  </label>
+   479→                  <label className="inline-flex items-center gap-2 cursor-pointer">
+   480→                    <input type="radio" name="hasBuildingPermit" value="No" checked={form.hasBuildingPermit === 'No'} onChange={handleFormChange} className="accent-emerald-600 w-4 h-4" />
+   481→                    <span className="text-sm text-slate-700 dark:text-slate-300">No</span>
+   482→                  </label>
+   483→                </div>
+   484→              </div>
+   485→              <div>
+   486→                <label className={labelClass}>Permit Number</label>
+   487→                <input type="text" name="permitNumber" value={form.permitNumber} onChange={handleFormChange} placeholder="Enter permit number" disabled={form.hasBuildingPermit === 'No'} className={`${inputClass} ${form.hasBuildingPermit === 'No' ? 'opacity-50 cursor-not-allowed' : ''}`} />
+   488→              </div>
+   489→            </div>
+   490→            {/* Excluded from rating checkbox */}
+   491→            <div className="flex items-center gap-2">
+   492→              <input type="checkbox" name="excludedFromRating" checked={form.excludedFromRating} onChange={handleFormChange} className="accent-emerald-600 w-4 h-4 rounded cursor-pointer" />
+   493→              <label htmlFor="excludedFromRating" className="text-sm text-slate-700 dark:text-slate-300 cursor-pointer">Excluded from rating</label>
+   494→            </div>
+   495→            {/* Comments — full width textarea */}
+   496→            <div>
+   497→              <label className={labelClass}>Comments</label>
+   498→              <textarea name="comments" value={form.comments} onChange={handleFormChange} rows={3} placeholder="Add any additional notes..." className={`${inputClass} resize-y`} />
+   499→            </div>
+   500→          </div>
+   501→        </div>
+   502→
+   503→        {/* ─── Action Buttons ──────────────────────────────────────────── */}
+   504→        <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-2">
+   505→          <button
+   506→            onClick={handleCancel}
+   507→            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-slate-600 hover:bg-slate-700 text-white text-sm font-medium transition-colors cursor-pointer"
+   508→          >
+   509→            <X className="w-4 h-4" />
+   510→            Cancel
+   511→          </button>
+   512→          <button
+   513→            onClick={handleSave}
+   514→            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors cursor-pointer"
+   515→          >
+   516→            <Save className="w-4 h-4" />
+   517→            Save
+   518→          </button>
+   519→        </div>
+   520→      </div>
+   521→    </div>
+   522→  );
+   523→}
+   524→

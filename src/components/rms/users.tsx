@@ -122,7 +122,16 @@ function loadUsers(): User[] {
     const stored = localStorage.getItem(USERS_STORAGE_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // Migrate: ensure every user has required fields
+        return parsed.map((u: Partial<User>) => ({
+          ...defaultUsers[0],
+          ...u,
+          lastLogin: u.lastLogin || 'Never',
+          dateCreated: u.dateCreated || new Date().toISOString().split('T')[0],
+          accessiblePages: u.accessiblePages || ROLE_DEFAULT_PAGES[u.role as UserRole] || [],
+        })) as User[];
+      }
     }
   } catch { /* ignore */ }
   return defaultUsers;
@@ -465,8 +474,8 @@ export function UsersPage() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="text-sm text-slate-600 dark:text-slate-400">{u.lastLogin.split(' ')[0]}</div>
-                        <div className="text-xs text-slate-400 dark:text-slate-500">{u.lastLogin.split(' ')[1]}</div>
+                        <div className="text-sm text-slate-600 dark:text-slate-400">{(u.lastLogin || 'Never').split(' ')[0]}</div>
+                        <div className="text-xs text-slate-400 dark:text-slate-500">{(u.lastLogin || '').split(' ')[1] || ''}</div>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-center gap-1">
