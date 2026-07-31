@@ -75,7 +75,8 @@ interface Business {
   streetName: string;
   houseNo: string;
   streetCode: string;
-  localityCode: string;
+  locality: string;
+  code: string;
   daAssignmentNo: string;
   businessCertNo: string;
   businessPermit: string;
@@ -121,7 +122,8 @@ const defaultForm = {
   streetName: '',
   houseNo: '',
   streetCode: '',
-  localityCode: '',
+  locality: '',
+  code: '',
   daAssignmentNo: '',
   businessCertNo: '',
   businessPermit: '',
@@ -299,7 +301,8 @@ export function BusinessesPage() {
       streetName: form.streetName,
       houseNo: form.houseNo,
       streetCode: form.streetCode,
-      localityCode: form.localityCode,
+      locality: form.locality,
+      code: form.code,
       daAssignmentNo: form.daAssignmentNo,
       businessCertNo: form.businessCertNo,
       businessPermit: form.businessPermit,
@@ -398,7 +401,8 @@ export function BusinessesPage() {
       streetName: (biz as any).streetName || '',
       houseNo: (biz as any).houseNo || '',
       streetCode: (biz as any).streetCode || '',
-      localityCode: (biz as any).localityCode || '',
+      locality: (biz as any).locality || '',
+      code: (biz as any).code || '',
       daAssignmentNo: (biz as any).daAssignmentNo || '',
       businessCertNo: (biz as any).businessCertNo || '',
       businessPermit: (biz as any).businessPermit || '',
@@ -972,10 +976,15 @@ export function BusinessesPage() {
                   </button>
                 </div>
               </div>
-              {/* Locality Code */}
+              {/* Locality */}
               <div>
-                <label className={`${labelClass} block`}>Locality Code</label>
-                <input type="text" name="localityCode" value={form.localityCode} onChange={handleFormChange} placeholder="Enter locality code" className={inputClass} />
+                <label className={`${labelClass} block`}>Locality</label>
+                <input type="text" name="locality" value={form.locality} onChange={handleFormChange} placeholder="Enter locality" className={inputClass} />
+              </div>
+              {/* Code */}
+              <div>
+                <label className={`${labelClass} block`}>Code</label>
+                <input type="text" name="code" value={form.code} onChange={handleFormChange} placeholder="Enter code" className={inputClass} />
               </div>
               {/* Business Address (full width) */}
               <div className="sm:col-span-2 lg:col-span-3">

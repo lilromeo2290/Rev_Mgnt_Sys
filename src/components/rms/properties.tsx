@@ -31,7 +31,8 @@ interface Property {
   houseNo: string;
   streetCode: string;
   ghanaPostGPS: string;
-  localityCode: string;
+  locality: string;
+  code: string;
   ownerName: string;
   ownerAddress: string;
   ownerGPS: string;
@@ -129,7 +130,8 @@ export function PropertiesPage() {
     houseNo: '',
     streetCode: '',
     ghanaPostGPS: '',
-    localityCode: '',
+    locality: '',
+    code: '',
     ownerName: '',
     ownerAddress: '',
     ownerGPS: '',
@@ -472,8 +474,12 @@ export function PropertiesPage() {
                 </div>
               </div>
               <div>
-                <label className={labelClass}>Locality Code</label>
-                <input type="text" name="localityCode" value={form.localityCode} onChange={handleFormChange} placeholder="Enter locality code" className={inputClass} />
+                <label className={labelClass}>Locality</label>
+                <input type="text" name="locality" value={form.locality} onChange={handleFormChange} placeholder="Enter locality" className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}>Code</label>
+                <input type="text" name="code" value={form.code} onChange={handleFormChange} placeholder="Enter code" className={inputClass} />
               </div>
             </div>
           </div>
