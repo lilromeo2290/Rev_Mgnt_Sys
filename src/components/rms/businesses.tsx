@@ -16,8 +16,6 @@ import {
   Briefcase,
   User,
   Save,
-  Crosshair,
-  Loader2,
   Printer,
   X,
   FileText,
@@ -143,8 +141,6 @@ export function BusinessesPage() {
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [typeFilter, setTypeFilter] = useState<string>('All');
   const [currentPage, setCurrentPage] = useState(1);
-  const [locatingBusiness, setLocatingBusiness] = useState(false);
-  const [locatingOwner, setLocatingOwner] = useState(false);
   const [viewingCert, setViewingCert] = useState<BusinessCert | null>(null);
   const [businesses, setBusinesses] = useLocalStorage<Business[]>('rms-businesses', mockBusinesses);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -180,50 +176,6 @@ export function BusinessesPage() {
 
   // ── Form State ───────────────────────────────────────────────────────────
   const [form, setForm] = useState({ ...defaultForm });
-
-  // ── Geolocation: Fetch GPS from device location ─────────────────────
-  const fetchGpsFromLocation = (
-    target: 'business' | 'owner'
-  ) => {
-    const setLoading = target === 'business' ? setLocatingBusiness : setLocatingOwner;
-
-    if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser. Please enter the GPS address manually.');
-      return;
-    }
-
-    setLoading(true);
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        const gpsString = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
-        if (target === 'business') {
-          setForm((prev) => ({ ...prev, gpsAddress: gpsString }));
-        } else {
-          setForm((prev) => ({ ...prev, ownerGps: gpsString }));
-        }
-        setLoading(false);
-      },
-      (error) => {
-        let message = 'Unable to retrieve location.';
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            message = 'Location permission denied. Please allow location access in your browser settings.';
-            break;
-          case error.POSITION_UNAVAILABLE:
-            message = 'Location information is unavailable. Please try again or enter manually.';
-            break;
-          case error.TIMEOUT:
-            message = 'Location request timed out. Please try again.';
-            break;
-        }
-        alert(message);
-        setLoading(false);
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-    );
-  };
 
   // ── Derived categories based on selected business type ───────────────────
   const availableCategories: FeeCategory[] = form.type
@@ -968,13 +920,7 @@ export function BusinessesPage() {
               {/* GhanaPost GPS */}
               <div>
                 <label className={`${labelClass} block`}>GhanaPost GPS</label>
-                <div className="flex gap-2">
-                  <input type="text" name="gpsAddress" value={form.gpsAddress} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={`${inputClass} flex-1`} />
-                  <button onClick={() => fetchGpsFromLocation('business')} disabled={locatingBusiness} className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors whitespace-nowrap" title="Use device GPS">
-                    {locatingBusiness ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crosshair className="w-4 h-4" />}
-                    {locatingBusiness ? '...' : 'GPS'}
-                  </button>
-                </div>
+                <input type="text" name="gpsAddress" value={form.gpsAddress} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={inputClass} />
               </div>
               {/* House No */}
               <div>
@@ -1106,13 +1052,7 @@ export function BusinessesPage() {
               {/* Owner GhanaPost GPS */}
               <div>
                 <label className={`${labelClass} block`}>Owner GhanaPost GPS</label>
-                <div className="flex gap-2">
-                  <input type="text" name="ownerGps" value={form.ownerGps} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={`${inputClass} flex-1`} />
-                  <button onClick={() => fetchGpsFromLocation('owner')} disabled={locatingOwner} className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors whitespace-nowrap" title="Use device GPS">
-                    {locatingOwner ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crosshair className="w-4 h-4" />}
-                    {locatingOwner ? '...' : 'GPS'}
-                  </button>
-                </div>
+                <input type="text" name="ownerGps" value={form.ownerGps} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={inputClass} />
               </div>
               {/* Phone */}
               <div>

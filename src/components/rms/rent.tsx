@@ -14,10 +14,8 @@ import {
   MapPin,
   User,
   Building2,
-  Crosshair,
   Save,
   X,
-  Loader2,
   FileText,
   CalendarDays,
   UserCheck,
@@ -219,41 +217,6 @@ export function RentPage() {
   };
 
   const [form, setForm] = useState(defaultForm);
-  const [locatingRenter, setLocatingRenter] = useState(false);
-
-  // ── Geolocation ──────────────────────────────────────────────────────────
-  const fetchGpsFromLocation = () => {
-    if (!navigator.geolocation) {
-      alert('Geolocation is not supported by your browser. Please enter the GPS address manually.');
-      return;
-    }
-    setLocatingRenter(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        const gpsString = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
-        setForm((prev) => ({ ...prev, renterGps: gpsString }));
-        setLocatingRenter(false);
-      },
-      (error) => {
-        let message = 'Unable to retrieve location.';
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            message = 'Location permission denied. Please allow location access in your browser settings.';
-            break;
-          case error.POSITION_UNAVAILABLE:
-            message = 'Location information is unavailable. Please try again or enter manually.';
-            break;
-          case error.TIMEOUT:
-            message = 'Location request timed out. Please try again.';
-            break;
-        }
-        alert(message);
-        setLocatingRenter(false);
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-    );
-  };
 
   // ── Filtering ─────────────────────────────────────────────────────────────
   const filtered = rents.filter((r) => {
@@ -708,13 +671,7 @@ export function RentPage() {
               </div>
               <div>
                 <label className={labelClass}>Renter GhanaPost GPS</label>
-                <div className="flex gap-2">
-                  <input type="text" name="renterGps" value={form.renterGps} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={`${inputClass} flex-1`} />
-                  <button type="button" onClick={fetchGpsFromLocation} disabled={locatingRenter} className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors whitespace-nowrap" title="Use device GPS">
-                    {locatingRenter ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crosshair className="w-4 h-4" />}
-                    {locatingRenter ? '...' : 'GPS'}
-                  </button>
-                </div>
+                <input type="text" name="renterGps" value={form.renterGps} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={inputClass} />
               </div>
             </div>
             {/* Phone | Email | TIN — 3-column */}
