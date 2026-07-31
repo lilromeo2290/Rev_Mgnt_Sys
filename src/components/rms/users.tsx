@@ -105,7 +105,7 @@ const emptyForm: UserFormData = {
   zone: 'Zone A',
   ward: '',
   ghanaCard: '',
-  accessiblePages: ROLE_DEFAULT_PAGES['Field Collector'],
+  accessiblePages: [],
 };
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
@@ -218,13 +218,12 @@ export function UsersPage() {
     setEditUser(user);
   };
 
-  // When role changes, auto-set default pages (admin can still customize)
+  // When role changes, only update role and zone — pages are chosen manually
   const handleRoleChange = (role: UserRole) => {
     setForm((prev) => ({
       ...prev,
       role,
       zone: (role === 'Revenue Officer' || role === 'Field Collector') ? prev.zone : '',
-      accessiblePages: ROLE_DEFAULT_PAGES[role],
     }));
   };
 
@@ -742,7 +741,7 @@ export function UsersPage() {
                   </div>
                 </div>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
-                  Choose which pages this user can access. Defaults are set by role — customize as needed.
+                  Choose which pages this user can access.
                 </p>
                 <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-700 p-2 bg-slate-50 dark:bg-slate-900/50">
                   {ALL_RMS_PAGES.map((p) => {
