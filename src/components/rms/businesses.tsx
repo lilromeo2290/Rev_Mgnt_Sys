@@ -950,20 +950,20 @@ export function BusinessesPage() {
           </div>
           <div className="p-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
+              {/* Locality */}
+              <div>
+                <label className={`${labelClass} block`}>Locality</label>
+                <input type="text" name="locality" value={form.locality} onChange={handleFormChange} placeholder="Enter locality" className={inputClass} />
+              </div>
+              {/* Code */}
+              <div>
+                <label className={`${labelClass} block`}>Code</label>
+                <input type="text" name="code" value={form.code} onChange={handleFormChange} placeholder="Enter code" className={inputClass} />
+              </div>
               {/* Street Name */}
               <div>
                 <label className={`${labelClass} block`}>Street Name</label>
                 <input type="text" name="streetName" value={form.streetName} onChange={handleFormChange} placeholder="e.g. Powder St" className={inputClass} />
-              </div>
-              {/* House No */}
-              <div>
-                <label className={`${labelClass} block`}>House No.</label>
-                <input type="text" name="houseNo" value={form.houseNo} onChange={handleFormChange} placeholder="e.g. 26" className={inputClass} />
-              </div>
-              {/* Street Code */}
-              <div>
-                <label className={`${labelClass} block`}>Street Code</label>
-                <input type="text" name="streetCode" value={form.streetCode} onChange={handleFormChange} placeholder="Enter street code" className={inputClass} />
               </div>
               {/* GhanaPost GPS */}
               <div>
@@ -976,15 +976,10 @@ export function BusinessesPage() {
                   </button>
                 </div>
               </div>
-              {/* Locality */}
+              {/* House No */}
               <div>
-                <label className={`${labelClass} block`}>Locality</label>
-                <input type="text" name="locality" value={form.locality} onChange={handleFormChange} placeholder="Enter locality" className={inputClass} />
-              </div>
-              {/* Code */}
-              <div>
-                <label className={`${labelClass} block`}>Code</label>
-                <input type="text" name="code" value={form.code} onChange={handleFormChange} placeholder="Enter code" className={inputClass} />
+                <label className={`${labelClass} block`}>House Number</label>
+                <input type="text" name="houseNo" value={form.houseNo} onChange={handleFormChange} placeholder="e.g. 26" className={inputClass} />
               </div>
               {/* Business Address (full width) */}
               <div className="sm:col-span-2 lg:col-span-3">
