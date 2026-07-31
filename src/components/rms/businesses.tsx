@@ -1095,9 +1095,9 @@ export function BusinessesPage() {
                 <label className={`${labelClass} block`}>Year Established</label>
                 <input type="text" name="yearEstablished" value={form.yearEstablished} onChange={handleFormChange} placeholder="e.g. 2020" className={inputClass} />
               </div>
-              {/* Fee Amount (read-only) */}
+              {/* Amount (read-only) */}
               <div>
-                <label className={`${labelClass} block`}>Fee Amount</label>
+                <label className={`${labelClass} block`}>Amount</label>
                 <input type="text" value={selectedCategoryFee ? `GH\u20b5 ${selectedCategoryFee.amount.toLocaleString()}` : ''} readOnly placeholder="Select a category" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-emerald-700 dark:text-emerald-400 font-semibold`} />
               </div>
               {/* Date Registered */}
