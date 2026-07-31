@@ -40,6 +40,7 @@ interface Rent {
   doorNo: string;
   // Rent Object
   rentObjectName: string;
+  rentCode: string;
   rentClass: string;
   rentCategory: string;
   rentUnit: string;
@@ -69,6 +70,42 @@ interface Rent {
 const mockRents: Rent[] = [];
 
 // ─── Constants ──────────────────────────────────────────────────────────────
+
+const RENT_CODE_MAP: Record<string, string> = {
+  'Bill Boards|CAT A- Large': '50010001',
+  'Bill Boards|CAT B- Medium': '50010002',
+  'Bill Boards|CAT C- Small': '50010003',
+  'Assembly Hall|CAT A': '50020101',
+  'Assembly Hall|CAT B': '50020102',
+  'Assembly Hall|CAT C': '50020103',
+  'Assembly Conference Room|Assembly Conference Room': '50020301',
+  'Community Centres|Community Centres': '50020401',
+  'Sub-district/Metro Halls|Sub-district/Metro Halls': '50020501',
+  'Assembly Forecourt|Assembly Forecourt': '50020601',
+  'Stores|CAT A- In CBD (Central Business District)': '50030101',
+  'Stores|CAT B- Satellite Markets': '50030102',
+  'Stores|CAT C- Outside CBD': '50030103',
+  'Stores|CAT D- Sub District Store': '50030104',
+  'Stalls|CAT A- In CBD': '50030201',
+  'Stalls|CAT B- Satellite Market': '50030202',
+  'Stalls|CAT C- Outside CBD': '50030203',
+  'Stalls|CAT D- Sub District Store': '50030204',
+  'Sheds|CAT A- In CBD': '50030301',
+  'Sheds|CAT B- Satellite Markets': '50030302',
+  'Sheds|CAT C- Outside CBD': '50030303',
+  'Sheds|CAT D- Sub District Store': '50030304',
+  'Others|Others': '50030401',
+  'Rent of Undeveloped Lands|Rent of Undeveloped Lands': '50040001',
+  'Hiring of Parks|CAT A- Government Recreational Park': '50040002',
+  'Hiring of Parks|CAT B- Lorry Park (space rent)': '50040003',
+  'Hiring of Parks|CAT C- Parade Grounds (Jubilee Parks)': '50040004',
+  'Rent on Leased Buildings|Rent on Leased Buildings': '50050001',
+  'Rent for Vendor Stands|Rent for Vendor Stands': '50060001',
+  'Guest House|Guest House': '50070001',
+  'Restaurant/Canteen|Restaurant/Canteen': '50070002',
+  'Club House|Club House': '50070003',
+  'Stadium|Stadium': '50070004',
+};
 
 const RENT_CLASS_CATEGORIES: Record<string, string[]> = {
   'Bill Boards': ['CAT A- Large', 'CAT B- Medium', 'CAT C- Small'],
@@ -128,6 +165,7 @@ export function RentPage() {
     floor: '',
     doorNo: '',
     rentObjectName: '',
+    rentCode: '',
     rentClass: '',
     rentCategory: '',
     rentUnit: '',
@@ -217,7 +255,13 @@ export function RentPage() {
     } else if (name === 'rentClass') {
       // Auto-fill category: if only one option, select it; otherwise reset
       const cats = RENT_CLASS_CATEGORIES[value] || [];
-      setForm((prev) => ({ ...prev, rentClass: value, rentCategory: cats.length === 1 ? cats[0] : '' }));
+      const autoCat = cats.length === 1 ? cats[0] : '';
+      const autoCode = autoCat ? (RENT_CODE_MAP[`${value}|${autoCat}`] || '') : '';
+      setForm((prev) => ({ ...prev, rentClass: value, rentCategory: autoCat, rentCode: autoCode }));
+    } else if (name === 'rentCategory') {
+      // Auto-fill code when category is selected
+      const code = RENT_CODE_MAP[`${form.rentClass}|${value}`] || '';
+      setForm((prev) => ({ ...prev, rentCategory: value, rentCode: code }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
@@ -251,6 +295,7 @@ export function RentPage() {
       floor: rent.floor,
       doorNo: rent.doorNo,
       rentObjectName: rent.rentObjectName,
+      rentCode: rent.rentCode || '',
       rentClass: rent.rentClass,
       rentCategory: rent.rentCategory || (RENT_CLASS_CATEGORIES[rent.rentClass]?.[0]) || '',
       rentUnit: rent.rentUnit,
@@ -507,6 +552,11 @@ export function RentPage() {
             <div>
               <label className={labelClass}>Rent Object Name</label>
               <input type="text" name="rentObjectName" value={form.rentObjectName} onChange={handleFormChange} placeholder="Enter rent object name" className={inputClass} />
+            </div>
+            {/* Code — full width, auto-filled */}
+            <div>
+              <label className={labelClass}>Code</label>
+              <input type="text" name="rentCode" value={form.rentCode} readOnly className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed`} placeholder="Auto-filled when class & category are selected" />
             </div>
             {/* Rent Class | Category — 2-column */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
