@@ -105,7 +105,7 @@ const emptyForm: UserFormData = {
   zone: 'Zone A',
   ward: '',
   ghanaCard: '',
-  accessiblePages: [],
+  accessiblePages: [...ALL_PAGES],
 };
 
 // ─── Mock Data ────────────────────────────────────────────────────────────────
