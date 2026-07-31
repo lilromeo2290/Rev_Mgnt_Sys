@@ -70,17 +70,24 @@ const mockRents: Rent[] = [];
 // ─── Constants ──────────────────────────────────────────────────────────────
 
 const RENT_CLASSES = [
-  '1st Class Residential',
-  '2nd Class Residential',
-  '3rd Class Residential',
-  '1st Class Commercial',
-  '2nd Class Commercial',
-  '3rd Class Commercial',
-  'Light Industrial',
-  'Heavy Industrial',
-  'Educational',
-  'Health',
-  'Mixed Use Residential-Commercial',
+  'Bill Boards',
+  'Assembly Hall',
+  'Assembly Conference Room',
+  'Community Centres',
+  'Sub-district/Metro Halls',
+  'Assembly Forecourt',
+  'Others',
+  'Stores',
+  'Stalls',
+  'Sheds',
+  'Rent of Undeveloped Lands',
+  'Hiring of Parks',
+  'Rent on Leased Buildings',
+  'Rent for Vendor Stands',
+  'Guest House',
+  'Restaurant/Canteen',
+  'Club House',
+  'Stadium',
 ];
 
 const RENT_UNITS = [
