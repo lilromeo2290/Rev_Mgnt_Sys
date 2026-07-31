@@ -38,6 +38,7 @@ interface Property {
   nationalId: string;
   ownershipType: string;
   propertyUseType: string;
+  category: string;
   value: string;
   rooms: string;
   hasBuildingPermit: string;
@@ -108,7 +109,8 @@ export function PropertiesPage() {
     nationalId: '',
     ownershipType: '',
     propertyUseType: '',
-    value: '',
+    category: '',
+    value: ''
     rooms: '',
     hasBuildingPermit: 'No',
     permitNumber: '',
@@ -183,6 +185,14 @@ export function PropertiesPage() {
   const showingTo = Math.min(startIdx + itemsPerPage, filtered.length);
 
   // ── Handlers ─────────────────────────────────────────────────────────────
+  // Derived: unique categories from propertyUseTypes
+  const categories = [...new Set(propertyUseTypes.map((t) => t.split(':')[1]?.trim()).filter(Boolean))];
+
+  // Derived: sub-categories for the selected category
+  const subCategories = form.category
+    ? propertyUseTypes.filter((t) => t.split(':')[1]?.trim() === form.category)
+    : [];
+
   const handleFormChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -191,6 +201,13 @@ export function PropertiesPage() {
     const { name, value, type } = e.target;
     if (type === 'checkbox') {
       setForm((prev) => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
+    } else if (name === 'category') {
+      // When category changes, reset propertyUseType so user picks a sub-category
+      setForm((prev) => ({ ...prev, category: value, propertyUseType: '' }));
+    } else if (name === 'propertyUseType') {
+      // When propertyUseType changes, auto-fill category
+      const cat = value ? value.split(':')[1]?.trim() || '' : '';
+      setForm((prev) => ({ ...prev, [name]: value, category: cat }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
@@ -501,17 +518,29 @@ export function PropertiesPage() {
             <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Property Information</h2>
           </div>
           <div className={cardBodyClass}>
-            {/* Property Use Type | Value (GHS) | Rooms — 3-column */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Category | Property Use Type — 2-column */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className={labelClass}>Category <span className="text-red-500">*</span></label>
+                <select name="category" value={form.category} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Select category</option>
+                  {categories.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
               <div>
                 <label className={labelClass}>Property Use Type <span className="text-red-500">*</span></label>
-                <select name="propertyUseType" value={form.propertyUseType} onChange={handleFormChange} className={inputClass}>
-                  <option value="">Select use type</option>
-                  {propertyUseTypes.map((t) => (
+                <select name="propertyUseType" value={form.propertyUseType} onChange={handleFormChange} className={inputClass} disabled={!form.category}>
+                  <option value="">{form.category ? 'Select use type' : 'Select a category first'}</option>
+                  {(form.category ? subCategories : propertyUseTypes).map((t) => (
                     <option key={t} value={t}>{t}</option>
                   ))}
                 </select>
               </div>
+            </div>
+            {/* Value (GHS) | Rooms — 2-column */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>Value (GHS)</label>
                 <input type="number" name="value" value={form.value} onChange={handleFormChange} placeholder="0.00" min="0" className={inputClass} />
