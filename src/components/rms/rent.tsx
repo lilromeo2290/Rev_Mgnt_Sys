@@ -15,6 +15,8 @@ import {
   User,
   Building2,
   Save,
+  Crosshair,
+  Loader2,
   X,
   FileText,
   CalendarDays,
@@ -56,7 +58,8 @@ interface Rent {
   // Renter Information
   renterName: string;
   renterAddress: string;
-  renterGps: string;
+  renterLatitude: string;
+  renterLongitude: string;
   phone: string;
   email: string;
   tin: string;
@@ -207,7 +210,8 @@ export function RentPage() {
     area: '',
     renterName: '',
     renterAddress: '',
-    renterGps: '',
+    renterLatitude: '',
+    renterLongitude: '',
     phone: '',
     email: '',
     tin: '',
@@ -217,6 +221,17 @@ export function RentPage() {
   };
 
   const [form, setForm] = useState(defaultForm);
+  const [locating, setLocating] = useState(false);
+
+  const fetchGps = () => {
+    if (!navigator.geolocation) { alert('Geolocation is not supported.'); return; }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { setForm((p) => ({ ...p, renterLatitude: pos.coords.latitude.toFixed(6), renterLongitude: pos.coords.longitude.toFixed(6) })); setLocating(false); },
+      (err) => { alert('Unable to retrieve location: ' + err.message); setLocating(false); },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+    );
+  };
 
   // ── Filtering ─────────────────────────────────────────────────────────────
   const filtered = rents.filter((r) => {
@@ -302,7 +317,8 @@ export function RentPage() {
       area: rent.area,
       renterName: rent.renterName,
       renterAddress: rent.renterAddress,
-      renterGps: rent.renterGps,
+      renterLatitude: rent.renterLatitude,
+      renterLongitude: rent.renterLongitude,
       phone: rent.phone,
       email: rent.email,
       tin: rent.tin,
@@ -670,8 +686,21 @@ export function RentPage() {
                 <input type="text" name="renterAddress" value={form.renterAddress} onChange={handleFormChange} placeholder="Enter renter address" className={inputClass} />
               </div>
               <div>
-                <label className={labelClass}>Renter GhanaPost GPS</label>
-                <input type="text" name="renterGps" value={form.renterGps} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={inputClass} />
+                <label className={labelClass}>Renter GPS Coordinates</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-slate-500 dark:text-slate-400 mb-1 block">Latitude</label>
+                    <input type="text" name="renterLatitude" value={form.renterLatitude} onChange={handleFormChange} placeholder="e.g. 6.6884" className={inputClass} />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-500 dark:text-slate-400 mb-1 block">Longitude</label>
+                    <input type="text" name="renterLongitude" value={form.renterLongitude} onChange={handleFormChange} placeholder="e.g. -1.6244" className={inputClass} />
+                  </div>
+                </div>
+                <button type="button" onClick={fetchGps} disabled={locating} className="mt-2 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors text-xs font-medium">
+                  {locating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Crosshair className="w-3.5 h-3.5" />}
+                  {locating ? 'Detecting...' : 'Detect GPS'}
+                </button>
               </div>
             </div>
             {/* Phone | Email | TIN — 3-column */}

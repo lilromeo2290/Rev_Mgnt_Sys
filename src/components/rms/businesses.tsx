@@ -16,6 +16,8 @@ import {
   Briefcase,
   User,
   Save,
+  Crosshair,
+  Loader2,
   Printer,
   X,
   FileText,
@@ -59,7 +61,8 @@ interface Business {
   ghanaCard: string;
   phone: string;
   email: string;
-  gpsAddress: string;
+  latitude: string;
+  longitude: string;
   digitalAddress: string;
   residentialAddress: string;
   businessAddress: string;
@@ -82,7 +85,8 @@ interface Business {
   yearEstablished: string;
   excludedFromFees: boolean;
   ownerAddress: string;
-  ownerGps: string;
+  ownerLatitude: string;
+  ownerLongitude: string;
   ownerTin: string;
   comments: string;
 }
@@ -109,7 +113,8 @@ const defaultForm = {
   ghanaCard: '',
   phone: '',
   email: '',
-  gpsAddress: '',
+  latitude: '',
+  longitude: '',
   digitalAddress: '',
   residentialAddress: '',
   businessAddress: '',
@@ -129,7 +134,8 @@ const defaultForm = {
   yearEstablished: '',
   excludedFromFees: false,
   ownerAddress: '',
-  ownerGps: '',
+  ownerLatitude: '',
+  ownerLongitude: '',
   ownerTin: '',
   comments: '',
 };
@@ -176,6 +182,28 @@ export function BusinessesPage() {
 
   // ── Form State ───────────────────────────────────────────────────────────
   const [form, setForm] = useState({ ...defaultForm });
+  const [locating, setLocating] = useState(false);
+  const [locatingOwner, setLocatingOwner] = useState(false);
+
+  const fetchGps = () => {
+    if (!navigator.geolocation) { alert('Geolocation is not supported by your browser.'); return; }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { setForm((p) => ({ ...p, latitude: pos.coords.latitude.toFixed(6), longitude: pos.coords.longitude.toFixed(6) })); setLocating(false); },
+      (err) => { alert('Unable to retrieve location: ' + err.message); setLocating(false); },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+    );
+  };
+
+  const fetchOwnerGps = () => {
+    if (!navigator.geolocation) { alert('Geolocation is not supported by your browser.'); return; }
+    setLocatingOwner(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { setForm((p) => ({ ...p, ownerLatitude: pos.coords.latitude.toFixed(6), ownerLongitude: pos.coords.longitude.toFixed(6) })); setLocatingOwner(false); },
+      (err) => { alert('Unable to retrieve location: ' + err.message); setLocatingOwner(false); },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
+    );
+  };
 
   // ── Derived categories based on selected business type ───────────────────
   const availableCategories: FeeCategory[] = form.type
@@ -239,7 +267,8 @@ export function BusinessesPage() {
       ghanaCard: form.ghanaCard,
       phone: form.phone,
       email: form.email,
-      gpsAddress: form.gpsAddress,
+      latitude: form.latitude,
+      longitude: form.longitude,
       digitalAddress: form.digitalAddress,
       residentialAddress: form.residentialAddress,
       businessAddress: form.businessAddress,
@@ -262,7 +291,8 @@ export function BusinessesPage() {
       yearEstablished: form.yearEstablished,
       excludedFromFees: form.excludedFromFees,
       ownerAddress: form.ownerAddress,
-      ownerGps: form.ownerGps,
+      ownerLatitude: form.ownerLatitude,
+      ownerLongitude: form.ownerLongitude,
       ownerTin: form.ownerTin,
       comments: form.comments,
     };
@@ -342,7 +372,8 @@ export function BusinessesPage() {
       ghanaCard: biz.ghanaCard,
       phone: biz.phone,
       email: biz.email,
-      gpsAddress: biz.gpsAddress,
+      latitude: (biz as any).latitude || '',
+      longitude: (biz as any).longitude || '',
       digitalAddress: biz.digitalAddress,
       residentialAddress: biz.residentialAddress,
       businessAddress: biz.businessAddress,
@@ -362,7 +393,8 @@ export function BusinessesPage() {
       yearEstablished: (biz as any).yearEstablished || '',
       excludedFromFees: (biz as any).excludedFromFees || false,
       ownerAddress: (biz as any).ownerAddress || '',
-      ownerGps: (biz as any).ownerGps || '',
+      ownerLatitude: (biz as any).ownerLatitude || '',
+      ownerLongitude: (biz as any).ownerLongitude || '',
       ownerTin: (biz as any).ownerTin || '',
       comments: (biz as any).comments || '',
     });
@@ -917,10 +949,23 @@ export function BusinessesPage() {
                 <label className={`${labelClass} block`}>Street Name</label>
                 <input type="text" name="streetName" value={form.streetName} onChange={handleFormChange} placeholder="e.g. Powder St" className={inputClass} />
               </div>
-              {/* GhanaPost GPS */}
-              <div>
-                <label className={`${labelClass} block`}>GhanaPost GPS</label>
-                <input type="text" name="gpsAddress" value={form.gpsAddress} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={inputClass} />
+              {/* GPS: Latitude & Longitude */}
+              <div className="sm:col-span-2 lg:col-span-3">
+                <label className={`${labelClass} block`}>GPS Coordinates</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-slate-500 dark:text-slate-400 mb-1 block">Latitude</label>
+                    <input type="text" name="latitude" value={form.latitude} onChange={handleFormChange} placeholder="e.g. 6.6884" className={inputClass} />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-500 dark:text-slate-400 mb-1 block">Longitude</label>
+                    <input type="text" name="longitude" value={form.longitude} onChange={handleFormChange} placeholder="e.g. -1.6244" className={inputClass} />
+                  </div>
+                </div>
+                <button type="button" onClick={fetchGps} disabled={locating} className="mt-2 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors text-xs font-medium">
+                  {locating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Crosshair className="w-3.5 h-3.5" />}
+                  {locating ? 'Detecting...' : 'Detect GPS'}
+                </button>
               </div>
               {/* House No */}
               <div>
@@ -1049,10 +1094,23 @@ export function BusinessesPage() {
                 <label className={`${labelClass} block`}>Owner Address</label>
                 <input type="text" name="ownerAddress" value={form.ownerAddress} onChange={handleFormChange} placeholder="Owner's residential address" className={inputClass} />
               </div>
-              {/* Owner GhanaPost GPS */}
-              <div>
-                <label className={`${labelClass} block`}>Owner GhanaPost GPS</label>
-                <input type="text" name="ownerGps" value={form.ownerGps} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={inputClass} />
+              {/* Owner GPS: Latitude & Longitude */}
+              <div className="lg:col-span-2">
+                <label className={`${labelClass} block`}>Owner GPS Coordinates</label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-slate-500 dark:text-slate-400 mb-1 block">Latitude</label>
+                    <input type="text" name="ownerLatitude" value={form.ownerLatitude} onChange={handleFormChange} placeholder="e.g. 6.6884" className={inputClass} />
+                  </div>
+                  <div>
+                    <label className="text-xs text-slate-500 dark:text-slate-400 mb-1 block">Longitude</label>
+                    <input type="text" name="ownerLongitude" value={form.ownerLongitude} onChange={handleFormChange} placeholder="e.g. -1.6244" className={inputClass} />
+                  </div>
+                </div>
+                <button type="button" onClick={fetchOwnerGps} disabled={locatingOwner} className="mt-2 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors text-xs font-medium">
+                  {locatingOwner ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Crosshair className="w-3.5 h-3.5" />}
+                  {locatingOwner ? 'Detecting...' : 'Detect GPS'}
+                </button>
               </div>
               {/* Phone */}
               <div>
