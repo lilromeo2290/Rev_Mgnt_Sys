@@ -31,7 +31,7 @@ interface Bill {
   billNumber: string;
   date: string;
   entityName: string;
-  entityType: 'Business' | 'Property';
+  entityType: 'Business' | 'Property' | 'Rent';
   category: string;
   revenueItem: string;
   amount: number;
@@ -44,7 +44,7 @@ interface Bill {
 
 interface BillFormData {
   entityName: string;
-  entityType: 'Business' | 'Property';
+  entityType: 'Business' | 'Property' | 'Rent';
   revenueItem: string;
   amount: number;
   previousBalance: number;
@@ -108,7 +108,7 @@ export function BillingPage() {
   const [showModal, setShowModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [bulkForm, setBulkForm] = useState({
-    entityType: 'All' as 'All' | 'Business' | 'Property',
+    entityType: 'All' as 'All' | 'Business' | 'Property' | 'Rent',
     category: 'All',
     revenueItem: '',
     dueDate: '',
@@ -302,7 +302,7 @@ export function BillingPage() {
           billNumber: `BILL-2024-${String(bills.length + 156 + idx).padStart(4, '0')}`,
           date: new Date().toISOString().split('T')[0],
           entityName: entity.name,
-          entityType: entity.type as 'Business' | 'Property',
+          entityType: entity.type as 'Business' | 'Property' | 'Rent',
           category: entity.category || 'General',
           revenueItem: bulkForm.revenueItem,
           amount,
@@ -859,12 +859,13 @@ export function BillingPage() {
                     <label className={labelClass}>Entity Type</label>
                     <select
                       value={bulkForm.entityType}
-                      onChange={(e) => setBulkForm((p) => ({ ...p, entityType: e.target.value as 'All' | 'Business' | 'Property' }))}
+                      onChange={(e) => setBulkForm((p) => ({ ...p, entityType: e.target.value as 'All' | 'Business' | 'Property' | 'Rent' }))}
                       className={inputClass}
                     >
                       <option value="All">All Types</option>
                       <option value="Business">Business Only</option>
                       <option value="Property">Property Only</option>
+                      <option value="Rent">Rent Only</option>
                     </select>
                   </div>
                   <div>
@@ -1088,7 +1089,7 @@ export function BillingPage() {
             <div className="px-6 py-5 space-y-4">
               {/* Entity Selection */}
               <div>
-                <label className={labelClass}>Business / Property</label>
+                <label className={labelClass}>Business / Property / Rent</label>
                 <select
                   value={formData.entityName}
                   onChange={(e) => {
@@ -1096,7 +1097,7 @@ export function BillingPage() {
                     setFormData((p) => ({
                       ...p,
                       entityName: e.target.value,
-                      entityType: (entity?.type ?? 'Business') as 'Business' | 'Property',
+                      entityType: (entity?.type ?? 'Business') as 'Business' | 'Property' | 'Rent',
                     }));
                   }}
                   className={inputClass}
