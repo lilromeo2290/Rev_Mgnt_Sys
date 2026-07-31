@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import {
   BarChart3,
   Download,
@@ -63,6 +63,10 @@ const zoneReports: ZoneReport[] = [];
 
 const monthlyComparison: MonthlyComparison[] = [];
 
+function getStorageCount(key: string): number {
+  try { return (JSON.parse(localStorage.getItem(key) || '[]') as unknown[]).length; } catch { return 0; }
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 type ReportView = 'overview' | 'revenue' | 'zones' | 'monthly';
@@ -72,6 +76,19 @@ export function ReportsPage() {
   const [period, setPeriod] = useState<'Monthly' | 'Quarterly' | 'Annually'>('Monthly');
   const [zoneFilter, setZoneFilter] = useState<string>('All');
   const [showPeriodDropdown, setShowPeriodDropdown] = useState(false);
+
+  const [entityCount, setEntityCount] = useState(0);
+  const [receiptCount, setReceiptCount] = useState(0);
+
+  useEffect(() => {
+    const update = () => {
+      setEntityCount(getStorageCount('rms-businesses') + getStorageCount('rms-properties') + getStorageCount('rms-rents'));
+      setReceiptCount(getStorageCount('rms-payments'));
+    };
+    update();
+    window.addEventListener('storage', update);
+    return () => window.removeEventListener('storage', update);
+  }, []);
 
   const filteredZones = useMemo(() => {
     if (zoneFilter === 'All') return zoneReports;
@@ -93,7 +110,7 @@ export function ReportsPage() {
       const rows = monthlyComparison.map((m) => `<tr><td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;font-size:12px;font-weight:500;">${m.month}</td><td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;font-size:12px;text-align:right;">${fmtCurrency(m.currentYear)}</td><td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;font-size:12px;text-align:right;">${fmtCurrency(m.previousYear)}</td><td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;font-size:12px;text-align:right;color:${m.change>=0?'#059669':'#dc2626'};font-weight:600;">${m.change>=0?'+':''}${m.change}%</td></tr>`).join('');
       bodyContent = `<table style="width:100%;border-collapse:collapse;margin-top:12px;"><thead><tr style="background:#f8fafc;border-bottom:2px solid #e2e8f0;"><th style="text-align:left;padding:8px 10px;font-size:11px;text-transform:uppercase;color:#64748b;">Month</th><th style="text-align:right;padding:8px 10px;font-size:11px;text-transform:uppercase;color:#64748b;">2024</th><th style="text-align:right;padding:8px 10px;font-size:11px;text-transform:uppercase;color:#64748b;">2023</th><th style="text-align:right;padding:8px 10px;font-size:11px;text-transform:uppercase;color:#64748b;">Change</th></tr></thead><tbody>${rows}</tbody><tfoot><tr style="border-top:2px solid #1e293b;background:#f8fafc;"><td style="padding:8px 10px;font-size:12px;font-weight:700;">Total</td><td style="padding:8px 10px;font-size:12px;font-weight:700;text-align:right;color:#059669;">${fmtCurrency(monthlyComparison.reduce((s,m)=>s+m.currentYear,0))}</td><td style="padding:8px 10px;font-size:12px;font-weight:700;text-align:right;">${fmtCurrency(monthlyComparison.reduce((s,m)=>s+m.previousYear,0))}</td><td style="padding:8px 10px;font-size:12px;font-weight:700;text-align:right;color:#059669;">+9.8%</td></tr></tfoot></table>`;
     } else {
-      bodyContent = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;"><div style="padding:16px;border:1px solid #e2e8f0;border-radius:8px;"><p style="font-size:11px;color:#64748b;text-transform:uppercase;">Total Collected</p><p style="font-size:20px;font-weight:700;margin-top:4px;">${fmtCurrency(totalCollected)}</p><p style="font-size:11px;color:#94a3b8;margin-top:2px;">Budget: ${fmtCurrency(totalBudget)}</p></div><div style="padding:16px;border:1px solid #e2e8f0;border-radius:8px;"><p style="font-size:11px;color:#64748b;text-transform:uppercase;">Collection Rate</p><p style="font-size:20px;font-weight:700;margin-top:4px;">${overallCompliance}%</p><p style="font-size:11px;color:#94a3b8;margin-top:2px;">Target: 95%</p></div><div style="padding:16px;border:1px solid #e2e8f0;border-radius:8px;"><p style="font-size:11px;color:#64748b;text-transform:uppercase;">Registered Entities</p><p style="font-size:20px;font-weight:700;margin-top:4px;">1,247</p><p style="font-size:11px;color:#94a3b8;margin-top:2px;">Businesses + Properties</p></div><div style="padding:16px;border:1px solid #e2e8f0;border-radius:8px;"><p style="font-size:11px;color:#64748b;text-transform:uppercase;">Receipts Issued</p><p style="font-size:20px;font-weight:700;margin-top:4px;">2,847</p><p style="font-size:11px;color:#94a3b8;margin-top:2px;">This fiscal year</p></div></div><div style="margin-top:24px;"><h3 style="font-size:13px;font-weight:600;margin-bottom:12px;">Top Revenue Categories</h3><table style="width:100%;border-collapse:collapse;"><thead><tr style="border-bottom:1px solid #e2e8f0;"><th style="text-align:left;padding:6px 10px;font-size:11px;color:#64748b;">Category</th><th style="text-align:right;padding:6px 10px;font-size:11px;color:#64748b;">Budget</th><th style="text-align:right;padding:6px 10px;font-size:11px;color:#64748b;">Collected</th><th style="text-align:right;padding:6px 10px;font-size:11px;color:#64748b;">Rate</th></tr></thead><tbody>${revenueBreakdown.slice(0,5).map(r=>`<tr><td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;font-size:12px;">${r.category}</td><td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;font-size:12px;text-align:right;">${fmtCurrency(r.budget)}</td><td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;font-size:12px;text-align:right;">${fmtCurrency(r.collected)}</td><td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;font-size:12px;text-align:right;font-weight:600;">${r.percentage}%</td></tr>`).join('')}</tbody></table></div>`;
+      bodyContent = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;"><div style="padding:16px;border:1px solid #e2e8f0;border-radius:8px;"><p style="font-size:11px;color:#64748b;text-transform:uppercase;">Total Collected</p><p style="font-size:20px;font-weight:700;margin-top:4px;">${fmtCurrency(totalCollected)}</p><p style="font-size:11px;color:#94a3b8;margin-top:2px;">Budget: ${fmtCurrency(totalBudget)}</p></div><div style="padding:16px;border:1px solid #e2e8f0;border-radius:8px;"><p style="font-size:11px;color:#64748b;text-transform:uppercase;">Collection Rate</p><p style="font-size:20px;font-weight:700;margin-top:4px;">${overallCompliance}%</p><p style="font-size:11px;color:#94a3b8;margin-top:2px;">Target: 95%</p></div><div style="padding:16px;border:1px solid #e2e8f0;border-radius:8px;"><p style="font-size:11px;color:#64748b;text-transform:uppercase;">Registered Entities</p><p style="font-size:20px;font-weight:700;margin-top:4px;">${entityCount}</p><p style="font-size:11px;color:#94a3b8;margin-top:2px;">Businesses + Properties + Rents</p></div><div style="padding:16px;border:1px solid #e2e8f0;border-radius:8px;"><p style="font-size:11px;color:#64748b;text-transform:uppercase;">Receipts Issued</p><p style="font-size:20px;font-weight:700;margin-top:4px;">${receiptCount}</p><p style="font-size:11px;color:#94a3b8;margin-top:2px;">Total recorded</p></div></div><div style="margin-top:24px;"><h3 style="font-size:13px;font-weight:600;margin-bottom:12px;">Top Revenue Categories</h3><table style="width:100%;border-collapse:collapse;"><thead><tr style="border-bottom:1px solid #e2e8f0;"><th style="text-align:left;padding:6px 10px;font-size:11px;color:#64748b;">Category</th><th style="text-align:right;padding:6px 10px;font-size:11px;color:#64748b;">Budget</th><th style="text-align:right;padding:6px 10px;font-size:11px;color:#64748b;">Collected</th><th style="text-align:right;padding:6px 10px;font-size:11px;color:#64748b;">Rate</th></tr></thead><tbody>${revenueBreakdown.slice(0,5).map(r=>`<tr><td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;font-size:12px;">${r.category}</td><td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;font-size:12px;text-align:right;">${fmtCurrency(r.budget)}</td><td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;font-size:12px;text-align:right;">${fmtCurrency(r.collected)}</td><td style="padding:6px 10px;border-bottom:1px solid #f1f5f9;font-size:12px;text-align:right;font-weight:600;">${r.percentage}%</td></tr>`).join('')}</tbody></table></div>`;
     }
 
     const w = window.open('', '_blank', 'width=794,height=1123');
@@ -207,16 +224,14 @@ export function ReportsPage() {
             <KpiCard
               icon={<Users className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />}
               label="Registered Entities"
-              value={fmtNumber(1247)}
-              sub="Businesses + Properties"
-              trend={8.5}
+              value={fmtNumber(entityCount)}
+              sub="Businesses + Properties + Rents"
             />
             <KpiCard
               icon={<Receipt className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />}
               label="Receipts Issued"
-              value={fmtNumber(2847)}
-              sub="This fiscal year"
-              trend={12.7}
+              value={fmtNumber(receiptCount)}
+              sub="Total recorded"
             />
           </div>
 
@@ -471,7 +486,7 @@ function KpiCard({ icon, label, value, sub, trend }: {
   label: string;
   value: string;
   sub: string;
-  trend: number;
+  trend?: number;
 }) {
   return (
     <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 hover:shadow-md transition-shadow">
@@ -479,14 +494,16 @@ function KpiCard({ icon, label, value, sub, trend }: {
         <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/40">
           {icon}
         </span>
-        <span className={`inline-flex items-center gap-0.5 text-xs font-semibold px-2 py-0.5 rounded-full ${
-          trend >= 0
-            ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-            : 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-        }`}>
-          {trend >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-          {Math.abs(trend)}%
-        </span>
+        {trend !== undefined && (
+          <span className={`inline-flex items-center gap-0.5 text-xs font-semibold px-2 py-0.5 rounded-full ${
+            trend >= 0
+              ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+              : 'bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+          }`}>
+            {trend >= 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+            {Math.abs(trend)}%
+          </span>
+        )}
       </div>
       <p className="text-xl font-bold text-slate-900 dark:text-white">{value}</p>
       <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{sub}</p>
