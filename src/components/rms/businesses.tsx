@@ -61,6 +61,7 @@ interface Business {
   ghanaCard: string;
   phone: string;
   email: string;
+  ghanaPostGPS: string;
   latitude: string;
   longitude: string;
   digitalAddress: string;
@@ -113,9 +114,10 @@ const defaultForm = {
   ghanaCard: '',
   phone: '',
   email: '',
+  ghanaPostGPS: '',
   latitude: '',
   longitude: '',
-  digitalAddress: '',
+  digitalAddress': '',
   residentialAddress: '',
   businessAddress: '',
   ward: '',
@@ -267,6 +269,7 @@ export function BusinessesPage() {
       ghanaCard: form.ghanaCard,
       phone: form.phone,
       email: form.email,
+      ghanaPostGPS: form.ghanaPostGPS,
       latitude: form.latitude,
       longitude: form.longitude,
       digitalAddress: form.digitalAddress,
@@ -372,6 +375,7 @@ export function BusinessesPage() {
       ghanaCard: biz.ghanaCard,
       phone: biz.phone,
       email: biz.email,
+      ghanaPostGPS: (biz as any).ghanaPostGPS || '',
       latitude: (biz as any).latitude || '',
       longitude: (biz as any).longitude || '',
       digitalAddress: biz.digitalAddress,
@@ -948,6 +952,11 @@ export function BusinessesPage() {
               <div>
                 <label className={`${labelClass} block`}>Street Name</label>
                 <input type="text" name="streetName" value={form.streetName} onChange={handleFormChange} placeholder="e.g. Powder St" className={inputClass} />
+              </div>
+              {/* Ghana Post GPS */}
+              <div>
+                <label className={`${labelClass} block`}>Ghana Post GPS</label>
+                <input type="text" name="ghanaPostGPS" value={form.ghanaPostGPS} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={inputClass} />
               </div>
               {/* GPS: Latitude & Longitude */}
               <div className="sm:col-span-2">

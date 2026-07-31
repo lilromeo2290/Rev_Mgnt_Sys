@@ -30,6 +30,7 @@ interface Property {
   streetName: string;
   houseNo: string;
   streetCode: string;
+  ghanaPostGPS: string;
   latitude: string;
   longitude: string;
   locality: string;
@@ -131,6 +132,7 @@ export function PropertiesPage() {
     streetName: '',
     houseNo: '',
     streetCode: '',
+    ghanaPostGPS: '',
     latitude: '',
     longitude: '',
     locality: '',
@@ -441,16 +443,22 @@ export function PropertiesPage() {
                 <input type="text" name="streetCode" value={form.streetCode} onChange={handleFormChange} placeholder="Enter code" className={inputClass} />
               </div>
             </div>
-            {/* GPS: Latitude & Longitude */}
-            <div className="col-span-6 sm:col-span-4">
-              <label className={labelClass}>GPS Coordinates</label>
-              <div className="flex gap-2">
-                <input type="text" name="latitude" value={form.latitude} onChange={handleFormChange} placeholder="Latitude" className={`${inputClass} flex-1`} />
-                <input type="text" name="longitude" value={form.longitude} onChange={handleFormChange} placeholder="Longitude" className={`${inputClass} flex-1`} />
-                <button type="button" onClick={fetchGps} disabled={locating} className="inline-flex items-center gap-1.5 px-2.5 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors text-xs font-medium whitespace-nowrap">
-                  {locating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Crosshair className="w-3.5 h-3.5" />}
-                  {locating ? '...' : 'GPS'}
-                </button>
+            {/* Ghana Post GPS & GPS Coordinates */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className={labelClass}>Ghana Post GPS</label>
+                <input type="text" name="ghanaPostGPS" value={form.ghanaPostGPS} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={inputClass} />
+              </div>
+              <div className="sm:col-span-2">
+                <label className={labelClass}>GPS Coordinates</label>
+                <div className="flex gap-2">
+                  <input type="text" name="latitude" value={form.latitude} onChange={handleFormChange} placeholder="Latitude" className={`${inputClass} flex-1`} />
+                  <input type="text" name="longitude" value={form.longitude} onChange={handleFormChange} placeholder="Longitude" className={`${inputClass} flex-1`} />
+                  <button type="button" onClick={fetchGps} disabled={locating} className="inline-flex items-center gap-1.5 px-2.5 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors text-xs font-medium whitespace-nowrap">
+                    {locating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Crosshair className="w-3.5 h-3.5" />}
+                    {locating ? '...' : 'GPS'}
+                  </button>
+                </div>
               </div>
             </div>
             {/* Locality & Code */}

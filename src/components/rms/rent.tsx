@@ -58,6 +58,7 @@ interface Rent {
   // Renter Information
   renterName: string;
   renterAddress: string;
+  renterGhanaPostGPS: string;
   renterLatitude: string;
   renterLongitude: string;
   phone: string;
@@ -210,6 +211,7 @@ export function RentPage() {
     area: '',
     renterName: '',
     renterAddress: '',
+    renterGhanaPostGPS: '',
     renterLatitude: '',
     renterLongitude: '',
     phone: '',
@@ -317,6 +319,7 @@ export function RentPage() {
       area: rent.area,
       renterName: rent.renterName,
       renterAddress: rent.renterAddress,
+      renterGhanaPostGPS: rent.renterGhanaPostGPS,
       renterLatitude: rent.renterLatitude,
       renterLongitude: rent.renterLongitude,
       phone: rent.phone,
@@ -684,6 +687,10 @@ export function RentPage() {
               <div>
                 <label className={labelClass}>Renter Address</label>
                 <input type="text" name="renterAddress" value={form.renterAddress} onChange={handleFormChange} placeholder="Enter renter address" className={inputClass} />
+              </div>
+              <div>
+                <label className={labelClass}>Renter Ghana Post GPS</label>
+                <input type="text" name="renterGhanaPostGPS" value={form.renterGhanaPostGPS} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={inputClass} />
               </div>
               <div>
                 <label className={labelClass}>Renter GPS Coordinates</label>
