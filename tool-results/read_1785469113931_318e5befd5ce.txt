@@ -1,0 +1,488 @@
+   628→            onChange={(e) => { setTypeFilter(e.target.value); setCurrentPage(1); }}
+   629→            className={`${inputClass} w-full sm:w-48`}
+   630→          >
+   631→            <option value="All">All Business Classes</option>
+   632→            {businessTypes.map((t) => (
+   633→              <option key={t} value={t}>{t}</option>
+   634→            ))}
+   635→          </select>
+   636→        </div>
+   637→
+   638→        {/* ── Table ───────────────────────────────────────────────────────── */}
+   639→        <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+   640→          <div className="overflow-x-auto">
+   641→            <table className="w-full text-sm">
+   642→              <thead>
+   643→                <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700">
+   644→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Reg #</th>
+   645→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Business Name</th>
+   646→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Owner</th>
+   647→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Business Class</th>
+   648→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden lg:table-cell">Category</th>
+   649→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden md:table-cell">TIN</th>
+   650→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Status</th>
+   651→                  <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Actions</th>
+   652→                </tr>
+   653→              </thead>
+   654→              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+   655→                {paged.length === 0 ? (
+   656→                  <tr>
+   657→                    <td colSpan={8} className="text-center py-12 text-slate-400 dark:text-slate-500">
+   658→                      <Building2 className="w-10 h-10 mx-auto mb-3 opacity-40" />
+   659→                      No businesses found. Click "Register New Business" to add one.
+   660→                    </td>
+   661→                  </tr>
+   662→                ) : (
+   663→                  paged.map((biz) => (
+   664→                    <tr key={biz.regNumber} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+   665→                      <td className="px-4 py-3 font-mono text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">{biz.regNumber}</td>
+   666→                      <td className="px-4 py-3 font-medium text-slate-900 dark:text-white whitespace-nowrap">{biz.name}</td>
+   667→                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">{biz.owner}</td>
+   668→                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">{biz.type}</td>
+   669→                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap hidden lg:table-cell">{biz.category}</td>
+   670→                      <td className="px-4 py-3 font-mono text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap hidden md:table-cell">{biz.tin}</td>
+   671→                      <td className="px-4 py-3 whitespace-nowrap">
+   672→                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+   673→                          biz.status === 'Active'
+   674→                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400'
+   675→                            : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400'
+   676→                        }`}>
+   677→                          {biz.status}
+   678→                        </span>
+   679→                      </td>
+   680→                      <td className="px-4 py-3 text-right whitespace-nowrap">
+   681→                        <div className="inline-flex items-center gap-1">
+   682→                          <button onClick={() => handleViewCertificate(biz.regNumber)} className="p-1.5 rounded-md text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors" title="View Certificate">
+   683→                            <FileText className="w-4 h-4" />
+   684→                          </button>
+   685→                          <button onClick={() => handleEdit(biz)} className="p-1.5 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors" title="Edit">
+   686→                            <Pencil className="w-4 h-4" />
+   687→                          </button>
+   688→                          <button onClick={() => handleDelete(biz.regNumber)} className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" title="Delete">
+   689→                            <Trash2 className="w-4 h-4" />
+   690→                          </button>
+   691→                        </div>
+   692→                      </td>
+   693→                    </tr>
+   694→                  ))
+   695→                )}
+   696→              </tbody>
+   697→            </table>
+   698→          </div>
+   699→        </div>
+   700→
+   701→        {/* ── Pagination ──────────────────────────────────────────────────── */}
+   702→        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+   703→          <p className="text-slate-500 dark:text-slate-400">Showing {showingFrom}-{showingTo} of {filtered.length}</p>
+   704→          <div className="flex items-center gap-2">
+   705→            <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={safeCurrentPage <= 1} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+   706→              <ChevronLeft className="w-4 h-4" /> Previous
+   707→            </button>
+   708→            <span className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium">{safeCurrentPage} / {totalPages}</span>
+   709→            <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={safeCurrentPage >= totalPages} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+   710→              Next <ChevronRight className="w-4 h-4" />
+   711→            </button>
+   712→          </div>
+   713→        </div>
+   714→
+   715→        {/* ── Certificate Modal ──────────────────────────────────────────── */}
+   716→        {viewingCert && (() => {
+   717→          const getOrdinal = (day: number) => {
+   718→            const s = ['th','st','nd','rd'];
+   719→            const v = day % 100;
+   720→            return day + (s[(v-20)%10] || s[v] || s[0]);
+   721→          };
+   722→          // Read assembly name dynamically from settings at view time
+   723→          const _asm = (() => { try { return JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); } catch { return {}; } })();
+   724→          const dynAssemblyName = _asm.name || viewingCert.assemblyName || 'Kumasi Metropolitan Assembly';
+   725→          let dayOrd = '..................';
+   726→          let monthName = '..................';
+   727→          let yearShort = '........';
+   728→          if (viewingCert.dateIssued) {
+   729→            try {
+   730→              const d = new Date(viewingCert.dateIssued);
+   731→              dayOrd = getOrdinal(d.getDate());
+   732→              monthName = d.toLocaleDateString('en-US', { month: 'long' });
+   733→              yearShort = String(d.getFullYear()).slice(-2);
+   734→            } catch {}
+   735→          }
+   736→          const expiryYear = viewingCert.expiryDate ? new Date(viewingCert.expiryDate).getFullYear() : new Date().getFullYear() + 1;
+   737→          const assemblyShort = dynAssemblyName.replace(/\b(Metropolitan|Municipal|District|Assembly)\b/gi, '').trim().split(' ')[0];
+   738→
+   739→          return (
+   740→          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setViewingCert(null)}>
+   741→            <div className="rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+   742→              {/* Modal Header */}
+   743→              <div className="flex items-center justify-between px-5 py-3 bg-slate-800 rounded-t-2xl">
+   744→                <div className="flex items-center gap-3">
+   745→                  <div className="p-1.5 rounded-lg bg-amber-500/20">
+   746→                    <Award className="w-5 h-5 text-amber-400" />
+   747→                  </div>
+   748→                  <div>
+   749→                    <h3 className="text-base font-semibold text-white">Business Registration Certificate</h3>
+   750→                    <p className="text-xs text-slate-400">{viewingCert.certNumber}</p>
+   751→                  </div>
+   752→                </div>
+   753→                <button onClick={() => setViewingCert(null)} className="p-2 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-white transition-colors">
+   754→                  <X className="w-5 h-5" />
+   755→                </button>
+   756→              </div>
+   757→
+   758→              {/* Certificate Preview - matches the print design */}
+   759→              <div className="p-4">
+   760→                <div className="bg-[#f0ece2] rounded-lg p-6">
+   761→                  <div className="bg-white relative" style={{ padding: '6px' }}>
+   762→                    {/* Gold border effect */}
+   763→                    <div className="absolute inset-0 border-[10px] border-[#B5A642] rounded" style={{ pointerEvents: 'none' }} />
+   764→                    <div className="absolute rounded" style={{ inset: '8px', border: '1.5px solid #B5A642', pointerEvents: 'none' }} />
+   765→
+   766→                    <div className="relative mx-[16px] my-[16px] py-8 px-10">
+   767→                      {/* Corner ornaments */}
+   768→                      <div className="absolute top-0 left-0 w-10 h-10 border-t-2 border-l-2 border-[#B5A642]" />
+   769→                      <div className="absolute top-0 right-0 w-10 h-10 border-t-2 border-r-2 border-[#B5A642]" />
+   770→                      <div className="absolute bottom-0 left-0 w-10 h-10 border-b-2 border-l-2 border-[#B5A642]" />
+   771→                      <div className="absolute bottom-0 right-0 w-10 h-10 border-b-2 border-r-2 border-[#B5A642]" />
+   772→
+   773→                      {/* Header Logos */}
+   774→                      <div className="flex justify-between items-start mb-3 px-4">
+   775→                        <div className="text-center w-28">
+   776→                          <img src="/logos/ghana-coat-of-arms.webp" className="w-44 h-44 object-contain" />
+   777→                          <div className="text-[7px] font-bold uppercase tracking-wider text-slate-600 mt-1">Republic of Ghana</div>
+   778→                        </div>
+   779→                        <div className="text-center w-28">
+   780→                          <img src="/logos/assembly-seal.png" className="w-44 h-44 object-contain" />
+   781→                          <div className="text-[7px] font-bold uppercase tracking-wider text-slate-600 mt-1">{dynAssemblyName.toUpperCase()}</div>
+   782→                        </div>
+   783→                      </div>
+   784→
+   785→                      {/* Decorative flourish */}
+   786→                      <div className="text-center text-[#B5A642] text-sm tracking-[6px] mb-1">✦ ✦ ✦</div>
+   787→
+   788→                      {/* Assembly Name */}
+   789→                      <div className="text-center text-lg font-black uppercase tracking-[2px] text-[#0a0a0a]">
+   790→                        {dynAssemblyName.toUpperCase()}
+   791→                      </div>
+   792→                      {viewingCert.assemblyAddress && (
+   793→                        <div className="text-center text-[9px] text-slate-500 uppercase tracking-[3px] mb-4">
+   794→                          {viewingCert.assemblyAddress.toUpperCase()}
+   795→                        </div>
+   796→                      )}
+   797→
+   798→                      {/* Certificate Title */}
+   799→                      <div className="text-center my-4">
+   800→                        <span className="text-2xl italic font-bold text-[#B22222]" style={{ fontFamily: 'Georgia, serif' }}>
+   801→                          Certificate Of Registration
+   802→                        </span>
+   803→                      </div>
+   804→
+   805→                      {/* Body */}
+   806→                      <div className="text-center text-sm leading-[2.2] text-[#111]">
+   807→                        <div className="font-bold text-[15px] mb-1">I Hereby Certify that</div>
+   808→                        <div className="my-2">
+   809→                          <span className="text-lg font-bold border-b-2 border-dotted border-slate-500 inline-block min-w-[250px] px-2 pb-0.5" style={{ color: '#00008B', fontFamily: 'Georgia, cursive' }}>
+   810→                            {viewingCert.businessName.toUpperCase()}
+   811→                          </span>
+   812→                        </div>
+   813→                        <div>Has complied with the bye-laws/directives of the</div>
+   814→                        <div className="font-extrabold uppercase text-xs tracking-[1px] my-1">
+   815→                          {dynAssemblyName.toUpperCase()}
+   816→                        </div>
+   817→                        <div>and has duly been permitted to operate within the {assemblyShort} Municipality</div>
+   818→                        {viewingCert.tradingName && viewingCert.tradingName !== viewingCert.businessName && (
+   819→                          <div className="mt-2">
+   820→                            as <span className="text-lg font-bold border-b-2 border-dotted border-slate-500 inline-block min-w-[200px] px-2 pb-0.5" style={{ color: '#00008B', fontFamily: 'Georgia, cursive' }}>
+   821→                              {viewingCert.tradingName.toUpperCase()}
+   822→                            </span>
+   823→                          </div>
+   824→                        )}
+   825→                      </div>
+   826→
+   827→                      {/* Gold separator */}
+   828→                      <div className="h-[2px] my-5" style={{ background: 'linear-gradient(90deg, transparent, #B5A642, transparent)' }} />
+   829→
+   830→                      {/* Footer */}
+   831→                      <div className="mt-6">
+   832→                        <div className="text-center text-xs font-semibold text-slate-800 mb-3">
+   833→                          Give under my hand at {assemblyShort}
+   834→                        </div>
+   835→                        <div className="text-center text-sm leading-[2]">
+   836→                          this <span className="text-base font-bold border-b-2 border-dotted border-slate-400 inline-block min-w-[50px] px-1" style={{ color: '#00008B', fontFamily: 'Georgia, cursive' }}>{dayOrd}</span> day of <span className="text-base font-bold border-b-2 border-dotted border-slate-400 inline-block min-w-[70px] px-1" style={{ color: '#00008B', fontFamily: 'Georgia, cursive' }}>{monthName}</span> 20<span className="text-base font-bold border-b-2 border-dotted border-slate-400 inline-block min-w-[40px] px-1" style={{ color: '#00008B', fontFamily: 'Georgia, cursive' }}>{yearShort}</span>
+   837→                        </div>
+   838→                        <div className="text-center mt-4">
+   839→                          <div className="text-xs font-bold text-slate-800">Valid until 31st December {expiryYear}</div>
+   840→                          <div className="text-sm italic font-bold text-[#B22222] mt-0.5" style={{ fontFamily: 'Georgia, serif' }}>Renew Yearly</div>
+   841→                        </div>
+   842→                        <div className="text-center mt-6">
+   843→                          <div className="w-48 border-b-2 border-dotted border-slate-500 mx-auto mb-1" />
+   844→                          <div className="text-[9px] font-bold uppercase tracking-[1.5px] text-slate-600">
+   845→                            Municipal Co-ordinating Director
+   846→                          </div>
+   847→                        </div>
+   848→                        <div className="mt-4 text-[10px] text-slate-700 text-center">
+   849→                          RECEIPT No: <span className="font-bold text-sm" style={{ fontFamily: 'Georgia, cursive' }}>{viewingCert.receiptNumber}</span>
+   850→                        </div>
+   851→                        <div className="text-center text-[8px] text-slate-400 mt-2 tracking-wide">
+   852→                          {viewingCert.certNumber} | Reg: {viewingCert.regNumber}
+   853→                        </div>
+   854→                      </div>
+   855→                    </div>
+   856→                  </div>
+   857→                </div>
+   858→              </div>
+   859→
+   860→              {/* Modal Footer */}
+   861→              <div className="flex items-center justify-end gap-3 px-5 py-3 border-t border-slate-700 bg-slate-800 rounded-b-2xl">
+   862→                <button onClick={() => setViewingCert(null)} className="px-4 py-2 rounded-lg border border-slate-600 text-slate-300 text-sm font-medium hover:bg-slate-700 transition-colors">
+   863→                  Close
+   864→                </button>
+   865→                <button onClick={() => handlePrintCertificate(viewingCert)} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#B5A642] hover:bg-[#9a8d38] text-white text-sm font-medium transition-colors">
+   866→                  <Printer className="w-4 h-4" />
+   867→                  Print Certificate
+   868→                </button>
+   869→              </div>
+   870→            </div>
+   871→          </div>
+   872→          );
+   873→        })()}      </div>
+   874→    );
+   875→  }
+   876→
+   877→  // ══════════════════════════════════════════════════════════════════════════
+   878→  //  FORM VIEW
+   879→  // ══════════════════════════════════════════════════════════════════════════
+   880→  return (
+   881→    <div className="space-y-6">
+   882→      {/* ── Header ────────────────────────────────────────────────────────── */}
+   883→      <div className="flex items-center gap-4">
+   884→        <button onClick={handleCancel} className="p-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+   885→          <ArrowLeft className="w-5 h-5" />
+   886→        </button>
+   887→        <div>
+   888→          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+   889→            {editingRegNumber ? 'Edit Business' : 'Register New Business'}
+   890→          </h1>
+   891→          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+   892→            {editingRegNumber ? 'Update the business details below.' : 'Fill in the details below to register a new business.'}
+   893→          </p>
+   894→        </div>
+   895→      </div>
+   896→
+   897→      <div className="space-y-6">
+   898→        {/* ════════════════════════════════════════════════════════════════════
+   899→            CARD 1: LOCATION
+   900→           ════════════════════════════════════════════════════════════════════ */}
+   901→        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+   902→          <div className="flex items-center gap-2.5 px-5 py-3 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700">
+   903→            <MapPin className="w-4.5 h-4.5 text-slate-600 dark:text-slate-400" />
+   904→            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Location</h2>
+   905→          </div>
+   906→          <div className="p-5">
+   907→            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
+   908→              {/* Street Name */}
+   909→              <div>
+   910→                <label className={`${labelClass} block`}>Street Name</label>
+   911→                <input type="text" name="streetName" value={form.streetName} onChange={handleFormChange} placeholder="e.g. Powder St" className={inputClass} />
+   912→              </div>
+   913→              {/* House No */}
+   914→              <div>
+   915→                <label className={`${labelClass} block`}>House No.</label>
+   916→                <input type="text" name="houseNo" value={form.houseNo} onChange={handleFormChange} placeholder="e.g. 26" className={inputClass} />
+   917→              </div>
+   918→              {/* Street Code */}
+   919→              <div>
+   920→                <label className={`${labelClass} block`}>Street Code</label>
+   921→                <input type="text" name="streetCode" value={form.streetCode} onChange={handleFormChange} placeholder="Enter street code" className={inputClass} />
+   922→              </div>
+   923→              {/* GhanaPost GPS */}
+   924→              <div>
+   925→                <label className={`${labelClass} block`}>GhanaPost GPS</label>
+   926→                <div className="flex gap-2">
+   927→                  <input type="text" name="gpsAddress" value={form.gpsAddress} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={`${inputClass} flex-1`} />
+   928→                  <button onClick={() => fetchGpsFromLocation('business')} disabled={locatingBusiness} className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors whitespace-nowrap" title="Use device GPS">
+   929→                    {locatingBusiness ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crosshair className="w-4 h-4" />}
+   930→                    {locatingBusiness ? '...' : 'GPS'}
+   931→                  </button>
+   932→                </div>
+   933→              </div>
+   934→              {/* Locality Code */}
+   935→              <div>
+   936→                <label className={`${labelClass} block`}>Locality Code</label>
+   937→                <input type="text" name="localityCode" value={form.localityCode} onChange={handleFormChange} placeholder="Enter locality code" className={inputClass} />
+   938→              </div>
+   939→              {/* Business Address (full width) */}
+   940→              <div className="sm:col-span-2 lg:col-span-3">
+   941→                <label className={`${labelClass} block`}>Business Address <span className="text-red-500">*</span></label>
+   942→                <input type="text" name="businessAddress" value={form.businessAddress} onChange={handleFormChange} placeholder="Full business address" className={inputClass} />
+   943→              </div>
+   944→            </div>
+   945→          </div>
+   946→        </div>
+   947→
+   948→        {/* ════════════════════════════════════════════════════════════════════
+   949→            CARD 2: BUSINESS INFORMATION
+   950→           ════════════════════════════════════════════════════════════════════ */}
+   951→        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+   952→          <div className="flex items-center gap-2.5 px-5 py-3 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700">
+   953→            <Briefcase className="w-4.5 h-4.5 text-slate-600 dark:text-slate-400" />
+   954→            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Business Information</h2>
+   955→          </div>
+   956→          <div className="p-5">
+   957→            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
+   958→              {/* Business Class */}
+   959→              <div>
+   960→                <label className={`${labelClass} block`}>Business Class <span className="text-red-500">*</span></label>
+   961→                <select name="type" value={form.type} onChange={handleFormChange} className={inputClass}>
+   962→                  <option value="">Type to filter business class...</option>
+   963→                  {businessTypes.map((t) => (
+   964→                    <option key={t} value={t}>{t}</option>
+   965→                  ))}
+   966→                </select>
+   967→              </div>
+   968→              {/* Business Name */}
+   969→              <div className="sm:col-span-2">
+   970→                <label className={`${labelClass} block`}>Business Name <span className="text-red-500">*</span></label>
+   971→                <input type="text" name="name" value={form.name} onChange={handleFormChange} placeholder="Enter business name" className={inputClass} />
+   972→              </div>
+   973→              {/* DA Assignment No */}
+   974→              <div>
+   975→                <label className={`${labelClass} block`}>DA Assignment No.</label>
+   976→                <input type="text" name="daAssignmentNo" value={form.daAssignmentNo} onChange={handleFormChange} placeholder="e.g. DA-2026-001" className={inputClass} />
+   977→              </div>
+   978→              {/* Business Certificate */}
+   979→              <div>
+   980→                <label className={`${labelClass} block`}>Business Certificate</label>
+   981→                <input type="text" name="businessCertNo" value={form.businessCertNo} onChange={handleFormChange} placeholder="Certificate number" className={inputClass} />
+   982→              </div>
+   983→              {/* Business Permit */}
+   984→              <div>
+   985→                <label className={`${labelClass} block`}>Business Permit</label>
+   986→                <input type="text" name="businessPermit" value={form.businessPermit} onChange={handleFormChange} placeholder="Permit number" className={inputClass} />
+   987→              </div>
+   988→              {/* Category (dynamic from fee schedule) */}
+   989→              <div>
+   990→                <label className={`${labelClass} block`}>Category</label>
+   991→                <select name="category" value={form.category} onChange={handleFormChange} className={inputClass} disabled={!form.type}>
+   992→                  <option value="">Select category</option>
+   993→                  {availableCategories.map((c) => (
+   994→                    <option key={c.name} value={c.name}>{c.name}</option>
+   995→                  ))}
+   996→                </select>
+   997→              </div>
+   998→              {/* Business TIN */}
+   999→              <div>
+  1000→                <label className={`${labelClass} block`}>Business TIN</label>
+  1001→                <input type="text" name="tin" value={form.tin} onChange={handleFormChange} placeholder="e.g. TIN-1234567890" className={inputClass} />
+  1002→              </div>
+  1003→              {/* Employees */}
+  1004→              <div>
+  1005→                <label className={`${labelClass} block`}>Employees</label>
+  1006→                <input type="text" name="employees" value={form.employees} onChange={handleFormChange} placeholder="e.g. 15" className={inputClass} />
+  1007→              </div>
+  1008→              {/* Year Established */}
+  1009→              <div>
+  1010→                <label className={`${labelClass} block`}>Year Established</label>
+  1011→                <input type="text" name="yearEstablished" value={form.yearEstablished} onChange={handleFormChange} placeholder="e.g. 2020" className={inputClass} />
+  1012→              </div>
+  1013→              {/* Fee Amount (read-only) */}
+  1014→              <div>
+  1015→                <label className={`${labelClass} block`}>Fee Amount</label>
+  1016→                <input type="text" value={selectedCategoryFee ? `GH\u20b5 ${selectedCategoryFee.amount.toLocaleString()}` : ''} readOnly placeholder="Select a category" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-emerald-700 dark:text-emerald-400 font-semibold`} />
+  1017→              </div>
+  1018→              {/* Date Registered */}
+  1019→              <div>
+  1020→                <label className={`${labelClass} block`}>Date Registered</label>
+  1021→                <input type="date" name="dateRegistered" value={form.dateRegistered} onChange={handleFormChange} className={inputClass} />
+  1022→              </div>
+  1023→              {/* Active Status + Excluded from fees (same row) */}
+  1024→              <div className="flex items-end gap-6">
+  1025→                <div className="flex-1">
+  1026→                  <label className={`${labelClass} block`}>Active Status</label>
+  1027→                  <select name="status" value={form.status} onChange={handleFormChange} className={inputClass}>
+  1028→                    <option value="Active">Active</option>
+  1029→                    <option value="Inactive">Inactive</option>
+  1030→                  </select>
+  1031→                </div>
+  1032→                <label className="flex items-center gap-2 pb-2.5 cursor-pointer select-none">
+  1033→                  <input type="checkbox" name="excludedFromFees" checked={form.excludedFromFees} onChange={handleFormChange} className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+  1034→                  <span className="text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">Excluded from fees</span>
+  1035→                </label>
+  1036→              </div>
+  1037→            </div>
+  1038→          </div>
+  1039→        </div>
+  1040→
+  1041→        {/* ════════════════════════════════════════════════════════════════════
+  1042→            CARD 3: OWNER INFORMATION
+  1043→           ════════════════════════════════════════════════════════════════════ */}
+  1044→        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+  1045→          <div className="flex items-center gap-2.5 px-5 py-3 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700">
+  1046→            <User className="w-4.5 h-4.5 text-slate-600 dark:text-slate-400" />
+  1047→            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Owner Information</h2>
+  1048→          </div>
+  1049→          <div className="p-5">
+  1050→            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
+  1051→              {/* Owner Name - full width */}
+  1052→              <div className="sm:col-span-2 lg:col-span-3">
+  1053→                <label className={`${labelClass} block`}>Owner Name <span className="text-red-500">*</span></label>
+  1054→                <input type="text" name="ownerName" value={form.ownerName} onChange={handleFormChange} placeholder="Enter full name of owner" className={inputClass} />
+  1055→              </div>
+  1056→              {/* Owner Address - wider */}
+  1057→              <div className="lg:col-span-2">
+  1058→                <label className={`${labelClass} block`}>Owner Address</label>
+  1059→                <input type="text" name="ownerAddress" value={form.ownerAddress} onChange={handleFormChange} placeholder="Owner's residential address" className={inputClass} />
+  1060→              </div>
+  1061→              {/* Owner GhanaPost GPS */}
+  1062→              <div>
+  1063→                <label className={`${labelClass} block`}>Owner GhanaPost GPS</label>
+  1064→                <div className="flex gap-2">
+  1065→                  <input type="text" name="ownerGps" value={form.ownerGps} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={`${inputClass} flex-1`} />
+  1066→                  <button onClick={() => fetchGpsFromLocation('owner')} disabled={locatingOwner} className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors whitespace-nowrap" title="Use device GPS">
+  1067→                    {locatingOwner ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crosshair className="w-4 h-4" />}
+  1068→                    {locatingOwner ? '...' : 'GPS'}
+  1069→                  </button>
+  1070→                </div>
+  1071→              </div>
+  1072→              {/* Phone */}
+  1073→              <div>
+  1074→                <label className={`${labelClass} block`}>Phone</label>
+  1075→                <input type="tel" name="phone" value={form.phone} onChange={handleFormChange} placeholder="e.g. +233 24 567 8901" className={inputClass} />
+  1076→              </div>
+  1077→              {/* Email */}
+  1078→              <div>
+  1079→                <label className={`${labelClass} block`}>Email</label>
+  1080→                <input type="email" name="email" value={form.email} onChange={handleFormChange} placeholder="e.g. owner@email.com" className={inputClass} />
+  1081→              </div>
+  1082→              {/* Owner TIN */}
+  1083→              <div>
+  1084→                <label className={`${labelClass} block`}>TIN</label>
+  1085→                <input type="text" name="ownerTin" value={form.ownerTin} onChange={handleFormChange} placeholder="Owner's TIN" className={inputClass} />
+  1086→              </div>
+  1087→              {/* National ID (Ghana Card) */}
+  1088→              <div>
+  1089→                <label className={`${labelClass} block`}>National ID</label>
+  1090→                <input type="text" name="ghanaCard" value={form.ghanaCard} onChange={handleFormChange} placeholder="e.g. GHA-123456789-0" className={inputClass} />
+  1091→              </div>
+  1092→              {/* Comments - full width */}
+  1093→              <div className="sm:col-span-2 lg:col-span-3">
+  1094→                <label className={`${labelClass} block`}>Comments</label>
+  1095→                <textarea name="comments" value={form.comments} onChange={handleFormChange} placeholder="Any additional notes..." rows={3} className={`${inputClass} resize-none`} />
+  1096→              </div>
+  1097→            </div>
+  1098→          </div>
+  1099→        </div>
+  1100→
+  1101→        {/* ─── Action Buttons ──────────────────────────────────────────── */}
+  1102→        <div className="flex items-center justify-end gap-3 pt-2">
+  1103→          <button onClick={handleCancel} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-500 hover:bg-slate-600 text-white text-sm font-medium transition-colors">
+  1104→            <X className="w-4 h-4" />
+  1105→            Cancel
+  1106→          </button>
+  1107→          <button onClick={handleSave} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors">
+  1108→            <Save className="w-4 h-4" />
+  1109→            {editingRegNumber ? 'Update' : 'Save'}
+  1110→          </button>
+  1111→        </div>
+  1112→      </div>
+  1113→    </div>
+  1114→  );
+  1115→}

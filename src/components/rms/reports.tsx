@@ -226,8 +226,8 @@ export function ReportsPage() {
             <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5">
               <h2 className="text-base font-semibold text-slate-900 dark:text-white mb-4">Top Revenue Categories</h2>
               <div className="space-y-3">
-                {revenueBreakdown.slice(0, 5).map((item) => (
-                  <CategoryBar key={item.category} item={item} />
+                {revenueBreakdown.slice(0, 5).map((item, i) => (
+                  <CategoryBar key={`rev-cat-${i}`} item={item} />
                 ))}
               </div>
             </div>
@@ -236,8 +236,8 @@ export function ReportsPage() {
             <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5">
               <h2 className="text-base font-semibold text-slate-900 dark:text-white mb-4">Zone Compliance Summary</h2>
               <div className="space-y-3">
-                {zoneReports.map((zone) => (
-                  <div key={zone.zone} className="flex items-center justify-between">
+                {zoneReports.map((zone, i) => (
+                  <div key={`zone-bar-${i}`} className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-slate-900 dark:text-white">{zone.zone}</p>
                       <p className="text-xs text-slate-500 dark:text-slate-400">{fmtCurrency(zone.collected)} of {fmtCurrency(zone.target)}</p>
@@ -277,8 +277,8 @@ export function ReportsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
-                {revenueBreakdown.map((item) => (
-                  <tr key={item.category} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                {revenueBreakdown.map((item, i) => (
+                  <tr key={`rev-row-${i}`} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         {item.category.includes('Property') ? (
@@ -360,8 +360,8 @@ export function ReportsPage() {
 
           {/* Zone Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredZones.map((zone) => (
-              <div key={zone.zone} className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5 space-y-4">
+            {filteredZones.map((zone, i) => (
+              <div key={`zone-card-${i}`} className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-semibold text-slate-900 dark:text-white">{zone.zone}</h3>
                   <ComplianceBadge percentage={zone.compliance} />

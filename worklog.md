@@ -102,5 +102,29 @@ Stage Summary:
 - Business registration form restructured into 3 cards matching reference design
 - All changes compile cleanly (next build passes)
 - Key files modified: `settings.tsx`, `businesses.tsx`
+
+---
+Task ID: 4
+Agent: Main
+Task: Fix console errors — duplicate React keys and undefined .split() crash
+
+Work Log:
+- Found `TypeError: Cannot read properties of undefined (reading 'split')` on Users page (users.tsx lines 468-469)
+- `u.lastLogin.split(' ')` crashed when `lastLogin` was undefined (old localStorage data)
+- Fixed by adding fallback: `(u.lastLogin || 'Never').split(' ')[0]`
+- Added data migration in `loadUsers()` to ensure `lastLogin`, `dateCreated`, `accessiblePages` have defaults
+- Found React duplicate key warning: "Encountered two children with the same key, `Clipe233 Engineers`"
+- Changed all name-based React keys to index-based keys across all RMS components:
+  - `dashboard.tsx`: `cat.name` → `biz-cat-${i}`, `rev-cat-${i}`, `collector-${i}`
+  - `payment-history.tsx`: `e.name` → `entity-${i}`
+  - `billing.tsx`: `e.name` → `entity-${i}`
+  - `businesses.tsx`: `c.name` → `cat-${i}`
+  - `reports.tsx`: `item.category` → `rev-cat-${i}` / `rev-row-${i}`, `zone.zone` → `zone-bar-${i}` / `zone-card-${i}`
+- Verified all changes with `next build` — clean pass
+
+Stage Summary:
+- Users page no longer crashes when `lastLogin` is missing from stored data
+- All name-based React keys replaced with safe index-based keys
+- No more duplicate key warnings across the entire RMS
 - Logo files unchanged: `/public/logos/ghana-coat-of-arms.webp`, `/public/logos/assembly-seal.png`
 - localStorage key for assembly settings: `rms-settings-assembly`

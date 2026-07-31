@@ -577,8 +577,8 @@ export function DashboardPage() {
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2 w-full max-w-xs">
-                  {businessesByCategory.map((cat) => (
-                    <div key={cat.name} className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
+                  {businessesByCategory.map((cat, i) => (
+                    <div key={`biz-cat-${i}`} className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
                       <span className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ backgroundColor: cat.color }} />
                       {cat.name} ({cat.value})
                     </div>
@@ -608,8 +608,8 @@ export function DashboardPage() {
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2 w-full max-w-xs">
-                  {revenueByCategory.slice(0, 6).map((cat) => (
-                    <div key={cat.name} className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
+                  {revenueByCategory.slice(0, 6).map((cat, i) => (
+                    <div key={`rev-cat-${i}`} className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-400">
                       <span className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ backgroundColor: cat.color }} />
                       {cat.name}
                     </div>
@@ -773,8 +773,8 @@ export function DashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
-                {topCollectors.map((c) => (
-                  <tr key={c.name} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                {topCollectors.map((c, i) => (
+                  <tr key={`collector-${i}`} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
                     <td className="text-sm text-slate-900 dark:text-white font-medium px-3 py-3 flex items-center gap-2">
                       <span className="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-700 dark:text-emerald-400 text-xs font-bold shrink-0">
                         {c.name.split(' ').map((n) => n[0]).join('')}

@@ -1,0 +1,2002 @@
+     1→// Auto-generated from fee schedule data. Do not edit manually.
+     2→
+     3→export interface FeeCategory {
+     4→  name: string;
+     5→  amount: number;
+     6→  ceiling: number | null;
+     7→  unit: string;
+     8→}
+     9→
+    10→export interface FeeClass {
+    11→  class: string;
+    12→  categories: FeeCategory[];
+    13→}
+    14→
+    15→export const FEE_SCHEDULE: FeeClass[] = [
+    16→  {
+    17→    "class": "(Architectural, Auditing, Accounting, Engineering, Legal Firms etc.)",
+    18→    "categories": [
+    19→      {
+    20→        "name": "CAT A - International",
+    21→        "amount": 4000.0,
+    22→        "ceiling": null,
+    23→        "unit": "Per Annum"
+    24→      },
+    25→      {
+    26→        "name": "CAT B - National",
+    27→        "amount": 3500.0,
+    28→        "ceiling": null,
+    29→        "unit": "Per Annum"
+    30→      },
+    31→      {
+    32→        "name": "CAT C - Regional",
+    33→        "amount": 2800.0,
+    34→        "ceiling": null,
+    35→        "unit": "Per Annum"
+    36→      },
+    37→      {
+    38→        "name": "CAT D - Local",
+    39→        "amount": 2100.0,
+    40→        "ceiling": null,
+    41→        "unit": "Per Annum"
+    42→      },
+    43→      {
+    44→        "name": "CAT E - Partnership",
+    45→        "amount": 1400.0,
+    46→        "ceiling": null,
+    47→        "unit": "Per Annum"
+    48→      },
+    49→      {
+    50→        "name": "CAT F - Solo",
+    51→        "amount": 1000.0,
+    52→        "ceiling": null,
+    53→        "unit": "Per Annum"
+    54→      },
+    55→      {
+    56→        "name": "CAT G - Others",
+    57→        "amount": 600.0,
+    58→        "ceiling": null,
+    59→        "unit": "Per Annum"
+    60→      }
+    61→    ]
+    62→  },
+    63→  {
+    64→    "class": "Abattoir (Private)",
+    65→    "categories": [
+    66→      {
+    67→        "name": "CAT A - Industrial setting (Large)",
+    68→        "amount": 1350.0,
+    69→        "ceiling": null,
+    70→        "unit": "Per Annum"
+    71→      },
+    72→      {
+    73→        "name": "CAT B - Industrial Setting (Medium)",
+    74→        "amount": 975.0,
+    75→        "ceiling": null,
+    76→        "unit": "Per Annum"
+    77→      },
+    78→      {
+    79→        "name": "CAT C - Industrial Setting (Small)",
+    80→        "amount": 750.0,
+    81→        "ceiling": null,
+    82→        "unit": "Per Annum"
+    83→      },
+    84→      {
+    85→        "name": "CAT D - Slaughter House (Large)",
+    86→        "amount": 500.0,
+    87→        "ceiling": null,
+    88→        "unit": "Per Annum"
+    89→      },
+    90→      {
+    91→        "name": "CAT E - Slaughter House (Medium)",
+    92→        "amount": 370.0,
+    93→        "ceiling": null,
+    94→        "unit": "Per Annum"
+    95→      },
+    96→      {
+    97→        "name": "CAT F - Slaughter House (Small)",
+    98→        "amount": 200.0,
+    99→        "ceiling": 250.0,
+   100→        "unit": "Per Annum"
+   101→      },
+   102→      {
+   103→        "name": "CAT G - Others",
+   104→        "amount": 50.0,
+   105→        "ceiling": 130.0,
+   106→        "unit": "Per Annum"
+   107→      }
+   108→    ]
+   109→  },
+   110→  {
+   111→    "class": "Adinkra Designers/Kente/Smock Weavers & Sellers",
+   112→    "categories": [
+   113→      {
+   114→        "name": "CAT A - Weavers & Sellers (Large)",
+   115→        "amount": 750.0,
+   116→        "ceiling": null,
+   117→        "unit": "Per Annum"
+   118→      },
+   119→      {
+   120→        "name": "CAT B - Weavers Only (Large)",
+   121→        "amount": 300.0,
+   122→        "ceiling": 350.0,
+   123→        "unit": "Per Annum"
+   124→      },
+   125→      {
+   126→        "name": "CAT C - Sellers Only (Large)",
+   127→        "amount": 300.0,
+   128→        "ceiling": 600.0,
+   129→        "unit": "Per Annum"
+   130→      },
+   131→      {
+   132→        "name": "CAT D - Weavers & Sellers (Medium)",
+   133→        "amount": 160.0,
+   134→        "ceiling": 280.0,
+   135→        "unit": "Per Annum"
+   136→      },
+   137→      {
+   138→        "name": "CAT E - Weavers Only (Medium)",
+   139→        "amount": 140.0,
+   140→        "ceiling": 140.0,
+   141→        "unit": "Per Annum"
+   142→      },
+   143→      {
+   144→        "name": "CAT F - Sellers Only (Medium)",
+   145→        "amount": 250.0,
+   146→        "ceiling": 210.0,
+   147→        "unit": "Per Annum"
+   148→      },
+   149→      {
+   150→        "name": "CAT G - Weavers & Sellers (Small)",
+   151→        "amount": 100.0,
+   152→        "ceiling": 130.0,
+   153→        "unit": "Per Annum"
+   154→      },
+   155→      {
+   156→        "name": "CAT H - Weavers Only (Small)",
+   157→        "amount": 70.0,
+   158→        "ceiling": 100.0,
+   159→        "unit": "Per Annum"
+   160→      },
+   161→      {
+   162→        "name": "CAT I - Sellers Only (Small)",
+   163→        "amount": 100.0,
+   164→        "ceiling": 130.0,
+   165→        "unit": "Per Annum"
+   166→      }
+   167→    ]
+   168→  },
+   169→  {
+   170→    "class": "Advertising Companies",
+   171→    "categories": [
+   172→      {
+   173→        "name": "CAT A - Platinum (minimum of 10 staff)",
+   174→        "amount": 2100.0,
+   175→        "ceiling": null,
+   176→        "unit": "Per Annum"
+   177→      },
+   178→      {
+   179→        "name": "CAT B - Gold (minimum of 5 staff)",
+   180→        "amount": 1500.0,
+   181→        "ceiling": null,
+   182→        "unit": "Per Annum"
+   183→      },
+   184→      {
+   185→        "name": "CAT C - Silver (minimum of 3 staff)",
+   186→        "amount": 970.0,
+   187→        "ceiling": null,
+   188→        "unit": "Per Annum"
+   189→      },
+   190→      {
+   191→        "name": "CAT D - Bronze (Below 3 staff)",
+   192→        "amount": 450.0,
+   193→        "ceiling": null,
+   194→        "unit": "Per Annum"
+   195→      }
+   196→    ]
+   197→  },
+   198→  {
+   199→    "class": "Aerial Adverts - Planes, Balloons etc (Per Day Fee in All Zones) Aerial Adverts - Planes, Balloons etc (Per Day Fee in All Zones)",
+   200→    "categories": [
+   201→      {
+   202→        "name": "Aerial Adverts - Planes, Balloons etc (Per Day Fee in All Zones) Aerial Adverts - Planes, Balloons etc (Per Day Fee in All Zones)",
+   203→        "amount": 225.0,
+   204→        "ceiling": null,
+   205→        "unit": "Per M2"
+   206→      }
+   207→    ]
+   208→  },
+   209→  {
+   210→    "class": "Agents",
+   211→    "categories": [
+   212→      {
+   213→        "name": "CAT A - Large Scale",
+   214→        "amount": 5000.0,
+   215→        "ceiling": 4000.0,
+   216→        "unit": "Per Annum"
+   217→      },
+   218→      {
+   219→        "name": "CAT B - Medium Scale",
+   220→        "amount": 2500.0,
+   221→        "ceiling": 2800.0,
+   222→        "unit": "Per Annum"
+   223→      },
+   224→      {
+   225→        "name": "CAT C - Small Scale",
+   226→        "amount": 2000.0,
+   227→        "ceiling": 1300.0,
+   228→        "unit": "Per Annum"
+   229→      }
+   230→    ]
+   231→  },
+   232→  {
+   233→    "class": "Agro Chemical/Farm Inputs Dealers",
+   234→    "categories": [
+   235→      {
+   236→        "name": "CAT A - Manufacturers/ Importers/ Distributors/Retailers",
+   237→        "amount": 1800.0,
+   238→        "ceiling": null,
+   239→        "unit": "Per Annum"
+   240→      },
+   241→      {
+   242→        "name": "CAT B - Importers/ Distributors/Retailers",
+   243→        "amount": 1600.0,
+   244→        "ceiling": null,
+   245→        "unit": "Per Annum"
+   246→      },
+   247→      {
+   248→        "name": "CAT B - Manufacturers & Importers",
+   249→        "amount": 1350.0,
+   250→        "ceiling": null,
+   251→        "unit": "Per Annum"
+   252→      },
+   253→      {
+   254→        "name": "CAT C - Manufacturers & Distributors",
+   255→        "amount": 1050.0,
+   256→        "ceiling": null,
+   257→        "unit": "Per Annum"
+   258→      },
+   259→      {
+   260→        "name": "CAT D - Distributors & Retailers",
+   261→        "amount": 750.0,
+   262→        "ceiling": 900.0,
+   263→        "unit": "Per Annum"
+   264→      },
+   265→      {
+   266→        "name": "CAT E - Manufacturers",
+   267→        "amount": 700.0,
+   268→        "ceiling": null,
+   269→        "unit": "Per Annum"
+   270→      },
+   271→      {
+   272→        "name": "CAT F - Importers",
+   273→        "amount": 550.0,
+   274→        "ceiling": null,
+   275→        "unit": "Per Annum"
+   276→      },
+   277→      {
+   278→        "name": "CAT G - Distributors",
+   279→        "amount": 400.0,
+   280→        "ceiling": null,
+   281→        "unit": "Per Annum"
+   282→      },
+   283→      {
+   284→        "name": "CAT H - Retailers",
+   285→        "amount": 400.0,
+   286→        "ceiling": 250.0,
+   287→        "unit": "Per Annum"
+   288→      },
+   289→      {
+   290→        "name": "CAT I - Retailers (Small)",
+   291→        "amount": 250.0,
+   292→        "ceiling": 250.0,
+   293→        "unit": "Per Annum"
+   294→      }
+   295→    ]
+   296→  },
+   297→  {
+   298→    "class": "Agro Machine Dealers",
+   299→    "categories": [
+   300→      {
+   301→        "name": "CAT A - Importers/ Distributors/ Retailers",
+   302→        "amount": 1900.0,
+   303→        "ceiling": null,
+   304→        "unit": "Per Annum"
+   305→      },
+   306→      {
+   307→        "name": "CAT B - Importers/Distributors",
+   308→        "amount": 1500.0,
+   309→        "ceiling": null,
+   310→        "unit": "Per Annum"
+   311→      },
+   312→      {
+   313→        "name": "CAT C - Manufacturers/ Distributors/ Retailers",
+   314→        "amount": 1350.0,
+   315→        "ceiling": null,
+   316→        "unit": "Per Annum"
+   317→      },
+   318→      {
+   319→        "name": "CAT D - Manufacturers & Distributors",
+   320→        "amount": 1200.0,
+   321→        "ceiling": null,
+   322→        "unit": "Per Annum"
+   323→      },
+   324→      {
+   325→        "name": "CAT E - Distributors & Retailers",
+   326→        "amount": 900.0,
+   327→        "ceiling": 970.0,
+   328→        "unit": "Per Annum"
+   329→      },
+   330→      {
+   331→        "name": "CAT F - Manufacturers",
+   332→        "amount": 750.0,
+   333→        "ceiling": null,
+   334→        "unit": "Per Annum"
+   335→      },
+   336→      {
+   337→        "name": "CAT G - Importers",
+   338→        "amount": 600.0,
+   339→        "ceiling": null,
+   340→        "unit": "Per Annum"
+   341→      },
+   342→      {
+   343→        "name": "CAT H - Distributors",
+   344→        "amount": 400.0,
+   345→        "ceiling": 450.0,
+   346→        "unit": "Per Annum"
+   347→      },
+   348→      {
+   349→        "name": "CAT I - Retailers",
+   350→        "amount": 350.0,
+   351→        "ceiling": 300.0,
+   352→        "unit": "Per Annum"
+   353→      }
+   354→    ]
+   355→  },
+   356→  {
+   357→    "class": "Air Condition Mechanics",
+   358→    "categories": [
+   359→      {
+   360→        "name": "CAT A - Formal Company",
+   361→        "amount": 500.0,
+   362→        "ceiling": 900.0,
+   363→        "unit": "Per Annum"
+   364→      },
+   365→      {
+   366→        "name": "CAT B - Informal Garage with Shop",
+   367→        "amount": 350.0,
+   368→        "ceiling": 500.0,
+   369→        "unit": "Per Annum"
+   370→      },
+   371→      {
+   372→        "name": "CAT C - Informal Garage without Shop",
+   373→        "amount": 200.0,
+   374→        "ceiling": 350.0,
+   375→        "unit": "Per Annum"
+   376→      },
+   377→      {
+   378→        "name": "CAT D - Others",
+   379→        "amount": 280.0,
+   380→        "ceiling": 130.0,
+   381→        "unit": "Per Annum"
+   382→      }
+   383→    ]
+   384→  },
+   385→  {
+   386→    "class": "Airline Offices/Operators",
+   387→    "categories": [
+   388→      {
+   389→        "name": "CAT A - Non-African Carriers",
+   390→        "amount": 14000.0,
+   391→        "ceiling": null,
+   392→        "unit": "Per Annum"
+   393→      },
+   394→      {
+   395→        "name": "CAT B - Local & Regional Carriers",
+   396→        "amount": 13000.0,
+   397→        "ceiling": null,
+   398→        "unit": "Per Annum"
+   399→      },
+   400→      {
+   401→        "name": "CAT C - African Carriers",
+   402→        "amount": 12000.0,
+   403→        "ceiling": null,
+   404→        "unit": "Per Annum"
+   405→      },
+   406→      {
+   407→        "name": "CAT D - Local Carriers",
+   408→        "amount": 10000.0,
+   409→        "ceiling": null,
+   410→        "unit": "Per Annum"
+   411→      },
+   412→      {
+   413→        "name": "CAT E - Agents of Airlines",
+   414→        "amount": 700.0,
+   415→        "ceiling": null,
+   416→        "unit": "Per Annum"
+   417→      }
+   418→    ]
+   419→  },
+   420→  {
+   421→    "class": "Airport Operators",
+   422→    "categories": [
+   423→      {
+   424→        "name": "CAT A -International",
+   425→        "amount": 50000.0,
+   426→        "ceiling": null,
+   427→        "unit": "Per Annum"
+   428→      },
+   429→      {
+   430→        "name": "CAT B - Domestic",
+   431→        "amount": 30000.0,
+   432→        "ceiling": null,
+   433→        "unit": "Per Annum"
+   434→      }
+   435→    ]
+   436→  },
+   437→  {
+   438→    "class": "Akpeteshie Sellers Only Akpeteshie Sellers Only",
+   439→    "categories": [
+   440→      {
+   441→        "name": "Akpeteshie Sellers Only Akpeteshie Sellers Only",
+   442→        "amount": 100.0,
+   443→        "ceiling": 130.0,
+   444→        "unit": "Per Annum"
+   445→      }
+   446→    ]
+   447→  },
+   448→  {
+   449→    "class": "Alcoholic and Non-Alcoholic Beverages",
+   450→    "categories": [
+   451→      {
+   452→        "name": "CAT A - Depots",
+   453→        "amount": 2700.0,
+   454→        "ceiling": 2200.0,
+   455→        "unit": "Per Annum"
+   456→      },
+   457→      {
+   458→        "name": "CAT B - Wholesale & Retail",
+   459→        "amount": 1200.0,
+   460→        "ceiling": 2100.0,
+   461→        "unit": "Per Annum"
+   462→      },
+   463→      {
+   464→        "name": "CAT C - Wholesale",
+   465→        "amount": 850.0,
+   466→        "ceiling": 1400.0,
+   467→        "unit": "Per Annum"
+   468→      },
+   469→      {
+   470→        "name": "CAT D - Retail (Large)",
+   471→        "amount": 500.0,
+   472→        "ceiling": 750.0,
+   473→        "unit": "Per Annum"
+   474→      },
+   475→      {
+   476→        "name": "CAT E - Retail (Medium)",
+   477→        "amount": 300.0,
+   478→        "ceiling": 450.0,
+   479→        "unit": "Per Annum"
+   480→      },
+   481→      {
+   482→        "name": "CAT F - Retail (Small)",
+   483→        "amount": 200.0,
+   484→        "ceiling": 220.0,
+   485→        "unit": "Per Annum"
+   486→      },
+   487→      {
+   488→        "name": "CAT G - Retail (Very Small)",
+   489→        "amount": 150.0,
+   490→        "ceiling": null,
+   491→        "unit": "Per Annum"
+   492→      }
+   493→    ]
+   494→  },
+   495→  {
+   496→    "class": "Aluminium Fabricators (Doors/Windows)",
+   497→    "categories": [
+   498→      {
+   499→        "name": "CAT A Large Scale",
+   500→        "amount": 1500.0,
+   501→        "ceiling": 2800.0,
+   502→        "unit": "Per Annum"
+   503→      },
+   504→      {
+   505→        "name": "CAT B Medium Scale",
+   506→        "amount": 1200.0,
+   507→        "ceiling": 2600.0,
+   508→        "unit": "Per Annum"
+   509→      },
+   510→      {
+   511→        "name": "CAT C Small Scale",
+   512→        "amount": 500.0,
+   513→        "ceiling": 1400.0,
+   514→        "unit": "Per Annum"
+   515→      },
+   516→      {
+   517→        "name": "CAT D - Others",
+   518→        "amount": 300.0,
+   519→        "ceiling": 700.0,
+   520→        "unit": "Per Annum"
+   521→      }
+   522→    ]
+   523→  },
+   524→  {
+   525→    "class": "Aluminium Manufacturing",
+   526→    "categories": [
+   527→      {
+   528→        "name": "CAT A - Smelting",
+   529→        "amount": 22400.0,
+   530→        "ceiling": null,
+   531→        "unit": "Per Annum"
+   532→      },
+   533→      {
+   534→        "name": "CAT B - Multiple Product Lines",
+   535→        "amount": 17000.0,
+   536→        "ceiling": null,
+   537→        "unit": "Per Annum"
+   538→      },
+   539→      {
+   540→        "name": "CAT C - Roofing Sheets only",
+   541→        "amount": 10000.0,
+   542→        "ceiling": null,
+   543→        "unit": "Per Annum"
+   544→      },
+   545→      {
+   546→        "name": "CAT D - Saucepan",
+   547→        "amount": 6000.0,
+   548→        "ceiling": null,
+   549→        "unit": "Per Annum"
+   550→      }
+   551→    ]
+   552→  },
+   553→  {
+   554→    "class": "Aluminium Pot Dealers (Dadesen)",
+   555→    "categories": [
+   556→      {
+   557→        "name": "CAT A - Manufacturers",
+   558→        "amount": 280.0,
+   559→        "ceiling": null,
+   560→        "unit": "Per Annum"
+   561→      },
+   562→      {
+   563→        "name": "CAT B - Distributors",
+   564→        "amount": 250.0,
+   565→        "ceiling": null,
+   566→        "unit": "Per Annum"
+   567→      },
+   568→      {
+   569→        "name": "CAT C - Retailers",
+   570→        "amount": 160.0,
+   571→        "ceiling": null,
+   572→        "unit": "Per Annum"
+   573→      }
+   574→    ]
+   575→  },
+   576→  {
+   577→    "class": "Aluminium Product Distributors",
+   578→    "categories": [
+   579→      {
+   580→        "name": "CAT A - Large Scale",
+   581→        "amount": 900.0,
+   582→        "ceiling": null,
+   583→        "unit": "Per Annum"
+   584→      },
+   585→      {
+   586→        "name": "CAT B - Medium Scale",
+   587→        "amount": 450.0,
+   588→        "ceiling": null,
+   589→        "unit": "Per Annum"
+   590→      },
+   591→      {
+   592→        "name": "CAT C - Small Scale",
+   593→        "amount": 180.0,
+   594→        "ceiling": 210.0,
+   595→        "unit": "Per Annum"
+   596→      }
+   597→    ]
+   598→  },
+   599→  {
+   600→    "class": "Aluminium Product Retailers",
+   601→    "categories": [
+   602→      {
+   603→        "name": "Category A - Store (Large)",
+   604→        "amount": 300.0,
+   605→        "ceiling": 210.0,
+   606→        "unit": "Per Annum"
+   607→      },
+   608→      {
+   609→        "name": "Category B - Container/Kiosk (Medium)",
+   610→        "amount": 200.0,
+   611→        "ceiling": 140.0,
+   612→        "unit": "Per Annum"
+   613→      },
+   614→      {
+   615→        "name": "Category C - Table Top (Small)",
+   616→        "amount": 150.0,
+   617→        "ceiling": 100.0,
+   618→        "unit": "Per Annum"
+   619→      }
+   620→    ]
+   621→  },
+   622→  {
+   623→    "class": "Ambulance Service Providers",
+   624→    "categories": [
+   625→      {
+   626→        "name": "CAT A - Large Scale (Above 5 Vehicles)",
+   627→        "amount": 350.0,
+   628→        "ceiling": null,
+   629→        "unit": "Per Annum"
+   630→      },
+   631→      {
+   632→        "name": "CAT B - Medium Scale (3-5 Vehicles)",
+   633→        "amount": 150.0,
+   634→        "ceiling": null,
+   635→        "unit": "Per Annum"
+   636→      },
+   637→      {
+   638→        "name": "CAT C - Small Scale (1-2 Vehicles)",
+   639→        "amount": 75.0,
+   640→        "ceiling": null,
+   641→        "unit": "Per Annum"
+   642→      }
+   643→    ]
+   644→  },
+   645→  {
+   646→    "class": "Arc Welders",
+   647→    "categories": [
+   648→      {
+   649→        "name": "CAT A - Fuel and Water Tankers; Truck Builders",
+   650→        "amount": 600.0,
+   651→        "ceiling": 600.0,
+   652→        "unit": "Per Annum"
+   653→      },
+   654→      {
+   655→        "name": "CAT B - Light vehicle repairs, Container Shops and Iron Gates",
+   656→        "amount": 320.0,
+   657→        "ceiling": 320.0,
+   658→        "unit": "Per Annum"
+   659→      },
+   660→      {
+   661→        "name": "CAT C - Light vehicle repairs, Container Shops and Iron Gates",
+   662→        "amount": 180.0,
+   663→        "ceiling": 320.0,
+   664→        "unit": "Per Annum"
+   665→      }
+   666→    ]
+   667→  },
+   668→  {
+   669→    "class": "Argon (Aluminium) Welders Argon (Aluminium) Welders",
+   670→    "categories": [
+   671→      {
+   672→        "name": "Argon (Aluminium) Welders Argon (Aluminium) Welders",
+   673→        "amount": 180.0,
+   674→        "ceiling": 220.0,
+   675→        "unit": "Per Annum"
+   676→      }
+   677→    ]
+   678→  },
+   679→  {
+   680→    "class": "Art Gallery",
+   681→    "categories": [
+   682→      {
+   683→        "name": "CAT A - Own Facility with multi-services",
+   684→        "amount": 500.0,
+   685→        "ceiling": 400.0,
+   686→        "unit": "Per Annum"
+   687→      },
+   688→      {
+   689→        "name": "CAT B - Own Facility with limited-services",
+   690→        "amount": 280.0,
+   691→        "ceiling": null,
+   692→        "unit": "Per Annum"
+   693→      },
+   694→      {
+   695→        "name": "CAT C - Own Facility only",
+   696→        "amount": 200.0,
+   697→        "ceiling": 250.0,
+   698→        "unit": "Per Annum"
+   699→      },
+   700→      {
+   701→        "name": "CAT D - Rented space",
+   702→        "amount": 150.0,
+   703→        "ceiling": 210.0,
+   704→        "unit": "Per Annum"
+   705→      }
+   706→    ]
+   707→  },
+   708→  {
+   709→    "class": "Artisans e.g.Masons, Carpenters, Plumbers, Electricians, Painters, Steel Benders, Tile Layers etc.",
+   710→    "categories": [
+   711→      {
+   712→        "name": "CAT 'A'",
+   713→        "amount": 150.0,
+   714→        "ceiling": 100.0,
+   715→        "unit": "Per Annum"
+   716→      },
+   717→      {
+   718→        "name": "CAT 'B'",
+   719→        "amount": 100.0,
+   720→        "ceiling": 50.0,
+   721→        "unit": "Per Annum"
+   722→      }
+   723→    ]
+   724→  },
+   725→  {
+   726→    "class": "Arts & Handicraft Dealers",
+   727→    "categories": [
+   728→      {
+   729→        "name": "CAT A - Importers",
+   730→        "amount": 2100.0,
+   731→        "ceiling": null,
+   732→        "unit": "Per Annum"
+   733→      },
+   734→      {
+   735→        "name": "CAT B - Exporters",
+   736→        "amount": 800.0,
+   737→        "ceiling": 600.0,
+   738→        "unit": "Per Annum"
+   739→      },
+   740→      {
+   741→        "name": "CAT C - Producers (Large)",
+   742→        "amount": 600.0,
+   743→        "ceiling": 1300.0,
+   744→        "unit": "Per Annum"
+   745→      },
+   746→      {
+   747→        "name": "CAT D - Producers (Medium)",
+   748→        "amount": 270.0,
+   749→        "ceiling": 600.0,
+   750→        "unit": "Per Annum"
+   751→      },
+   752→      {
+   753→        "name": "CAT E - Producers (Small)",
+   754→        "amount": 200.0,
+   755→        "ceiling": 280.0,
+   756→        "unit": "Per Annum"
+   757→      },
+   758→      {
+   759→        "name": "CAT F - Retailers Only",
+   760→        "amount": 200.0,
+   761→        "ceiling": 500.0,
+   762→        "unit": "Per Annum"
+   763→      },
+   764→      {
+   765→        "name": "CAT G - Container/Kiosk",
+   766→        "amount": 200.0,
+   767→        "ceiling": 450.0,
+   768→        "unit": "Per Annum"
+   769→      },
+   770→      {
+   771→        "name": "CAT H - Table Top",
+   772→        "amount": 180.0,
+   773→        "ceiling": 220.0,
+   774→        "unit": "Per Annum"
+   775→      }
+   776→    ]
+   777→  },
+   778→  {
+   779→    "class": "Assembly Forecourt Assembly Forecourt",
+   780→    "categories": [
+   781→      {
+   782→        "name": "Assembly Forecourt Assembly Forecourt",
+   783→        "amount": 320.0,
+   784→        "ceiling": 320.0,
+   785→        "unit": "Per Day"
+   786→      }
+   787→    ]
+   788→  },
+   789→  {
+   790→    "class": "Assembly Hall",
+   791→    "categories": [
+   792→      {
+   793→        "name": "CAT A - Large",
+   794→        "amount": 1500.0,
+   795→        "ceiling": 1500.0,
+   796→        "unit": "Per Day"
+   797→      },
+   798→      {
+   799→        "name": "CAT B - Medium",
+   800→        "amount": 500.0,
+   801→        "ceiling": 500.0,
+   802→        "unit": "Per Day"
+   803→      },
+   804→      {
+   805→        "name": "CAT C - Small",
+   806→        "amount": 350.0,
+   807→        "ceiling": 350.0,
+   808→        "unit": "Per Day"
+   809→      }
+   810→    ]
+   811→  },
+   812→  {
+   813→    "class": "Assembly conference room Assembly conference room",
+   814→    "categories": [
+   815→      {
+   816→        "name": "Assembly conference room Assembly conference room",
+   817→        "amount": 750.0,
+   818→        "ceiling": 750.0,
+   819→        "unit": "Per Day"
+   820→      }
+   821→    ]
+   822→  },
+   823→  {
+   824→    "class": "Auctioning Firms/Agencies / Auctioneers",
+   825→    "categories": [
+   826→      {
+   827→        "name": "CAT A",
+   828→        "amount": 1900.0,
+   829→        "ceiling": null,
+   830→        "unit": "Per Annum"
+   831→      },
+   832→      {
+   833→        "name": "CAT B",
+   834→        "amount": 1400.0,
+   835→        "ceiling": null,
+   836→        "unit": "Per Annum"
+   837→      },
+   838→      {
+   839→        "name": "CAT C",
+   840→        "amount": 970.0,
+   841→        "ceiling": null,
+   842→        "unit": "Per Annum"
+   843→      },
+   844→      {
+   845→        "name": "CAT D",
+   846→        "amount": 500.0,
+   847→        "ceiling": null,
+   848→        "unit": "Per Annum"
+   849→      }
+   850→    ]
+   851→  },
+   852→  {
+   853→    "class": "Auto Body Repairers",
+   854→    "categories": [
+   855→      {
+   856→        "name": "CAT A - Formal Company",
+   857→        "amount": 1200.0,
+   858→        "ceiling": 2800.0,
+   859→        "unit": "Per Annum"
+   860→      },
+   861→      {
+   862→        "name": "CAT B - Informal Garage with Shop",
+   863→        "amount": 1000.0,
+   864→        "ceiling": 2100.0,
+   865→        "unit": "Per Annum"
+   866→      },
+   867→      {
+   868→        "name": "CAT C - Informal Garage without Shop",
+   869→        "amount": 720.0,
+   870→        "ceiling": 1400.0,
+   871→        "unit": "Per Annum"
+   872→      },
+   873→      {
+   874→        "name": "CAT D - Others",
+   875→        "amount": 540.0,
+   876→        "ceiling": 1000.0,
+   877→        "unit": "Per Annum"
+   878→      }
+   879→    ]
+   880→  },
+   881→  {
+   882→    "class": "Auto Electricians",
+   883→    "categories": [
+   884→      {
+   885→        "name": "CAT A - With Battery Charging",
+   886→        "amount": 300.0,
+   887→        "ceiling": 140.0,
+   888→        "unit": "Per Annum"
+   889→      },
+   890→      {
+   891→        "name": "CAT B - Without Battery Charging",
+   892→        "amount": 250.0,
+   893→        "ceiling": 100.0,
+   894→        "unit": "Per Annum"
+   895→      }
+   896→    ]
+   897→  },
+   898→  {
+   899→    "class": "Auto Mechanics",
+   900→    "categories": [
+   901→      {
+   902→        "name": "CAT A - Heavy Duty Earthmoving Equipment",
+   903→        "amount": 300.0,
+   904→        "ceiling": 500.0,
+   905→        "unit": "Per Annum"
+   906→      },
+   907→      {
+   908→        "name": "CAT B - Heavy Duty Trucks",
+   909→        "amount": 260.0,
+   910→        "ceiling": 280.0,
+   911→        "unit": "Per Annum"
+   912→      },
+   913→      {
+   914→        "name": "CAT C - Light Duty Trucks (3 to 5 tonnes)",
+   915→        "amount": 200.0,
+   916→        "ceiling": 210.0,
+   917→        "unit": "Per Annum"
+   918→      },
+   919→      {
+   920→        "name": "CAT D - Light Duty Vehicles (Below 3 tonnes)",
+   921→        "amount": 130.0,
+   922→        "ceiling": 130.0,
+   923→        "unit": "Per Annum"
+   924→      }
+   925→    ]
+   926→  },
+   927→  {
+   928→    "class": "Auto Sprayers",
+   929→    "categories": [
+   930→      {
+   931→        "name": "CAT A - Spraying and Oven",
+   932→        "amount": 600.0,
+   933→        "ceiling": 600.0,
+   934→        "unit": "Per Annum"
+   935→      },
+   936→      {
+   937→        "name": "CAT B - Spraying without Oven",
+   938→        "amount": 420.0,
+   939→        "ceiling": 500.0,
+   940→        "unit": "Per Annum"
+   941→      }
+   942→    ]
+   943→  },
+   944→  {
+   945→    "class": "Auto Upholstery",
+   946→    "categories": [
+   947→      {
+   948→        "name": "CAT A - Moulding and Seat Cover Sewing",
+   949→        "amount": 200.0,
+   950→        "ceiling": 140.0,
+   951→        "unit": "Per Annum"
+   952→      },
+   953→      {
+   954→        "name": "CAT B - Seat Cover Sewing",
+   955→        "amount": 200.0,
+   956→        "ceiling": 100.0,
+   957→        "unit": "Per Annum"
+   958→      }
+   959→    ]
+   960→  },
+   961→  {
+   962→    "class": "Automobile Companies - Heavy Equipment Hiring Services",
+   963→    "categories": [
+   964→      {
+   965→        "name": "CAT A - Mining Equipment (Large)",
+   966→        "amount": 13000.0,
+   967→        "ceiling": null,
+   968→        "unit": "Per Annum"
+   969→      },
+   970→      {
+   971→        "name": "CAT B - Construction Equipment (Road & Building) Mining Equipment (Small)",
+   972→        "amount": 4500.0,
+   973→        "ceiling": null,
+   974→        "unit": "Per Annum"
+   975→      },
+   976→      {
+   977→        "name": "CAT C - Construction Equipment (Road & Building - Large)",
+   978→        "amount": 9700.0,
+   979→        "ceiling": null,
+   980→        "unit": "Per Annum"
+   981→      },
+   982→      {
+   983→        "name": "CAT D - Others (small scale) Construction Equipment (Road & Building - Small)",
+   984→        "amount": 2200.0,
+   985→        "ceiling": null,
+   986→        "unit": "Per Annum"
+   987→      },
+   988→      {
+   989→        "name": "CAT E - Others",
+   990→        "amount": 1000.0,
+   991→        "ceiling": 1000.0,
+   992→        "unit": "Per Annum"
+   993→      }
+   994→    ]
+   995→  },
+   996→  {
+   997→    "class": "Automobile Companies - Saloon and Sub Urban Vehicles (SUVs) Sales",
+   998→    "categories": [
+   999→      {
+  1000→        "name": "CAT A - Large Scale (Branded Companies)",
+  1001→        "amount": 13000.0,
+  1002→        "ceiling": null,
+  1003→        "unit": "Per Annum"
+  1004→      },
+  1005→      {
+  1006→        "name": "CAT B - Medium Scale (Unbranded Companies)",
+  1007→        "amount": 9450.0,
+  1008→        "ceiling": null,
+  1009→        "unit": "Per Annum"
+  1010→      },
+  1011→      {
+  1012→        "name": "CAT C - Small Scale (Unbranded Companies)",
+  1013→        "amount": 6000.0,
+  1014→        "ceiling": null,
+  1015→        "unit": "Per Annum"
+  1016→      },
+  1017→      {
+  1018→        "name": "CAT D - Sales Outlets with showrooms",
+  1019→        "amount": 2800.0,
+  1020→        "ceiling": null,
+  1021→        "unit": "Per Annum"
+  1022→      }
+  1023→    ]
+  1024→  },
+  1025→  {
+  1026→    "class": "Automobile Companies - Used Vehicle Sales (Second-hand Car Dealers)",
+  1027→    "categories": [
+  1028→      {
+  1029→        "name": "CAT A - Large Scale (Above 50 Vehicles)",
+  1030→        "amount": 2800.0,
+  1031→        "ceiling": null,
+  1032→        "unit": "Per Annum"
+  1033→      },
+  1034→      {
+  1035→        "name": "CAT B - Medium Scale (20-49 Vehicles)",
+  1036→        "amount": 2800.0,
+  1037→        "ceiling": null,
+  1038→        "unit": "Per Annum"
+  1039→      },
+  1040→      {
+  1041→        "name": "CAT C - Small Scale (Below 20 Vehicles)",
+  1042→        "amount": 1400.0,
+  1043→        "ceiling": null,
+  1044→        "unit": "Per Annum"
+  1045→      }
+  1046→    ]
+  1047→  },
+  1048→  {
+  1049→    "class": "Automobile Companies - Vehicle Importers/Sales (Brand New)",
+  1050→    "categories": [
+  1051→      {
+  1052→        "name": "CAT A - Vehicle Assembling and Sale",
+  1053→        "amount": 32000.0,
+  1054→        "ceiling": null,
+  1055→        "unit": "Per Annum"
+  1056→      },
+  1057→      {
+  1058→        "name": "CAT B - Heavy Duty Equipment/Vehicle Sales",
+  1059→        "amount": 13000.0,
+  1060→        "ceiling": null,
+  1061→        "unit": "Per Annum"
+  1062→      },
+  1063→      {
+  1064→        "name": "CAT C - Light Duty Equipment/Vehicle Sales",
+  1065→        "amount": 9400.0,
+  1066→        "ceiling": null,
+  1067→        "unit": "Per Annum"
+  1068→      }
+  1069→    ]
+  1070→  },
+  1071→  {
+  1072→    "class": "Bags and Suitcases Dealers",
+  1073→    "categories": [
+  1074→      {
+  1075→        "name": "CAT A - Large Scale",
+  1076→        "amount": 200.0,
+  1077→        "ceiling": 500.0,
+  1078→        "unit": "Per Annum"
+  1079→      },
+  1080→      {
+  1081→        "name": "CAT B - Medium Scale",
+  1082→        "amount": 140.0,
+  1083→        "ceiling": 280.0,
+  1084→        "unit": "Per Annum"
+  1085→      },
+  1086→      {
+  1087→        "name": "CAT C - Small Scale",
+  1088→        "amount": 100.0,
+  1089→        "ceiling": 140.0,
+  1090→        "unit": "Per Annum"
+  1091→      }
+  1092→    ]
+  1093→  },
+  1094→  {
+  1095→    "class": "Bakeries",
+  1096→    "categories": [
+  1097→      {
+  1098→        "name": "CAT A - Large Scale (Industrial operations)",
+  1099→        "amount": 500.0,
+  1100→        "ceiling": 1000.0,
+  1101→        "unit": "Per Annum"
+  1102→      },
+  1103→      {
+  1104→        "name": "CAT B - Medium Scale",
+  1105→        "amount": 200.0,
+  1106→        "ceiling": 450.0,
+  1107→        "unit": "Per Annum"
+  1108→      },
+  1109→      {
+  1110→        "name": "CAT C - Small Scale",
+  1111→        "amount": 110.0,
+  1112→        "ceiling": 210.0,
+  1113→        "unit": "Per Annum"
+  1114→      }
+  1115→    ]
+  1116→  },
+  1117→  {
+  1118→    "class": "Bamboo Dealers",
+  1119→    "categories": [
+  1120→      {
+  1121→        "name": "CAT 'A'",
+  1122→        "amount": 120.0,
+  1123→        "ceiling": 210.0,
+  1124→        "unit": "Per Annum"
+  1125→      },
+  1126→      {
+  1127→        "name": "CAT 'B'",
+  1128→        "amount": 100.0,
+  1129→        "ceiling": 100.0,
+  1130→        "unit": "Per Annum"
+  1131→      }
+  1132→    ]
+  1133→  },
+  1134→  {
+  1135→    "class": "Banks",
+  1136→    "categories": [
+  1137→      {
+  1138→        "name": "CAT A - Bank of Ghana Central Bank",
+  1139→        "amount": 60000.0,
+  1140→        "ceiling": null,
+  1141→        "unit": "Per Annum"
+  1142→      }
+  1143→    ]
+  1144→  },
+  1145→  {
+  1146→    "class": "Barbering Shop (floor space and number of points)",
+  1147→    "categories": [
+  1148→      {
+  1149→        "name": "CAT A - Barbering & Grooming Services",
+  1150→        "amount": 750.0,
+  1151→        "ceiling": null,
+  1152→        "unit": "Per Annum"
+  1153→      }
+  1154→    ]
+  1155→  },
+  1156→  {
+  1157→    "class": "Barbering Shop (floor space and number of points) CAT (A) B - Large Shop (above 5 points)",
+  1158→    "categories": [
+  1159→      {
+  1160→        "name": "Barbering Shop (floor space and number of points) CAT (A) B - Large Shop (above 5 points)",
+  1161→        "amount": 450.0,
+  1162→        "ceiling": null,
+  1163→        "unit": "Per Annum"
+  1164→      }
+  1165→    ]
+  1166→  },
+  1167→  {
+  1168→    "class": "Barbering Shop (floor space and number of points) CAT (B) C - Medium Shop (3-5 points)",
+  1169→    "categories": [
+  1170→      {
+  1171→        "name": "Barbering Shop (floor space and number of points) CAT (B) C - Medium Shop (3-5 points)",
+  1172→        "amount": 300.0,
+  1173→        "ceiling": 300.0,
+  1174→        "unit": "Per Annum"
+  1175→      }
+  1176→    ]
+  1177→  },
+  1178→  {
+  1179→    "class": "Barbering Shop (floor space and number of points) CAT (C) D - Small Shop (1-2 points)",
+  1180→    "categories": [
+  1181→      {
+  1182→        "name": "Barbering Shop (floor space and number of points) CAT (C) D - Small Shop (1-2 points)",
+  1183→        "amount": 150.0,
+  1184→        "ceiling": 150.0,
+  1185→        "unit": "Per Annum"
+  1186→      }
+  1187→    ]
+  1188→  },
+  1189→  {
+  1190→    "class": "Barbering Shop (floor space and number of points) CAT (D) E - Mobile/ Certified Wanzam Operators",
+  1191→    "categories": [
+  1192→      {
+  1193→        "name": "Barbering Shop (floor space and number of points) CAT (D) E - Mobile/ Certified Wanzam Operators",
+  1194→        "amount": 50.0,
+  1195→        "ceiling": 50.0,
+  1196→        "unit": "Per Annum"
+  1197→      }
+  1198→    ]
+  1199→  },
+  1200→  {
+  1201→    "class": "Barbering Shop (floor space and number of points) CAT (E) F - Barbering accessory shop",
+  1202→    "categories": [
+  1203→      {
+  1204→        "name": "Barbering Shop (floor space and number of points) CAT (E) F - Barbering accessory shop",
+  1205→        "amount": 100.0,
+  1206→        "ceiling": 150.0,
+  1207→        "unit": "Per Annum"
+  1208→      }
+  1209→    ]
+  1210→  },
+  1211→  {
+  1212→    "class": "Bath House Operators",
+  1213→    "categories": [
+  1214→      {
+  1215→        "name": "CAT A - Above 12 Showers (including toilet facility)",
+  1216→        "amount": 300.0,
+  1217→        "ceiling": 370.0,
+  1218→        "unit": "Per Annum"
+  1219→      },
+  1220→      {
+  1221→        "name": "CAT B - 9 -12 showers (including toilet facility)",
+  1222→        "amount": 250.0,
+  1223→        "ceiling": 300.0,
+  1224→        "unit": "Per Annum"
+  1225→      },
+  1226→      {
+  1227→        "name": "CAT C - Up to 8 showers (including toilet facility)",
+  1228→        "amount": 250.0,
+  1229→        "ceiling": null,
+  1230→        "unit": "Per Annum"
+  1231→      },
+  1232→      {
+  1233→        "name": "CAT D - 13 showers and above",
+  1234→        "amount": 250.0,
+  1235→        "ceiling": null,
+  1236→        "unit": "Per Annum"
+  1237→      },
+  1238→      {
+  1239→        "name": "CAT E - 9-12 Showers",
+  1240→        "amount": 210.0,
+  1241→        "ceiling": null,
+  1242→        "unit": "Per Annum"
+  1243→      },
+  1244→      {
+  1245→        "name": "CAT F - 8 Showers and below",
+  1246→        "amount": 140.0,
+  1247→        "ceiling": null,
+  1248→        "unit": "Per Annum"
+  1249→      }
+  1250→    ]
+  1251→  },
+  1252→  {
+  1253→    "class": "Beach Recreational Facility",
+  1254→    "categories": [
+  1255→      {
+  1256→        "name": "CAT A",
+  1257→        "amount": 680.0,
+  1258→        "ceiling": 1300.0,
+  1259→        "unit": "Per Annum"
+  1260→      },
+  1261→      {
+  1262→        "name": "CAT B",
+  1263→        "amount": 270.0,
+  1264→        "ceiling": 520.0,
+  1265→        "unit": "Per Annum"
+  1266→      }
+  1267→    ]
+  1268→  },
+  1269→  {
+  1270→    "class": "Beads Dealers",
+  1271→    "categories": [
+  1272→      {
+  1273→        "name": "CAT A - Producers/Wholesalers/ Retailers",
+  1274→        "amount": 150.0,
+  1275→        "ceiling": 150.0,
+  1276→        "unit": "Per Annum"
+  1277→      },
+  1278→      {
+  1279→        "name": "CAT B - Producers Only",
+  1280→        "amount": 120.0,
+  1281→        "ceiling": 120.0,
+  1282→        "unit": "Per Annum"
+  1283→      },
+  1284→      {
+  1285→        "name": "CAT C - Retailers Only",
+  1286→        "amount": 75.0,
+  1287→        "ceiling": 75.0,
+  1288→        "unit": "Per Annum"
+  1289→      },
+  1290→      {
+  1291→        "name": "CAT D - Retailers (Table Top)",
+  1292→        "amount": 45.0,
+  1293→        "ceiling": 45.0,
+  1294→        "unit": "Per Annum"
+  1295→      }
+  1296→    ]
+  1297→  },
+  1298→  {
+  1299→    "class": "Bicycle Tricycle/ Motorcycle Repairers",
+  1300→    "categories": [
+  1301→      {
+  1302→        "name": "CAT A - Tricycle",
+  1303→        "amount": 150.0,
+  1304→        "ceiling": 90.0,
+  1305→        "unit": "Per Annum"
+  1306→      },
+  1307→      {
+  1308→        "name": "CAT B - Motorcycle",
+  1309→        "amount": 120.0,
+  1310→        "ceiling": 50.0,
+  1311→        "unit": "Per Annum"
+  1312→      },
+  1313→      {
+  1314→        "name": "CAT C - Bicycle",
+  1315→        "amount": 100.0,
+  1316→        "ceiling": 25.0,
+  1317→        "unit": "Per Annum"
+  1318→      }
+  1319→    ]
+  1320→  },
+  1321→  {
+  1322→    "class": "Bicycles/Tricycles/Motorcycle Dealers (Second-hand)",
+  1323→    "categories": [
+  1324→      {
+  1325→        "name": "CAT A - Large Scale",
+  1326→        "amount": 750.0,
+  1327→        "ceiling": null,
+  1328→        "unit": "Per Annum"
+  1329→      },
+  1330→      {
+  1331→        "name": "CAT B - Medium Scale",
+  1332→        "amount": 520.0,
+  1333→        "ceiling": null,
+  1334→        "unit": "Per Annum"
+  1335→      },
+  1336→      {
+  1337→        "name": "CAT C - Small Scale",
+  1338→        "amount": 200.0,
+  1339→        "ceiling": 300.0,
+  1340→        "unit": "Per Annum"
+  1341→      }
+  1342→    ]
+  1343→  },
+  1344→  {
+  1345→    "class": "Bicycles/Tricycles/Motorcycles Dealers (Brand New)",
+  1346→    "categories": [
+  1347→      {
+  1348→        "name": "CAT A - Importers/Wholesalers",
+  1349→        "amount": 750.0,
+  1350→        "ceiling": 2100.0,
+  1351→        "unit": "Per Annum"
+  1352→      },
+  1353→      {
+  1354→        "name": "CAT B - Sales Outlets (Large)",
+  1355→        "amount": 600.0,
+  1356→        "ceiling": 1000.0,
+  1357→        "unit": "Per Annum"
+  1358→      },
+  1359→      {
+  1360→        "name": "CAT C - Sales Outlets (Small-Medium)",
+  1361→        "amount": 490.0,
+  1362→        "ceiling": 600.0,
+  1363→        "unit": "Per Annum"
+  1364→      },
+  1365→      {
+  1366→        "name": "CAT D - Tricycles Only",
+  1367→        "amount": 300.0,
+  1368→        "ceiling": 400.0,
+  1369→        "unit": "Per Annum"
+  1370→      },
+  1371→      {
+  1372→        "name": "CAT E - Bicycles Only",
+  1373→        "amount": 320.0,
+  1374→        "ceiling": null,
+  1375→        "unit": "Per Annum"
+  1376→      }
+  1377→    ]
+  1378→  },
+  1379→  {
+  1380→    "class": "Bicycles/Tricycles/Motorcycles and Parts Sales",
+  1381→    "categories": [
+  1382→      {
+  1383→        "name": "CAT A - Multiple Products",
+  1384→        "amount": 270.0,
+  1385→        "ceiling": 350.0,
+  1386→        "unit": "Per Annum"
+  1387→      },
+  1388→      {
+  1389→        "name": "CAT B - Motorcycle/Tricycle with Parts",
+  1390→        "amount": 250.0,
+  1391→        "ceiling": 320.0,
+  1392→        "unit": "Per Annum"
+  1393→      },
+  1394→      {
+  1395→        "name": "CAT C - Motorcycle/Tricycles",
+  1396→        "amount": 200.0,
+  1397→        "ceiling": 260.0,
+  1398→        "unit": "Per Annum"
+  1399→      },
+  1400→      {
+  1401→        "name": "CAT D - Bicycle with Parts",
+  1402→        "amount": 160.0,
+  1403→        "ceiling": 210.0,
+  1404→        "unit": "Per Annum"
+  1405→      },
+  1406→      {
+  1407→        "name": "CAT E - Bicycles",
+  1408→        "amount": 120.0,
+  1409→        "ceiling": 140.0,
+  1410→        "unit": "Per Annum"
+  1411→      }
+  1412→    ]
+  1413→  },
+  1414→  {
+  1415→    "class": "Bill Boards (e.g. Road Arches, Unipole spectacular, LEDs, Building wrap or Wall Drape signs, Vehicular Adverts, Banners)",
+  1416→    "categories": [
+  1417→      {
+  1418→        "name": "CAT A - Class A1 (Along First Class Accesses)",
+  1419→        "amount": 60.0,
+  1420→        "ceiling": 70.0,
+  1421→        "unit": "Per M2"
+  1422→      },
+  1423→      {
+  1424→        "name": "CAT B - Class A2 (Along Second Class Accesses)",
+  1425→        "amount": 60.0,
+  1426→        "ceiling": 60.0,
+  1427→        "unit": "Per M2"
+  1428→      },
+  1429→      {
+  1430→        "name": "CAT C - Class A3 (Along Third Class Accesses)",
+  1431→        "amount": 60.0,
+  1432→        "ceiling": 45.0,
+  1433→        "unit": "Per M2"
+  1434→      }
+  1435→    ]
+  1436→  },
+  1437→  {
+  1438→    "class": "Bill boards",
+  1439→    "categories": [
+  1440→      {
+  1441→        "name": "CAT A",
+  1442→        "amount": 6300.0,
+  1443→        "ceiling": 6300.0,
+  1444→        "unit": "Per Annum"
+  1445→      },
+  1446→      {
+  1447→        "name": "CAT B",
+  1448→        "amount": 1500.0,
+  1449→        "ceiling": 1500.0,
+  1450→        "unit": "Per Annum"
+  1451→      },
+  1452→      {
+  1453→        "name": "CAT C",
+  1454→        "amount": 750.0,
+  1455→        "ceiling": 750.0,
+  1456→        "unit": "Per Annum"
+  1457→      }
+  1458→    ]
+  1459→  },
+  1460→  {
+  1461→    "class": "Blacksmith Blacksmith",
+  1462→    "categories": [
+  1463→      {
+  1464→        "name": "Blacksmith Blacksmith",
+  1465→        "amount": 140.0,
+  1466→        "ceiling": 140.0,
+  1467→        "unit": "Per Annum"
+  1468→      }
+  1469→    ]
+  1470→  },
+  1471→  {
+  1472→    "class": "Blocks & Concrete Producers",
+  1473→    "categories": [
+  1474→      {
+  1475→        "name": "CAT A - Large Scale (Concrete Mixtures and Wares)",
+  1476→        "amount": 1200.0,
+  1477→        "ceiling": 3500.0,
+  1478→        "unit": "Per Annum"
+  1479→      },
+  1480→      {
+  1481→        "name": "CAT B - Large Scale (Machine and manual for design blocks)",
+  1482→        "amount": 650.0,
+  1483→        "ceiling": 1000.0,
+  1484→        "unit": "Per Annum"
+  1485→      },
+  1486→      {
+  1487→        "name": "CAT C - Medium Scale (Machine for blocks only)",
+  1488→        "amount": 520.0,
+  1489→        "ceiling": 900.0,
+  1490→        "unit": "Per Annum"
+  1491→      },
+  1492→      {
+  1493→        "name": "CAT D - Small Scale (Manual blocks only)",
+  1494→        "amount": 380.0,
+  1495→        "ceiling": 650.0,
+  1496→        "unit": "Per Annum"
+  1497→      },
+  1498→      {
+  1499→        "name": "CAT E - Small Scale (Manual design blocks/columns only)",
+  1500→        "amount": 300.0,
+  1501→        "ceiling": 500.0,
+  1502→        "unit": "Per Annum"
+  1503→      },
+  1504→      {
+  1505→        "name": "CAT F - Tiles/Pavement Blocks and Terrazzo Works (Chipping)",
+  1506→        "amount": 170.0,
+  1507→        "ceiling": 220.0,
+  1508→        "unit": "Per Annum"
+  1509→      }
+  1510→    ]
+  1511→  },
+  1512→  {
+  1513→    "class": "Boat/Canoe Dealers (Manufacturers)",
+  1514→    "categories": [
+  1515→      {
+  1516→        "name": "CAT A - Importers",
+  1517→        "amount": 800.0,
+  1518→        "ceiling": 300.0,
+  1519→        "unit": "Per Annum"
+  1520→      },
+  1521→      {
+  1522→        "name": "CAT B - Local Producers",
+  1523→        "amount": 300.0,
+  1524→        "ceiling": 250.0,
+  1525→        "unit": "Per Annum"
+  1526→      }
+  1527→    ]
+  1528→  },
+  1529→  {
+  1530→    "class": "Boat/Canoe Operators",
+  1531→    "categories": [
+  1532→      {
+  1533→        "name": "CAT A - Large Scale",
+  1534→        "amount": 300.0,
+  1535→        "ceiling": 350.0,
+  1536→        "unit": "Per Annum"
+  1537→      },
+  1538→      {
+  1539→        "name": "CAT B - Medium Scale",
+  1540→        "amount": 250.0,
+  1541→        "ceiling": 280.0,
+  1542→        "unit": "Per Annum"
+  1543→      },
+  1544→      {
+  1545→        "name": "CAT C - Small Scale",
+  1546→        "amount": 200.0,
+  1547→        "ceiling": 140.0,
+  1548→        "unit": "Per Annum"
+  1549→      }
+  1550→    ]
+  1551→  },
+  1552→  {
+  1553→    "class": "Body Building Gym",
+  1554→    "categories": [
+  1555→      {
+  1556→        "name": "CAT A - Large Scale (Club Setting)",
+  1557→        "amount": 450.0,
+  1558→        "ceiling": 600.0,
+  1559→        "unit": "Per Annum"
+  1560→      },
+  1561→      {
+  1562→        "name": "CAT B - Medium Scale",
+  1563→        "amount": 274.0,
+  1564→        "ceiling": 400.0,
+  1565→        "unit": "Per Annum"
+  1566→      },
+  1567→      {
+  1568→        "name": "CAT C - Small Scale",
+  1569→        "amount": 200.0,
+  1570→        "ceiling": 210.0,
+  1571→        "unit": "Per Annum"
+  1572→      }
+  1573→    ]
+  1574→  },
+  1575→  {
+  1576→    "class": "Bolt and Nut Dealers",
+  1577→    "categories": [
+  1578→      {
+  1579→        "name": "CAT A - Shop",
+  1580→        "amount": 140.0,
+  1581→        "ceiling": null,
+  1582→        "unit": "Per Annum"
+  1583→      },
+  1584→      {
+  1585→        "name": "CAT B - Table Top",
+  1586→        "amount": 130.0,
+  1587→        "ceiling": null,
+  1588→        "unit": "Per Annum"
+  1589→      }
+  1590→    ]
+  1591→  },
+  1592→  {
+  1593→    "class": "Book, Stationery, Office Equipment, Computer & Accessory, etc. Shops",
+  1594→    "categories": [
+  1595→      {
+  1596→        "name": "CAT A - Book Shops, Stationeries, Office Equipment, Computer & Accessories",
+  1597→        "amount": 1200.0,
+  1598→        "ceiling": 6000.0,
+  1599→        "unit": "Per Annum"
+  1600→      },
+  1601→      {
+  1602→        "name": "CAT B - Computer, Accessories, Office Equipment, Stationery",
+  1603→        "amount": 800.0,
+  1604→        "ceiling": 3500.0,
+  1605→        "unit": "Per Annum"
+  1606→      },
+  1607→      {
+  1608→        "name": "CAT C - Computer & Accessories, Office Equipment",
+  1609→        "amount": 700.0,
+  1610→        "ceiling": 2800.0,
+  1611→        "unit": "Per Annum"
+  1612→      },
+  1613→      {
+  1614→        "name": "CAT D - Medium size of CAT C",
+  1615→        "amount": 500.0,
+  1616→        "ceiling": 1400.0,
+  1617→        "unit": "Per Annum"
+  1618→      },
+  1619→      {
+  1620→        "name": "CAT E - Book Shops, Stationeries",
+  1621→        "amount": 450.0,
+  1622→        "ceiling": 2100.0,
+  1623→        "unit": "Per Annum"
+  1624→      },
+  1625→      {
+  1626→        "name": "CAT F - Stationeries, Office Equipment",
+  1627→        "amount": 500.0,
+  1628→        "ceiling": 1400.0,
+  1629→        "unit": "Per Annum"
+  1630→      },
+  1631→      {
+  1632→        "name": "CAT G - Medium size of CAT E",
+  1633→        "amount": 270.0,
+  1634→        "ceiling": 900.0,
+  1635→        "unit": "Per Annum"
+  1636→      },
+  1637→      {
+  1638→        "name": "CAT H - Office Equipment Only",
+  1639→        "amount": 1000.0,
+  1640→        "ceiling": null,
+  1641→        "unit": "Per Annum"
+  1642→      },
+  1643→      {
+  1644→        "name": "CAT I - Stationery Only",
+  1645→        "amount": 250.0,
+  1646→        "ceiling": 500.0,
+  1647→        "unit": "Per Annum"
+  1648→      },
+  1649→      {
+  1650→        "name": "CAT J - Books Only",
+  1651→        "amount": 150.0,
+  1652→        "ceiling": 210.0,
+  1653→        "unit": "Per Annum"
+  1654→      },
+  1655→      {
+  1656→        "name": "CAT K - Table Top/Truck Pusher",
+  1657→        "amount": 100.0,
+  1658→        "ceiling": 100.0,
+  1659→        "unit": "Per Annum"
+  1660→      },
+  1661→      {
+  1662→        "name": "CAT L - Mobile Vans",
+  1663→        "amount": 150.0,
+  1664→        "ceiling": 280.0,
+  1665→        "unit": "Per Annum"
+  1666→      }
+  1667→    ]
+  1668→  },
+  1669→  {
+  1670→    "class": "Boutiques Boutiques (Including African Wear)",
+  1671→    "categories": [
+  1672→      {
+  1673→        "name": "CAT A - Large Scale",
+  1674→        "amount": 600.0,
+  1675→        "ceiling": 2800.0,
+  1676→        "unit": "Per Annum"
+  1677→      },
+  1678→      {
+  1679→        "name": "CAT B - Medium Scale",
+  1680→        "amount": 360.0,
+  1681→        "ceiling": 1400.0,
+  1682→        "unit": "Per Annum"
+  1683→      },
+  1684→      {
+  1685→        "name": "CAT C - Small Scale",
+  1686→        "amount": 350.0,
+  1687→        "ceiling": 700.0,
+  1688→        "unit": "Per Annum"
+  1689→      },
+  1690→      {
+  1691→        "name": "CAT D - Branches of CAT A & B",
+  1692→        "amount": 220.0,
+  1693→        "ceiling": 280.0,
+  1694→        "unit": "Per Annum"
+  1695→      },
+  1696→      {
+  1697→        "name": "CAT E - Others",
+  1698→        "amount": 130.0,
+  1699→        "ceiling": 140.0,
+  1700→        "unit": "Per Annum"
+  1701→      },
+  1702→      {
+  1703→        "name": "CAT F - Others",
+  1704→        "amount": 60.0,
+  1705→        "ceiling": null,
+  1706→        "unit": "Per Annum"
+  1707→      }
+  1708→    ]
+  1709→  },
+  1710→  {
+  1711→    "class": "Brake Specialist Brake Specialist",
+  1712→    "categories": [
+  1713→      {
+  1714→        "name": "Brake Specialist Brake Specialist",
+  1715→        "amount": 250.0,
+  1716→        "ceiling": 100.0,
+  1717→        "unit": "Per Annum"
+  1718→      }
+  1719→    ]
+  1720→  },
+  1721→  {
+  1722→    "class": "Breweries",
+  1723→    "categories": [
+  1724→      {
+  1725→        "name": "CAT A",
+  1726→        "amount": 45000.0,
+  1727→        "ceiling": null,
+  1728→        "unit": "Per Annum"
+  1729→      },
+  1730→      {
+  1731→        "name": "CAT B",
+  1732→        "amount": 21000.0,
+  1733→        "ceiling": null,
+  1734→        "unit": "Per Annum"
+  1735→      },
+  1736→      {
+  1737→        "name": "CAT C",
+  1738→        "amount": 13000.0,
+  1739→        "ceiling": null,
+  1740→        "unit": "Per Annum"
+  1741→      },
+  1742→      {
+  1743→        "name": "CAT D",
+  1744→        "amount": 7500.0,
+  1745→        "ceiling": null,
+  1746→        "unit": "Per Annum"
+  1747→      }
+  1748→    ]
+  1749→  },
+  1750→  {
+  1751→    "class": "Bridal Homes",
+  1752→    "categories": [
+  1753→      {
+  1754→        "name": "CAT 'C'",
+  1755→        "amount": 330.0,
+  1756→        "ceiling": 370.0,
+  1757→        "unit": "Per Annum"
+  1758→      },
+  1759→      {
+  1760→        "name": "CAT A",
+  1761→        "amount": 600.0,
+  1762→        "ceiling": 2100.0,
+  1763→        "unit": "Per Annum"
+  1764→      },
+  1765→      {
+  1766→        "name": "CAT B",
+  1767→        "amount": 400.0,
+  1768→        "ceiling": 1400.0,
+  1769→        "unit": "Per Annum"
+  1770→      }
+  1771→    ]
+  1772→  },
+  1773→  {
+  1774→    "class": "Budget Hotels Budget Hotels",
+  1775→    "categories": [
+  1776→      {
+  1777→        "name": "Budget Hotels Budget Hotels",
+  1778→        "amount": 500.0,
+  1779→        "ceiling": 500.0,
+  1780→        "unit": "Per Annum"
+  1781→      }
+  1782→    ]
+  1783→  },
+  1784→  {
+  1785→    "class": "Bullion Service Companies",
+  1786→    "categories": [
+  1787→      {
+  1788→        "name": "CAT A - 10 & Above Vans",
+  1789→        "amount": 6500.0,
+  1790→        "ceiling": null,
+  1791→        "unit": "Per Annum"
+  1792→      },
+  1793→      {
+  1794→        "name": "CAT B - 5 to 9 Vans",
+  1795→        "amount": 5200.0,
+  1796→        "ceiling": null,
+  1797→        "unit": "Per Annum"
+  1798→      },
+  1799→      {
+  1800→        "name": "CAT C - Below 5 Vans",
+  1801→        "amount": 4500.0,
+  1802→        "ceiling": null,
+  1803→        "unit": "Per Annum"
+  1804→      }
+  1805→    ]
+  1806→  },
+  1807→  {
+  1808→    "class": "Burial Grounds/Funeral Homes/Mortuaries (Private) - Burial Grounds Burial Grounds",
+  1809→    "categories": [
+  1810→      {
+  1811→        "name": "Burial Grounds/Funeral Homes/Mortuaries (Private) - Burial Grounds Burial Grounds",
+  1812→        "amount": 3750.0,
+  1813→        "ceiling": null,
+  1814→        "unit": "Per Annum"
+  1815→      }
+  1816→    ]
+  1817→  },
+  1818→  {
+  1819→    "class": "Burial Grounds/Funeral Homes/Mortuaries (Private) - Funeral Homes",
+  1820→    "categories": [
+  1821→      {
+  1822→        "name": "CAT A - Advanced Activities: Cold Storage room + Preparation of body for burial, Autopsy and Others",
+  1823→        "amount": 13500.0,
+  1824→        "ceiling": null,
+  1825→        "unit": "Per Annum"
+  1826→      },
+  1827→      {
+  1828→        "name": "CAT B- Basic Activities: Cold Storage room + Preparation of body for burial",
+  1829→        "amount": 1300.0,
+  1830→        "ceiling": 7500.0,
+  1831→        "unit": "Per Annum"
+  1832→      }
+  1833→    ]
+  1834→  },
+  1835→  {
+  1836→    "class": "Burial Grounds/Funeral Homes/Mortuaries (Private) - Mortuaries",
+  1837→    "categories": [
+  1838→      {
+  1839→        "name": "CAT A - Cold Storage for Remains (Level 1 Mortuary)",
+  1840→        "amount": 700.0,
+  1841→        "ceiling": 750.0,
+  1842→        "unit": "Per Annum"
+  1843→      },
+  1844→      {
+  1845→        "name": "CAT A - Cold Storage for Remains (Level 2 Mortuary)",
+  1846→        "amount": 2180.0,
+  1847→        "ceiling": 2250.0,
+  1848→        "unit": "Per Annum"
+  1849→      },
+  1850→      {
+  1851→        "name": "CAT A - Cold Storage for Remains (Level 3 Mortuary)",
+  1852→        "amount": 2500.0,
+  1853→        "ceiling": 3750.0,
+  1854→        "unit": "Per Annum"
+  1855→      }
+  1856→    ]
+  1857→  },
+  1858→  {
+  1859→    "class": "Bus Stop Shelters",
+  1860→    "categories": [
+  1861→      {
+  1862→        "name": "CAT A - Class A",
+  1863→        "amount": 1.0,
+  1864→        "ceiling": 500.0,
+  1865→        "unit": "Per M2"
+  1866→      },
+  1867→      {
+  1868→        "name": "CAT B - Class A",
+  1869→        "amount": 2.0,
+  1870→        "ceiling": 270.0,
+  1871→        "unit": "Per M2"
+  1872→      },
+  1873→      {
+  1874→        "name": "CAT C - Class A",
+  1875→        "amount": 3.0,
+  1876→        "ceiling": 200.0,
+  1877→        "unit": "Per M2"
+  1878→      }
+  1879→    ]
+  1880→  },
+  1881→  {
+  1882→    "class": "Business Centres",
+  1883→    "categories": [
+  1884→      {
+  1885→        "name": "CAT A - Internet, Word Processing, Printing and Copying Services plus above 20 Work stations with Internet Service Retailing",
+  1886→        "amount": 6000.0,
+  1887→        "ceiling": null,
+  1888→        "unit": "Per Annum"
+  1889→      },
+  1890→      {
+  1891→        "name": "CAT B - Internet, Word Processing, Printing and Copying Services plus above 20 Work stations",
+  1892→        "amount": 2800.0,
+  1893→        "ceiling": null,
+  1894→        "unit": "Per Annum"
+  1895→      },
+  1896→      {
+  1897→        "name": "CAT C - Internet, Word Processing, Printing and Copying Services plus 11-20 Work stations",
+  1898→        "amount": 500.0,
+  1899→        "ceiling": 1300.0,
+  1900→        "unit": "Per Annum"
+  1901→      },
+  1902→      {
+  1903→        "name": "CAT D - Internet, Word Processing, Printing and Copying Services plus below 11 Work stations",
+  1904→        "amount": 280.0,
+  1905→        "ceiling": 280.0,
+  1906→        "unit": "Per Annum"
+  1907→      },
+  1908→      {
+  1909→        "name": "CAT E - Secretarial Services (Word Processing, Printing and Copying Services)",
+  1910→        "amount": 210.0,
+  1911→        "ceiling": 210.0,
+  1912→        "unit": "Per Annum"
+  1913→      }
+  1914→    ]
+  1915→  },
+  1916→  {
+  1917→    "class": "Butcher's Licence",
+  1918→    "categories": [
+  1919→      {
+  1920→        "name": "CAT A - Master Butcher",
+  1921→        "amount": 120.0,
+  1922→        "ceiling": null,
+  1923→        "unit": "Per Annum"
+  1924→      },
+  1925→      {
+  1926→        "name": "CAT B - Butcher",
+  1927→        "amount": 80.0,
+  1928→        "ceiling": null,
+  1929→        "unit": "Per Annum"
+  1930→      }
+  1931→    ]
+  1932→  },
+  1933→  {
+  1934→    "class": "CD Sellers (Audio/Video)",
+  1935→    "categories": [
+  1936→      {
+  1937→        "name": "CAT A - Shops",
+  1938→        "amount": 100.0,
+  1939→        "ceiling": 350.0,
+  1940→        "unit": "Per Annum"
+  1941→      },
+  1942→      {
+  1943→        "name": "CAT B - Table Tops",
+  1944→        "amount": 100.0,
+  1945→        "ceiling": null,
+  1946→        "unit": "Per Annum"
+  1947→      },
+  1948→      {
+  1949→        "name": "CAT C - Mobile Vans",
+  1950→        "amount": 60.0,
+  1951→        "ceiling": null,
+  1952→        "unit": "Per Annum"
+  1953→      }
+  1954→    ]
+  1955→  },
+  1956→  {
+  1957→    "class": "Cable Manufacturers",
+  1958→    "categories": [
+  1959→      {
+  1960→        "name": "CAT 'A'",
+  1961→        "amount": 12000.0,
+  1962→        "ceiling": null,
+  1963→        "unit": "Per Annum"
+  1964→      },
+  1965→      {
+  1966→        "name": "CAT 'B'",
+  1967→        "amount": 9000.0,
+  1968→        "ceiling": null,
+  1969→        "unit": "Per Annum"
+  1970→      },
+  1971→      {
+  1972→        "name": "CAT 'C'",
+  1973→        "amount": 8295.0,
+  1974→        "ceiling": null,
+  1975→        "unit": "Per Annum"
+  1976→      },
+  1977→      {
+  1978→        "name": "CAT 'D'",
+  1979→        "amount": 7350.0,
+  1980→        "ceiling": null,
+  1981→        "unit": "Per Annum"
+  1982→      }
+  1983→    ]
+  1984→  },
+  1985→  {
+  1986→    "class": "Cane Product Weavers",
+  1987→    "categories": [
+  1988→      {
+  1989→        "name": "CAT 'C'",
+  1990→        "amount": 140.0,
+  1991→        "ceiling": null,
+  1992→        "unit": "Per Annum"
+  1993→      },
+  1994→      {
+  1995→        "name": "CAT A",
+  1996→        "amount": 280.0,
+  1997→        "ceiling": null,
+  1998→        "unit": "Per Annum"
+  1999→      },
+  2000→      {
+
+[showing lines 1-2000 of 9264; use offset=2001 with limit to continue reading]

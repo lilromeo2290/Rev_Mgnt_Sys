@@ -990,8 +990,8 @@ export function BusinessesPage() {
                 <label className={`${labelClass} block`}>Category</label>
                 <select name="category" value={form.category} onChange={handleFormChange} className={inputClass} disabled={!form.type}>
                   <option value="">Select category</option>
-                  {availableCategories.map((c) => (
-                    <option key={c.name} value={c.name}>{c.name}</option>
+                  {availableCategories.map((c, i) => (
+                    <option key={`cat-${i}`} value={c.name}>{c.name}</option>
                   ))}
                 </select>
               </div>

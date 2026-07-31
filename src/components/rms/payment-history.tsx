@@ -183,9 +183,9 @@ export function PaymentHistoryPage() {
         <div className="rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4">
           <div className="flex items-center gap-2 mb-3"><TrendingUp className="w-4 h-4 text-slate-400" /><h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Entity Summary</h2></div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-            {uniqueEntities.slice(0, 6).map((e) => (
+            {uniqueEntities.slice(0, 6).map((e, i) => (
               <button
-                key={e.name}
+                key={`entity-${i}`}
                 onClick={() => handlePrintEntity(e.name)}
                 className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-2 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors cursor-pointer text-left"
               >

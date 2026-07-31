@@ -1102,8 +1102,8 @@ export function BillingPage() {
                   className={inputClass}
                 >
                   <option value="">Select entity...</option>
-                  {ENTITIES.map((e) => (
-                    <option key={e.name} value={e.name}>
+                  {ENTITIES.map((e, i) => (
+                    <option key={`entity-${i}`} value={e.name}>
                       {e.name} ({e.type} – {e.category})
                     </option>
                   ))}
