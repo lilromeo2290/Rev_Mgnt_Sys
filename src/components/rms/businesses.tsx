@@ -27,6 +27,7 @@ import {
 import { BUSINESS_CLASSES, BUSINESS_CLASS_CATEGORIES } from '@/lib/fee-schedule';
 import type { FeeCategory } from '@/lib/fee-schedule';
 import { exportToExcel, importFromExcel, BUSINESS_FIELDS } from '@/lib/import-export';
+import { LOCALITIES } from '@/lib/localities';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -941,7 +942,12 @@ export function BusinessesPage() {
               {/* Locality */}
               <div>
                 <label className={`${labelClass} block`}>Locality</label>
-                <input type="text" name="locality" value={form.locality} onChange={handleFormChange} placeholder="Enter locality" className={inputClass} />
+                <select name="locality" value={form.locality} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Select locality</option>
+                  {LOCALITIES.map((l) => (
+                    <option key={l} value={l}>{l}</option>
+                  ))}
+                </select>
               </div>
               {/* Code */}
               <div>

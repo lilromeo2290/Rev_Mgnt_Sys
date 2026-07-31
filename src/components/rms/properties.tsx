@@ -22,6 +22,7 @@ import {
   Upload,
 } from 'lucide-react';
 import { exportToExcel, importFromExcel, PROPERTY_FIELDS } from '@/lib/import-export';
+import { LOCALITIES } from '@/lib/localities';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -465,7 +466,12 @@ export function PropertiesPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className={labelClass}>Locality</label>
-                <input type="text" name="locality" value={form.locality} onChange={handleFormChange} placeholder="Enter locality" className={inputClass} />
+                <select name="locality" value={form.locality} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Select locality</option>
+                  {LOCALITIES.map((l) => (
+                    <option key={l} value={l}>{l}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className={labelClass}>Code</label>
