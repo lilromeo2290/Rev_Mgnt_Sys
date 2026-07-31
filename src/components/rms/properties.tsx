@@ -279,7 +279,7 @@ export function PropertiesPage() {
                     <tr key={prop.propNumber} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
                       <td className="px-4 py-3 font-mono text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">{prop.propNumber}</td>
                       <td className="px-4 py-3 font-medium text-slate-900 dark:text-white whitespace-nowrap">{prop.ownerName}</td>
-                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap max-w-[200px] truncate">{prop.propertyUseType.split(':')[1] ? prop.propertyUseType.split(':')[1].trim() : prop.propertyUseType}</td>
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap max-w-[200px] truncate">{(prop.propertyUseType || '').split(':')[1] ? (prop.propertyUseType || '').split(':')[1].trim() : (prop.propertyUseType || '')}</td>
                       <td className="px-4 py-3 text-right font-medium text-slate-700 dark:text-slate-200 whitespace-nowrap">{formatVal(prop.value)}</td>
                       <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">{prop.streetName}</td>
                       <td className="px-4 py-3 text-right whitespace-nowrap">
