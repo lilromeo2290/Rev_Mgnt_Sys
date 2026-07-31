@@ -28,6 +28,7 @@ import { BUSINESS_CLASSES, BUSINESS_CLASS_CATEGORIES } from '@/lib/fee-schedule'
 import type { FeeCategory } from '@/lib/fee-schedule';
 import { exportToExcel, importFromExcel, BUSINESS_FIELDS } from '@/lib/import-export';
 import { LOCALITIES } from '@/lib/localities';
+import { REVENUE_DESCRIPTIONS } from '@/lib/revenue-descriptions';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -1053,7 +1054,12 @@ export function BusinessesPage() {
               {/* Revenue Description */}
               <div>
                 <label className={`${labelClass} block`}>Revenue Description</label>
-                <input type="text" name="revenueDescription" value={form.revenueDescription} onChange={handleFormChange} placeholder="Enter revenue description" className={inputClass} />
+                <select name="revenueDescription" value={form.revenueDescription} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Select revenue description...</option>
+                  {REVENUE_DESCRIPTIONS.map((r) => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
               </div>
               {/* Code */}
               <div>
@@ -1063,7 +1069,12 @@ export function BusinessesPage() {
               {/* Revenue Description 2 */}
               <div>
                 <label className={`${labelClass} block`}>Revenue Description</label>
-                <input type="text" name="revenueDescription2" value={form.revenueDescription2} onChange={handleFormChange} placeholder="Enter revenue description" className={inputClass} />
+                <select name="revenueDescription2" value={form.revenueDescription2} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Select revenue description...</option>
+                  {REVENUE_DESCRIPTIONS.map((r) => (
+                    <option key={r} value={r}>{r}</option>
+                  ))}
+                </select>
               </div>
               {/* Revenue Code */}
               <div>
