@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import {
   Search,
@@ -18,7 +18,10 @@ import {
   Save,
   X,
   Loader2,
+  Download,
+  Upload,
 } from 'lucide-react';
+import { exportToExcel, importFromExcel, PROPERTY_FIELDS } from '@/lib/import-export';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -90,7 +93,34 @@ export function PropertiesPage() {
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [currentPage, setCurrentPage] = useState(1);
   const [properties, setProperties] = useLocalStorage<Property[]>('rms-properties', mockProperties);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const itemsPerPage = 10;
+
+  // ── Import / Export ───────────────────────────────────────────────────────
+  const handleExport = () => {
+    if (properties.length === 0) { alert('No properties to export.'); return; }
+    exportToExcel(properties as unknown as Record<string, unknown>[], PROPERTY_FIELDS, 'Properties');
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const imported = await importFromExcel<Property>(file, PROPERTY_FIELDS);
+      if (imported.length === 0) { alert('No data found in the file.'); return; }
+      const existing = new Map(properties.map((p) => [p.propNumber, p]));
+      for (const item of imported) {
+        const key = item.propNumber || `IMP-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+        item.propNumber = key;
+        existing.set(key, item);
+      }
+      setProperties(Array.from(existing.values()));
+      alert(`${imported.length} propert(y/ies) imported successfully.`);
+    } catch (err) {
+      alert('Failed to import file. Please ensure it is a valid Excel file exported from this system.');
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   // ── Form State ───────────────────────────────────────────────────────────
   const defaultForm = {
@@ -275,13 +305,22 @@ export function PropertiesPage() {
               Manage and register properties within the assembly.
             </p>
           </div>
-          <button
-            onClick={() => setView('form')}
-            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer"
-          >
-            <Plus className="w-4 h-4" />
-            Register New Property
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setView('form')}
+              className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              Register New Property
+            </button>
+            <button onClick={handleExport} className="inline-flex items-center gap-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium px-3 py-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors whitespace-nowrap cursor-pointer">
+              <Download className="w-4 h-4" /> Export
+            </button>
+            <button onClick={() => fileInputRef.current?.click()} className="inline-flex items-center gap-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium px-3 py-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors whitespace-nowrap cursor-pointer">
+              <Upload className="w-4 h-4" /> Import
+            </button>
+            <input ref={fileInputRef} type="file" accept=".xlsx,.xls" onChange={handleImport} className="hidden" />
+          </div>
         </div>
 
         {/* ── Search & Filters ────────────────────────────────────────────── */}

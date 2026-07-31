@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import {
   Search,
@@ -21,9 +21,12 @@ import {
   Printer,
   X,
   FileText,
+  Download,
+  Upload,
 } from 'lucide-react';
 import { BUSINESS_CLASSES, BUSINESS_CLASS_CATEGORIES } from '@/lib/fee-schedule';
 import type { FeeCategory } from '@/lib/fee-schedule';
+import { exportToExcel, importFromExcel, BUSINESS_FIELDS } from '@/lib/import-export';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -142,7 +145,36 @@ export function BusinessesPage() {
   const [locatingOwner, setLocatingOwner] = useState(false);
   const [viewingCert, setViewingCert] = useState<BusinessCert | null>(null);
   const [businesses, setBusinesses] = useLocalStorage<Business[]>('rms-businesses', mockBusinesses);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const itemsPerPage = 10;
+
+  // ── Import / Export ───────────────────────────────────────────────────────
+  const handleExport = () => {
+    if (businesses.length === 0) { alert('No businesses to export.'); return; }
+    exportToExcel(businesses as unknown as Record<string, unknown>[], BUSINESS_FIELDS, 'Businesses');
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const imported = await importFromExcel<Business>(file, BUSINESS_FIELDS);
+      if (imported.length === 0) { alert('No data found in the file.'); return; }
+      // Merge: update existing by regNumber, add new ones
+      const existing = new Map(businesses.map((b) => [b.regNumber, b]));
+      for (const item of imported) {
+        const key = item.regNumber || `IMP-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+        item.regNumber = key;
+        item.status = (item.status as 'Active' | 'Inactive') || 'Active';
+        existing.set(key, item);
+      }
+      setBusinesses(Array.from(existing.values()));
+      alert(`${imported.length} business(es) imported successfully.`);
+    } catch (err) {
+      alert('Failed to import file. Please ensure it is a valid Excel file exported from this system.');
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   // ── Form State ───────────────────────────────────────────────────────────
   const [form, setForm] = useState({ ...defaultForm });
@@ -593,13 +625,22 @@ export function BusinessesPage() {
               collection and compliance.
             </p>
           </div>
-          <button
-            onClick={() => { setEditingRegNumber(null); setForm({ ...defaultForm }); setView('form'); }}
-            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap"
-          >
-            <Plus className="w-4 h-4" />
-            Register New Business
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => { setEditingRegNumber(null); setForm({ ...defaultForm }); setView('form'); }}
+              className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap"
+            >
+              <Plus className="w-4 h-4" />
+              Register New Business
+            </button>
+            <button onClick={handleExport} className="inline-flex items-center gap-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium px-3 py-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors whitespace-nowrap">
+              <Download className="w-4 h-4" /> Export
+            </button>
+            <button onClick={() => fileInputRef.current?.click()} className="inline-flex items-center gap-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium px-3 py-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors whitespace-nowrap">
+              <Upload className="w-4 h-4" /> Import
+            </button>
+            <input ref={fileInputRef} type="file" accept=".xlsx,.xls" onChange={handleImport} className="hidden" />
+          </div>
         </div>
 
         {/* ── Search & Filters ────────────────────────────────────────────── */}

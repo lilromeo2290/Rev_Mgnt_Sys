@@ -1,0 +1,1115 @@
+     1→'use client';
+     2→
+     3→import { useState, useCallback } from 'react';
+     4→import { useLocalStorage } from '@/hooks/use-local-storage';
+     5→import {
+     6→  Search,
+     7→  Plus,
+     8→  ArrowLeft,
+     9→  Pencil,
+    10→  Trash2,
+    11→  ChevronLeft,
+    12→  ChevronRight,
+    13→  Building2,
+    14→  Award,
+    15→  MapPin,
+    16→  Briefcase,
+    17→  User,
+    18→  Save,
+    19→  Crosshair,
+    20→  Loader2,
+    21→  Printer,
+    22→  X,
+    23→  FileText,
+    24→} from 'lucide-react';
+    25→import { BUSINESS_CLASSES, BUSINESS_CLASS_CATEGORIES } from '@/lib/fee-schedule';
+    26→import type { FeeCategory } from '@/lib/fee-schedule';
+    27→
+    28→// ─── Types ───────────────────────────────────────────────────────────────────
+    29→
+    30→interface BusinessCert {
+    31→  id: string;
+    32→  certNumber: string;
+    33→  regNumber: string;
+    34→  businessName: string;
+    35→  ownerName: string;
+    36→  businessType: string;
+    37→  category: string;
+    38→  businessAddress: string;
+    39→  dateRegistered: string;
+    40→  dateIssued: string;
+    41→  expiryDate: string;
+    42→  status: string;
+    43→  assemblyName: string;
+    44→  assemblyAddress: string;
+    45→  tradingName: string;
+    46→  receiptNumber: string;
+    47→}
+    48→
+    49→interface Business {
+    50→  regNumber: string;
+    51→  name: string;
+    52→  owner: string;
+    53→  type: string;
+    54→  category: string;
+    55→  tin: string;
+    56→  status: 'Active' | 'Inactive';
+    57→  dateRegistered: string;
+    58→  ghanaCard: string;
+    59→  phone: string;
+    60→  email: string;
+    61→  gpsAddress: string;
+    62→  digitalAddress: string;
+    63→  residentialAddress: string;
+    64→  businessAddress: string;
+    65→  ward: string;
+    66→  electoralArea: string;
+    67→  zone: string;
+    68→  revenueArea: string;
+    69→  licenseNumber: string;
+    70→  subCategory: string;
+    71→  // New fields
+    72→  streetName: string;
+    73→  houseNo: string;
+    74→  streetCode: string;
+    75→  localityCode: string;
+    76→  daAssignmentNo: string;
+    77→  businessCertNo: string;
+    78→  businessPermit: string;
+    79→  employees: string;
+    80→  yearEstablished: string;
+    81→  excludedFromFees: boolean;
+    82→  ownerAddress: string;
+    83→  ownerGps: string;
+    84→  ownerTin: string;
+    85→  comments: string;
+    86→}
+    87→
+    88→// ─── Mock Data ───────────────────────────────────────────────────────────────
+    89→
+    90→const mockBusinesses: Business[] = [];
+    91→
+    92→// ─── Component ───────────────────────────────────────────────────────────────
+    93→
+    94→const businessTypes = BUSINESS_CLASSES;
+    95→
+    96→const defaultForm = {
+    97→  regNumber: '',
+    98→  name: '',
+    99→  ownerName: '',
+   100→  type: '',
+   101→  category: '',
+   102→  subCategory: '',
+   103→  tin: '',
+   104→  licenseNumber: '',
+   105→  dateRegistered: '',
+   106→  status: 'Active',
+   107→  ghanaCard: '',
+   108→  phone: '',
+   109→  email: '',
+   110→  gpsAddress: '',
+   111→  digitalAddress: '',
+   112→  residentialAddress: '',
+   113→  businessAddress: '',
+   114→  ward: '',
+   115→  electoralArea: '',
+   116→  zone: '',
+   117→  revenueArea: '',
+   118→  streetName: '',
+   119→  houseNo: '',
+   120→  streetCode: '',
+   121→  localityCode: '',
+   122→  daAssignmentNo: '',
+   123→  businessCertNo: '',
+   124→  businessPermit: '',
+   125→  employees: '',
+   126→  yearEstablished: '',
+   127→  excludedFromFees: false,
+   128→  ownerAddress: '',
+   129→  ownerGps: '',
+   130→  ownerTin: '',
+   131→  comments: '',
+   132→};
+   133→
+   134→export function BusinessesPage() {
+   135→  const [view, setView] = useState<'list' | 'form'>('list');
+   136→  const [editingRegNumber, setEditingRegNumber] = useState<string | null>(null);
+   137→  const [searchQuery, setSearchQuery] = useState('');
+   138→  const [statusFilter, setStatusFilter] = useState<string>('All');
+   139→  const [typeFilter, setTypeFilter] = useState<string>('All');
+   140→  const [currentPage, setCurrentPage] = useState(1);
+   141→  const [locatingBusiness, setLocatingBusiness] = useState(false);
+   142→  const [locatingOwner, setLocatingOwner] = useState(false);
+   143→  const [viewingCert, setViewingCert] = useState<BusinessCert | null>(null);
+   144→  const [businesses, setBusinesses] = useLocalStorage<Business[]>('rms-businesses', mockBusinesses);
+   145→  const itemsPerPage = 10;
+   146→
+   147→  // ── Form State ───────────────────────────────────────────────────────────
+   148→  const [form, setForm] = useState({ ...defaultForm });
+   149→
+   150→  // ── Geolocation: Fetch GPS from device location ─────────────────────
+   151→  const fetchGpsFromLocation = (
+   152→    target: 'business' | 'owner'
+   153→  ) => {
+   154→    const setLoading = target === 'business' ? setLocatingBusiness : setLocatingOwner;
+   155→
+   156→    if (!navigator.geolocation) {
+   157→      alert('Geolocation is not supported by your browser. Please enter the GPS address manually.');
+   158→      return;
+   159→    }
+   160→
+   161→    setLoading(true);
+   162→
+   163→    navigator.geolocation.getCurrentPosition(
+   164→      (position) => {
+   165→        const { latitude, longitude } = position.coords;
+   166→        const gpsString = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+   167→        if (target === 'business') {
+   168→          setForm((prev) => ({ ...prev, gpsAddress: gpsString }));
+   169→        } else {
+   170→          setForm((prev) => ({ ...prev, ownerGps: gpsString }));
+   171→        }
+   172→        setLoading(false);
+   173→      },
+   174→      (error) => {
+   175→        let message = 'Unable to retrieve location.';
+   176→        switch (error.code) {
+   177→          case error.PERMISSION_DENIED:
+   178→            message = 'Location permission denied. Please allow location access in your browser settings.';
+   179→            break;
+   180→          case error.POSITION_UNAVAILABLE:
+   181→            message = 'Location information is unavailable. Please try again or enter manually.';
+   182→            break;
+   183→          case error.TIMEOUT:
+   184→            message = 'Location request timed out. Please try again.';
+   185→            break;
+   186→        }
+   187→        alert(message);
+   188→        setLoading(false);
+   189→      },
+   190→      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+   191→    );
+   192→  };
+   193→
+   194→  // ── Derived categories based on selected business type ───────────────────
+   195→  const availableCategories: FeeCategory[] = form.type
+   196→    ? (BUSINESS_CLASS_CATEGORIES[form.type] || [])
+   197→    : [];
+   198→
+   199→  // ── Get fee details for selected category ──────────────────────────────
+   200→  const selectedCategoryFee = availableCategories.find(
+   201→    (c) => c.name === form.category
+   202→  );
+   203→
+   204→  // ── Filtering & Pagination ───────────────────────────────────────────────
+   205→  const filtered = businesses.filter((b) => {
+   206→    const matchSearch =
+   207→      searchQuery === '' ||
+   208→      b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+   209→      b.owner.toLowerCase().includes(searchQuery.toLowerCase()) ||
+   210→      b.regNumber.toLowerCase().includes(searchQuery.toLowerCase());
+   211→    const matchStatus = statusFilter === 'All' || b.status === statusFilter;
+   212→    const matchType = typeFilter === 'All' || b.type === typeFilter;
+   213→    return matchSearch && matchStatus && matchType;
+   214→  });
+   215→
+   216→  const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+   217→  const safeCurrentPage = Math.min(currentPage, totalPages);
+   218→  const startIdx = (safeCurrentPage - 1) * itemsPerPage;
+   219→  const paged = filtered.slice(startIdx, startIdx + itemsPerPage);
+   220→  const showingFrom = filtered.length === 0 ? 0 : startIdx + 1;
+   221→  const showingTo = Math.min(startIdx + itemsPerPage, filtered.length);
+   222→
+   223→  // ── Handlers ─────────────────────────────────────────────────────────────
+   224→  const handleFormChange = (
+   225→    e: React.ChangeEvent<
+   226→      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+   227→    >
+   228→  ) => {
+   229→    const { name, type } = e.target;
+   230→    setForm((prev) => {
+   231→      const updated = { ...prev, [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : (e.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement).value };
+   232→      // Reset category and sub-category when type changes
+   233→      if (name === 'type') {
+   234→        updated.category = '';
+   235→        updated.subCategory = '';
+   236→      }
+   237→      return updated;
+   238→    });
+   239→  };
+   240→
+   241→  const handleSave = () => {
+   242→    if (!form.name || !form.type) return;
+   243→    const regNum = form.regNumber || `BIZ-${String(businesses.length + 1).padStart(4, '0')}`;
+   244→    const newBusiness: Business = {
+   245→      regNumber: regNum,
+   246→      name: form.name,
+   247→      owner: form.ownerName,
+   248→      type: form.type,
+   249→      category: form.category,
+   250→      tin: form.tin,
+   251→      status: (form.status as 'Active' | 'Inactive') || 'Active',
+   252→      dateRegistered: form.dateRegistered || new Date().toISOString().split('T')[0],
+   253→      ghanaCard: form.ghanaCard,
+   254→      phone: form.phone,
+   255→      email: form.email,
+   256→      gpsAddress: form.gpsAddress,
+   257→      digitalAddress: form.digitalAddress,
+   258→      residentialAddress: form.residentialAddress,
+   259→      businessAddress: form.businessAddress,
+   260→      ward: form.ward,
+   261→      electoralArea: form.electoralArea,
+   262→      zone: form.zone,
+   263→      revenueArea: form.revenueArea,
+   264→      licenseNumber: form.licenseNumber,
+   265→      subCategory: form.subCategory,
+   266→      // New fields
+   267→      streetName: form.streetName,
+   268→      houseNo: form.houseNo,
+   269→      streetCode: form.streetCode,
+   270→      localityCode: form.localityCode,
+   271→      daAssignmentNo: form.daAssignmentNo,
+   272→      businessCertNo: form.businessCertNo,
+   273→      businessPermit: form.businessPermit,
+   274→      employees: form.employees,
+   275→      yearEstablished: form.yearEstablished,
+   276→      excludedFromFees: form.excludedFromFees,
+   277→      ownerAddress: form.ownerAddress,
+   278→      ownerGps: form.ownerGps,
+   279→      ownerTin: form.ownerTin,
+   280→      comments: form.comments,
+   281→    };
+   282→
+   283→    if (editingRegNumber) {
+   284→      setBusinesses((prev) =>
+   285→        prev.map((b) =>
+   286→          b.regNumber === editingRegNumber
+   287→            ? { ...b, ...newBusiness, businessName: newBusiness.name, ownerName: newBusiness.owner, businessType: newBusiness.type, category: newBusiness.category, businessAddress: newBusiness.businessAddress }
+   288→            : b
+   289→        )
+   290→      );
+   291→    } else {
+   292→      setBusinesses((prev) => [...prev, newBusiness]);
+   293→    }
+   294→
+   295→    // Auto-generate business certificate
+   296→    try {
+   297→      const existingCerts = JSON.parse(localStorage.getItem('rms-business-certs') || '[]');
+   298→      const certSeq = existingCerts.length + 1;
+   299→      const today = new Date().toISOString().split('T')[0];
+   300→      const expiryDate = new Date();
+   301→      expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+   302→      const expiryStr = expiryDate.toISOString().split('T')[0];
+   303→      const assemblyName = (() => {
+   304→        try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kumasi Metropolitan Assembly'; } catch { return 'Kumasi Metropolitan Assembly'; }
+   305→      })();
+   306→      const assemblyAddress = (() => {
+   307→        try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.address || ''; } catch { return ''; }
+   308→      })();
+   309→      const newCert = {
+   310→        id: `CRT-${Date.now()}`,
+   311→        certNumber: `CRT-${String(certSeq).padStart(4, '0')}`,
+   312→        regNumber: regNum,
+   313→        businessName: newBusiness.name,
+   314→        ownerName: newBusiness.owner,
+   315→        businessType: newBusiness.type,
+   316→        category: newBusiness.category,
+   317→        businessAddress: newBusiness.businessAddress,
+   318→        dateRegistered: newBusiness.dateRegistered,
+   319→        dateIssued: today,
+   320→        expiryDate: expiryStr,
+   321→        status: 'Active' as const,
+   322→        assemblyName,
+   323→        assemblyAddress,
+   324→        tradingName: newBusiness.name,
+   325→        receiptNumber: `RCT-${String(certSeq).padStart(4, '0')}`,
+   326→      };
+   327→      existingCerts.push(newCert);
+   328→      localStorage.setItem('rms-business-certs', JSON.stringify(existingCerts));
+   329→    } catch { /* cert generation failure should not block registration */ }
+   330→
+   331→    setEditingRegNumber(null);
+   332→    setForm({ ...defaultForm });
+   333→    setView('list');
+   334→  };
+   335→
+   336→  const handleCancel = () => {
+   337→    setEditingRegNumber(null);
+   338→    setForm({ ...defaultForm });
+   339→    setView('list');
+   340→  };
+   341→
+   342→  const handleEdit = (biz: Business) => {
+   343→    setEditingRegNumber(biz.regNumber);
+   344→    setForm({
+   345→      regNumber: biz.regNumber,
+   346→      name: biz.name,
+   347→      ownerName: biz.owner,
+   348→      type: biz.type,
+   349→      category: biz.category,
+   350→      subCategory: biz.subCategory || '',
+   351→      tin: biz.tin,
+   352→      licenseNumber: biz.licenseNumber,
+   353→      dateRegistered: biz.dateRegistered,
+   354→      status: biz.status,
+   355→      ghanaCard: biz.ghanaCard,
+   356→      phone: biz.phone,
+   357→      email: biz.email,
+   358→      gpsAddress: biz.gpsAddress,
+   359→      digitalAddress: biz.digitalAddress,
+   360→      residentialAddress: biz.residentialAddress,
+   361→      businessAddress: biz.businessAddress,
+   362→      ward: biz.ward,
+   363→      electoralArea: biz.electoralArea,
+   364→      zone: biz.zone,
+   365→      revenueArea: biz.revenueArea,
+   366→      streetName: (biz as any).streetName || '',
+   367→      houseNo: (biz as any).houseNo || '',
+   368→      streetCode: (biz as any).streetCode || '',
+   369→      localityCode: (biz as any).localityCode || '',
+   370→      daAssignmentNo: (biz as any).daAssignmentNo || '',
+   371→      businessCertNo: (biz as any).businessCertNo || '',
+   372→      businessPermit: (biz as any).businessPermit || '',
+   373→      employees: (biz as any).employees || '',
+   374→      yearEstablished: (biz as any).yearEstablished || '',
+   375→      excludedFromFees: (biz as any).excludedFromFees || false,
+   376→      ownerAddress: (biz as any).ownerAddress || '',
+   377→      ownerGps: (biz as any).ownerGps || '',
+   378→      ownerTin: (biz as any).ownerTin || '',
+   379→      comments: (biz as any).comments || '',
+   380→    });
+   381→    setView('form');
+   382→  };
+   383→
+   384→  const handleDelete = (regNumber: string) => {
+   385→    if (!confirm('Are you sure you want to delete this business? This action cannot be undone.')) return;
+   386→    setBusinesses((prev) => prev.filter((b) => b.regNumber !== regNumber));
+   387→  };
+   388→
+   389→  // ── Certificate View & Print ─────────────────────────────────────────────
+   390→  const handleViewCertificate = (regNumber: string) => {
+   391→    try {
+   392→      const certs: BusinessCert[] = JSON.parse(localStorage.getItem('rms-business-certs') || '[]');
+   393→      const cert = certs.find((c) => c.regNumber === regNumber);
+   394→      if (cert) {
+   395→        setViewingCert(cert);
+   396→      } else {
+   397→        alert('No certificate found for this business. Certificates are generated automatically when a business is saved.');
+   398→      }
+   399→    } catch {
+   400→      alert('Error reading certificate data.');
+   401→    }
+   402→  };
+   403→
+   404→  const handlePrintCertificate = (cert: BusinessCert) => {
+   405→    // Read assembly name dynamically from settings at print time
+   406→    const _asmSettings = (() => { try { return JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); } catch { return {}; } })();
+   407→    const dynAssemblyName = _asmSettings.name || cert.assemblyName || 'Kumasi Metropolitan Assembly';
+   408→    const dynAssemblyAddress = _asmSettings.address || cert.assemblyAddress || '';
+   409→    const fmtDate = (d: string) => {
+   410→      if (!d) return '..................';
+   411→      try {
+   412→        const dt = new Date(d);
+   413→        return dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+   414→      } catch { return d; }
+   415→    };
+   416→    const getOrdinal = (day: number) => {
+   417→      const s = ['th','st','nd','rd'];
+   418→      const v = day % 100;
+   419→      return day + (s[(v-20)%10] || s[v] || s[0]);
+   420→    };
+   421→    let dayOrd = '..................';
+   422→    let monthName = '..................';
+   423→    let yearShort = '........';
+   424→    if (cert.dateIssued) {
+   425→      try {
+   426→        const d = new Date(cert.dateIssued);
+   427→        dayOrd = getOrdinal(d.getDate());
+   428→        monthName = d.toLocaleDateString('en-US', { month: 'long' });
+   429→        yearShort = String(d.getFullYear()).slice(-2);
+   430→      } catch {}
+   431→    }
+   432→    const expiryYear = cert.expiryDate ? new Date(cert.expiryDate).getFullYear() : new Date().getFullYear() + 1;
+   433→    const assemblyShort = dynAssemblyName.replace(/\b(Metropolitan|Municipal|District|Assembly)\b/gi, '').trim().split(' ')[0];
+   434→
+   435→    const win = window.open('', '_blank', 'width=900,height=1200');
+   436→    if (!win) { alert('Please allow popups to print the certificate.'); return; }
+   437→    win.document.write(`<!DOCTYPE html>
+   438→<html>
+   439→<head>
+   440→  <title>Business Registration Certificate - ${cert.certNumber}</title>
+   441→  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+   442→  <style>
+   443→    * { margin: 0; padding: 0; box-sizing: border-box; }
+   444→    @page { size: A4 portrait; margin: 12mm; }
+   445→    body {
+   446→      font-family: 'Inter', Arial, sans-serif;
+   447→      color: #111;
+   448→      background: #f0ece2;
+   449→      display: flex;
+   450→      align-items: center;
+   451→      justify-content: center;
+   452→      min-height: 100vh;
+   453→      padding: 20px;
+   454→    }
+   455→    .certificate-outer {
+   456→      width: 750px;
+   457→      background: #fff;
+   458→      position: relative;
+   459→      padding: 6px;
+   460→    }
+   461→    .certificate-outer::before {
+   462→      content: '';
+   463→      position: absolute;
+   464→      inset: 0;
+   465→      border: 14px solid #B5A642;
+   466→      border-radius: 4px;
+   467→      pointer-events: none;
+   468→    }
+   469→    .certificate-outer::after {
+   470→      content: '';
+   471→      position: absolute;
+   472→      inset: 10px;
+   473→      border: 2px solid #B5A642;
+   474→      border-radius: 2px;
+   475→      pointer-events: none;
+   476→    }
+   477→    .cert-inner {
+   478→      margin: 22px;
+   479→      padding: 40px 50px 35px;
+   480→      position: relative;
+   481→    }
+   482→    .corner { position: absolute; width: 60px; height: 60px; border-color: #B5A642; border-style: solid; }
+   483→    .corner-tl { top: 0; left: 0; border-width: 3px 0 0 3px; }
+   484→    .corner-tr { top: 0; right: 0; border-width: 3px 3px 0 0; }
+   485→    .corner-bl { bottom: 0; left: 0; border-width: 0 0 3px 3px; }
+   486→    .corner-br { bottom: 0; right: 0; border-width: 0 3px 3px 0; }
+   487→    .header-logos { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; padding: 0 20px; }
+   488→    .logo-block { text-align: center; width: 160px; }
+   489→    .coat-of-arms { line-height: 1; color: #1a1a1a; }
+   490→    .logo-label { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-top: 4px; color: #333; }
+   491→    .assembly-seal { line-height: 1; color: #8B0000; }
+   492→    .assembly-name { text-align: center; font-size: 26px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; color: #0a0a0a; margin-bottom: 2px; }
+   493→    .assembly-subtitle { text-align: center; font-size: 10px; color: #666; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 18px; }
+   494→    .cert-title { text-align: center; font-family: 'Playfair Display', serif; font-size: 34px; font-style: italic; font-weight: 700; color: #B22222; margin-bottom: 28px; letter-spacing: 1px; }
+   495→    .cert-body { text-align: center; font-family: 'Inter', Georgia, serif; font-size: 14px; line-height: 2.2; color: #111; }
+   496→    .cert-body .intro { font-weight: 700; font-size: 15px; margin-bottom: 6px; }
+   497→    .dotted-field { font-family: 'Caveat', cursive; font-size: 20px; color: #00008B; font-weight: 700; border-bottom: 2px dotted #333; display: inline-block; min-width: 300px; padding: 0 8px 2px; vertical-align: baseline; }
+   498→    .assembly-reiterate { font-weight: 800; text-transform: uppercase; font-size: 13px; letter-spacing: 1px; }
+   499→    .gold-separator { border: none; height: 2px; background: linear-gradient(90deg, transparent, #B5A642, transparent); margin: 24px 0 20px; }
+   500→    .cert-footer { margin-top: 30px; }
+   501→    .issued-at { text-align: center; font-size: 13px; font-weight: 600; margin-bottom: 14px; color: #222; }
+   502→    .date-line { text-align: center; font-size: 14px; line-height: 2; }
+   503→    .date-line .handwritten { font-family: 'Caveat', cursive; font-size: 19px; color: #00008B; font-weight: 700; border-bottom: 2px dotted #555; display: inline-block; min-width: 70px; padding: 0 4px 1px; }
+   504→    .validity-section { text-align: center; margin-top: 18px; }
+   505→    .valid-until { font-size: 13px; font-weight: 700; color: #222; }
+   506→    .renew-yearly { font-family: 'Playfair Display', serif; font-size: 14px; font-style: italic; color: #B22222; margin-top: 2px; font-weight: 700; }
+   507→    .signature-section { margin-top: 28px; text-align: center; }
+   508→    .sign-line { width: 260px; border-bottom: 2px dotted #333; margin: 0 auto 6px; }
+   509→    .sign-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #333; }
+   510→    .receipt-line { margin-top: 18px; font-size: 11px; color: #333; }
+   511→    .receipt-line .receipt-val { font-family: 'Caveat', cursive; font-size: 16px; font-weight: 700; color: #000; }
+   512→    .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-35deg); font-size: 72px; color: rgba(181, 166, 66, 0.06); font-weight: 900; pointer-events: none; white-space: nowrap; letter-spacing: 12px; text-transform: uppercase; z-index: 0; }
+   513→    .flourish-top { text-align: center; font-size: 22px; color: #B5A642; margin-bottom: 6px; letter-spacing: 6px; }
+   514→    .status-badge { display: inline-block; padding: 2px 14px; border-radius: 3px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+   515→    .status-active { background: #d4edda; color: #155724; }
+   516→    .status-inactive { background: #f8d7da; color: #721c24; }
+   517→    .cert-no-small { text-align: center; font-size: 9px; color: #888; margin-top: 10px; letter-spacing: 1px; }
+   518→  </style>
+   519→</head>
+   520→<body>
+   521→  <div class="certificate-outer">
+   522→    <div class="cert-inner">
+   523→      <div class="watermark">OFFICIAL CERTIFICATE</div>
+   524→      <div class="corner corner-tl"></div>
+   525→      <div class="corner corner-tr"></div>
+   526→      <div class="corner corner-bl"></div>
+   527→      <div class="corner corner-br"></div>
+   528→      <div class="header-logos">
+   529→        <div class="logo-block">
+   530→          <div class="coat-of-arms"><img src="/logos/ghana-coat-of-arms.webp" style="width:180px; height:180px; object-fit:contain;" /></div>
+   531→          <div class="logo-label">Republic of Ghana</div>
+   532→        </div>
+   533→        <div class="logo-block">
+   534→          <div class="assembly-seal"><img src="/logos/assembly-seal.png" style="width:180px; height:180px; object-fit:contain;" /></div>
+   535→          <div class="logo-label">${dynAssemblyName.toUpperCase()}</div>
+   536→        </div>
+   537→      </div>
+   538→      <div class="flourish-top">✦ ✦ ✦</div>
+   539→      <div class="assembly-name">${dynAssemblyName.toUpperCase()}</div>
+   540→      ${dynAssemblyAddress ? `<div class="assembly-subtitle">${dynAssemblyAddress.toUpperCase()}</div>` : '<div class="assembly-subtitle"></div>'}
+   541→      <div class="cert-title">Certificate Of Registration</div>
+   542→      <div class="cert-body">
+   543→        <div class="intro">I Hereby Certify that</div>
+   544→        <div style="margin: 8px 0;"><span class="dotted-field">${cert.businessName.toUpperCase()}</span></div>
+   545→        <div>Has complied with the bye-laws/directives of the</div>
+   546→        <div class="assembly-reiterate" style="margin: 6px 0;">${dynAssemblyName.toUpperCase()}</div>
+   547→        <div>and has duly been permitted to operate within the ${assemblyShort} Municipality</div>
+   548→        ${cert.tradingName && cert.tradingName !== cert.businessName ? `<div style="margin-top: 8px;">as <span class="dotted-field">${cert.tradingName.toUpperCase()}</span></div>` : ''}
+   549→      </div>
+   550→      <hr class="gold-separator">
+   551→      <div class="cert-footer">
+   552→        <div class="issued-at">Give under my hand at ${assemblyShort}</div>
+   553→        <div class="date-line">this <span class="handwritten">${dayOrd}</span> day of <span class="handwritten">${monthName}</span> 20<span class="handwritten">${yearShort}</span></div>
+   554→        <div class="validity-section">
+   555→          <div class="valid-until">Valid until 31st December ${expiryYear}</div>
+   556→          <div class="renew-yearly">Renew Yearly</div>
+   557→        </div>
+   558→        <div class="signature-section">
+   559→          <div class="sign-line"></div>
+   560→          <div class="sign-title">Municipal Co-ordinating Director</div>
+   561→        </div>
+   562→        <div class="receipt-line">RECEIPT No: <span class="receipt-val">${cert.receiptNumber}</span></div>
+   563→        <div class="cert-no-small">${cert.certNumber} | Reg: ${cert.regNumber}</div>
+   564→      </div>
+   565→    </div>
+   566→  </div>
+   567→  <script>window.onload = function() { window.print(); }</script>
+   568→</body>
+   569→</html>`);
+   570→    win.document.close();
+   571→  };
+   572→
+   573→  // ── Form Field Helper ────────────────────────────────────────────────────
+   574→  const inputClass =
+   575→    'w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition';
+   576→  const labelClass =
+   577→    'text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5';
+   578→
+   579→  // ══════════════════════════════════════════════════════════════════════════
+   580→  //  LIST VIEW
+   581→  // ══════════════════════════════════════════════════════════════════════════
+   582→  if (view === 'list') {
+   583→    return (
+   584→      <div className="space-y-6">
+   585→        {/* ── Header ──────────────────────────────────────────────────────── */}
+   586→        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+   587→          <div>
+   588→            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+   589→              Business Registration
+   590→            </h1>
+   591→            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+   592→              Manage and register businesses within the assembly. Track revenue
+   593→              collection and compliance.
+   594→            </p>
+   595→          </div>
+   596→          <button
+   597→            onClick={() => { setEditingRegNumber(null); setForm({ ...defaultForm }); setView('form'); }}
+   598→            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap"
+   599→          >
+   600→            <Plus className="w-4 h-4" />
+   601→            Register New Business
+   602→          </button>
+   603→        </div>
+   604→
+   605→        {/* ── Search & Filters ────────────────────────────────────────────── */}
+   606→        <div className="flex flex-col sm:flex-row gap-3">
+   607→          <div className="relative flex-1">
+   608→            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+   609→            <input
+   610→              type="text"
+   611→              placeholder="Search by name, owner, or registration number..."
+   612→              value={searchQuery}
+   613→              onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+   614→              className={`${inputClass} pl-10`}
+   615→            />
+   616→          </div>
+   617→          <select
+   618→            value={statusFilter}
+   619→            onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
+   620→            className={`${inputClass} w-full sm:w-44`}
+   621→          >
+   622→            <option value="All">All Statuses</option>
+   623→            <option value="Active">Active</option>
+   624→            <option value="Inactive">Inactive</option>
+   625→          </select>
+   626→          <select
+   627→            value={typeFilter}
+   628→            onChange={(e) => { setTypeFilter(e.target.value); setCurrentPage(1); }}
+   629→            className={`${inputClass} w-full sm:w-48`}
+   630→          >
+   631→            <option value="All">All Business Classes</option>
+   632→            {businessTypes.map((t) => (
+   633→              <option key={t} value={t}>{t}</option>
+   634→            ))}
+   635→          </select>
+   636→        </div>
+   637→
+   638→        {/* ── Table ───────────────────────────────────────────────────────── */}
+   639→        <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+   640→          <div className="overflow-x-auto">
+   641→            <table className="w-full text-sm">
+   642→              <thead>
+   643→                <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700">
+   644→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Reg #</th>
+   645→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Business Name</th>
+   646→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Owner</th>
+   647→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Business Class</th>
+   648→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden lg:table-cell">Category</th>
+   649→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap hidden md:table-cell">TIN</th>
+   650→                  <th className="text-left px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Status</th>
+   651→                  <th className="text-right px-4 py-3 font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">Actions</th>
+   652→                </tr>
+   653→              </thead>
+   654→              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+   655→                {paged.length === 0 ? (
+   656→                  <tr>
+   657→                    <td colSpan={8} className="text-center py-12 text-slate-400 dark:text-slate-500">
+   658→                      <Building2 className="w-10 h-10 mx-auto mb-3 opacity-40" />
+   659→                      No businesses found. Click "Register New Business" to add one.
+   660→                    </td>
+   661→                  </tr>
+   662→                ) : (
+   663→                  paged.map((biz, i) => (
+   664→                    <tr key={`biz-${i}-${biz.regNumber || biz.name}`} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+   665→                      <td className="px-4 py-3 font-mono text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">{biz.regNumber}</td>
+   666→                      <td className="px-4 py-3 font-medium text-slate-900 dark:text-white whitespace-nowrap">{biz.name}</td>
+   667→                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">{biz.owner}</td>
+   668→                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">{biz.type}</td>
+   669→                      <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap hidden lg:table-cell">{biz.category}</td>
+   670→                      <td className="px-4 py-3 font-mono text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap hidden md:table-cell">{biz.tin}</td>
+   671→                      <td className="px-4 py-3 whitespace-nowrap">
+   672→                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+   673→                          biz.status === 'Active'
+   674→                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400'
+   675→                            : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400'
+   676→                        }`}>
+   677→                          {biz.status}
+   678→                        </span>
+   679→                      </td>
+   680→                      <td className="px-4 py-3 text-right whitespace-nowrap">
+   681→                        <div className="inline-flex items-center gap-1">
+   682→                          <button onClick={() => handleViewCertificate(biz.regNumber)} className="p-1.5 rounded-md text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors" title="View Certificate">
+   683→                            <FileText className="w-4 h-4" />
+   684→                          </button>
+   685→                          <button onClick={() => handleEdit(biz)} className="p-1.5 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors" title="Edit">
+   686→                            <Pencil className="w-4 h-4" />
+   687→                          </button>
+   688→                          <button onClick={() => handleDelete(biz.regNumber)} className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors" title="Delete">
+   689→                            <Trash2 className="w-4 h-4" />
+   690→                          </button>
+   691→                        </div>
+   692→                      </td>
+   693→                    </tr>
+   694→                  ))
+   695→                )}
+   696→              </tbody>
+   697→            </table>
+   698→          </div>
+   699→        </div>
+   700→
+   701→        {/* ── Pagination ──────────────────────────────────────────────────── */}
+   702→        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+   703→          <p className="text-slate-500 dark:text-slate-400">Showing {showingFrom}-{showingTo} of {filtered.length}</p>
+   704→          <div className="flex items-center gap-2">
+   705→            <button onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={safeCurrentPage <= 1} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+   706→              <ChevronLeft className="w-4 h-4" /> Previous
+   707→            </button>
+   708→            <span className="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium">{safeCurrentPage} / {totalPages}</span>
+   709→            <button onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={safeCurrentPage >= totalPages} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+   710→              Next <ChevronRight className="w-4 h-4" />
+   711→            </button>
+   712→          </div>
+   713→        </div>
+   714→
+   715→        {/* ── Certificate Modal ──────────────────────────────────────────── */}
+   716→        {viewingCert && (() => {
+   717→          const getOrdinal = (day: number) => {
+   718→            const s = ['th','st','nd','rd'];
+   719→            const v = day % 100;
+   720→            return day + (s[(v-20)%10] || s[v] || s[0]);
+   721→          };
+   722→          // Read assembly name dynamically from settings at view time
+   723→          const _asm = (() => { try { return JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); } catch { return {}; } })();
+   724→          const dynAssemblyName = _asm.name || viewingCert.assemblyName || 'Kumasi Metropolitan Assembly';
+   725→          let dayOrd = '..................';
+   726→          let monthName = '..................';
+   727→          let yearShort = '........';
+   728→          if (viewingCert.dateIssued) {
+   729→            try {
+   730→              const d = new Date(viewingCert.dateIssued);
+   731→              dayOrd = getOrdinal(d.getDate());
+   732→              monthName = d.toLocaleDateString('en-US', { month: 'long' });
+   733→              yearShort = String(d.getFullYear()).slice(-2);
+   734→            } catch {}
+   735→          }
+   736→          const expiryYear = viewingCert.expiryDate ? new Date(viewingCert.expiryDate).getFullYear() : new Date().getFullYear() + 1;
+   737→          const assemblyShort = dynAssemblyName.replace(/\b(Metropolitan|Municipal|District|Assembly)\b/gi, '').trim().split(' ')[0];
+   738→
+   739→          return (
+   740→          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setViewingCert(null)}>
+   741→            <div className="rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+   742→              {/* Modal Header */}
+   743→              <div className="flex items-center justify-between px-5 py-3 bg-slate-800 rounded-t-2xl">
+   744→                <div className="flex items-center gap-3">
+   745→                  <div className="p-1.5 rounded-lg bg-amber-500/20">
+   746→                    <Award className="w-5 h-5 text-amber-400" />
+   747→                  </div>
+   748→                  <div>
+   749→                    <h3 className="text-base font-semibold text-white">Business Registration Certificate</h3>
+   750→                    <p className="text-xs text-slate-400">{viewingCert.certNumber}</p>
+   751→                  </div>
+   752→                </div>
+   753→                <button onClick={() => setViewingCert(null)} className="p-2 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-white transition-colors">
+   754→                  <X className="w-5 h-5" />
+   755→                </button>
+   756→              </div>
+   757→
+   758→              {/* Certificate Preview - matches the print design */}
+   759→              <div className="p-4">
+   760→                <div className="bg-[#f0ece2] rounded-lg p-6">
+   761→                  <div className="bg-white relative" style={{ padding: '6px' }}>
+   762→                    {/* Gold border effect */}
+   763→                    <div className="absolute inset-0 border-[10px] border-[#B5A642] rounded" style={{ pointerEvents: 'none' }} />
+   764→                    <div className="absolute rounded" style={{ inset: '8px', border: '1.5px solid #B5A642', pointerEvents: 'none' }} />
+   765→
+   766→                    <div className="relative mx-[16px] my-[16px] py-8 px-10">
+   767→                      {/* Corner ornaments */}
+   768→                      <div className="absolute top-0 left-0 w-10 h-10 border-t-2 border-l-2 border-[#B5A642]" />
+   769→                      <div className="absolute top-0 right-0 w-10 h-10 border-t-2 border-r-2 border-[#B5A642]" />
+   770→                      <div className="absolute bottom-0 left-0 w-10 h-10 border-b-2 border-l-2 border-[#B5A642]" />
+   771→                      <div className="absolute bottom-0 right-0 w-10 h-10 border-b-2 border-r-2 border-[#B5A642]" />
+   772→
+   773→                      {/* Header Logos */}
+   774→                      <div className="flex justify-between items-start mb-3 px-4">
+   775→                        <div className="text-center w-28">
+   776→                          <img src="/logos/ghana-coat-of-arms.webp" className="w-44 h-44 object-contain" />
+   777→                          <div className="text-[7px] font-bold uppercase tracking-wider text-slate-600 mt-1">Republic of Ghana</div>
+   778→                        </div>
+   779→                        <div className="text-center w-28">
+   780→                          <img src="/logos/assembly-seal.png" className="w-44 h-44 object-contain" />
+   781→                          <div className="text-[7px] font-bold uppercase tracking-wider text-slate-600 mt-1">{dynAssemblyName.toUpperCase()}</div>
+   782→                        </div>
+   783→                      </div>
+   784→
+   785→                      {/* Decorative flourish */}
+   786→                      <div className="text-center text-[#B5A642] text-sm tracking-[6px] mb-1">✦ ✦ ✦</div>
+   787→
+   788→                      {/* Assembly Name */}
+   789→                      <div className="text-center text-lg font-black uppercase tracking-[2px] text-[#0a0a0a]">
+   790→                        {dynAssemblyName.toUpperCase()}
+   791→                      </div>
+   792→                      {viewingCert.assemblyAddress && (
+   793→                        <div className="text-center text-[9px] text-slate-500 uppercase tracking-[3px] mb-4">
+   794→                          {viewingCert.assemblyAddress.toUpperCase()}
+   795→                        </div>
+   796→                      )}
+   797→
+   798→                      {/* Certificate Title */}
+   799→                      <div className="text-center my-4">
+   800→                        <span className="text-2xl italic font-bold text-[#B22222]" style={{ fontFamily: 'Georgia, serif' }}>
+   801→                          Certificate Of Registration
+   802→                        </span>
+   803→                      </div>
+   804→
+   805→                      {/* Body */}
+   806→                      <div className="text-center text-sm leading-[2.2] text-[#111]">
+   807→                        <div className="font-bold text-[15px] mb-1">I Hereby Certify that</div>
+   808→                        <div className="my-2">
+   809→                          <span className="text-lg font-bold border-b-2 border-dotted border-slate-500 inline-block min-w-[250px] px-2 pb-0.5" style={{ color: '#00008B', fontFamily: 'Georgia, cursive' }}>
+   810→                            {viewingCert.businessName.toUpperCase()}
+   811→                          </span>
+   812→                        </div>
+   813→                        <div>Has complied with the bye-laws/directives of the</div>
+   814→                        <div className="font-extrabold uppercase text-xs tracking-[1px] my-1">
+   815→                          {dynAssemblyName.toUpperCase()}
+   816→                        </div>
+   817→                        <div>and has duly been permitted to operate within the {assemblyShort} Municipality</div>
+   818→                        {viewingCert.tradingName && viewingCert.tradingName !== viewingCert.businessName && (
+   819→                          <div className="mt-2">
+   820→                            as <span className="text-lg font-bold border-b-2 border-dotted border-slate-500 inline-block min-w-[200px] px-2 pb-0.5" style={{ color: '#00008B', fontFamily: 'Georgia, cursive' }}>
+   821→                              {viewingCert.tradingName.toUpperCase()}
+   822→                            </span>
+   823→                          </div>
+   824→                        )}
+   825→                      </div>
+   826→
+   827→                      {/* Gold separator */}
+   828→                      <div className="h-[2px] my-5" style={{ background: 'linear-gradient(90deg, transparent, #B5A642, transparent)' }} />
+   829→
+   830→                      {/* Footer */}
+   831→                      <div className="mt-6">
+   832→                        <div className="text-center text-xs font-semibold text-slate-800 mb-3">
+   833→                          Give under my hand at {assemblyShort}
+   834→                        </div>
+   835→                        <div className="text-center text-sm leading-[2]">
+   836→                          this <span className="text-base font-bold border-b-2 border-dotted border-slate-400 inline-block min-w-[50px] px-1" style={{ color: '#00008B', fontFamily: 'Georgia, cursive' }}>{dayOrd}</span> day of <span className="text-base font-bold border-b-2 border-dotted border-slate-400 inline-block min-w-[70px] px-1" style={{ color: '#00008B', fontFamily: 'Georgia, cursive' }}>{monthName}</span> 20<span className="text-base font-bold border-b-2 border-dotted border-slate-400 inline-block min-w-[40px] px-1" style={{ color: '#00008B', fontFamily: 'Georgia, cursive' }}>{yearShort}</span>
+   837→                        </div>
+   838→                        <div className="text-center mt-4">
+   839→                          <div className="text-xs font-bold text-slate-800">Valid until 31st December {expiryYear}</div>
+   840→                          <div className="text-sm italic font-bold text-[#B22222] mt-0.5" style={{ fontFamily: 'Georgia, serif' }}>Renew Yearly</div>
+   841→                        </div>
+   842→                        <div className="text-center mt-6">
+   843→                          <div className="w-48 border-b-2 border-dotted border-slate-500 mx-auto mb-1" />
+   844→                          <div className="text-[9px] font-bold uppercase tracking-[1.5px] text-slate-600">
+   845→                            Municipal Co-ordinating Director
+   846→                          </div>
+   847→                        </div>
+   848→                        <div className="mt-4 text-[10px] text-slate-700 text-center">
+   849→                          RECEIPT No: <span className="font-bold text-sm" style={{ fontFamily: 'Georgia, cursive' }}>{viewingCert.receiptNumber}</span>
+   850→                        </div>
+   851→                        <div className="text-center text-[8px] text-slate-400 mt-2 tracking-wide">
+   852→                          {viewingCert.certNumber} | Reg: {viewingCert.regNumber}
+   853→                        </div>
+   854→                      </div>
+   855→                    </div>
+   856→                  </div>
+   857→                </div>
+   858→              </div>
+   859→
+   860→              {/* Modal Footer */}
+   861→              <div className="flex items-center justify-end gap-3 px-5 py-3 border-t border-slate-700 bg-slate-800 rounded-b-2xl">
+   862→                <button onClick={() => setViewingCert(null)} className="px-4 py-2 rounded-lg border border-slate-600 text-slate-300 text-sm font-medium hover:bg-slate-700 transition-colors">
+   863→                  Close
+   864→                </button>
+   865→                <button onClick={() => handlePrintCertificate(viewingCert)} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#B5A642] hover:bg-[#9a8d38] text-white text-sm font-medium transition-colors">
+   866→                  <Printer className="w-4 h-4" />
+   867→                  Print Certificate
+   868→                </button>
+   869→              </div>
+   870→            </div>
+   871→          </div>
+   872→          );
+   873→        })()}      </div>
+   874→    );
+   875→  }
+   876→
+   877→  // ══════════════════════════════════════════════════════════════════════════
+   878→  //  FORM VIEW
+   879→  // ══════════════════════════════════════════════════════════════════════════
+   880→  return (
+   881→    <div className="space-y-6">
+   882→      {/* ── Header ────────────────────────────────────────────────────────── */}
+   883→      <div className="flex items-center gap-4">
+   884→        <button onClick={handleCancel} className="p-2 rounded-lg border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+   885→          <ArrowLeft className="w-5 h-5" />
+   886→        </button>
+   887→        <div>
+   888→          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+   889→            {editingRegNumber ? 'Edit Business' : 'Register New Business'}
+   890→          </h1>
+   891→          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+   892→            {editingRegNumber ? 'Update the business details below.' : 'Fill in the details below to register a new business.'}
+   893→          </p>
+   894→        </div>
+   895→      </div>
+   896→
+   897→      <div className="space-y-6">
+   898→        {/* ════════════════════════════════════════════════════════════════════
+   899→            CARD 1: LOCATION
+   900→           ════════════════════════════════════════════════════════════════════ */}
+   901→        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+   902→          <div className="flex items-center gap-2.5 px-5 py-3 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700">
+   903→            <MapPin className="w-4.5 h-4.5 text-slate-600 dark:text-slate-400" />
+   904→            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Location</h2>
+   905→          </div>
+   906→          <div className="p-5">
+   907→            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
+   908→              {/* Street Name */}
+   909→              <div>
+   910→                <label className={`${labelClass} block`}>Street Name</label>
+   911→                <input type="text" name="streetName" value={form.streetName} onChange={handleFormChange} placeholder="e.g. Powder St" className={inputClass} />
+   912→              </div>
+   913→              {/* House No */}
+   914→              <div>
+   915→                <label className={`${labelClass} block`}>House No.</label>
+   916→                <input type="text" name="houseNo" value={form.houseNo} onChange={handleFormChange} placeholder="e.g. 26" className={inputClass} />
+   917→              </div>
+   918→              {/* Street Code */}
+   919→              <div>
+   920→                <label className={`${labelClass} block`}>Street Code</label>
+   921→                <input type="text" name="streetCode" value={form.streetCode} onChange={handleFormChange} placeholder="Enter street code" className={inputClass} />
+   922→              </div>
+   923→              {/* GhanaPost GPS */}
+   924→              <div>
+   925→                <label className={`${labelClass} block`}>GhanaPost GPS</label>
+   926→                <div className="flex gap-2">
+   927→                  <input type="text" name="gpsAddress" value={form.gpsAddress} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={`${inputClass} flex-1`} />
+   928→                  <button onClick={() => fetchGpsFromLocation('business')} disabled={locatingBusiness} className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors whitespace-nowrap" title="Use device GPS">
+   929→                    {locatingBusiness ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crosshair className="w-4 h-4" />}
+   930→                    {locatingBusiness ? '...' : 'GPS'}
+   931→                  </button>
+   932→                </div>
+   933→              </div>
+   934→              {/* Locality Code */}
+   935→              <div>
+   936→                <label className={`${labelClass} block`}>Locality Code</label>
+   937→                <input type="text" name="localityCode" value={form.localityCode} onChange={handleFormChange} placeholder="Enter locality code" className={inputClass} />
+   938→              </div>
+   939→              {/* Business Address (full width) */}
+   940→              <div className="sm:col-span-2 lg:col-span-3">
+   941→                <label className={`${labelClass} block`}>Business Address <span className="text-red-500">*</span></label>
+   942→                <input type="text" name="businessAddress" value={form.businessAddress} onChange={handleFormChange} placeholder="Full business address" className={inputClass} />
+   943→              </div>
+   944→            </div>
+   945→          </div>
+   946→        </div>
+   947→
+   948→        {/* ════════════════════════════════════════════════════════════════════
+   949→            CARD 2: BUSINESS INFORMATION
+   950→           ════════════════════════════════════════════════════════════════════ */}
+   951→        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+   952→          <div className="flex items-center gap-2.5 px-5 py-3 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700">
+   953→            <Briefcase className="w-4.5 h-4.5 text-slate-600 dark:text-slate-400" />
+   954→            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Business Information</h2>
+   955→          </div>
+   956→          <div className="p-5">
+   957→            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
+   958→              {/* Business Class */}
+   959→              <div>
+   960→                <label className={`${labelClass} block`}>Business Class <span className="text-red-500">*</span></label>
+   961→                <select name="type" value={form.type} onChange={handleFormChange} className={inputClass}>
+   962→                  <option value="">Type to filter business class...</option>
+   963→                  {businessTypes.map((t) => (
+   964→                    <option key={t} value={t}>{t}</option>
+   965→                  ))}
+   966→                </select>
+   967→              </div>
+   968→              {/* Business Name */}
+   969→              <div className="sm:col-span-2">
+   970→                <label className={`${labelClass} block`}>Business Name <span className="text-red-500">*</span></label>
+   971→                <input type="text" name="name" value={form.name} onChange={handleFormChange} placeholder="Enter business name" className={inputClass} />
+   972→              </div>
+   973→              {/* DA Assignment No */}
+   974→              <div>
+   975→                <label className={`${labelClass} block`}>DA Assignment No.</label>
+   976→                <input type="text" name="daAssignmentNo" value={form.daAssignmentNo} onChange={handleFormChange} placeholder="e.g. DA-2026-001" className={inputClass} />
+   977→              </div>
+   978→              {/* Business Certificate */}
+   979→              <div>
+   980→                <label className={`${labelClass} block`}>Business Certificate</label>
+   981→                <input type="text" name="businessCertNo" value={form.businessCertNo} onChange={handleFormChange} placeholder="Certificate number" className={inputClass} />
+   982→              </div>
+   983→              {/* Business Permit */}
+   984→              <div>
+   985→                <label className={`${labelClass} block`}>Business Permit</label>
+   986→                <input type="text" name="businessPermit" value={form.businessPermit} onChange={handleFormChange} placeholder="Permit number" className={inputClass} />
+   987→              </div>
+   988→              {/* Category (dynamic from fee schedule) */}
+   989→              <div>
+   990→                <label className={`${labelClass} block`}>Category</label>
+   991→                <select name="category" value={form.category} onChange={handleFormChange} className={inputClass} disabled={!form.type}>
+   992→                  <option value="">Select category</option>
+   993→                  {availableCategories.map((c, i) => (
+   994→                    <option key={`cat-${i}`} value={c.name}>{c.name}</option>
+   995→                  ))}
+   996→                </select>
+   997→              </div>
+   998→              {/* Business TIN */}
+   999→              <div>
+  1000→                <label className={`${labelClass} block`}>Business TIN</label>
+  1001→                <input type="text" name="tin" value={form.tin} onChange={handleFormChange} placeholder="e.g. TIN-1234567890" className={inputClass} />
+  1002→              </div>
+  1003→              {/* Employees */}
+  1004→              <div>
+  1005→                <label className={`${labelClass} block`}>Employees</label>
+  1006→                <input type="text" name="employees" value={form.employees} onChange={handleFormChange} placeholder="e.g. 15" className={inputClass} />
+  1007→              </div>
+  1008→              {/* Year Established */}
+  1009→              <div>
+  1010→                <label className={`${labelClass} block`}>Year Established</label>
+  1011→                <input type="text" name="yearEstablished" value={form.yearEstablished} onChange={handleFormChange} placeholder="e.g. 2020" className={inputClass} />
+  1012→              </div>
+  1013→              {/* Fee Amount (read-only) */}
+  1014→              <div>
+  1015→                <label className={`${labelClass} block`}>Fee Amount</label>
+  1016→                <input type="text" value={selectedCategoryFee ? `GH\u20b5 ${selectedCategoryFee.amount.toLocaleString()}` : ''} readOnly placeholder="Select a category" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-emerald-700 dark:text-emerald-400 font-semibold`} />
+  1017→              </div>
+  1018→              {/* Date Registered */}
+  1019→              <div>
+  1020→                <label className={`${labelClass} block`}>Date Registered</label>
+  1021→                <input type="date" name="dateRegistered" value={form.dateRegistered} onChange={handleFormChange} className={inputClass} />
+  1022→              </div>
+  1023→              {/* Active Status + Excluded from fees (same row) */}
+  1024→              <div className="flex items-end gap-6">
+  1025→                <div className="flex-1">
+  1026→                  <label className={`${labelClass} block`}>Active Status</label>
+  1027→                  <select name="status" value={form.status} onChange={handleFormChange} className={inputClass}>
+  1028→                    <option value="Active">Active</option>
+  1029→                    <option value="Inactive">Inactive</option>
+  1030→                  </select>
+  1031→                </div>
+  1032→                <label className="flex items-center gap-2 pb-2.5 cursor-pointer select-none">
+  1033→                  <input type="checkbox" name="excludedFromFees" checked={form.excludedFromFees} onChange={handleFormChange} className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+  1034→                  <span className="text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">Excluded from fees</span>
+  1035→                </label>
+  1036→              </div>
+  1037→            </div>
+  1038→          </div>
+  1039→        </div>
+  1040→
+  1041→        {/* ════════════════════════════════════════════════════════════════════
+  1042→            CARD 3: OWNER INFORMATION
+  1043→           ════════════════════════════════════════════════════════════════════ */}
+  1044→        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+  1045→          <div className="flex items-center gap-2.5 px-5 py-3 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700">
+  1046→            <User className="w-4.5 h-4.5 text-slate-600 dark:text-slate-400" />
+  1047→            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Owner Information</h2>
+  1048→          </div>
+  1049→          <div className="p-5">
+  1050→            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
+  1051→              {/* Owner Name - full width */}
+  1052→              <div className="sm:col-span-2 lg:col-span-3">
+  1053→                <label className={`${labelClass} block`}>Owner Name <span className="text-red-500">*</span></label>
+  1054→                <input type="text" name="ownerName" value={form.ownerName} onChange={handleFormChange} placeholder="Enter full name of owner" className={inputClass} />
+  1055→              </div>
+  1056→              {/* Owner Address - wider */}
+  1057→              <div className="lg:col-span-2">
+  1058→                <label className={`${labelClass} block`}>Owner Address</label>
+  1059→                <input type="text" name="ownerAddress" value={form.ownerAddress} onChange={handleFormChange} placeholder="Owner's residential address" className={inputClass} />
+  1060→              </div>
+  1061→              {/* Owner GhanaPost GPS */}
+  1062→              <div>
+  1063→                <label className={`${labelClass} block`}>Owner GhanaPost GPS</label>
+  1064→                <div className="flex gap-2">
+  1065→                  <input type="text" name="ownerGps" value={form.ownerGps} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={`${inputClass} flex-1`} />
+  1066→                  <button onClick={() => fetchGpsFromLocation('owner')} disabled={locatingOwner} className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors whitespace-nowrap" title="Use device GPS">
+  1067→                    {locatingOwner ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crosshair className="w-4 h-4" />}
+  1068→                    {locatingOwner ? '...' : 'GPS'}
+  1069→                  </button>
+  1070→                </div>
+  1071→              </div>
+  1072→              {/* Phone */}
+  1073→              <div>
+  1074→                <label className={`${labelClass} block`}>Phone</label>
+  1075→                <input type="tel" name="phone" value={form.phone} onChange={handleFormChange} placeholder="e.g. +233 24 567 8901" className={inputClass} />
+  1076→              </div>
+  1077→              {/* Email */}
+  1078→              <div>
+  1079→                <label className={`${labelClass} block`}>Email</label>
+  1080→                <input type="email" name="email" value={form.email} onChange={handleFormChange} placeholder="e.g. owner@email.com" className={inputClass} />
+  1081→              </div>
+  1082→              {/* Owner TIN */}
+  1083→              <div>
+  1084→                <label className={`${labelClass} block`}>TIN</label>
+  1085→                <input type="text" name="ownerTin" value={form.ownerTin} onChange={handleFormChange} placeholder="Owner's TIN" className={inputClass} />
+  1086→              </div>
+  1087→              {/* National ID (Ghana Card) */}
+  1088→              <div>
+  1089→                <label className={`${labelClass} block`}>National ID</label>
+  1090→                <input type="text" name="ghanaCard" value={form.ghanaCard} onChange={handleFormChange} placeholder="e.g. GHA-123456789-0" className={inputClass} />
+  1091→              </div>
+  1092→              {/* Comments - full width */}
+  1093→              <div className="sm:col-span-2 lg:col-span-3">
+  1094→                <label className={`${labelClass} block`}>Comments</label>
+  1095→                <textarea name="comments" value={form.comments} onChange={handleFormChange} placeholder="Any additional notes..." rows={3} className={`${inputClass} resize-none`} />
+  1096→              </div>
+  1097→            </div>
+  1098→          </div>
+  1099→        </div>
+  1100→
+  1101→        {/* ─── Action Buttons ──────────────────────────────────────────── */}
+  1102→        <div className="flex items-center justify-end gap-3 pt-2">
+  1103→          <button onClick={handleCancel} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-500 hover:bg-slate-600 text-white text-sm font-medium transition-colors">
+  1104→            <X className="w-4 h-4" />
+  1105→            Cancel
+  1106→          </button>
+  1107→          <button onClick={handleSave} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors">
+  1108→            <Save className="w-4 h-4" />
+  1109→            {editingRegNumber ? 'Update' : 'Save'}
+  1110→          </button>
+  1111→        </div>
+  1112→      </div>
+  1113→    </div>
+  1114→  );
+  1115→}

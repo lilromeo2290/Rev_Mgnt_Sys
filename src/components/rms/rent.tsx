@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useLocalStorage } from '@/hooks/use-local-storage';
 import {
   Search,
@@ -24,7 +24,10 @@ import {
   DollarSign,
   Hash,
   Ruler,
+  Download,
+  Upload,
 } from 'lucide-react';
+import { exportToExcel, importFromExcel, RENT_FIELDS } from '@/lib/import-export';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -154,7 +157,34 @@ export function RentPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [rents, setRents] = useLocalStorage<Rent[]>('rms-rents', mockRents);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const itemsPerPage = 10;
+
+  // ── Import / Export ───────────────────────────────────────────────────────
+  const handleExport = () => {
+    if (rents.length === 0) { alert('No rent records to export.'); return; }
+    exportToExcel(rents as unknown as Record<string, unknown>[], RENT_FIELDS, 'Rents');
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const imported = await importFromExcel<Rent>(file, RENT_FIELDS);
+      if (imported.length === 0) { alert('No data found in the file.'); return; }
+      const existing = new Map(rents.map((r) => [r.id, r]));
+      for (const item of imported) {
+        const key = item.id || `IMP-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+        item.id = key;
+        existing.set(key, item);
+      }
+      setRents(Array.from(existing.values()));
+      alert(`${imported.length} rent record(s) imported successfully.`);
+    } catch (err) {
+      alert('Failed to import file. Please ensure it is a valid Excel file exported from this system.');
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
 
   // ── Form State ───────────────────────────────────────────────────────────
   const defaultForm = {
@@ -349,14 +379,20 @@ export function RentPage() {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
         <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-4">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <h1 className="text-xl font-bold text-slate-900 dark:text-white">Rent Management</h1>
+          <div className="flex items-center gap-2">
             <button
               onClick={() => { setForm(defaultForm); setEditingId(null); setView('form'); }}
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors"
             >
               <Plus className="w-4 h-4" /> Add Rent
             </button>
+            <button onClick={handleExport} className="inline-flex items-center gap-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium px-3 py-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors whitespace-nowrap">
+              <Download className="w-4 h-4" /> Export
+            </button>
+            <button onClick={() => fileInputRef.current?.click()} className="inline-flex items-center gap-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-sm font-medium px-3 py-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors whitespace-nowrap">
+              <Upload className="w-4 h-4" /> Import
+            </button>
+            <input ref={fileInputRef} type="file" accept=".xlsx,.xls" onChange={handleImport} className="hidden" />
           </div>
         </header>
 
