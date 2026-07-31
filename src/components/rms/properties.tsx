@@ -518,23 +518,23 @@ export function PropertiesPage() {
             <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Property Information</h2>
           </div>
           <div className={cardBodyClass}>
-            {/* Category | Property Use Type — 2-column */}
+            {/* Property Use Type | Category — 2-column */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass}>Category <span className="text-red-500">*</span></label>
-                <select name="category" value={form.category} onChange={handleFormChange} className={inputClass}>
-                  <option value="">Select category</option>
-                  {categories.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-              </div>
               <div>
                 <label className={labelClass}>Property Use Type <span className="text-red-500">*</span></label>
                 <select name="propertyUseType" value={form.propertyUseType} onChange={handleFormChange} className={inputClass} disabled={!form.category}>
                   <option value="">{form.category ? 'Select use type' : 'Select a category first'}</option>
                   {(form.category ? subCategories : propertyUseTypes).map((t) => (
                     <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className={labelClass}>Category <span className="text-red-500">*</span></label>
+                <select name="category" value={form.category} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Select category</option>
+                  {categories.map((c) => (
+                    <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
               </div>
