@@ -690,8 +690,8 @@ export function DashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-700/60">
-                  {recentBusinesses.map((b) => (
-                    <tr key={b.regNumber} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                  {recentBusinesses.map((b, i) => (
+                    <tr key={`biz-${i}-${b.regNumber || b.name}`} className="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
                       <td className="text-sm text-slate-900 dark:text-white font-medium px-3 py-3">
                         <div className="flex items-center gap-2">
                           <span className="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center text-emerald-700 dark:text-emerald-400 text-xs font-bold shrink-0">
