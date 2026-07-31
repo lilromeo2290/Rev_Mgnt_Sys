@@ -17,6 +17,7 @@ import {
   Crosshair,
   Save,
   X,
+  Loader2,
 } from 'lucide-react';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -116,6 +117,52 @@ export function PropertiesPage() {
   };
 
   const [form, setForm] = useState(defaultForm);
+  const [locatingProperty, setLocatingProperty] = useState(false);
+  const [locatingOwner, setLocatingOwner] = useState(false);
+
+  // ── Geolocation: Fetch GPS from device location ─────────────────────
+  const fetchGpsFromLocation = (
+    target: 'property' | 'owner'
+  ) => {
+    const setLoading = target === 'property' ? setLocatingProperty : setLocatingOwner;
+
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser. Please enter the GPS address manually.');
+      return;
+    }
+
+    setLoading(true);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const gpsString = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+        if (target === 'property') {
+          setForm((prev) => ({ ...prev, ghanaPostGPS: gpsString }));
+        } else {
+          setForm((prev) => ({ ...prev, ownerGPS: gpsString }));
+        }
+        setLoading(false);
+      },
+      (error) => {
+        let message = 'Unable to retrieve location.';
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            message = 'Location permission denied. Please allow location access in your browser settings.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            message = 'Location information is unavailable. Please try again or enter manually.';
+            break;
+          case error.TIMEOUT:
+            message = 'Location request timed out. Please try again.';
+            break;
+        }
+        alert(message);
+        setLoading(false);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  };
 
   // ── Filtering ─────────────────────────────────────────────────────────────
   const filtered = properties.filter((p) => {
@@ -362,8 +409,8 @@ export function PropertiesPage() {
                 <label className={labelClass}>GhanaPost GPS</label>
                 <div className="relative">
                   <input type="text" name="ghanaPostGPS" value={form.ghanaPostGPS} onChange={handleFormChange} placeholder="XX-XXX-XXXX" className={`${inputClass} pr-10`} />
-                  <button type="button" className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-slate-400 hover:text-emerald-600 transition-colors cursor-pointer" title="Get GPS">
-                    <Crosshair className="w-4 h-4" />
+                  <button type="button" onClick={() => fetchGpsFromLocation('property')} disabled={locatingProperty} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-slate-400 hover:text-emerald-600 transition-colors cursor-pointer disabled:opacity-50" title="Use device GPS">
+                    {locatingProperty ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crosshair className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
@@ -399,7 +446,12 @@ export function PropertiesPage() {
               </div>
               <div>
                 <label className={labelClass}>Owner GhanaPost GPS</label>
-                <input type="text" name="ownerGPS" value={form.ownerGPS} onChange={handleFormChange} placeholder="XX-XXX-XXXX" className={inputClass} />
+                <div className="relative">
+                  <input type="text" name="ownerGPS" value={form.ownerGPS} onChange={handleFormChange} placeholder="XX-XXX-XXXX" className={`${inputClass} pr-10`} />
+                  <button type="button" onClick={() => fetchGpsFromLocation('owner')} disabled={locatingOwner} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded text-slate-400 hover:text-emerald-600 transition-colors cursor-pointer disabled:opacity-50" title="Use device GPS">
+                    {locatingOwner ? <Loader2 className="w-4 h-4 animate-spin" /> : <Crosshair className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
             </div>
             {/* Phone | Email | TIN — 3-column */}
