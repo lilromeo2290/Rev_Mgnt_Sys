@@ -254,7 +254,7 @@ export function BillingPage() {
       date: new Date().toISOString().split('T')[0],
       entityName: formData.entityName,
       entityType: formData.entityType,
-      category: entities.find((e) => e.name === formData.entityName)?.category ?? 'General',
+      category: 'General',
       revenueItem: formData.revenueItem,
       amount: formData.amount,
       previousBalance: formData.previousBalance,
@@ -540,7 +540,7 @@ export function BillingPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => { setEntities(loadEntities()); setShowModal(true); }} className={btnPrimary}>
+          <button onClick={() => setShowModal(true)} className={btnPrimary}>
             <Plus className="w-4 h-4" />
             Generate Bill
           </button>
@@ -1110,28 +1110,31 @@ export function BillingPage() {
 
             {/* Modal Body */}
             <div className="px-6 py-5 space-y-4">
-              {/* Entity Selection */}
+              {/* Entity Type Selection */}
               <div>
                 <label className={labelClass}>Business / Property / Rent</label>
                 <select
-                  value={formData.entityName}
-                  onChange={(e) => {
-                    const entity = entities.find((ent) => ent.name === e.target.value);
-                    setFormData((p) => ({
-                      ...p,
-                      entityName: e.target.value,
-                      entityType: (entity?.type ?? 'Business') as 'Business' | 'Property' | 'Rent',
-                    }));
-                  }}
+                  value={formData.entityType}
+                  onChange={(e) => setFormData((p) => ({ ...p, entityType: e.target.value as 'Business' | 'Property' | 'Rent' }))}
                   className={inputClass}
                 >
-                  <option value="">Select entity...</option>
-                  {entities.map((e, i) => (
-                    <option key={`entity-${i}`} value={e.name}>
-                      {e.name} ({e.type} – {e.category})
-                    </option>
-                  ))}
+                  <option value="">Select type...</option>
+                  <option value="Business">Business</option>
+                  <option value="Property">Property</option>
+                  <option value="Rent">Rent</option>
                 </select>
+              </div>
+
+              {/* Entity Name */}
+              <div>
+                <label className={labelClass}>Entity Name</label>
+                <input
+                  type="text"
+                  value={formData.entityName}
+                  onChange={(e) => setFormData((p) => ({ ...p, entityName: e.target.value }))}
+                  className={inputClass}
+                  placeholder="Enter entity name"
+                />
               </div>
 
               {/* Revenue Item */}
