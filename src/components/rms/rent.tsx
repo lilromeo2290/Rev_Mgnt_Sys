@@ -687,20 +687,14 @@ export function RentPage() {
               </div>
               <div>
                 <label className={labelClass}>Renter GPS Coordinates</label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs text-slate-500 dark:text-slate-400 mb-1 block">Latitude</label>
-                    <input type="text" name="renterLatitude" value={form.renterLatitude} onChange={handleFormChange} placeholder="e.g. 6.6884" className={inputClass} />
-                  </div>
-                  <div>
-                    <label className="text-xs text-slate-500 dark:text-slate-400 mb-1 block">Longitude</label>
-                    <input type="text" name="renterLongitude" value={form.renterLongitude} onChange={handleFormChange} placeholder="e.g. -1.6244" className={inputClass} />
-                  </div>
+                <div className="flex gap-2">
+                  <input type="text" name="renterLatitude" value={form.renterLatitude} onChange={handleFormChange} placeholder="Latitude" className={`${inputClass} flex-1`} />
+                  <input type="text" name="renterLongitude" value={form.renterLongitude} onChange={handleFormChange} placeholder="Longitude" className={`${inputClass} flex-1`} />
+                  <button type="button" onClick={fetchGps} disabled={locating} className="inline-flex items-center gap-1.5 px-2.5 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors text-xs font-medium whitespace-nowrap">
+                    {locating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Crosshair className="w-3.5 h-3.5" />}
+                    {locating ? '...' : 'GPS'}
+                  </button>
                 </div>
-                <button type="button" onClick={fetchGps} disabled={locating} className="mt-2 inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors text-xs font-medium">
-                  {locating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Crosshair className="w-3.5 h-3.5" />}
-                  {locating ? 'Detecting...' : 'Detect GPS'}
-                </button>
               </div>
             </div>
             {/* Phone | Email | TIN — 3-column */}
