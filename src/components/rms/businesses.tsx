@@ -117,7 +117,7 @@ const defaultForm = {
   ghanaPostGPS: '',
   latitude: '',
   longitude: '',
-  digitalAddress': '',
+  digitalAddress: '',
   residentialAddress: '',
   businessAddress: '',
   ward: '',
