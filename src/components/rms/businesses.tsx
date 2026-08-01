@@ -1076,7 +1076,7 @@ export function BusinessesPage() {
                 <input type="text" name="businessCertNo" value={form.businessCertNo} readOnly placeholder="Auto-generated" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
               </div>
               {/* Row 1: Revenue Code, Revenue Description, Business Class, Business Class Code */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-4">
+              <div className="sm:col-span-2 lg:col-span-3 grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-4">
                 <div>
                   <label className={`${labelClass} block`}>Revenue Code</label>
                   <select name="code" value={form.code} onChange={handleFormChange} className={inputClass}>
@@ -1110,7 +1110,7 @@ export function BusinessesPage() {
                 </div>
               </div>
               {/* Row 2: Business TIN, Employees, Year Established */}
-              <div className="grid grid-cols-3 gap-x-4 gap-y-4">
+              <div className="sm:col-span-2 lg:col-span-3 grid grid-cols-3 gap-x-4 gap-y-4">
                 <div>
                   <label className={`${labelClass} block`}>Business TIN</label>
                   <input type="text" name="tin" value={form.tin} onChange={handleFormChange} placeholder="e.g. TIN-1234567890" className={inputClass} />
