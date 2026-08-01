@@ -192,9 +192,10 @@ export function BusinessesPage() {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const generateBusinessUniqueNumber = () => {
+  const generateBusinessUniqueNumber = (areaCode?: string) => {
     const nextNum = businesses.length + 1;
-    return `KPMA/KZ2/ABM/BP/${String(nextNum).padStart(4, '0')}`;
+    const prefix = areaCode || 'KpMA/KZC/ABX';
+    return `${prefix}/BP/${String(nextNum).padStart(4, '0')}`;
   };
 
   const generateBusinessCertNo = () => {
@@ -205,7 +206,7 @@ export function BusinessesPage() {
   const generateDaAssignmentNo = () => {
     const yearSuffix = String(new Date().getFullYear()).slice(-2);
     const nextNum = businesses.length + 1;
-    return `KPMA-${yearSuffix}-${String(nextNum).padStart(4, '0')}/BP`;
+    return `KpMA-${yearSuffix}-${String(nextNum).padStart(4, '0')}/BP`;
   };
 
   // ── Form State ───────────────────────────────────────────────────────────
@@ -274,6 +275,9 @@ export function BusinessesPage() {
       // Auto-fill area code when locality changes
       if (name === 'locality' && LOCALITY_AREA_CODE_MAP[updated.locality]) {
         updated.areaCode = LOCALITY_AREA_CODE_MAP[updated.locality];
+        // Update business unique number with new area code
+        const nextNum = businesses.length + 1;
+        updated.businessUniqueNumber = `${updated.areaCode}/BP/${String(nextNum).padStart(4, '0')}`;
       }
       // Reset category and sub-category when type changes
       if (name === 'type') {
