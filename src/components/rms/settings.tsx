@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import {
   Building,
   Phone,
@@ -17,6 +17,7 @@ import {
   Download,
   RefreshCw,
 } from 'lucide-react';
+import { useSyncedStorage } from '@/hooks/use-synced-storage';
 
 const SETTINGS_KEY = 'rms-settings-assembly';
 
@@ -42,30 +43,11 @@ const defaultAssembly: AssemblyInfo = {
   logo: '',
 };
 
-function loadAssemblySettings(): AssemblyInfo {
-  if (typeof window === 'undefined') return defaultAssembly;
-  try {
-    const raw = localStorage.getItem(SETTINGS_KEY);
-    if (raw) return { ...defaultAssembly, ...JSON.parse(raw) };
-  } catch {}
-  return defaultAssembly;
-}
-
-function saveAssemblySettings(data: AssemblyInfo) {
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(data));
-}
-
 export function SettingsPage() {
   const [activeTab, setActiveTab] = useState('assembly');
   const [saved, setSaved] = useState(false);
-  const [assembly, setAssembly] = useState<AssemblyInfo>(defaultAssembly);
-  const [loaded, setLoaded] = useState(false);
-
-  // Load from localStorage on mount
-  useEffect(() => {
-    setAssembly(loadAssemblySettings());
-    setLoaded(true);
-  }, []);
+  const [assembly, setAssembly, dataLoading] = useSyncedStorage<AssemblyInfo>(SETTINGS_KEY, defaultAssembly);
+  const loaded = !dataLoading;
 
   const tabs = [
     { id: 'assembly', label: 'Assembly Info', icon: Building },
@@ -81,10 +63,7 @@ export function SettingsPage() {
   };
 
   const handleSave = () => {
-    // Save assembly settings
-    saveAssemblySettings(assembly);
-    // Dispatch a storage event so other components pick up the change
-    window.dispatchEvent(new StorageEvent('storage', { key: SETTINGS_KEY }));
+    // useSyncedStorage auto-syncs to server on setAssembly
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
