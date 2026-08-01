@@ -1070,7 +1070,7 @@ export function BusinessesPage() {
                 <label className={`${labelClass} block`}>Business Name <span className="text-red-500">*</span></label>
                 <input type="text" name="name" value={form.name} onChange={handleFormChange} placeholder="Enter business name" className={inputClass} />
               </div>
-              {/* DA Assignment No. / Business Permit (same row) */}
+              {/* Row 1: DA Assignment No., Business Unique Number, Business Cert No. */}
               <div>
                 <label className={`${labelClass} block`}>DA Assignment No. / Business Permit</label>
                 <input type="text" name="daAssignmentNo" value={form.daAssignmentNo} readOnly placeholder="Auto-generated" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
@@ -1085,71 +1085,65 @@ export function BusinessesPage() {
                 <label className={`${labelClass} block`}>Business Certificate Number</label>
                 <input type="text" name="businessCertNo" value={form.businessCertNo} readOnly placeholder="Auto-generated" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
               </div>
-              {/* Row 1: Revenue Code, Revenue Description */}
-              <div className="sm:col-span-2 lg:col-span-3 grid grid-cols-2 gap-x-4 gap-y-4">
-                <div>
-                  <label className={`${labelClass} block`}>Revenue Code</label>
-                  <select name="code" value={form.code} onChange={handleFormChange} className={inputClass}>
-                    <option value="">Select Revenue Code</option>
-                    {REVENUE_CODE_MAP.filter(m => m.code).map((m) => (
-                      <option key={m.code} value={m.code}>{m.code}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className={`${labelClass} block`}>Revenue Description</label>
-                  <select name="revenueDescription" value={form.revenueDescription} onChange={handleFormChange} className={inputClass}>
-                    <option value="">Select revenue description...</option>
-                    {REVENUE_CODE_MAP.filter(m => m.code).map((m) => (
-                      <option key={m.code} value={m.description}>{m.description}</option>
-                    ))}
-                  </select>
-                </div>
+              {/* Row 2: Revenue Code, Revenue Description, Business Class Code */}
+              <div>
+                <label className={`${labelClass} block`}>Revenue Code</label>
+                <select name="code" value={form.code} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Select Revenue Code</option>
+                  {REVENUE_CODE_MAP.filter(m => m.code).map((m) => (
+                    <option key={m.code} value={m.code}>{m.code}</option>
+                  ))}
+                </select>
               </div>
-              {/* Row 2: Business Class, Business Class Code, Category */}
-              <div className="sm:col-span-2 lg:col-span-3 grid grid-cols-3 gap-x-4 gap-y-4">
-                <div>
-                  <label className={`${labelClass} block`}>Business Class <span className="text-red-500">*</span></label>
-                  <select name="type" value={form.type} onChange={handleFormChange} className={inputClass}>
-                    <option value="">Type to filter business class...</option>
-                    {businessTypes.map((t) => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className={`${labelClass} block`}>Business Class Code</label>
-                  <select name="businessClassCode" value={form.businessClassCode} onChange={handleFormChange} className={inputClass}>
-                    <option value="">Select code...</option>
-                    {(CLASS_TO_CODES[form.type] || BUSINESS_CLASS_CODES).map((c, i) => (
-                      <option key={`${c}-${i}`} value={c}>{c}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className={`${labelClass} block`}>Category</label>
-                  <select name="category" value={form.category} onChange={handleFormChange} className={inputClass}>
-                    <option value="">Select Business Class first...</option>
-                    {availableCategories.map((c) => (
-                      <option key={c.name} value={c.name}>{c.name}</option>
-                    ))}
-                  </select>
-                </div>
+              <div>
+                <label className={`${labelClass} block`}>Revenue Description</label>
+                <select name="revenueDescription" value={form.revenueDescription} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Select revenue description...</option>
+                  {REVENUE_CODE_MAP.filter(m => m.code).map((m) => (
+                    <option key={m.code} value={m.description}>{m.description}</option>
+                  ))}
+                </select>
               </div>
-              {/* Row 2: Business TIN, Employees, Year Established */}
-              <div className="sm:col-span-2 lg:col-span-3 grid grid-cols-3 gap-x-4 gap-y-4">
-                <div>
-                  <label className={`${labelClass} block`}>Business TIN</label>
-                  <input type="text" name="tin" value={form.tin} onChange={handleFormChange} placeholder="e.g. TIN-1234567890" className={inputClass} />
-                </div>
-                <div>
-                  <label className={`${labelClass} block`}>Employees</label>
-                  <input type="text" name="employees" value={form.employees} onChange={handleFormChange} placeholder="e.g. 15" className={inputClass} />
-                </div>
-                <div>
-                  <label className={`${labelClass} block`}>Year Established</label>
-                  <input type="text" name="yearEstablished" value={form.yearEstablished} onChange={handleFormChange} placeholder="e.g. 2020" className={inputClass} />
-                </div>
+              <div>
+                <label className={`${labelClass} block`}>Business Class Code</label>
+                <select name="businessClassCode" value={form.businessClassCode} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Select code...</option>
+                  {(CLASS_TO_CODES[form.type] || BUSINESS_CLASS_CODES).map((c, i) => (
+                    <option key={`${c}-${i}`} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+              {/* Row 3: Business Class, Category */}
+              <div>
+                <label className={`${labelClass} block`}>Business Class <span className="text-red-500">*</span></label>
+                <select name="type" value={form.type} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Type to filter business class...</option>
+                  {businessTypes.map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className={`${labelClass} block`}>Category</label>
+                <select name="category" value={form.category} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Select Business Class first...</option>
+                  {availableCategories.map((c) => (
+                    <option key={c.name} value={c.name}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+              {/* Business TIN, Employees, Year Established */}
+              <div>
+                <label className={`${labelClass} block`}>Business TIN</label>
+                <input type="text" name="tin" value={form.tin} onChange={handleFormChange} placeholder="e.g. TIN-1234567890" className={inputClass} />
+              </div>
+              <div>
+                <label className={`${labelClass} block`}>Employees</label>
+                <input type="text" name="employees" value={form.employees} onChange={handleFormChange} placeholder="e.g. 15" className={inputClass} />
+              </div>
+              <div>
+                <label className={`${labelClass} block`}>Year Established</label>
+                <input type="text" name="yearEstablished" value={form.yearEstablished} onChange={handleFormChange} placeholder="e.g. 2020" className={inputClass} />
               </div>
               {/* Amount (read-only) */}
               <div>
