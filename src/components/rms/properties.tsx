@@ -157,7 +157,7 @@ export function PropertiesPage() {
   const generatePropertyUniqueNumber = (areaCode?: string) => {
     const nextNum = properties.length + 1;
     const prefix = areaCode || 'KpMA/KZC/ABX';
-    return `${prefix}/PP/${String(nextNum).padStart(4, '0')}`;
+    return `${prefix}/PR/${String(nextNum).padStart(4, '0')}`;
   };
 
   const generatePropertyCertNo = () => {
@@ -168,7 +168,7 @@ export function PropertiesPage() {
   const generateDaAssignmentNo = () => {
     const yearSuffix = String(new Date().getFullYear()).slice(-2);
     const nextNum = properties.length + 1;
-    return `KpMA-${yearSuffix}-${String(nextNum).padStart(4, '0')}/PP`;
+    return `KpMA-${yearSuffix}-${String(nextNum).padStart(4, '0')}/PR`;
   };
 
   // ── Form State ───────────────────────────────────────────────────────────
@@ -293,7 +293,7 @@ export function PropertiesPage() {
       // Update property unique number whenever area code changes
       if ((name === 'locality' || name === 'areaCode') && updated.areaCode) {
         const nextNum = properties.length + 1;
-        updated.propertyUniqueNumber = `${updated.areaCode}/PP/${String(nextNum).padStart(4, '0')}`;
+        updated.propertyUniqueNumber = `${updated.areaCode}/PR/${String(nextNum).padStart(4, '0')}`;
       }
       // Link Revenue Description <-> Revenue Code
       if (name === 'revenueDescription' && DESCRIPTION_TO_CODE[updated.revenueDescription]) {
