@@ -30,6 +30,7 @@ import { exportToExcel, importFromExcel, BUSINESS_FIELDS } from '@/lib/import-ex
 import { LOCALITIES, LOCALITY_AREA_CODE_MAP } from '@/lib/localities';
 import { REVENUE_DESCRIPTIONS } from '@/lib/revenue-descriptions';
 import { REVENUE_CODE_MAP, DESCRIPTION_TO_CODE, CODE_TO_DESCRIPTION } from '@/lib/revenue-code-map';
+import { CLASS_TO_FIRST_CODE, CLASS_TO_CODES, CODE_TO_CLASS } from '@/lib/business-class-code-map';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -290,6 +291,13 @@ export function BusinessesPage() {
       }
       if (name === 'code' && CODE_TO_DESCRIPTION[updated.code]) {
         updated.revenueDescription = CODE_TO_DESCRIPTION[updated.code];
+      }
+      // Link Business Class ↔ Business Class Code
+      if (name === 'type' && CLASS_TO_FIRST_CODE[updated.type]) {
+        updated.businessClassCode = CLASS_TO_FIRST_CODE[updated.type];
+      }
+      if (name === 'businessClassCode' && CODE_TO_CLASS[updated.businessClassCode]) {
+        updated.type = CODE_TO_CLASS[updated.businessClassCode];
       }
       // Reset category and sub-category when type changes
       if (name === 'type') {
@@ -1106,7 +1114,12 @@ export function BusinessesPage() {
                 </div>
                 <div>
                   <label className={`${labelClass} block`}>Business Class Code</label>
-                  <input type="text" name="businessClassCode" value={form.businessClassCode} onChange={handleFormChange} placeholder="e.g. BC-001" className={inputClass} />
+                  <select name="businessClassCode" value={form.businessClassCode} onChange={handleFormChange} className={inputClass}>
+                    <option value="">Select code...</option>
+                    {(CLASS_TO_CODES[form.type] || []).map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
               {/* Row 2: Business TIN, Employees, Year Established */}
