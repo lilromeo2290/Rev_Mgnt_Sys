@@ -1,0 +1,28 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "```json\n[\"KpMA/KZC/AB2\", \"KpMA/KZC/ABC\", \"KpMA/KZC/AG\", \"KpMA/KZC/AG\", \"KpMA/KZC/ALY\", \"KpMA/KZC/ALQ\", \"KpMA/KZC/AVI\", \"KpMA/KZC/AZT\", \"KpMA/KZC/BAI\", \"KpMA/KZC/BHJ\", \"KpMA/KZC/DAI\", \"KpMA/KZC/DZJ\", \"KpMA/KZC/DZJ\", \"KpMA/KZC/DZJ\", \"KpMA/KZC/FAG\", \"KpMA/KZC/FAV\", \"KpMA/KZC/FDJ\", \"KpMA/KZC/FDI\", \"KpMA/KZC/FKI\", \"KpMA/KZC/FQJ\", \"KpMA/KZC/GD\", \"KpMA/KZC/KD\", \"KpMA/KZC/TDJ\", \"KpMA/KZC/TKI\", \"KpMA/KZC/TG\", \"KpMA/KZC/TA7\", \"KpMA/KZC/TAY\", \"KpMA/KZC/TDJ\", \"KpMA/KZC/TTI\", \"KpMA/KZC/THD\", \"KpMA/KZC/KD\", \"KpMA/KZC/TNI\", \"KpMA/KZC/TN\", \"KpMA/KZC/TN\", \"KpMA/KZC/TN\", \"KpMA/KZC/GA\", \"KpMA/GZC/HM\", \"KpMA/GZC/TR3\", \"KpMA/SZC/ABM\", \"KpMA/SZC/AYN\", \"KpMA/SZC/ATN\", \"KpMA/SZC/DZJ\", \"KpMA/SZC/KDA\", \"KpMA/SZC/KD2\", \"KpMA/SZC/NKI\", \"KpMA/SZC/NDI\", \"KpMA/SZC/TKE\", \"KpMA/SZC/TDJ\", \"KpMA/sZc/ZGo\"]\n```",
+        "role": "assistant"
+      }
+    }
+  ],
+  "created": 1785574807,
+  "id": "2026080117000485b5aa8a8f4b415f",
+  "model": "glm-5v-turbo",
+  "object": "chat.completion",
+  "request_id": "2026080117000485b5aa8a8f4b415f",
+  "usage": {
+    "completion_tokens": 517,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "prompt_tokens": 210,
+    "prompt_tokens_details": {
+      "cached_tokens": 4
+    },
+    "total_tokens": 727
+  }
+}
