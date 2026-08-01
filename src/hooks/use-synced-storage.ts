@@ -29,8 +29,9 @@ export function useSyncedStorage<T>(
         if (res.ok) {
           const json = await res.json();
           if (json.data !== null && json.data !== undefined) {
-            // Also save to localStorage as cache
+            // Also save to both localStorage keys as cache
             window.localStorage.setItem(localStorageKey, JSON.stringify(json.data));
+            window.localStorage.setItem(key, JSON.stringify(json.data));
             setStoredValue(json.data);
             setLoading(false);
             return;
@@ -68,9 +69,10 @@ export function useSyncedStorage<T>(
         const valueToStore = value instanceof Function ? value(prev) : value;
         const localStorageKey = `local-${key}`;
 
-        // Save to localStorage
+        // Save to localStorage (both prefixed for hook use and original key for backward compat)
         try {
           window.localStorage.setItem(localStorageKey, JSON.stringify(valueToStore));
+          window.localStorage.setItem(key, JSON.stringify(valueToStore));
         } catch {}
 
         // Save to server (fire-and-forget)

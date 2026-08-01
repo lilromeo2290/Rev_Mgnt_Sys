@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import { useSyncedStorage } from '@/hooks/use-synced-storage';
 import {
   AreaChart,
   Area,
@@ -265,6 +266,10 @@ function EmptyState({ icon, message }: { icon: React.ReactNode; message: string 
 // ---------------------------------------------------------------------------
 
 export function DashboardPage() {
+  // Assembly info from synced storage
+  const [assemblyInfo] = useSyncedStorage<{ name: string; code: string; address: string }>('rms-settings-assembly', { name: '', code: '', address: '' });
+  const assemblyName = assemblyInfo.name || 'Kumasi Metropolitan Assembly';
+
   // Read all data from localStorage on mount + listen for changes
   const [businesses, setBusinesses] = useState<LSBusiness[]>([]);
   const [properties, setProperties] = useState<LSProperty[]>([]);
@@ -446,7 +451,7 @@ export function DashboardPage() {
                 Revenue Management System
               </h1>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Kumasi Metropolitan Assembly — Dashboard Overview
+                {assemblyName} — Dashboard Overview
               </p>
             </div>
           </div>
