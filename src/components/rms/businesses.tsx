@@ -1097,7 +1097,7 @@ export function BusinessesPage() {
                 <label className={`${labelClass} block`}>Business Name <span className="text-red-500">*</span></label>
                 <input type="text" name="name" value={form.name} onChange={handleFormChange} placeholder="Enter business name" className={inputClass} />
               </div>
-              {/* Row 2: Revenue Code, Revenue Description, Business Class Code */}
+              {/* Row 2: Revenue Code, Revenue Description, Business TIN */}
               <div>
                 <label className={`${labelClass} block`}>Revenue Code</label>
                 <select name="code" value={form.code} onChange={handleFormChange} className={inputClass}>
@@ -1117,6 +1117,11 @@ export function BusinessesPage() {
                 </select>
               </div>
               <div>
+                <label className={`${labelClass} block`}>Business TIN</label>
+                <input type="text" name="tin" value={form.tin} onChange={handleFormChange} placeholder="e.g. TIN-1234567890" className={inputClass} />
+              </div>
+              {/* Row 3: Business Class Code, Business Class, Category */}
+              <div>
                 <label className={`${labelClass} block`}>Business Class Code</label>
                 <select name="businessClassCode" value={form.businessClassCode} onChange={handleFormChange} className={inputClass}>
                   <option value="">Select code...</option>
@@ -1125,7 +1130,6 @@ export function BusinessesPage() {
                   ))}
                 </select>
               </div>
-              {/* Row 3: Business Class, Category */}
               <div>
                 <label className={`${labelClass} block`}>Business Class <span className="text-red-500">*</span></label>
                 <select name="type" value={form.type} onChange={handleFormChange} className={inputClass}>
@@ -1144,11 +1148,7 @@ export function BusinessesPage() {
                   ))}
                 </select>
               </div>
-              {/* Business TIN, Employees, Year Established */}
-              <div>
-                <label className={`${labelClass} block`}>Business TIN</label>
-                <input type="text" name="tin" value={form.tin} onChange={handleFormChange} placeholder="e.g. TIN-1234567890" className={inputClass} />
-              </div>
+              {/* Employees, Year Established, Amount */}
               <div>
                 <label className={`${labelClass} block`}>Employees</label>
                 <input type="text" name="employees" value={form.employees} onChange={handleFormChange} placeholder="e.g. 15" className={inputClass} />
