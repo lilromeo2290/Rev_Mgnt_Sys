@@ -31,6 +31,7 @@ import { LOCALITIES, LOCALITY_AREA_CODE_MAP } from '@/lib/localities';
 import { REVENUE_DESCRIPTIONS } from '@/lib/revenue-descriptions';
 import { REVENUE_CODE_MAP, DESCRIPTION_TO_CODE, CODE_TO_DESCRIPTION } from '@/lib/revenue-code-map';
 import { CLASS_TO_FIRST_CODE, CLASS_TO_CODES, CODE_TO_CLASS } from '@/lib/business-class-code-map';
+import { BUSINESS_CLASS_CODES } from '@/lib/business-class-codes';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -1119,8 +1120,8 @@ export function BusinessesPage() {
                   <label className={`${labelClass} block`}>Business Class Code</label>
                   <select name="businessClassCode" value={form.businessClassCode} onChange={handleFormChange} className={inputClass}>
                     <option value="">Select code...</option>
-                    {(CLASS_TO_CODES[form.type] || []).map((c) => (
-                      <option key={c} value={c}>{c}</option>
+                    {(CLASS_TO_CODES[form.type] || BUSINESS_CLASS_CODES).map((c, i) => (
+                      <option key={`${c}-${i}`} value={c}>{c}</option>
                     ))}
                   </select>
                 </div>
