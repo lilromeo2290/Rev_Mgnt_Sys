@@ -33,7 +33,6 @@ export const BUSINESS_FIELDS: { key: string; label: string }[] = [
   { key: 'code', label: 'Code' },
   { key: 'daAssignmentNo', label: 'DA Assignment No' },
   { key: 'businessCertNo', label: 'Business Cert No' },
-  { key: 'businessPermit', label: 'Business Permit' },
   { key: 'businessUniqueNumber', label: 'Business Unique Number' },
   { key: 'revenueDescription', label: 'Revenue Description' },
   { key: 'revenueDescription2', label: 'Revenue Description 2' },
