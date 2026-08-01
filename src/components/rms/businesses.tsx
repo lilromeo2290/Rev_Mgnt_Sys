@@ -1139,26 +1139,14 @@ export function BusinessesPage() {
                 <label className={`${labelClass} block`}>Owner Name <span className="text-red-500">*</span></label>
                 <input type="text" name="ownerName" value={form.ownerName} onChange={handleFormChange} placeholder="Enter full name of owner" className={inputClass} />
               </div>
-              {/* Owner Address - wider */}
-              <div className="lg:col-span-2">
-                <label className={`${labelClass} block`}>Owner Address</label>
-                <input type="text" name="ownerAddress" value={form.ownerAddress} onChange={handleFormChange} placeholder="Owner's residential address" className={inputClass} />
-              </div>
-              {/* Owner GPS: Latitude & Longitude */}
-              <div className="lg:col-span-2">
-                <label className={`${labelClass} block`}>Owner GPS Coordinates</label>
-                <div className="flex gap-2">
-                  <input type="text" name="ownerLatitude" value={form.ownerLatitude} onChange={handleFormChange} placeholder="Latitude" className={`${inputClass} flex-1`} />
-                  <input type="text" name="ownerLongitude" value={form.ownerLongitude} onChange={handleFormChange} placeholder="Longitude" className={`${inputClass} flex-1`} />
-                  <button type="button" onClick={fetchOwnerGps} disabled={locatingOwner} className="inline-flex items-center gap-1.5 px-2.5 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors text-xs font-medium whitespace-nowrap">
-                    {locatingOwner ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Crosshair className="w-3.5 h-3.5" />}
-                    {locatingOwner ? '...' : 'GPS'}
-                  </button>
-                </div>
+              {/* National ID (Ghana Card) */}
+              <div>
+                <label className={`${labelClass} block`}>National ID</label>
+                <input type="text" name="ghanaCard" value={form.ghanaCard} onChange={handleFormChange} placeholder="e.g. GHA-123456789-0" className={inputClass} />
               </div>
               {/* Phone */}
               <div>
-                <label className={`${labelClass} block`}>Phone</label>
+                <label className={`${labelClass} block`}>Phone Number</label>
                 <input type="tel" name="phone" value={form.phone} onChange={handleFormChange} placeholder="e.g. +233 24 567 8901" className={inputClass} />
               </div>
               {/* Email */}
@@ -1170,11 +1158,6 @@ export function BusinessesPage() {
               <div>
                 <label className={`${labelClass} block`}>TIN</label>
                 <input type="text" name="ownerTin" value={form.ownerTin} onChange={handleFormChange} placeholder="Owner's TIN" className={inputClass} />
-              </div>
-              {/* National ID (Ghana Card) */}
-              <div>
-                <label className={`${labelClass} block`}>National ID</label>
-                <input type="text" name="ghanaCard" value={form.ghanaCard} onChange={handleFormChange} placeholder="e.g. GHA-123456789-0" className={inputClass} />
               </div>
               {/* Comments - full width */}
               <div className="sm:col-span-2 lg:col-span-3">
