@@ -1066,21 +1066,6 @@ export function BusinessesPage() {
                 <label className={`${labelClass} block`}>Code</label>
                 <input type="text" name="code" value={form.code} readOnly placeholder="Auto-generated" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
               </div>
-              {/* Revenue Description 2 */}
-              <div>
-                <label className={`${labelClass} block`}>Revenue Description</label>
-                <select name="revenueDescription2" value={form.revenueDescription2} onChange={handleFormChange} className={inputClass}>
-                  <option value="">Select revenue description...</option>
-                  {REVENUE_DESCRIPTIONS.map((r) => (
-                    <option key={r} value={r}>{r}</option>
-                  ))}
-                </select>
-              </div>
-              {/* Revenue Code */}
-              <div>
-                <label className={`${labelClass} block`}>Revenue Code</label>
-                <input type="text" name="revenueCode" value={form.revenueCode} onChange={handleFormChange} placeholder="Enter revenue code" className={inputClass} />
-              </div>
               {/* Business Class */}
               <div>
                 <label className={`${labelClass} block`}>Business Class <span className="text-red-500">*</span></label>
