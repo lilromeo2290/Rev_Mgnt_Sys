@@ -83,7 +83,6 @@ interface Business {
   code: string;
   daAssignmentNo: string;
   businessCertNo: string;
-  businessPermit: string;
   businessUniqueNumber: string;
   revenueDescription: string;
   revenueDescription2: string;
@@ -137,7 +136,6 @@ const defaultForm = {
   code: '',
   daAssignmentNo: '',
   businessCertNo: '',
-  businessPermit: '',
   businessUniqueNumber: '',
   revenueDescription: '',
   revenueDescription2: '',
@@ -194,7 +192,12 @@ export function BusinessesPage() {
 
   const generateBusinessUniqueNumber = () => {
     const nextNum = businesses.length + 1;
-    return `KPMA/KZC/KDA/${String(nextNum).padStart(4, '0')}`;
+    return `KPMA/KZ2/ABM/BP/${String(nextNum).padStart(4, '0')}`;
+  };
+
+  const generateBusinessCertNo = () => {
+    const nextNum = businesses.length + 1;
+    return `GCR-${String(nextNum).padStart(4, '0')}`;
   };
 
   const generateDaAssignmentNo = () => {
@@ -325,7 +328,6 @@ export function BusinessesPage() {
       code: form.code,
       daAssignmentNo: form.daAssignmentNo,
       businessCertNo: form.businessCertNo,
-      businessPermit: form.businessPermit,
       businessUniqueNumber: form.businessUniqueNumber,
       revenueDescription: form.revenueDescription,
       revenueDescription2: form.revenueDescription2,
@@ -432,7 +434,6 @@ export function BusinessesPage() {
       code: (biz as any).code || '',
       daAssignmentNo: (biz as any).daAssignmentNo || '',
       businessCertNo: (biz as any).businessCertNo || '',
-      businessPermit: (biz as any).businessPermit || '',
       businessUniqueNumber: (biz as any).businessUniqueNumber || '',
       revenueDescription: (biz as any).revenueDescription || '',
       revenueDescription2: (biz as any).revenueDescription2 || '',
@@ -663,7 +664,7 @@ export function BusinessesPage() {
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => { setEditingRegNumber(null); setForm({ ...defaultForm, businessUniqueNumber: generateBusinessUniqueNumber(), daAssignmentNo: generateDaAssignmentNo() }); setView('form'); }}
+              onClick={() => { setEditingRegNumber(null); setForm({ ...defaultForm, businessUniqueNumber: generateBusinessUniqueNumber(), businessCertNo: generateBusinessCertNo(), daAssignmentNo: generateDaAssignmentNo() }); setView('form'); }}
               className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap"
             >
               <Plus className="w-4 h-4" />
