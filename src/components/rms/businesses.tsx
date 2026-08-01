@@ -1083,8 +1083,8 @@ export function BusinessesPage() {
                 <label className={`${labelClass} block`}>Business Certificate Number</label>
                 <input type="text" name="businessCertNo" value={form.businessCertNo} readOnly placeholder="Auto-generated" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
               </div>
-              {/* Row 1: Revenue Code, Revenue Description, Business Class, Business Class Code */}
-              <div className="sm:col-span-2 lg:col-span-3 grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-4">
+              {/* Row 1: Revenue Code, Revenue Description */}
+              <div className="sm:col-span-2 lg:col-span-3 grid grid-cols-2 gap-x-4 gap-y-4">
                 <div>
                   <label className={`${labelClass} block`}>Revenue Code</label>
                   <select name="code" value={form.code} onChange={handleFormChange} className={inputClass}>
@@ -1103,6 +1103,9 @@ export function BusinessesPage() {
                     ))}
                   </select>
                 </div>
+              </div>
+              {/* Row 2: Business Class, Business Class Code, Category */}
+              <div className="sm:col-span-2 lg:col-span-3 grid grid-cols-3 gap-x-4 gap-y-4">
                 <div>
                   <label className={`${labelClass} block`}>Business Class <span className="text-red-500">*</span></label>
                   <select name="type" value={form.type} onChange={handleFormChange} className={inputClass}>
@@ -1121,16 +1124,15 @@ export function BusinessesPage() {
                     ))}
                   </select>
                 </div>
-              </div>
-              {/* Category */}
-              <div className="sm:col-span-2 lg:col-span-3">
-                <label className={`${labelClass} block`}>Category</label>
-                <select name="category" value={form.category} onChange={handleFormChange} className={inputClass}>
-                  <option value="">Select Business Class first...</option>
-                  {availableCategories.map((c) => (
-                    <option key={c.name} value={c.name}>{c.name}</option>
-                  ))}
-                </select>
+                <div>
+                  <label className={`${labelClass} block`}>Category</label>
+                  <select name="category" value={form.category} onChange={handleFormChange} className={inputClass}>
+                    <option value="">Select Business Class first...</option>
+                    {availableCategories.map((c) => (
+                      <option key={c.name} value={c.name}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
               {/* Row 2: Business TIN, Employees, Year Established */}
               <div className="sm:col-span-2 lg:col-span-3 grid grid-cols-3 gap-x-4 gap-y-4">
