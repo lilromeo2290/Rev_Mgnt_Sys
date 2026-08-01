@@ -192,6 +192,11 @@ export function BusinessesPage() {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  const generateBusinessUniqueNumber = () => {
+    const nextNum = businesses.length + 1;
+    return `KPMA/KZC/KDA/${String(nextNum).padStart(4, '0')}`;
+  };
+
   // ── Form State ───────────────────────────────────────────────────────────
   const [form, setForm] = useState({ ...defaultForm });
   const [locating, setLocating] = useState(false);
@@ -652,7 +657,7 @@ export function BusinessesPage() {
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => { setEditingRegNumber(null); setForm({ ...defaultForm }); setView('form'); }}
+              onClick={() => { setEditingRegNumber(null); setForm({ ...defaultForm, businessUniqueNumber: generateBusinessUniqueNumber() }); setView('form'); }}
               className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap"
             >
               <Plus className="w-4 h-4" />
@@ -1044,7 +1049,7 @@ export function BusinessesPage() {
               {/* Business Unique Number */}
               <div>
                 <label className={`${labelClass} block`}>Business Unique Number</label>
-                <input type="text" name="businessUniqueNumber" value={form.businessUniqueNumber} onChange={handleFormChange} placeholder="Enter unique number" className={inputClass} />
+                <input type="text" name="businessUniqueNumber" value={form.businessUniqueNumber} readOnly placeholder="Auto-generated" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
               </div>
               {/* Business Certificate Number */}
               <div>
