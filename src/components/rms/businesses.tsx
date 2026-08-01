@@ -89,6 +89,7 @@ interface Business {
   revenueDescription: string;
   revenueDescription2: string;
   revenueCode: string;
+  businessClassCode: string;
   employees: string;
   yearEstablished: string;
   excludedFromFees: boolean;
@@ -114,6 +115,7 @@ const defaultForm = {
   type: '',
   category: '',
   subCategory: '',
+  businessClassCode: '',
   tin: '',
   licenseNumber: '',
   dateRegistered: '',
@@ -325,6 +327,7 @@ export function BusinessesPage() {
       revenueArea: form.revenueArea,
       licenseNumber: form.licenseNumber,
       subCategory: form.subCategory,
+      businessClassCode: form.businessClassCode,
       // New fields
       streetName: form.streetName,
       houseNo: form.houseNo,
@@ -445,6 +448,7 @@ export function BusinessesPage() {
       revenueDescription: (biz as any).revenueDescription || '',
       revenueDescription2: (biz as any).revenueDescription2 || '',
       revenueCode: (biz as any).revenueCode || '',
+      businessClassCode: (biz as any).businessClassCode || '',
       employees: (biz as any).employees || '',
       yearEstablished: (biz as any).yearEstablished || '',
       excludedFromFees: (biz as any).excludedFromFees || false,
@@ -1100,6 +1104,11 @@ export function BusinessesPage() {
                     <option key={t} value={t}>{t}</option>
                   ))}
                 </select>
+              </div>
+              {/* Business Class Code */}
+              <div>
+                <label className={`${labelClass} block`}>Business Class Code</label>
+                <input type="text" name="businessClassCode" value={form.businessClassCode} onChange={handleFormChange} placeholder="e.g. BC-001" className={inputClass} />
               </div>
               {/* Business TIN */}
               <div>

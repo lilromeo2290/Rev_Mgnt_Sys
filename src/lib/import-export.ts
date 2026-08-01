@@ -38,6 +38,7 @@ export const BUSINESS_FIELDS: { key: string; label: string }[] = [
   { key: 'revenueDescription', label: 'Revenue Description' },
   { key: 'revenueDescription2', label: 'Revenue Description 2' },
   { key: 'revenueCode', label: 'Revenue Code' },
+  { key: 'businessClassCode', label: 'Business Class Code' },
   { key: 'employees', label: 'Employees' },
   { key: 'yearEstablished', label: 'Year Established' },
   { key: 'excludedFromFees', label: 'Excluded From Fees' },
