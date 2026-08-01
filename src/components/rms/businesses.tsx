@@ -80,6 +80,7 @@ interface Business {
   houseNo: string;
   streetCode: string;
   locality: string;
+  areaCode: string;
   code: string;
   daAssignmentNo: string;
   businessCertNo: string;
@@ -133,6 +134,7 @@ const defaultForm = {
   houseNo: '',
   streetCode: '',
   locality: '',
+  areaCode: '',
   code: '',
   daAssignmentNo: '',
   businessCertNo: '',
@@ -310,6 +312,7 @@ export function BusinessesPage() {
       houseNo: form.houseNo,
       streetCode: form.streetCode,
       locality: form.locality,
+      areaCode: form.areaCode,
       code: form.code,
       daAssignmentNo: form.daAssignmentNo,
       businessCertNo: form.businessCertNo,
@@ -416,6 +419,7 @@ export function BusinessesPage() {
       houseNo: (biz as any).houseNo || '',
       streetCode: (biz as any).streetCode || '',
       locality: (biz as any).locality || '',
+      areaCode: (biz as any).areaCode || '',
       code: (biz as any).code || '',
       daAssignmentNo: (biz as any).daAssignmentNo || '',
       businessCertNo: (biz as any).businessCertNo || '',
@@ -977,6 +981,11 @@ export function BusinessesPage() {
                     <option key={l} value={l}>{l}</option>
                   ))}
                 </select>
+              </div>
+              {/* Area Code */}
+              <div>
+                <label className={`${labelClass} block`}>Area Code</label>
+                <input type="text" name="areaCode" value={form.areaCode} onChange={handleFormChange} placeholder="e.g. AC-001" className={inputClass} />
               </div>
               {/* Street Name */}
               <div>

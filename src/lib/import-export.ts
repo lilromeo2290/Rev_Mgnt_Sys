@@ -30,6 +30,7 @@ export const BUSINESS_FIELDS: { key: string; label: string }[] = [
   { key: 'houseNo', label: 'House No' },
   { key: 'streetCode', label: 'Street Code' },
   { key: 'locality', label: 'Locality' },
+  { key: 'areaCode', label: 'Area Code' },
   { key: 'code', label: 'Code' },
   { key: 'daAssignmentNo', label: 'DA Assignment No' },
   { key: 'businessCertNo', label: 'Business Cert No' },
