@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
-import { useLocalStorage } from '@/hooks/use-local-storage';
+import { useSyncedStorage } from '@/hooks/use-synced-storage';
 import {
   Search,
   Plus,
@@ -160,7 +160,7 @@ export function BusinessesPage() {
   const [typeFilter, setTypeFilter] = useState<string>('All');
   const [currentPage, setCurrentPage] = useState(1);
   const [viewingCert, setViewingCert] = useState<BusinessCert | null>(null);
-  const [businesses, setBusinesses] = useLocalStorage<Business[]>('rms-businesses', mockBusinesses);
+  const [businesses, setBusinesses, dataLoading] = useSyncedStorage<Business[]>('rms-businesses', mockBusinesses);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const itemsPerPage = 10;
 

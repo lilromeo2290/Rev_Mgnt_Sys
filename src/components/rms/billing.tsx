@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { useLocalStorage } from '@/hooks/use-local-storage';
+import { useSyncedStorage } from '@/hooks/use-synced-storage';
 import {
   Search,
   Plus,
@@ -119,7 +119,7 @@ function formatCurrency(amount: number): string {
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export function BillingPage() {
-  const [bills, setBills] = useLocalStorage<Bill[]>('rms-bills', initialBills);
+  const [bills, setBills] = useSyncedStorage<Bill[]>('rms-bills', initialBills);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [categoryFilter, setCategoryFilter] = useState<string>('All');

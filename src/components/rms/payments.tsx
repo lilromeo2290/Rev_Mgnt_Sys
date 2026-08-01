@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { useLocalStorage } from '@/hooks/use-local-storage';
+import { useSyncedStorage } from '@/hooks/use-synced-storage';
 import {
   Plus,
   Search,
@@ -96,8 +96,8 @@ const mockPayments: Payment[] = [];
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function PaymentsPage() {
-  const [payments, setPayments] = useLocalStorage<Payment[]>('rms-payments', mockPayments);
-  const [realBills, setRealBills] = useLocalStorage<RealBill[]>('rms-bills', []);
+  const [payments, setPayments] = useSyncedStorage<Payment[]>('rms-payments', mockPayments);
+  const [realBills, setRealBills] = useSyncedStorage<RealBill[]>('rms-bills', []);
   const asmName = useMemo(() => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kumasi Metropolitan Assembly'; } catch { return 'Kumasi Metropolitan Assembly'; } }, []);
   const [search, setSearch] = useState('');
   const [methodFilter, setMethodFilter] = useState<string>('All');

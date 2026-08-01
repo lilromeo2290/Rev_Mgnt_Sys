@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { useLocalStorage } from '@/hooks/use-local-storage';
+import { useSyncedStorage } from '@/hooks/use-synced-storage';
 import {
   Search,
   Plus,
@@ -157,7 +157,7 @@ export function RentPage() {
   const [view, setView] = useState<'list' | 'form'>('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [rents, setRents] = useLocalStorage<Rent[]>('rms-rents', mockRents);
+  const [rents, setRents] = useSyncedStorage<Rent[]>('rms-rents', mockRents);
   const [editingId, setEditingId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const itemsPerPage = 10;

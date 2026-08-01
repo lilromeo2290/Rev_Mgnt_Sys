@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useLocalStorage } from '@/hooks/use-local-storage';
+import { useSyncedStorage } from '@/hooks/use-synced-storage';
 import {
   Search,
   Printer,
@@ -48,7 +48,7 @@ const fmt = (n: number) => `GH₵ ${n.toLocaleString('en-GH')}`;
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function PaymentHistoryPage() {
-  const [storedPayments] = useLocalStorage<Payment[]>('rms-payments', []);
+  const [storedPayments] = useSyncedStorage<Payment[]>('rms-payments', []);
   const [entitySearch, setEntitySearch] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
