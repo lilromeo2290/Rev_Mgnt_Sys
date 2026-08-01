@@ -24,8 +24,9 @@ import {
   Download,
   Upload,
 } from 'lucide-react';
-import { BUSINESS_CLASSES, BUSINESS_CLASS_CATEGORIES } from '@/lib/fee-schedule';
-import type { FeeCategory } from '@/lib/fee-schedule';
+import { BUSINESS_CLASSES } from '@/lib/fee-schedule';
+import { USER_CATEGORIES } from '@/lib/user-categories';
+import type { UserCategory } from '@/lib/user-categories';
 import { exportToExcel, importFromExcel, BUSINESS_FIELDS } from '@/lib/import-export';
 import { LOCALITIES, LOCALITY_AREA_CODE_MAP } from '@/lib/localities';
 import { REVENUE_DESCRIPTIONS } from '@/lib/revenue-descriptions';
@@ -240,8 +241,8 @@ export function BusinessesPage() {
   };
 
   // ── Derived categories based on selected business type ───────────────────
-  const availableCategories: FeeCategory[] = form.type
-    ? (BUSINESS_CLASS_CATEGORIES[form.type] || [])
+  const availableCategories: UserCategory[] = form.type
+    ? (USER_CATEGORIES[form.type] || [])
     : [];
 
   // ── Get fee details for selected category ──────────────────────────────
