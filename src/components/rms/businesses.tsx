@@ -1077,11 +1077,6 @@ export function BusinessesPage() {
           </div>
           <div className="p-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
-              {/* Business Name */}
-              <div className="sm:col-span-2 lg:col-span-3">
-                <label className={`${labelClass} block`}>Business Name <span className="text-red-500">*</span></label>
-                <input type="text" name="name" value={form.name} onChange={handleFormChange} placeholder="Enter business name" className={inputClass} />
-              </div>
               {/* Row 1: DA Assignment No., Business Unique Number, Business Cert No. */}
               <div>
                 <label className={`${labelClass} block`}>DA Assignment No. / Business Permit</label>
@@ -1096,6 +1091,11 @@ export function BusinessesPage() {
               <div>
                 <label className={`${labelClass} block`}>Business Certificate Number</label>
                 <input type="text" name="businessCertNo" value={form.businessCertNo} readOnly placeholder="Auto-generated" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
+              </div>
+              {/* Business Name */}
+              <div className="sm:col-span-2 lg:col-span-3">
+                <label className={`${labelClass} block`}>Business Name <span className="text-red-500">*</span></label>
+                <input type="text" name="name" value={form.name} onChange={handleFormChange} placeholder="Enter business name" className={inputClass} />
               </div>
               {/* Row 2: Revenue Code, Revenue Description, Business Class Code */}
               <div>
