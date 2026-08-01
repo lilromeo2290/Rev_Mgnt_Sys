@@ -33,6 +33,7 @@ import { REVENUE_DESCRIPTIONS } from '@/lib/revenue-descriptions';
 import { REVENUE_CODE_MAP, DESCRIPTION_TO_CODE, CODE_TO_DESCRIPTION } from '@/lib/revenue-code-map';
 import { CLASS_TO_FIRST_CODE, CLASS_TO_CODES, CODE_TO_CLASS } from '@/lib/business-class-code-map';
 import { BUSINESS_CLASS_CODES } from '@/lib/business-class-codes';
+import { FEE_CODE_LOOKUP } from '@/lib/fee-code-lookup';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -249,6 +250,9 @@ export function BusinessesPage() {
   const selectedCategoryFee = availableCategories.find(
     (c) => c.name === form.category
   );
+  // Use FEE_CODE_LOOKUP amount when available (from code selection), fallback to USER_CATEGORIES
+  const codeLookupEntry = form.businessClassCode ? FEE_CODE_LOOKUP[form.businessClassCode] : null;
+  const displayAmount = codeLookupEntry ? codeLookupEntry.amount : (selectedCategoryFee ? selectedCategoryFee.amount : null);
 
   // ── Filtering & Pagination ───────────────────────────────────────────────
   const filtered = businesses.filter((b) => {
@@ -298,10 +302,18 @@ export function BusinessesPage() {
       if (name === 'type' && CLASS_TO_FIRST_CODE[updated.type]) {
         updated.businessClassCode = CLASS_TO_FIRST_CODE[updated.type];
       }
-      if (name === 'businessClassCode' && CODE_TO_CLASS[updated.businessClassCode]) {
-        updated.type = CODE_TO_CLASS[updated.businessClassCode];
+      if (name === 'businessClassCode') {
+        const code = updated.businessClassCode;
+        // Auto-fill class from code mapping
+        if (CODE_TO_CLASS[code]) {
+          updated.type = CODE_TO_CLASS[code];
+        }
+        // Auto-fill category and amount from fee code lookup
+        if (FEE_CODE_LOOKUP[code]) {
+          updated.category = FEE_CODE_LOOKUP[code].category;
+        }
       }
-      // Reset category and sub-category when type changes
+      // Reset category and sub-category when type changes (but not when triggered by code change)
       if (name === 'type') {
         updated.category = '';
         updated.subCategory = '';
@@ -1148,7 +1160,7 @@ export function BusinessesPage() {
               {/* Amount (read-only) */}
               <div>
                 <label className={`${labelClass} block`}>Amount</label>
-                <input type="text" value={selectedCategoryFee ? `GH\u20b5 ${selectedCategoryFee.amount.toLocaleString()}` : ''} readOnly placeholder="Select a category" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-emerald-700 dark:text-emerald-400 font-semibold`} />
+                <input type="text" value={displayAmount !== null ? `GH\u20b5 ${displayAmount.toLocaleString()}` : ''} readOnly placeholder="Select a category" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-emerald-700 dark:text-emerald-400 font-semibold`} />
               </div>
               {/* Date Registered */}
               <div>
