@@ -276,7 +276,9 @@ export function BusinessesPage() {
       // Auto-fill area code when locality changes
       if (name === 'locality' && LOCALITY_AREA_CODE_MAP[updated.locality]) {
         updated.areaCode = LOCALITY_AREA_CODE_MAP[updated.locality];
-        // Update business unique number with new area code
+      }
+      // Update business unique number whenever area code changes
+      if ((name === 'locality' || name === 'areaCode') && updated.areaCode) {
         const nextNum = businesses.length + 1;
         updated.businessUniqueNumber = `${updated.areaCode}/BP/${String(nextNum).padStart(4, '0')}`;
       }
