@@ -1078,7 +1078,7 @@ export function BusinessesPage() {
               {/* Revenue Code */}
               <div>
                 <label className={`${labelClass} block`}>Revenue Code</label>
-                <select name="code" value={form.code} onChange={handleFormChange} className={inputClass}>
+                <select name="code" value={form.code} onChange={handleFormChange} className={`${inputClass} max-w-xs`}>
                   <option value="">Select Revenue Code</option>
                   {REVENUE_CODE_MAP.filter(m => m.code).map((m) => (
                     <option key={m.code} value={m.code}>{m.code}</option>
@@ -1108,7 +1108,7 @@ export function BusinessesPage() {
               {/* Business Class Code */}
               <div>
                 <label className={`${labelClass} block`}>Business Class Code</label>
-                <input type="text" name="businessClassCode" value={form.businessClassCode} onChange={handleFormChange} placeholder="e.g. BC-001" className={inputClass} />
+                <input type="text" name="businessClassCode" value={form.businessClassCode} onChange={handleFormChange} placeholder="e.g. BC-001" className={`${inputClass} max-w-xs`} />
               </div>
               {/* Business TIN */}
               <div>
