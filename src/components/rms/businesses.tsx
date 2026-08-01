@@ -1049,10 +1049,6 @@ export function BusinessesPage() {
                 <label className={`${labelClass} block`}>DA Assignment No. / Business Permit</label>
                 <input type="text" name="daAssignmentNo" value={form.daAssignmentNo} readOnly placeholder="Auto-generated" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
               </div>
-              <div>
-                <label className={`${labelClass} block`}>Business Permit</label>
-                <input type="text" name="businessPermit" value={form.businessPermit} onChange={handleFormChange} placeholder="Permit number" className={inputClass} />
-              </div>
               {/* Business Unique Number */}
               <div>
                 <label className={`${labelClass} block`}>Business Unique Number</label>
@@ -1061,7 +1057,7 @@ export function BusinessesPage() {
               {/* Business Certificate Number */}
               <div>
                 <label className={`${labelClass} block`}>Business Certificate Number</label>
-                <input type="text" name="businessCertNo" value={form.businessCertNo} onChange={handleFormChange} placeholder="Certificate number" className={inputClass} />
+                <input type="text" name="businessCertNo" value={form.businessCertNo} readOnly placeholder="Auto-generated" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
               </div>
               {/* Revenue Description */}
               <div>
