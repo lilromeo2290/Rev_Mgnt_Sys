@@ -1075,8 +1075,8 @@ export function BusinessesPage() {
                 <label className={`${labelClass} block`}>Business Certificate Number</label>
                 <input type="text" name="businessCertNo" value={form.businessCertNo} readOnly placeholder="Auto-generated" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
               </div>
-              {/* Row 1: Revenue Code, Revenue Description */}
-              <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+              {/* Row 1: Revenue Code, Revenue Description, Business Class, Business Class Code */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-4">
                 <div>
                   <label className={`${labelClass} block`}>Revenue Code</label>
                   <select name="code" value={form.code} onChange={handleFormChange} className={inputClass}>
@@ -1095,9 +1095,6 @@ export function BusinessesPage() {
                     ))}
                   </select>
                 </div>
-              </div>
-              {/* Row 2: Business Class, Business Class Code */}
-              <div className="grid grid-cols-2 gap-x-4 gap-y-4">
                 <div>
                   <label className={`${labelClass} block`}>Business Class <span className="text-red-500">*</span></label>
                   <select name="type" value={form.type} onChange={handleFormChange} className={inputClass}>
@@ -1112,7 +1109,7 @@ export function BusinessesPage() {
                   <input type="text" name="businessClassCode" value={form.businessClassCode} onChange={handleFormChange} placeholder="e.g. BC-001" className={inputClass} />
                 </div>
               </div>
-              {/* Row 3: Business TIN, Employees, Year Established */}
+              {/* Row 2: Business TIN, Employees, Year Established */}
               <div className="grid grid-cols-3 gap-x-4 gap-y-4">
                 <div>
                   <label className={`${labelClass} block`}>Business TIN</label>
