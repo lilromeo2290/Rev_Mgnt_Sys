@@ -20,9 +20,18 @@ import {
   X,
   Download,
   Upload,
+  Briefcase,
 } from 'lucide-react';
+import { BUSINESS_CLASSES } from '@/lib/fee-schedule';
+import { USER_CATEGORIES } from '@/lib/user-categories';
+import type { UserCategory } from '@/lib/user-categories';
 import { exportToExcel, importFromExcel, PROPERTY_FIELDS } from '@/lib/import-export';
-import { LOCALITIES } from '@/lib/localities';
+import { LOCALITIES, LOCALITY_AREA_CODE_MAP } from '@/lib/localities';
+import { REVENUE_DESCRIPTIONS } from '@/lib/revenue-descriptions';
+import { REVENUE_CODE_MAP, DESCRIPTION_TO_CODE, CODE_TO_DESCRIPTION } from '@/lib/revenue-code-map';
+import { CLASS_TO_FIRST_CODE, CLASS_TO_CODES, CODE_TO_CLASS } from '@/lib/business-class-code-map';
+import { BUSINESS_CLASS_CODES } from '@/lib/business-class-codes';
+import { FEE_CODE_LOOKUP } from '@/lib/fee-code-lookup';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -35,6 +44,7 @@ interface Property {
   latitude: string;
   longitude: string;
   locality: string;
+  areaCode: string;
   code: string;
   ownerName: string;
   ownerAddress: string;
@@ -43,6 +53,7 @@ interface Property {
   phone: string;
   email: string;
   tin: string;
+  ownerTin: string;
   nationalId: string;
   ownershipType: string;
   propertyUseType: string;
@@ -53,6 +64,17 @@ interface Property {
   permitNumber: string;
   excludedFromRating: boolean;
   comments: string;
+  // New fields (matching Businesses arrangement)
+  daAssignmentNo: string;
+  propertyUniqueNumber: string;
+  propertyCertNo: string;
+  revenueDescription: string;
+  revenueDescription2: string;
+  revenueCode: string;
+  businessClassCode: string;
+  type: string;
+  employees: string;
+  yearEstablished: string;
 }
 
 // ─── Mock Data ───────────────────────────────────────────────────────────────
@@ -93,6 +115,7 @@ const occupancyStatuses = ['All', 'Occupied', 'Vacant', 'Under Construction'];
 
 export function PropertiesPage() {
   const [view, setView] = useState<'list' | 'form'>('list');
+  const [editingPropNumber, setEditingPropNumber] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('All');
   const [statusFilter, setStatusFilter] = useState<string>('All');
@@ -100,6 +123,8 @@ export function PropertiesPage() {
   const [properties, setProperties] = useSyncedStorage<Property[]>('rms-properties', mockProperties);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const itemsPerPage = 10;
+
+  const propertyBusinessTypes = BUSINESS_CLASSES;
 
   // ── Import / Export ───────────────────────────────────────────────────────
   const handleExport = () => {
@@ -127,6 +152,24 @@ export function PropertiesPage() {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  // ── Auto-generate functions ───────────────────────────────────────────────
+  const generatePropertyUniqueNumber = (areaCode?: string) => {
+    const nextNum = properties.length + 1;
+    const prefix = areaCode || 'KpMA/KZC/ABX';
+    return `${prefix}/PP/${String(nextNum).padStart(4, '0')}`;
+  };
+
+  const generatePropertyCertNo = () => {
+    const nextNum = properties.length + 1;
+    return `GPC-${String(nextNum).padStart(4, '0')}`;
+  };
+
+  const generateDaAssignmentNo = () => {
+    const yearSuffix = String(new Date().getFullYear()).slice(-2);
+    const nextNum = properties.length + 1;
+    return `KpMA-${yearSuffix}-${String(nextNum).padStart(4, '0')}/PP`;
+  };
+
   // ── Form State ───────────────────────────────────────────────────────────
   const defaultForm = {
     propNumber: '',
@@ -137,6 +180,7 @@ export function PropertiesPage() {
     latitude: '',
     longitude: '',
     locality: '',
+    areaCode: '',
     code: '',
     ownerName: '',
     ownerAddress: '',
@@ -145,6 +189,7 @@ export function PropertiesPage() {
     phone: '',
     email: '',
     tin: '',
+    ownerTin: '',
     nationalId: '',
     ownershipType: '',
     propertyUseType: '',
@@ -155,9 +200,20 @@ export function PropertiesPage() {
     permitNumber: '',
     excludedFromRating: false,
     comments: '',
+    // New fields
+    daAssignmentNo: '',
+    propertyUniqueNumber: '',
+    propertyCertNo: '',
+    revenueDescription: '',
+    revenueDescription2: '',
+    revenueCode: '',
+    businessClassCode: '',
+    type: '',
+    employees: '',
+    yearEstablished: '',
   };
 
-  const [form, setForm] = useState(defaultForm);
+  const [form, setForm] = useState({ ...defaultForm });
   const [locating, setLocating] = useState(false);
   const [locatingOwner, setLocatingOwner] = useState(false);
 
@@ -180,6 +236,19 @@ export function PropertiesPage() {
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
     );
   };
+
+  // ── Derived categories based on selected business type ───────────────────
+  const availableCategories: UserCategory[] = form.type
+    ? (USER_CATEGORIES[form.type] || [])
+    : [];
+
+  // ── Get fee details for selected category ──────────────────────────────
+  const selectedCategoryFee = availableCategories.find(
+    (c) => c.name === form.category
+  );
+  // Use FEE_CODE_LOOKUP amount when available (from code selection), fallback to USER_CATEGORIES
+  const codeLookupEntry = form.businessClassCode ? FEE_CODE_LOOKUP[form.businessClassCode] : null;
+  const displayAmount = codeLookupEntry ? codeLookupEntry.amount : (selectedCategoryFee ? selectedCategoryFee.amount : null);
 
   // ── Filtering ─────────────────────────────────────────────────────────────
   const filtered = properties.filter((p) => {
@@ -213,77 +282,147 @@ export function PropertiesPage() {
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >
   ) => {
-    const { name, value, type } = e.target;
-    if (type === 'checkbox') {
-      setForm((prev) => ({ ...prev, [name]: (e.target as HTMLInputElement).checked }));
-    } else if (name === 'category') {
-      // When category changes, reset propertyUseType so user picks a sub-category
-      setForm((prev) => ({ ...prev, category: value, propertyUseType: '' }));
-    } else if (name === 'propertyUseType') {
-      // When propertyUseType changes, auto-fill category
-      const cat = value ? value.split(':')[1]?.trim() || '' : '';
-      setForm((prev) => ({ ...prev, [name]: value, category: cat }));
-    } else if (name === 'locality') {
-      const loc = value;
-      if (loc) {
-        const prefix = `${loc}/BP/`;
-        const existing = properties.filter((p) => (p as any).code && (p as any).code.startsWith(prefix));
-        const count = existing.length;
-        const newCode = `${prefix}${String(count + 1).padStart(3, '0')}`;
-        setForm((prev) => ({ ...prev, [name]: value, code: newCode }));
-      } else {
-        setForm((prev) => ({ ...prev, [name]: value, code: '' }));
+    const { name, type } = e.target;
+    setForm((prev) => {
+      const updated = { ...prev, [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : (e.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement).value };
+      // Auto-fill area code when locality changes
+      if (name === 'locality' && LOCALITY_AREA_CODE_MAP[updated.locality]) {
+        updated.areaCode = LOCALITY_AREA_CODE_MAP[updated.locality];
       }
-    } else {
-      setForm((prev) => ({ ...prev, [name]: value }));
-    }
+      // Update property unique number whenever area code changes
+      if ((name === 'locality' || name === 'areaCode') && updated.areaCode) {
+        const nextNum = properties.length + 1;
+        updated.propertyUniqueNumber = `${updated.areaCode}/PP/${String(nextNum).padStart(4, '0')}`;
+      }
+      // Link Revenue Description <-> Revenue Code
+      if (name === 'revenueDescription' && DESCRIPTION_TO_CODE[updated.revenueDescription]) {
+        updated.revenueCode = DESCRIPTION_TO_CODE[updated.revenueDescription];
+      }
+      if (name === 'revenueCode' && CODE_TO_DESCRIPTION[updated.revenueCode]) {
+        updated.revenueDescription = CODE_TO_DESCRIPTION[updated.revenueCode];
+      }
+      // Link Business Class <-> Business Class Code
+      if (name === 'type' && CLASS_TO_FIRST_CODE[updated.type]) {
+        updated.businessClassCode = CLASS_TO_FIRST_CODE[updated.type];
+      }
+      if (name === 'businessClassCode') {
+        const code = updated.businessClassCode;
+        // Auto-fill class from code mapping
+        if (CODE_TO_CLASS[code]) {
+          updated.type = CODE_TO_CLASS[code];
+        }
+        // Auto-fill category and amount from fee code lookup
+        if (FEE_CODE_LOOKUP[code]) {
+          updated.category = FEE_CODE_LOOKUP[code].category;
+        }
+      }
+      // Reset category when type changes (but not when triggered by code change)
+      if (name === 'type') {
+        updated.category = '';
+      }
+      // Property use type → category auto-fill (preserves existing behavior)
+      if (name === 'propertyUseType') {
+        const cat = updated.propertyUseType ? updated.propertyUseType.split(':')[1]?.trim() || '' : '';
+        // Don't overwrite category if it was set by business class code
+        // Only auto-fill if businessClassCode is empty
+        if (!updated.businessClassCode) {
+          updated.category = cat;
+        }
+      }
+      return updated;
+    });
   };
 
   const handleSave = () => {
     if (!form.ownerName || !form.propertyUseType) return;
+    const propNum = form.propNumber || `UPN-${String(properties.length + 1).padStart(4, '0')}`;
     const newProp: Property = {
-      propNumber: form.propNumber || `UPN-${String(properties.length + 1).padStart(4, '0')}`,
+      propNumber: propNum,
       ...form,
     };
-    setProperties((prev) => [...prev, newProp]);
+
+    if (editingPropNumber) {
+      setProperties((prev) =>
+        prev.map((p) =>
+          p.propNumber === editingPropNumber
+            ? { ...p, ...newProp }
+            : p
+        )
+      );
+    } else {
+      setProperties((prev) => [...prev, newProp]);
+    }
+
+    setEditingPropNumber(null);
     setForm({ ...defaultForm });
     setView('list');
   };
 
   const handleCancel = () => {
+    setEditingPropNumber(null);
+    setForm({ ...defaultForm });
     setView('list');
   };
 
+  const handleEdit = (prop: Property) => {
+    setEditingPropNumber(prop.propNumber);
+    setForm({
+      propNumber: prop.propNumber,
+      streetName: prop.streetName,
+      houseNo: prop.houseNo,
+      streetCode: prop.streetCode,
+      ghanaPostGPS: prop.ghanaPostGPS,
+      latitude: prop.latitude,
+      longitude: prop.longitude,
+      locality: prop.locality,
+      areaCode: (prop as any).areaCode || '',
+      code: prop.code,
+      ownerName: prop.ownerName,
+      ownerAddress: prop.ownerAddress,
+      ownerLatitude: prop.ownerLatitude,
+      ownerLongitude: prop.ownerLongitude,
+      phone: prop.phone,
+      email: prop.email,
+      tin: prop.tin,
+      ownerTin: (prop as any).ownerTin || '',
+      nationalId: prop.nationalId,
+      ownershipType: prop.ownershipType,
+      propertyUseType: prop.propertyUseType,
+      category: prop.category,
+      value: prop.value,
+      rooms: prop.rooms,
+      hasBuildingPermit: prop.hasBuildingPermit,
+      permitNumber: prop.permitNumber,
+      excludedFromRating: prop.excludedFromRating,
+      comments: prop.comments,
+      daAssignmentNo: (prop as any).daAssignmentNo || '',
+      propertyUniqueNumber: (prop as any).propertyUniqueNumber || '',
+      propertyCertNo: (prop as any).propertyCertNo || '',
+      revenueDescription: (prop as any).revenueDescription || '',
+      revenueDescription2: (prop as any).revenueDescription2 || '',
+      revenueCode: (prop as any).revenueCode || '',
+      businessClassCode: (prop as any).businessClassCode || '',
+      type: (prop as any).type || '',
+      employees: (prop as any).employees || '',
+      yearEstablished: (prop as any).yearEstablished || '',
+    });
+    setView('form');
+  };
+
   const handleDelete = (propNumber: string) => {
+    if (!confirm('Are you sure you want to delete this property? This action cannot be undone.')) return;
     setProperties((prev) => prev.filter((p) => p.propNumber !== propNumber));
   };
 
   // ── Form Helpers ─────────────────────────────────────────────────────────
   const inputClass =
-    'w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition';
+    'w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition';
   const labelClass =
-    'block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1';
-
-  const cardClass = 'rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 overflow-hidden';
-  const cardHeaderClass = 'flex items-center gap-2.5 px-5 py-3.5 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-700';
-  const cardBodyClass = 'p-5 space-y-4';
-
-  const statusBadge = (status: string) => {
-    const styles: Record<string, string> = {
-      Occupied: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400',
-      Vacant: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400',
-      'Under Construction': 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-400',
-    };
-    return (
-      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${styles[status] || 'bg-slate-100 text-slate-600'}`}>
-        {status}
-      </span>
-    );
-  };
+    'text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5';
 
   const formatVal = (v: string) => {
     const n = parseFloat(v);
-    if (isNaN(n)) return 'GH₵ 0';
+    if (isNaN(n)) return 'GH\u20b5 0';
     return `GH\u20b5 ${n.toLocaleString('en-GH')}`;
   };
 
@@ -303,7 +442,7 @@ export function PropertiesPage() {
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setView('form')}
+              onClick={() => { setEditingPropNumber(null); setForm({ ...defaultForm, propertyUniqueNumber: generatePropertyUniqueNumber(), propertyCertNo: generatePropertyCertNo(), daAssignmentNo: generateDaAssignmentNo() }); setView('form'); }}
               className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors whitespace-nowrap cursor-pointer"
             >
               <Plus className="w-4 h-4" />
@@ -383,7 +522,7 @@ export function PropertiesPage() {
                       <td className="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">{prop.streetName}</td>
                       <td className="px-4 py-3 text-right whitespace-nowrap">
                         <div className="inline-flex items-center gap-1">
-                          <button className="p-1.5 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors cursor-pointer" title="Edit"><Pencil className="w-4 h-4" /></button>
+                          <button onClick={() => handleEdit(prop)} className="p-1.5 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors cursor-pointer" title="Edit"><Pencil className="w-4 h-4" /></button>
                           <button onClick={() => handleDelete(prop.propNumber)} className="p-1.5 rounded-md text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer" title="Delete"><Trash2 className="w-4 h-4" /></button>
                         </div>
                       </td>
@@ -413,7 +552,7 @@ export function PropertiesPage() {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  //  FORM VIEW — 3-Card Layout
+  //  FORM VIEW
   // ══════════════════════════════════════════════════════════════════════════
   return (
     <div className="space-y-6">
@@ -423,46 +562,54 @@ export function PropertiesPage() {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Register New Property</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Fill in the details below to register a new property.</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            {editingPropNumber ? 'Edit Property' : 'Register New Property'}
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+            {editingPropNumber ? 'Update the property details below.' : 'Fill in the details below to register a new property.'}
+          </p>
         </div>
       </div>
 
-      <div className="space-y-5">
-        {/* ════════════════════════════════════════════════════════════════
-           CARD 1: LOCATION
-           ════════════════════════════════════════════════════════════════ */}
-        <div className={cardClass}>
-          <div className={cardHeaderClass}>
-            <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-              <MapPin className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            </div>
-            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Location</h2>
+      <div className="space-y-6">
+        {/* ════════════════════════════════════════════════════════════════════
+            CARD 1: LOCATION
+           ════════════════════════════════════════════════════════════════════ */}
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="flex items-center gap-2.5 px-5 py-3 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700">
+            <MapPin className="w-4.5 h-4.5 text-slate-600 dark:text-slate-400" />
+            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Location</h2>
           </div>
-          <div className={cardBodyClass}>
-            {/* Row 1: Street Name (wider) | House No. | Street Code */}
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-12 sm:col-span-5">
-                <label className={labelClass}>Street Name</label>
-                <input type="text" name="streetName" value={form.streetName} onChange={handleFormChange} placeholder="Enter street name" className={inputClass} />
-              </div>
-              <div className="col-span-6 sm:col-span-3">
-                <label className={labelClass}>House No.</label>
-                <input type="text" name="houseNo" value={form.houseNo} onChange={handleFormChange} placeholder="e.g. 26" className={inputClass} />
-              </div>
-              <div className="col-span-6 sm:col-span-4">
-                <label className={labelClass}>Street Code</label>
-                <input type="text" name="streetCode" value={form.streetCode} onChange={handleFormChange} placeholder="Enter code" className={inputClass} />
-              </div>
-            </div>
-            {/* Ghana Post GPS & GPS Coordinates */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="p-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
+              {/* Locality */}
               <div>
-                <label className={labelClass}>Ghana Post GPS</label>
+                <label className={`${labelClass} block`}>Locality</label>
+                <select name="locality" value={form.locality} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Select locality</option>
+                  {LOCALITIES.map((l) => (
+                    <option key={l} value={l}>{l}</option>
+                  ))}
+                </select>
+              </div>
+              {/* Area Code */}
+              <div>
+                <label className={`${labelClass} block`}>Area Code</label>
+                <input type="text" name="areaCode" value={form.areaCode} onChange={handleFormChange} placeholder="Auto-fills from Locality" className={inputClass} />
+              </div>
+              {/* Street Name */}
+              <div>
+                <label className={`${labelClass} block`}>Street Name</label>
+                <input type="text" name="streetName" value={form.streetName} onChange={handleFormChange} placeholder="e.g. Powder St" className={inputClass} />
+              </div>
+              {/* Ghana Post GPS */}
+              <div>
+                <label className={`${labelClass} block`}>Ghana Post GPS</label>
                 <input type="text" name="ghanaPostGPS" value={form.ghanaPostGPS} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={inputClass} />
               </div>
+              {/* GPS: Latitude & Longitude */}
               <div className="sm:col-span-2">
-                <label className={labelClass}>GPS Coordinates</label>
+                <label className={`${labelClass} block`}>GPS Coordinates</label>
                 <div className="flex gap-2">
                   <input type="text" name="latitude" value={form.latitude} onChange={handleFormChange} placeholder="Latitude" className={`${inputClass} flex-1`} />
                   <input type="text" name="longitude" value={form.longitude} onChange={handleFormChange} placeholder="Longitude" className={`${inputClass} flex-1`} />
@@ -472,109 +619,118 @@ export function PropertiesPage() {
                   </button>
                 </div>
               </div>
-            </div>
-            {/* Locality & Code */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* House No */}
               <div>
-                <label className={labelClass}>Locality</label>
-                <select name="locality" value={form.locality} onChange={handleFormChange} className={inputClass}>
-                  <option value="">Select locality</option>
-                  {LOCALITIES.map((l) => (
-                    <option key={l} value={l}>{l}</option>
-                  ))}
-                </select>
+                <label className={`${labelClass} block`}>House Number</label>
+                <input type="text" name="houseNo" value={form.houseNo} onChange={handleFormChange} placeholder="e.g. 26" className={inputClass} />
               </div>
+              {/* Street Code */}
               <div>
-                <label className={labelClass}>Code</label>
+                <label className={`${labelClass} block`}>Street Code</label>
+                <input type="text" name="streetCode" value={form.streetCode} onChange={handleFormChange} placeholder="Enter code" className={inputClass} />
+              </div>
+              {/* Code (auto from locality) */}
+              <div>
+                <label className={`${labelClass} block`}>Code</label>
                 <input type="text" name="code" value={form.code} readOnly placeholder="Auto-generated from locality" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
               </div>
             </div>
           </div>
         </div>
 
-        {/* ════════════════════════════════════════════════════════════════
-           CARD 2: OWNER INFORMATION
-           ════════════════════════════════════════════════════════════════ */}
-        <div className={cardClass}>
-          <div className={cardHeaderClass}>
-            <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-              <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-            </div>
-            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Owner Information</h2>
+        {/* ════════════════════════════════════════════════════════════════════
+            CARD 2: PROPERTY INFORMATION
+           ════════════════════════════════════════════════════════════════════ */}
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="flex items-center gap-2.5 px-5 py-3 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700">
+            <Briefcase className="w-4.5 h-4.5 text-slate-600 dark:text-slate-400" />
+            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Property Information</h2>
           </div>
-          <div className={cardBodyClass}>
-            {/* Owner Name — full width */}
-            <div>
-              <label className={labelClass}>Owner Name <span className="text-red-500">*</span></label>
-              <input type="text" name="ownerName" value={form.ownerName} onChange={handleFormChange} placeholder="Enter full name of property owner" className={inputClass} />
-            </div>
-            {/* Owner Address | Owner GhanaPost GPS */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="p-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
+              {/* Row 1: DA Assignment No., Property Unique Number, Property Cert No. */}
               <div>
-                <label className={labelClass}>Owner Address</label>
-                <input type="text" name="ownerAddress" value={form.ownerAddress} onChange={handleFormChange} placeholder="Enter owner address" className={inputClass} />
+                <label className={`${labelClass} block`}>DA Assignment No. / Property Permit</label>
+                <input type="text" name="daAssignmentNo" value={form.daAssignmentNo} readOnly placeholder="Auto-generated" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
               </div>
-              <div className="sm:col-span-2">
-                <label className={labelClass}>Owner GPS Coordinates</label>
-                <div className="flex gap-2">
-                  <input type="text" name="ownerLatitude" value={form.ownerLatitude} onChange={handleFormChange} placeholder="Latitude" className={`${inputClass} flex-1`} />
-                  <input type="text" name="ownerLongitude" value={form.ownerLongitude} onChange={handleFormChange} placeholder="Longitude" className={`${inputClass} flex-1`} />
-                  <button type="button" onClick={fetchOwnerGps} disabled={locatingOwner} className="inline-flex items-center gap-1.5 px-2.5 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors text-xs font-medium whitespace-nowrap">
-                    {locatingOwner ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Crosshair className="w-3.5 h-3.5" />}
-                    {locatingOwner ? '...' : 'GPS'}
-                  </button>
-                </div>
-              </div>
-            </div>
-            {/* Phone | Email | TIN — 3-column */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Property Unique Number */}
               <div>
-                <label className={labelClass}>Phone <span className="text-red-500">*</span></label>
-                <input type="tel" name="phone" value={form.phone} onChange={handleFormChange} placeholder="e.g. 0544370388" className={inputClass} />
+                <label className={`${labelClass} block`}>Property Unique Number</label>
+                <input type="text" name="propertyUniqueNumber" value={form.propertyUniqueNumber} readOnly placeholder="Auto-generated" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
+              </div>
+              {/* Property Certificate Number */}
+              <div>
+                <label className={`${labelClass} block`}>Property Certificate Number</label>
+                <input type="text" name="propertyCertNo" value={form.propertyCertNo} readOnly placeholder="Auto-generated" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
+              </div>
+              {/* Row 2: Revenue Code, Revenue Description, TIN */}
+              <div>
+                <label className={`${labelClass} block`}>Revenue Code</label>
+                <select name="revenueCode" value={form.revenueCode} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Select Revenue Code</option>
+                  {REVENUE_CODE_MAP.filter(m => m.code).map((m) => (
+                    <option key={m.code} value={m.code}>{m.code}</option>
+                  ))}
+                </select>
               </div>
               <div>
-                <label className={labelClass}>Email</label>
-                <input type="email" name="email" value={form.email} onChange={handleFormChange} placeholder="name@example.com" className={inputClass} />
+                <label className={`${labelClass} block`}>Revenue Description</label>
+                <select name="revenueDescription" value={form.revenueDescription} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Select revenue description...</option>
+                  {REVENUE_CODE_MAP.filter(m => m.code).map((m) => (
+                    <option key={m.code} value={m.description}>{m.description}</option>
+                  ))}
+                </select>
               </div>
               <div>
-                <label className={labelClass}>TIN</label>
-                <input type="text" name="tin" value={form.tin} onChange={handleFormChange} placeholder="Enter TIN" className={inputClass} />
+                <label className={`${labelClass} block`}>Property TIN</label>
+                <input type="text" name="tin" value={form.tin} onChange={handleFormChange} placeholder="e.g. TIN-1234567890" className={inputClass} />
               </div>
-            </div>
-            {/* National ID | Ownership Type */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Row 3: Business Class Code, Business Class, Category */}
               <div>
-                <label className={labelClass}>National ID</label>
-                <input type="text" name="nationalId" value={form.nationalId} onChange={handleFormChange} placeholder="Enter national ID number" className={inputClass} />
+                <label className={`${labelClass} block`}>Business Class Code</label>
+                <select name="businessClassCode" value={form.businessClassCode} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Select code...</option>
+                  {(CLASS_TO_CODES[form.type] || BUSINESS_CLASS_CODES).map((c, i) => (
+                    <option key={`${c}-${i}`} value={c}>{c}</option>
+                  ))}
+                </select>
               </div>
               <div>
-                <label className={labelClass}>Ownership Type</label>
-                <select name="ownershipType" value={form.ownershipType} onChange={handleFormChange} className={inputClass}>
-                  <option value="">Select type</option>
-                  {OWNERSHIP_TYPES.map((t) => (
+                <label className={`${labelClass} block`}>Business Class</label>
+                <select name="type" value={form.type} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Type to filter business class...</option>
+                  {propertyBusinessTypes.map((t) => (
                     <option key={t} value={t}>{t}</option>
                   ))}
                 </select>
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ════════════════════════════════════════════════════════════════
-           CARD 3: PROPERTY INFORMATION
-           ════════════════════════════════════════════════════════════════ */}
-        <div className={cardClass}>
-          <div className={cardHeaderClass}>
-            <div className="w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-              <Building2 className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-            </div>
-            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Property Information</h2>
-          </div>
-          <div className={cardBodyClass}>
-            {/* Property Use Type | Category — 2-column */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className={labelClass}>Property Use Type (Class) <span className="text-red-500">*</span></label>
+                <label className={`${labelClass} block`}>Category</label>
+                <select name="category" value={form.category} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Select Business Class first...</option>
+                  {availableCategories.map((c) => (
+                    <option key={c.name} value={c.name}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+              {/* Employees, Year Established, Amount */}
+              <div>
+                <label className={`${labelClass} block`}>Employees</label>
+                <input type="text" name="employees" value={form.employees} onChange={handleFormChange} placeholder="e.g. 15" className={inputClass} />
+              </div>
+              <div>
+                <label className={`${labelClass} block`}>Year Established</label>
+                <input type="text" name="yearEstablished" value={form.yearEstablished} onChange={handleFormChange} placeholder="e.g. 2020" className={inputClass} />
+              </div>
+              {/* Amount (read-only) */}
+              <div>
+                <label className={`${labelClass} block`}>Amount</label>
+                <input type="text" value={displayAmount !== null ? `GH\u20b5 ${displayAmount.toLocaleString()}` : ''} readOnly placeholder="Select a category" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-emerald-700 dark:text-emerald-400 font-semibold`} />
+              </div>
+              {/* Property Use Type */}
+              <div>
+                <label className={`${labelClass} block`}>Property Use Type <span className="text-red-500">*</span></label>
                 <select name="propertyUseType" value={form.propertyUseType} onChange={handleFormChange} className={inputClass}>
                   <option value="">Select use type</option>
                   {propertyUseTypes.map((t) => (
@@ -582,31 +738,19 @@ export function PropertiesPage() {
                   ))}
                 </select>
               </div>
+              {/* Value */}
               <div>
-                <label className={labelClass}>Category <span className="text-red-500">*</span></label>
-                <select name="category" value={form.category} onChange={handleFormChange} className={inputClass} disabled={!form.propertyUseType}>
-                  <option value="">{form.propertyUseType ? 'Category auto-filled' : 'Select use type first'}</option>
-                  {categories.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            {/* Value (GHS) | Rooms — 2-column */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass}>Value (GHS)</label>
+                <label className={`${labelClass} block`}>Value (GHS)</label>
                 <input type="number" name="value" value={form.value} onChange={handleFormChange} placeholder="0.00" min="0" className={inputClass} />
               </div>
+              {/* Rooms */}
               <div>
-                <label className={labelClass}>Rooms</label>
+                <label className={`${labelClass} block`}>Rooms</label>
                 <input type="number" name="rooms" value={form.rooms} onChange={handleFormChange} placeholder="e.g. 3" min="0" className={inputClass} />
               </div>
-            </div>
-            {/* Building Permit (radio) | Permit Number */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Building Permit */}
               <div>
-                <label className={labelClass}>Building Permit</label>
+                <label className={`${labelClass} block`}>Building Permit</label>
                 <div className="flex items-center gap-6 mt-1">
                   <label className="inline-flex items-center gap-2 cursor-pointer">
                     <input type="radio" name="hasBuildingPermit" value="Yes" checked={form.hasBuildingPermit === 'Yes'} onChange={handleFormChange} className="accent-emerald-600 w-4 h-4" />
@@ -618,39 +762,101 @@ export function PropertiesPage() {
                   </label>
                 </div>
               </div>
+              {/* Permit Number */}
               <div>
-                <label className={labelClass}>Permit Number</label>
+                <label className={`${labelClass} block`}>Permit Number</label>
                 <input type="text" name="permitNumber" value={form.permitNumber} onChange={handleFormChange} placeholder="Enter permit number" disabled={form.hasBuildingPermit === 'No'} className={`${inputClass} ${form.hasBuildingPermit === 'No' ? 'opacity-50 cursor-not-allowed' : ''}`} />
               </div>
+              {/* Excluded from rating */}
+              <div className="flex items-end gap-6">
+                <div className="flex-1">
+                  <label className={`${labelClass} block`}>Ownership Type</label>
+                  <select name="ownershipType" value={form.ownershipType} onChange={handleFormChange} className={inputClass}>
+                    <option value="">Select type</option>
+                    {OWNERSHIP_TYPES.map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+                <label className="flex items-center gap-2 pb-2.5 cursor-pointer select-none">
+                  <input type="checkbox" name="excludedFromRating" checked={form.excludedFromRating} onChange={handleFormChange} className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                  <span className="text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">Excluded from rating</span>
+                </label>
+              </div>
             </div>
-            {/* Excluded from rating checkbox */}
-            <div className="flex items-center gap-2">
-              <input type="checkbox" name="excludedFromRating" checked={form.excludedFromRating} onChange={handleFormChange} className="accent-emerald-600 w-4 h-4 rounded cursor-pointer" />
-              <label htmlFor="excludedFromRating" className="text-sm text-slate-700 dark:text-slate-300 cursor-pointer">Excluded from rating</label>
-            </div>
-            {/* Comments — full width textarea */}
-            <div>
-              <label className={labelClass}>Comments</label>
-              <textarea name="comments" value={form.comments} onChange={handleFormChange} rows={3} placeholder="Add any additional notes..." className={`${inputClass} resize-y`} />
+          </div>
+        </div>
+
+        {/* ════════════════════════════════════════════════════════════════════
+            CARD 3: OWNER INFORMATION
+           ════════════════════════════════════════════════════════════════════ */}
+        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="flex items-center gap-2.5 px-5 py-3 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700">
+            <User className="w-4.5 h-4.5 text-slate-600 dark:text-slate-400" />
+            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Owner Information</h2>
+          </div>
+          <div className="p-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
+              {/* Owner Name - full width */}
+              <div className="sm:col-span-2 lg:col-span-3">
+                <label className={`${labelClass} block`}>Owner Name <span className="text-red-500">*</span></label>
+                <input type="text" name="ownerName" value={form.ownerName} onChange={handleFormChange} placeholder="Enter full name of property owner" className={inputClass} />
+              </div>
+              {/* National ID */}
+              <div>
+                <label className={`${labelClass} block`}>National ID</label>
+                <input type="text" name="nationalId" value={form.nationalId} onChange={handleFormChange} placeholder="e.g. GHA-123456789-0" className={inputClass} />
+              </div>
+              {/* Phone */}
+              <div>
+                <label className={`${labelClass} block`}>Phone Number</label>
+                <input type="tel" name="phone" value={form.phone} onChange={handleFormChange} placeholder="e.g. +233 24 567 8901" className={inputClass} />
+              </div>
+              {/* Email */}
+              <div>
+                <label className={`${labelClass} block`}>Email</label>
+                <input type="email" name="email" value={form.email} onChange={handleFormChange} placeholder="e.g. owner@email.com" className={inputClass} />
+              </div>
+              {/* Owner TIN */}
+              <div>
+                <label className={`${labelClass} block`}>Owner TIN</label>
+                <input type="text" name="ownerTin" value={form.ownerTin} onChange={handleFormChange} placeholder="Owner's TIN" className={inputClass} />
+              </div>
+              {/* Owner Address - full width */}
+              <div className="sm:col-span-2 lg:col-span-3">
+                <label className={`${labelClass} block`}>Owner Address</label>
+                <input type="text" name="ownerAddress" value={form.ownerAddress} onChange={handleFormChange} placeholder="Enter owner address" className={inputClass} />
+              </div>
+              {/* Owner GPS Coordinates */}
+              <div className="sm:col-span-2 lg:col-span-3">
+                <label className={`${labelClass} block`}>Owner GPS Coordinates</label>
+                <div className="flex gap-2">
+                  <input type="text" name="ownerLatitude" value={form.ownerLatitude} onChange={handleFormChange} placeholder="Latitude" className={`${inputClass} flex-1`} />
+                  <input type="text" name="ownerLongitude" value={form.ownerLongitude} onChange={handleFormChange} placeholder="Longitude" className={`${inputClass} flex-1`} />
+                  <button type="button" onClick={fetchOwnerGps} disabled={locatingOwner} className="inline-flex items-center gap-1.5 px-2.5 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors text-xs font-medium whitespace-nowrap">
+                    {locatingOwner ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Crosshair className="w-3.5 h-3.5" />}
+                    {locatingOwner ? '...' : 'GPS'}
+                  </button>
+                </div>
+              </div>
+              {/* Comments - full width */}
+              <div className="sm:col-span-2 lg:col-span-3">
+                <label className={`${labelClass} block`}>Comments</label>
+                <textarea name="comments" value={form.comments} onChange={handleFormChange} placeholder="Any additional notes..." rows={3} className={`${inputClass} resize-none`} />
+              </div>
             </div>
           </div>
         </div>
 
         {/* ─── Action Buttons ──────────────────────────────────────────── */}
-        <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-2">
-          <button
-            onClick={handleCancel}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-slate-600 hover:bg-slate-700 text-white text-sm font-medium transition-colors cursor-pointer"
-          >
+        <div className="flex items-center justify-end gap-3 pt-2">
+          <button onClick={handleCancel} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-500 hover:bg-slate-600 text-white text-sm font-medium transition-colors cursor-pointer">
             <X className="w-4 h-4" />
             Cancel
           </button>
-          <button
-            onClick={handleSave}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors cursor-pointer"
-          >
+          <button onClick={handleSave} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors cursor-pointer">
             <Save className="w-4 h-4" />
-            Save
+            {editingPropNumber ? 'Update' : 'Save'}
           </button>
         </div>
       </div>
