@@ -1109,15 +1109,16 @@ export function BusinessesPage() {
                   <input type="text" name="businessClassCode" value={form.businessClassCode} onChange={handleFormChange} placeholder="e.g. BC-001" className={inputClass} />
                 </div>
               </div>
-              {/* Business TIN */}
-              <div>
-                <label className={`${labelClass} block`}>Business TIN</label>
-                <input type="text" name="tin" value={form.tin} onChange={handleFormChange} placeholder="e.g. TIN-1234567890" className={inputClass} />
-              </div>
-              {/* Employees */}
-              <div>
-                <label className={`${labelClass} block`}>Employees</label>
-                <input type="text" name="employees" value={form.employees} onChange={handleFormChange} placeholder="e.g. 15" className={inputClass} />
+              {/* Business TIN + Employees — same row */}
+              <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+                <div>
+                  <label className={`${labelClass} block`}>Business TIN</label>
+                  <input type="text" name="tin" value={form.tin} onChange={handleFormChange} placeholder="e.g. TIN-1234567890" className={inputClass} />
+                </div>
+                <div>
+                  <label className={`${labelClass} block`}>Employees</label>
+                  <input type="text" name="employees" value={form.employees} onChange={handleFormChange} placeholder="e.g. 15" className={inputClass} />
+                </div>
               </div>
               {/* Year Established */}
               <div>
