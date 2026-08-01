@@ -1122,6 +1122,16 @@ export function BusinessesPage() {
                   </select>
                 </div>
               </div>
+              {/* Category */}
+              <div className="sm:col-span-2 lg:col-span-3">
+                <label className={`${labelClass} block`}>Category</label>
+                <select name="category" value={form.category} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Select Business Class first...</option>
+                  {availableCategories.map((c) => (
+                    <option key={c.name} value={c.name}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
               {/* Row 2: Business TIN, Employees, Year Established */}
               <div className="sm:col-span-2 lg:col-span-3 grid grid-cols-3 gap-x-4 gap-y-4">
                 <div>
