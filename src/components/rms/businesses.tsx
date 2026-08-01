@@ -1069,16 +1069,6 @@ export function BusinessesPage() {
                 <label className={`${labelClass} block`}>Business Certificate Number</label>
                 <input type="text" name="businessCertNo" value={form.businessCertNo} readOnly placeholder="Auto-generated" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
               </div>
-              {/* Revenue Description */}
-              <div>
-                <label className={`${labelClass} block`}>Revenue Description</label>
-                <select name="revenueDescription" value={form.revenueDescription} onChange={handleFormChange} className={inputClass}>
-                  <option value="">Select revenue description...</option>
-                  {REVENUE_CODE_MAP.filter(m => m.code).map((m) => (
-                    <option key={m.code} value={m.description}>{m.description}</option>
-                  ))}
-                </select>
-              </div>
               {/* Revenue Code */}
               <div>
                 <label className={`${labelClass} block`}>Revenue Code</label>
@@ -1086,6 +1076,16 @@ export function BusinessesPage() {
                   <option value="">Select Revenue Code</option>
                   {REVENUE_CODE_MAP.filter(m => m.code).map((m) => (
                     <option key={m.code} value={m.code}>{m.code}</option>
+                  ))}
+                </select>
+              </div>
+              {/* Revenue Description */}
+              <div>
+                <label className={`${labelClass} block`}>Revenue Description</label>
+                <select name="revenueDescription" value={form.revenueDescription} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Select revenue description...</option>
+                  {REVENUE_CODE_MAP.filter(m => m.code).map((m) => (
+                    <option key={m.code} value={m.description}>{m.description}</option>
                   ))}
                 </select>
               </div>
