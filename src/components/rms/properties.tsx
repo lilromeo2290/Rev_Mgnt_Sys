@@ -721,7 +721,12 @@ export function PropertiesPage() {
                   ))}
                 </select>
               </div>
-              {/* Employees, Year Established, Amount */}
+              {/* Amount (read-only) */}
+              <div>
+                <label className={`${labelClass} block`}>Amount</label>
+                <input type="text" value={displayAmount !== null ? `GH\u20b5 ${displayAmount.toLocaleString()}` : ''} readOnly placeholder="Select a category" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-emerald-700 dark:text-emerald-400 font-semibold`} />
+              </div>
+              {/* Employees, Year Established */}
               <div>
                 <label className={`${labelClass} block`}>Employees</label>
                 <input type="text" name="employees" value={form.employees} onChange={handleFormChange} placeholder="e.g. 15" className={inputClass} />
@@ -729,11 +734,6 @@ export function PropertiesPage() {
               <div>
                 <label className={`${labelClass} block`}>Year Established</label>
                 <input type="text" name="yearEstablished" value={form.yearEstablished} onChange={handleFormChange} placeholder="e.g. 2020" className={inputClass} />
-              </div>
-              {/* Amount (read-only) */}
-              <div>
-                <label className={`${labelClass} block`}>Amount</label>
-                <input type="text" value={displayAmount !== null ? `GH\u20b5 ${displayAmount.toLocaleString()}` : ''} readOnly placeholder="Select a category" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-emerald-700 dark:text-emerald-400 font-semibold`} />
               </div>
               {/* Property Use Type */}
               <div>
