@@ -1079,11 +1079,11 @@ export function BusinessesPage() {
                   ))}
                 </select>
               </div>
-              {/* Code */}
+              {/* Revenue Code */}
               <div>
-                <label className={`${labelClass} block`}>Code</label>
+                <label className={`${labelClass} block`}>Revenue Code</label>
                 <select name="code" value={form.code} onChange={handleFormChange} className={inputClass}>
-                  <option value="">Select Code</option>
+                  <option value="">Select Revenue Code</option>
                   {REVENUE_CODE_MAP.filter(m => m.code).map((m) => (
                     <option key={m.code} value={m.code}>{m.code}</option>
                   ))}
