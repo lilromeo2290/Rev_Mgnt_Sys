@@ -27,7 +27,7 @@ import {
 import { BUSINESS_CLASSES, BUSINESS_CLASS_CATEGORIES } from '@/lib/fee-schedule';
 import type { FeeCategory } from '@/lib/fee-schedule';
 import { exportToExcel, importFromExcel, BUSINESS_FIELDS } from '@/lib/import-export';
-import { LOCALITIES } from '@/lib/localities';
+import { LOCALITIES, LOCALITY_AREA_CODE_MAP } from '@/lib/localities';
 import { REVENUE_DESCRIPTIONS } from '@/lib/revenue-descriptions';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -271,6 +271,10 @@ export function BusinessesPage() {
     const { name, type } = e.target;
     setForm((prev) => {
       const updated = { ...prev, [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : (e.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement).value };
+      // Auto-fill area code when locality changes
+      if (name === 'locality' && LOCALITY_AREA_CODE_MAP[updated.locality]) {
+        updated.areaCode = LOCALITY_AREA_CODE_MAP[updated.locality];
+      }
       // Reset category and sub-category when type changes
       if (name === 'type') {
         updated.category = '';
@@ -985,7 +989,7 @@ export function BusinessesPage() {
               {/* Area Code */}
               <div>
                 <label className={`${labelClass} block`}>Area Code</label>
-                <input type="text" name="areaCode" value={form.areaCode} onChange={handleFormChange} placeholder="e.g. AC-001" className={inputClass} />
+                <input type="text" name="areaCode" value={form.areaCode} onChange={handleFormChange} placeholder="Auto-fills from Locality" className={inputClass} />
               </div>
               {/* Street Name */}
               <div>
