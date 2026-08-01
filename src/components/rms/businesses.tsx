@@ -29,6 +29,7 @@ import type { FeeCategory } from '@/lib/fee-schedule';
 import { exportToExcel, importFromExcel, BUSINESS_FIELDS } from '@/lib/import-export';
 import { LOCALITIES, LOCALITY_AREA_CODE_MAP } from '@/lib/localities';
 import { REVENUE_DESCRIPTIONS } from '@/lib/revenue-descriptions';
+import { REVENUE_CODE_MAP, DESCRIPTION_TO_CODE, CODE_TO_DESCRIPTION } from '@/lib/revenue-code-map';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -278,6 +279,13 @@ export function BusinessesPage() {
         // Update business unique number with new area code
         const nextNum = businesses.length + 1;
         updated.businessUniqueNumber = `${updated.areaCode}/BP/${String(nextNum).padStart(4, '0')}`;
+      }
+      // Link Revenue Description ↔ Code
+      if (name === 'revenueDescription' && DESCRIPTION_TO_CODE[updated.revenueDescription]) {
+        updated.code = DESCRIPTION_TO_CODE[updated.revenueDescription];
+      }
+      if (name === 'code' && CODE_TO_DESCRIPTION[updated.code]) {
+        updated.revenueDescription = CODE_TO_DESCRIPTION[updated.code];
       }
       // Reset category and sub-category when type changes
       if (name === 'type') {
@@ -1066,8 +1074,8 @@ export function BusinessesPage() {
                 <label className={`${labelClass} block`}>Revenue Description</label>
                 <select name="revenueDescription" value={form.revenueDescription} onChange={handleFormChange} className={inputClass}>
                   <option value="">Select revenue description...</option>
-                  {REVENUE_DESCRIPTIONS.map((r) => (
-                    <option key={r} value={r}>{r}</option>
+                  {REVENUE_CODE_MAP.filter(m => m.code).map((m) => (
+                    <option key={m.code} value={m.description}>{m.description}</option>
                   ))}
                 </select>
               </div>
@@ -1076,17 +1084,8 @@ export function BusinessesPage() {
                 <label className={`${labelClass} block`}>Code</label>
                 <select name="code" value={form.code} onChange={handleFormChange} className={inputClass}>
                   <option value="">Select Code</option>
-                  {[
-                    '3113161','3113162','3113163','3113164','3113200','3113210','3113211','3113212',
-                    '3122101','3122102','3122103','3122106','3122109',
-                    '3141100','3141101','3142000','3142100','3142101','3142102','3142103','3142104','3142105','3142106','3142107','3142500','3142501','3142502','3142503',
-                    '3143000','3143001','3143002','3143003',
-                    '3144000','3144100','3144101','3144200','3144222',
-                    '3145000','3145100','3145103','3145112',
-                    '3146000','3146001','3146002','3146003','3146004','3146005',
-                    '3199900','3199999',
-                  ].map((c) => (
-                    <option key={c} value={c}>{c}</option>
+                  {REVENUE_CODE_MAP.filter(m => m.code).map((m) => (
+                    <option key={m.code} value={m.code}>{m.code}</option>
                   ))}
                 </select>
               </div>
