@@ -32,6 +32,7 @@ import { REVENUE_CODE_MAP, DESCRIPTION_TO_CODE, CODE_TO_DESCRIPTION } from '@/li
 import { CLASS_TO_FIRST_CODE, CLASS_TO_CODES, CODE_TO_CLASS } from '@/lib/business-class-code-map';
 import { BUSINESS_CLASS_CODES } from '@/lib/business-class-codes';
 import { FEE_CODE_LOOKUP } from '@/lib/fee-code-lookup';
+import { Combobox } from '@/components/ui/combobox';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -689,21 +690,27 @@ export function PropertiesPage() {
               {/* Row 3: Business Class Code, Business Class, Category */}
               <div>
                 <label className={`${labelClass} block`}>Business Class Code</label>
-                <select name="businessClassCode" value={form.businessClassCode} onChange={handleFormChange} className={inputClass}>
-                  <option value="">Select code...</option>
-                  {(CLASS_TO_CODES[form.type] || BUSINESS_CLASS_CODES).map((c, i) => (
-                    <option key={`${c}-${i}`} value={c}>{c}</option>
-                  ))}
-                </select>
+                <Combobox
+                  name="businessClassCode"
+                  value={form.businessClassCode}
+                  onChange={handleFormChange}
+                  options={(CLASS_TO_CODES[form.type] || BUSINESS_CLASS_CODES).map((c) => ({ value: c, label: `${c} - ${CODE_TO_CLASS[c] || ''}` }))}
+                  placeholder="Type or search code..."
+                  emptyMessage="No matching codes"
+                  className={inputClass}
+                />
               </div>
               <div>
                 <label className={`${labelClass} block`}>Business Class</label>
-                <select name="type" value={form.type} onChange={handleFormChange} className={inputClass}>
-                  <option value="">Type to filter business class...</option>
-                  {propertyBusinessTypes.map((t) => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
+                <Combobox
+                  name="type"
+                  value={form.type}
+                  onChange={handleFormChange}
+                  options={propertyBusinessTypes.map((t) => ({ value: t, label: t }))}
+                  placeholder="Type or search business class..."
+                  emptyMessage="No matching classes"
+                  className={inputClass}
+                />
               </div>
               <div>
                 <label className={`${labelClass} block`}>Category</label>
