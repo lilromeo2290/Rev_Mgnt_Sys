@@ -274,21 +274,6 @@ export function BusinessesPage() {
         updated.category = '';
         updated.subCategory = '';
       }
-      // Auto-generate code when locality changes
-      if (name === 'locality') {
-        const loc = (e.target as HTMLSelectElement).value;
-        if (loc) {
-          const prefix = `${loc}/BP/`;
-          const existing = businesses.filter((b) => (b as any).code && (b as any).code.startsWith(prefix));
-          // Exclude current editing item
-          const count = editingRegNumber
-            ? existing.filter((b) => b.regNumber !== editingRegNumber).length
-            : existing.length;
-          updated.code = `${prefix}${String(count + 1).padStart(3, '0')}`;
-        } else {
-          updated.code = '';
-        }
-      }
       return updated;
     });
   };
@@ -1072,7 +1057,21 @@ export function BusinessesPage() {
               {/* Code */}
               <div>
                 <label className={`${labelClass} block`}>Code</label>
-                <input type="text" name="code" value={form.code} readOnly placeholder="Auto-generated" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
+                <select name="code" value={form.code} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Select Code</option>
+                  {[
+                    '3113161','3113162','3113163','3113164','3113200','3113210','3113211','3113212',
+                    '3122101','3122102','3122103','3122106','3122109',
+                    '3141100','3141101','3142000','3142100','3142101','3142102','3142103','3142104','3142105','3142106','3142107','3142500','3142501','3142502','3142503',
+                    '3143000','3143001','3143002','3143003',
+                    '3144000','3144100','3144101','3144200','3144222',
+                    '3145000','3145100','3145103','3145112',
+                    '3146000','3146001','3146002','3146003','3146004','3146005',
+                    '3199900','3199999',
+                  ].map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
               </div>
               {/* Business Class */}
               <div>
