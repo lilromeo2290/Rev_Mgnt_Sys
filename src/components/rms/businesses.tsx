@@ -395,7 +395,7 @@ export function BusinessesPage() {
       expiryDate.setFullYear(expiryDate.getFullYear() + 1);
       const expiryStr = expiryDate.toISOString().split('T')[0];
       const assemblyName = (() => {
-        try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kumasi Metropolitan Assembly'; } catch { return 'Kumasi Metropolitan Assembly'; }
+        try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kpando Municipal Assembly'; } catch { return 'Kpando Municipal Assembly'; }
       })();
       const assemblyAddress = (() => {
         try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.address || ''; } catch { return ''; }
@@ -507,7 +507,7 @@ export function BusinessesPage() {
   const handlePrintCertificate = (cert: BusinessCert) => {
     // Read assembly name dynamically from settings at print time
     const _asmSettings = (() => { try { return JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); } catch { return {}; } })();
-    const dynAssemblyName = _asmSettings.name || cert.assemblyName || 'Kumasi Metropolitan Assembly';
+    const dynAssemblyName = _asmSettings.name || cert.assemblyName || 'Kpando Municipal Assembly';
     const dynAssemblyAddress = _asmSettings.address || cert.assemblyAddress || '';
     const fmtDate = (d: string) => {
       if (!d) return '..................';
@@ -811,7 +811,7 @@ export function BusinessesPage() {
           };
           // Read assembly name dynamically from settings at view time
           const _asm = (() => { try { return JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); } catch { return {}; } })();
-          const dynAssemblyName = _asm.name || viewingCert.assemblyName || 'Kumasi Metropolitan Assembly';
+          const dynAssemblyName = _asm.name || viewingCert.assemblyName || 'Kpando Municipal Assembly';
           let dayOrd = '..................';
           let monthName = '..................';
           let yearShort = '........';
