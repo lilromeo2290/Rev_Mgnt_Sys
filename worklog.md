@@ -128,3 +128,23 @@ Stage Summary:
 - No more duplicate key warnings across the entire RMS
 - Logo files unchanged: `/public/logos/ghana-coat-of-arms.webp`, `/public/logos/assembly-seal.png`
 - localStorage key for assembly settings: `rms-settings-assembly`
+---
+Task ID: 1-4
+Agent: main
+Task: Fix data persistence, remove Kumasi, make settings persistent
+
+Work Log:
+- Found and removed last 'Kumasi' reference in src/ (login-page.tsx line 361)
+- Identified root cause of data loss: SQLite db path was relative (file:./dev.db) which got destroyed during standalone rebuild
+- Fixed ecosystem.config.cjs: added DATABASE_URL=file:/home/consult-rms/data/rms.db as absolute path outside build dir
+- Rewrote deploy.sh: creates /home/consult-rms/data/ before git pull, writes .env with absolute DATABASE_URL, copies prisma dir to standalone
+- Updated rms-data API route to use shared db instance from @/lib/db instead of creating separate PrismaClient
+- Rewrote settings.tsx: all 6 tabs now persist via useSyncedStorage (assembly, financial, billing, security, notifications, backup)
+- Replaced uncontrolled inputs (defaultValue) with controlled inputs (value) connected to synced storage
+- Added toggle switches for boolean settings
+
+Stage Summary:
+- Database now persists at /home/consult-rms/data/rms.db (outside build directory)
+- deploy.sh creates .env with correct DATABASE_URL and preserves data dir across git reset --hard
+- All settings tabs now save to database and survive deploys
+- Zero 'Kumasi' references remain in src/

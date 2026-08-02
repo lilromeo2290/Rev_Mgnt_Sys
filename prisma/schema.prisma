@@ -13,6 +13,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// NOTE: On the VPS, DATABASE_URL MUST be set to an absolute path
+// outside the project directory so the database survives deploys.
+// Example: DATABASE_URL=file:/home/consult-rms/data/rms.db
+// This is set automatically by deploy.sh and ecosystem.config.cjs.
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique

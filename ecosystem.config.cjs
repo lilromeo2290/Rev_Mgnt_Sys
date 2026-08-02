@@ -8,6 +8,7 @@ module.exports = {
         NODE_ENV: 'production',
         PORT: 3001,
         HOSTNAME: '0.0.0.0',
+        DATABASE_URL: 'file:/home/consult-rms/data/rms.db',
       },
       instances: 1,
       autorestart: true,

@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { db } from '@/lib/db';
 
 // GET /api/rms-data?key=businesses
 export async function GET(request: NextRequest) {
@@ -11,7 +9,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Missing key parameter' }, { status: 400 });
     }
 
-    const record = await prisma.rmsData.findUnique({ where: { key } });
+    const record = await db.rmsData.findUnique({ where: { key } });
 
     if (!record) {
       return NextResponse.json({ key, data: null });
@@ -36,7 +34,7 @@ export async function PUT(request: NextRequest) {
 
     const jsonData = JSON.stringify(data);
 
-    await prisma.rmsData.upsert({
+    await db.rmsData.upsert({
       where: { key },
       update: { data: jsonData },
       create: { key, data: jsonData },

@@ -16,11 +16,18 @@ import {
   Upload,
   Download,
   RefreshCw,
+  CheckCircle2,
 } from 'lucide-react';
 import { useSyncedStorage } from '@/hooks/use-synced-storage';
 
-const SETTINGS_KEY = 'rms-settings-assembly';
+const ASSEMBLY_KEY = 'rms-settings-assembly';
+const FINANCIAL_KEY = 'rms-settings-financial';
+const BILLING_KEY = 'rms-settings-billing';
+const SECURITY_KEY = 'rms-settings-security';
+const NOTIFICATIONS_KEY = 'rms-settings-notifications';
+const BACKUP_KEY = 'rms-settings-backup';
 
+// ── Types ──
 interface AssemblyInfo {
   name: string;
   code: string;
@@ -30,6 +37,44 @@ interface AssemblyInfo {
   address: string;
   description: string;
   logo: string;
+}
+
+interface FinancialInfo {
+  currency: string;
+  financialYearStart: string;
+  currentFinancialYear: string;
+  taxRate: string;
+  penaltyRate: string;
+  interestRate: string;
+}
+
+interface BillingInfo {
+  billPrefix: string;
+  receiptPrefix: string;
+  defaultDueDays: string;
+  penaltyAfterDays: string;
+  autoGenerateBills: boolean;
+  includeQrCode: boolean;
+  digitalSignature: boolean;
+  duplicateBillDetection: boolean;
+}
+
+interface SecurityInfo {
+  sessionTimeout: string;
+  maxLoginAttempts: string;
+  passwordMinLength: string;
+  lockoutDuration: string;
+  twoFactorAuth: boolean;
+  auditTrail: boolean;
+}
+
+interface NotificationInfo {
+  [key: string]: boolean;
+}
+
+interface BackupInfo {
+  autoDailyBackup: boolean;
+  retentionDays: string;
 }
 
 const defaultAssembly: AssemblyInfo = {
@@ -43,11 +88,63 @@ const defaultAssembly: AssemblyInfo = {
   logo: '',
 };
 
+const defaultFinancial: FinancialInfo = {
+  currency: 'GHS',
+  financialYearStart: 'january',
+  currentFinancialYear: '2026',
+  taxRate: '',
+  penaltyRate: '5',
+  interestRate: '2',
+};
+
+const defaultBilling: BillingInfo = {
+  billPrefix: '',
+  receiptPrefix: '',
+  defaultDueDays: '30',
+  penaltyAfterDays: '15',
+  autoGenerateBills: false,
+  includeQrCode: true,
+  digitalSignature: false,
+  duplicateBillDetection: true,
+};
+
+const defaultSecurity: SecurityInfo = {
+  sessionTimeout: '30',
+  maxLoginAttempts: '5',
+  passwordMinLength: '8',
+  lockoutDuration: '15',
+  twoFactorAuth: false,
+  auditTrail: true,
+};
+
+const defaultNotifications: NotificationInfo = {
+  smsDueDateReminders: false,
+  emailDueDateReminders: false,
+  paymentConfirmationSms: false,
+  paymentConfirmationEmail: false,
+  overdueBillAlerts: false,
+  systemNotifications: true,
+  dailyCollectionSummary: false,
+  weeklyRevenueReport: false,
+};
+
+const defaultBackup: BackupInfo = {
+  autoDailyBackup: false,
+  retentionDays: '90',
+};
+
 export function SettingsPage() {
   const [activeTab, setActiveTab] = useState('assembly');
   const [saved, setSaved] = useState(false);
-  const [assembly, setAssembly, dataLoading] = useSyncedStorage<AssemblyInfo>(SETTINGS_KEY, defaultAssembly);
-  const loaded = !dataLoading;
+
+  const [assembly, setAssembly, assemblyLoading] = useSyncedStorage<AssemblyInfo>(ASSEMBLY_KEY, defaultAssembly);
+  const [financial, setFinancial, financialLoading] = useSyncedStorage<FinancialInfo>(FINANCIAL_KEY, defaultFinancial);
+  const [billing, setBilling, billingLoading] = useSyncedStorage<BillingInfo>(BILLING_KEY, defaultBilling);
+  const [security, setSecurity, securityLoading] = useSyncedStorage<SecurityInfo>(SECURITY_KEY, defaultSecurity);
+  const [notifications, setNotifications, notifLoading] = useSyncedStorage<NotificationInfo>(NOTIFICATIONS_KEY, defaultNotifications);
+  const [backup, setBackup, backupLoading] = useSyncedStorage<BackupInfo>(BACKUP_KEY, defaultBackup);
+
+  const loaded = !assemblyLoading && !financialLoading && !billingLoading && !securityLoading && !notifLoading && !backupLoading;
 
   const tabs = [
     { id: 'assembly', label: 'Assembly Info', icon: Building },
@@ -58,12 +155,9 @@ export function SettingsPage() {
     { id: 'backup', label: 'Backup & Restore', icon: Database },
   ];
 
-  const handleAssemblyChange = (field: keyof AssemblyInfo, value: string) => {
-    setAssembly((prev) => ({ ...prev, [field]: value }));
-  };
-
   const handleSave = () => {
-    // useSyncedStorage auto-syncs to server on setAssembly
+    // useSyncedStorage auto-syncs to server on every setter call.
+    // The "Save" button gives visual confirmation.
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -80,9 +174,17 @@ export function SettingsPage() {
           onClick={handleSave}
           className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition-colors"
         >
-          <Save className="w-4 h-4" />
-          {saved ? 'Saved!' : 'Save Changes'}
+          {saved ? <CheckCircle2 className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+          {saved ? 'All Settings Saved!' : 'Save Changes'}
         </button>
+      </div>
+
+      {/* Info banner */}
+      <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-lg px-4 py-3">
+        <p className="text-sm text-emerald-700 dark:text-emerald-300">
+          <CheckCircle2 className="w-4 h-4 inline mr-1.5 -mt-0.5" />
+          All settings are automatically saved to the server and will persist across deployments.
+        </p>
       </div>
 
       {/* Tabs */}
@@ -105,18 +207,35 @@ export function SettingsPage() {
 
       {/* Tab Content */}
       <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
-        {activeTab === 'assembly' && loaded && <AssemblySettings data={assembly} onChange={handleAssemblyChange} onLogoChange={handleAssemblyChange} />}
-        {activeTab === 'financial' && <FinancialSettings />}
-        {activeTab === 'billing' && <BillingSettings />}
-        {activeTab === 'security' && <SecuritySettings />}
-        {activeTab === 'notifications' && <NotificationSettings />}
-        {activeTab === 'backup' && <BackupSettings />}
+        {activeTab === 'assembly' && loaded && (
+          <AssemblySettings data={assembly} onChange={(field, value) => setAssembly((p: AssemblyInfo) => ({ ...p, [field]: value }))} />
+        )}
+        {activeTab === 'financial' && loaded && (
+          <FinancialSettings data={financial} onChange={(field, value) => setFinancial((p: FinancialInfo) => ({ ...p, [field]: value }))} />
+        )}
+        {activeTab === 'billing' && loaded && (
+          <BillingSettings data={billing} onChange={(field, value) => setBilling((p: BillingInfo) => ({ ...p, [field]: value }))} />
+        )}
+        {activeTab === 'security' && loaded && (
+          <SecuritySettings data={security} onChange={(field, value) => setSecurity((p: SecurityInfo) => ({ ...p, [field]: value }))} />
+        )}
+        {activeTab === 'notifications' && loaded && (
+          <NotificationSettings data={notifications} onChange={(field, value) => setNotifications((p: NotificationInfo) => ({ ...p, [field]: value }))} />
+        )}
+        {activeTab === 'backup' && loaded && (
+          <BackupSettings data={backup} onChange={(field, value) => setBackup((p: BackupInfo) => ({ ...p, [field]: value }))} />
+        )}
       </div>
     </div>
   );
 }
 
-function AssemblySettings({ data, onChange, onLogoChange }: { data: AssemblyInfo; onChange: (field: keyof AssemblyInfo, value: string) => void; onLogoChange: (field: keyof AssemblyInfo, value: string) => void; }) {
+// ── Shared input style ──
+const inputCls = 'w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition';
+const selectCls = 'w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition';
+
+// ── Assembly Tab ──
+function AssemblySettings({ data, onChange }: { data: AssemblyInfo; onChange: (field: keyof AssemblyInfo, value: string) => void }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,7 +245,7 @@ function AssemblySettings({ data, onChange, onLogoChange }: { data: AssemblyInfo
     const reader = new FileReader();
     reader.onload = (ev) => {
       if (ev.target?.result) {
-        onLogoChange('logo', ev.target.result as string);
+        onChange('logo', ev.target.result as string);
       }
     };
     reader.readAsDataURL(file);
@@ -137,19 +256,17 @@ function AssemblySettings({ data, onChange, onLogoChange }: { data: AssemblyInfo
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const inputCls = 'w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition';
-
   return (
     <div className="space-y-6">
       <h2 className="text-lg font-semibold text-slate-900 dark:text-white pb-2 border-b border-slate-200 dark:border-slate-700">Assembly Information</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Assembly Name</label>
-          <input type="text" value={data.name} onChange={(e) => onChange('name', e.target.value)} placeholder="Enter assembly name" className={inputCls} />
+          <input type="text" value={data.name} onChange={(e) => onChange('name', e.target.value)} placeholder="e.g. Kpando Municipal Assembly" className={inputCls} />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Assembly Code</label>
-          <input type="text" value={data.code} onChange={(e) => onChange('code', e.target.value)} placeholder="Enter assembly code" className={inputCls} />
+          <input type="text" value={data.code} onChange={(e) => onChange('code', e.target.value)} placeholder="e.g. KMA" className={inputCls} />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5"><Phone className="w-3.5 h-3.5" /> Telephone</label>
@@ -179,25 +296,12 @@ function AssemblySettings({ data, onChange, onLogoChange }: { data: AssemblyInfo
             </div>
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center gap-2">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleLogoUpload}
-                  className="hidden"
-                />
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-2 cursor-pointer"
-                >
+                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleLogoUpload} className="hidden" />
+                <button type="button" onClick={() => fileInputRef.current?.click()} className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors flex items-center gap-2 cursor-pointer">
                   <Upload className="w-4 h-4" /> Upload Logo
                 </button>
                 {data.logo && (
-                  <button
-                    onClick={handleRemoveLogo}
-                    className="px-3 py-2 border border-red-300 dark:border-red-700 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer"
-                  >
+                  <button onClick={handleRemoveLogo} className="px-3 py-2 border border-red-300 dark:border-red-700 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors cursor-pointer">
                     Remove
                   </button>
                 )}
@@ -214,20 +318,21 @@ function AssemblySettings({ data, onChange, onLogoChange }: { data: AssemblyInfo
   );
 }
 
-function FinancialSettings() {
+// ── Financial Tab ──
+function FinancialSettings({ data, onChange }: { data: FinancialInfo; onChange: (field: keyof FinancialInfo, value: string) => void }) {
   return (
     <div className="space-y-6">
       <h2 className="text-lg font-semibold text-slate-900 dark:text-white pb-2 border-b border-slate-200 dark:border-slate-700">Financial Settings</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5"><DollarSign className="w-3.5 h-3.5" /> Currency</label>
-          <select defaultValue="GHS" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
-            <option value="GHS">GH₵ - Ghana Cedis</option>
+          <select value={data.currency} onChange={(e) => onChange('currency', e.target.value)} className={selectCls}>
+            <option value="GHS">GHS - Ghana Cedis</option>
           </select>
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Financial Year Start</label>
-          <select defaultValue="january" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition">
+          <select value={data.financialYearStart} onChange={(e) => onChange('financialYearStart', e.target.value)} className={selectCls}>
             <option value="january">January</option>
             <option value="april">April</option>
             <option value="july">July</option>
@@ -236,140 +341,119 @@ function FinancialSettings() {
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Current Financial Year</label>
-          <input type="text" defaultValue="" placeholder="e.g. 2026" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="text" value={data.currentFinancialYear} onChange={(e) => onChange('currentFinancialYear', e.target.value)} placeholder="e.g. 2026" className={inputCls} />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Tax Rate (%)</label>
-          <input type="number" defaultValue="" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="number" value={data.taxRate} onChange={(e) => onChange('taxRate', e.target.value)} placeholder="e.g. 10" className={inputCls} />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Penalty Rate (%)</label>
-          <input type="number" defaultValue="" placeholder="e.g. 5" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="number" value={data.penaltyRate} onChange={(e) => onChange('penaltyRate', e.target.value)} placeholder="e.g. 5" className={inputCls} />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Interest Rate (%)</label>
-          <input type="number" defaultValue="" placeholder="e.g. 2" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="number" value={data.interestRate} onChange={(e) => onChange('interestRate', e.target.value)} placeholder="e.g. 2" className={inputCls} />
         </div>
       </div>
     </div>
   );
 }
 
-function BillingSettings() {
+// ── Billing Tab ──
+function BillingSettings({ data, onChange }: { data: BillingInfo; onChange: (field: string, value: any) => void }) {
+  const toggleBool = (field: keyof BillingInfo) => onChange(field, !data[field]);
+
   return (
     <div className="space-y-6">
       <h2 className="text-lg font-semibold text-slate-900 dark:text-white pb-2 border-b border-slate-200 dark:border-slate-700">Billing Configuration</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Bill Prefix</label>
-          <input type="text" defaultValue="" placeholder="e.g. KMA-BILL" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="text" value={data.billPrefix} onChange={(e) => onChange('billPrefix', e.target.value)} placeholder="e.g. KpMA-BILL" className={inputCls} />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Receipt Prefix</label>
-          <input type="text" defaultValue="" placeholder="e.g. KMA-REC" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="text" value={data.receiptPrefix} onChange={(e) => onChange('receiptPrefix', e.target.value)} placeholder="e.g. KpMA-REC" className={inputCls} />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Default Due Days</label>
-          <input type="number" defaultValue="" placeholder="e.g. 30" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="number" value={data.defaultDueDays} onChange={(e) => onChange('defaultDueDays', e.target.value)} placeholder="e.g. 30" className={inputCls} />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Penalty After (Days)</label>
-          <input type="number" defaultValue="" placeholder="e.g. 15" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="number" value={data.penaltyAfterDays} onChange={(e) => onChange('penaltyAfterDays', e.target.value)} placeholder="e.g. 15" className={inputCls} />
         </div>
-        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
-          <div>
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Auto-Generate Bills</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Automatically generate bills at the start of each period</p>
-          </div>
-          <input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
-        </div>
-        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
-          <div>
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Include QR Code on Bills</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Add QR code and barcode to printed bills</p>
-          </div>
-          <input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
-        </div>
-        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
-          <div>
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Digital Signature</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Include assembly digital signature on receipts</p>
-          </div>
-          <input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
-        </div>
-        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
-          <div>
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Duplicate Bill Detection</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Prevent generation of duplicate bills</p>
-          </div>
-          <input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
-        </div>
+        <ToggleCard label="Auto-Generate Bills" desc="Automatically generate bills at the start of each period" checked={data.autoGenerateBills} onToggle={() => toggleBool('autoGenerateBills')} />
+        <ToggleCard label="Include QR Code on Bills" desc="Add QR code and barcode to printed bills" checked={data.includeQrCode} onToggle={() => toggleBool('includeQrCode')} />
+        <ToggleCard label="Digital Signature" desc="Include assembly digital signature on receipts" checked={data.digitalSignature} onToggle={() => toggleBool('digitalSignature')} />
+        <ToggleCard label="Duplicate Bill Detection" desc="Prevent generation of duplicate bills" checked={data.duplicateBillDetection} onToggle={() => toggleBool('duplicateBillDetection')} />
       </div>
     </div>
   );
 }
 
-function SecuritySettings() {
+// ── Security Tab ──
+function SecuritySettings({ data, onChange }: { data: SecurityInfo; onChange: (field: string, value: any) => void }) {
+  const toggleBool = (field: keyof SecurityInfo) => onChange(field, !data[field]);
+
   return (
     <div className="space-y-6">
       <h2 className="text-lg font-semibold text-slate-900 dark:text-white pb-2 border-b border-slate-200 dark:border-slate-700">Security Settings</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Session Timeout (Minutes)</label>
-          <input type="number" defaultValue="" placeholder="e.g. 30" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="number" value={data.sessionTimeout} onChange={(e) => onChange('sessionTimeout', e.target.value)} placeholder="e.g. 30" className={inputCls} />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Max Login Attempts</label>
-          <input type="number" defaultValue="" placeholder="e.g. 5" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="number" value={data.maxLoginAttempts} onChange={(e) => onChange('maxLoginAttempts', e.target.value)} placeholder="e.g. 5" className={inputCls} />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Password Min Length</label>
-          <input type="number" defaultValue="" placeholder="e.g. 8" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="number" value={data.passwordMinLength} onChange={(e) => onChange('passwordMinLength', e.target.value)} placeholder="e.g. 8" className={inputCls} />
         </div>
         <div className="space-y-2">
           <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Account Lockout Duration (Minutes)</label>
-          <input type="number" defaultValue="" placeholder="e.g. 15" className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="number" value={data.lockoutDuration} onChange={(e) => onChange('lockoutDuration', e.target.value)} placeholder="e.g. 15" className={inputCls} />
         </div>
-        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
-          <div>
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Two-Factor Authentication (2FA)</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Require 2FA for all users</p>
-          </div>
-          <input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
-        </div>
-        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
-          <div>
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Audit Trail Logging</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Log all user activities</p>
-          </div>
-          <input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
-        </div>
+        <ToggleCard label="Two-Factor Authentication (2FA)" desc="Require 2FA for all users" checked={data.twoFactorAuth} onToggle={() => toggleBool('twoFactorAuth')} />
+        <ToggleCard label="Audit Trail Logging" desc="Log all user activities" checked={data.auditTrail} onToggle={() => toggleBool('auditTrail')} />
       </div>
     </div>
   );
 }
 
-function NotificationSettings() {
+// ── Notifications Tab ──
+function NotificationSettings({ data, onChange }: { data: NotificationInfo; onChange: (field: string, value: boolean) => void }) {
+  const items = [
+    { key: 'smsDueDateReminders', label: 'SMS Due Date Reminders', desc: 'Send SMS reminder before bill due date' },
+    { key: 'emailDueDateReminders', label: 'Email Due Date Reminders', desc: 'Send email reminder before bill due date' },
+    { key: 'paymentConfirmationSms', label: 'Payment Confirmation SMS', desc: 'Send SMS after successful payment' },
+    { key: 'paymentConfirmationEmail', label: 'Payment Confirmation Email', desc: 'Send email after successful payment' },
+    { key: 'overdueBillAlerts', label: 'Overdue Bill Alerts', desc: 'Notify when bills become overdue' },
+    { key: 'systemNotifications', label: 'System Notifications', desc: 'Show in-app system notifications' },
+    { key: 'dailyCollectionSummary', label: 'Daily Collection Summary', desc: 'Send daily revenue summary to admins' },
+    { key: 'weeklyRevenueReport', label: 'Weekly Revenue Report', desc: 'Email weekly revenue report' },
+  ];
+
   return (
     <div className="space-y-6">
       <h2 className="text-lg font-semibold text-slate-900 dark:text-white pb-2 border-b border-slate-200 dark:border-slate-700">Notification Settings</h2>
       <div className="space-y-4">
-        {[
-          { label: 'SMS Due Date Reminders', desc: 'Send SMS reminder before bill due date', defaultChecked: false },
-          { label: 'Email Due Date Reminders', desc: 'Send email reminder before bill due date', defaultChecked: false },
-          { label: 'Payment Confirmation SMS', desc: 'Send SMS after successful payment', defaultChecked: false },
-          { label: 'Payment Confirmation Email', desc: 'Send email after successful payment', defaultChecked: false },
-          { label: 'Overdue Bill Alerts', desc: 'Notify when bills become overdue', defaultChecked: false },
-          { label: 'System Notifications', desc: 'Show in-app system notifications', defaultChecked: false },
-          { label: 'Daily Collection Summary', desc: 'Send daily revenue summary to admins', defaultChecked: false },
-          { label: 'Weekly Revenue Report', desc: 'Email weekly revenue report', defaultChecked: false },
-        ].map((item) => (
-          <div key={item.label} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+        {items.map((item) => (
+          <div key={item.key} className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
             <div>
               <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{item.label}</p>
               <p className="text-xs text-slate-500 dark:text-slate-400">{item.desc}</p>
             </div>
-            <input type="checkbox" defaultChecked={item.defaultChecked} className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+            <button
+              type="button"
+              onClick={() => onChange(item.key, !data[item.key])}
+              className={`relative w-11 h-6 rounded-full transition-colors ${data[item.key] ? 'bg-emerald-600' : 'bg-slate-300 dark:bg-slate-600'}`}
+            >
+              <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${data[item.key] ? 'translate-x-5' : 'translate-x-0'}`} />
+            </button>
           </div>
         ))}
       </div>
@@ -377,24 +461,21 @@ function NotificationSettings() {
   );
 }
 
-function BackupSettings() {
+// ── Backup Tab ──
+function BackupSettings({ data, onChange }: { data: BackupInfo; onChange: (field: string, value: any) => void }) {
+  const toggleBool = (field: keyof BackupInfo) => onChange(field, !data[field]);
+
   return (
     <div className="space-y-6">
       <h2 className="text-lg font-semibold text-slate-900 dark:text-white pb-2 border-b border-slate-200 dark:border-slate-700">Backup & Restore</h2>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
-          <div>
-            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Automatic Daily Backup</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Automatically backup database daily at midnight</p>
-          </div>
-          <input type="checkbox" className="w-5 h-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
-        </div>
+        <ToggleCard label="Automatic Daily Backup" desc="Automatically backup database daily at midnight" checked={data.autoDailyBackup} onToggle={() => toggleBool('autoDailyBackup')} />
         <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
           <div>
             <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Backup Retention (Days)</p>
             <p className="text-xs text-slate-500 dark:text-slate-400">How long to keep backup files</p>
           </div>
-          <input type="number" defaultValue="" placeholder="90" className="w-24 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
+          <input type="number" value={data.retentionDays} onChange={(e) => onChange('retentionDays', e.target.value)} placeholder="90" className="w-24 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition" />
         </div>
       </div>
       <div className="flex flex-wrap gap-3 mt-4">
@@ -416,6 +497,25 @@ function BackupSettings() {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+// ── Reusable Toggle Card ──
+function ToggleCard({ label, desc, checked, onToggle }: { label: string; desc: string; checked: boolean; onToggle: () => void }) {
+  return (
+    <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-lg">
+      <div>
+        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{label}</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400">{desc}</p>
+      </div>
+      <button
+        type="button"
+        onClick={onToggle}
+        className={`relative w-11 h-6 rounded-full transition-colors ${checked ? 'bg-emerald-600' : 'bg-slate-300 dark:bg-slate-600'}`}
+      >
+        <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${checked ? 'translate-x-5' : 'translate-x-0'}`} />
+      </button>
     </div>
   );
 }
