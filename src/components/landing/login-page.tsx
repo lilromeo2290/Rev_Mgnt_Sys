@@ -20,7 +20,8 @@ import {
 
 const USERS_STORAGE_KEY = 'rms-users';
 
-const ALL_PAGES = ['dashboard','businesses','properties','rates','billing','payments','payment-history','receipts','reports','users','settings','search','audit-trail'];
+// Must match ALL_RMS_PAGES in app-store.ts exactly
+const ALL_PAGES = ['dashboard','businesses','properties','rent','rates','billing','payments','payment-history','receipts','reports','users','settings','search','audit-trail'];
 
 interface StoredUser {
   id: string;
@@ -39,8 +40,24 @@ function loadStoredUsers(): StoredUser[] {
   try {
     const raw = localStorage.getItem(USERS_STORAGE_KEY);
     if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      const parsed: StoredUser[] = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // MIGRATION: ensure every user has all pages in accessiblePages
+        // (handles new pages like 'rent' added after initial user creation)
+        let migrated = false;
+        const updated = parsed.map((u) => {
+          const missing = ALL_PAGES.filter((p) => !u.accessiblePages.includes(p));
+          if (missing.length > 0) {
+            migrated = true;
+            return { ...u, accessiblePages: [...u.accessiblePages, ...missing] };
+          }
+          return u;
+        });
+        if (migrated) {
+          try { localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updated)); } catch { /* ignore */ }
+        }
+        return updated;
+      }
     }
   } catch { /* ignore */ }
   // Seed the default admin if nothing is stored

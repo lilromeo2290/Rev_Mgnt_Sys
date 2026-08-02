@@ -113,7 +113,7 @@ const emptyForm: UserFormData = {
 const USERS_STORAGE_KEY = 'rms-users';
 
 const defaultUsers: User[] = [
-  { id: 'USR-001', staffId: 'STF-001', username: 'admin', password: 'admin123', firstName: 'System', lastName: 'Administrator', email: 'admin@kma.gov.gh', phone: '', role: 'Administrator', zone: 'Zone A', ward: 'Bantama', status: 'Active', lastLogin: new Date().toISOString().split('T')[0], dateCreated: new Date().toISOString().split('T')[0], ghanaCard: '', accessiblePages: ALL_PAGES },
+  { id: 'USR-001', staffId: 'STF-001', username: 'admin', password: 'admin123', firstName: 'System', lastName: 'Administrator', email: 'admin@kpma.gov.gh', phone: '', role: 'Administrator', zone: 'Zone A', ward: '', status: 'Active', lastLogin: new Date().toISOString().split('T')[0], dateCreated: new Date().toISOString().split('T')[0], ghanaCard: '', accessiblePages: ALL_PAGES },
 ];
 
 function loadUsers(): User[] {
@@ -123,14 +123,27 @@ function loadUsers(): User[] {
     if (stored) {
       const parsed = JSON.parse(stored);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        // Migrate: ensure every user has required fields
-        return parsed.map((u: Partial<User>) => ({
-          ...defaultUsers[0],
-          ...u,
-          lastLogin: u.lastLogin || 'Never',
-          dateCreated: u.dateCreated || new Date().toISOString().split('T')[0],
-          accessiblePages: u.accessiblePages || ROLE_DEFAULT_PAGES[u.role as UserRole] || [],
-        })) as User[];
+        // Migrate: ensure every user has required fields AND all current pages
+        let migrated = false;
+        const updated = parsed.map((u: Partial<User>) => {
+          const base = {
+            ...defaultUsers[0],
+            ...u,
+            lastLogin: u.lastLogin || 'Never',
+            dateCreated: u.dateCreated || new Date().toISOString().split('T')[0],
+          } as User;
+          // Ensure user has any pages added after their creation (e.g. 'rent')
+          const missing = ALL_PAGES.filter((p) => !base.accessiblePages.includes(p));
+          if (missing.length > 0) {
+            migrated = true;
+            base.accessiblePages = [...base.accessiblePages, ...missing];
+          }
+          return base;
+        });
+        if (migrated) {
+          try { localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updated)); } catch { /* ignore */ }
+        }
+        return updated;
       }
     }
   } catch { /* ignore */ }
