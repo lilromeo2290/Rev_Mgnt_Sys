@@ -302,7 +302,7 @@ export function PropertiesPage() {
       if (name === 'revenueCode' && CODE_TO_DESCRIPTION[updated.revenueCode]) {
         updated.revenueDescription = CODE_TO_DESCRIPTION[updated.revenueCode];
       }
-      // Link Business Class <-> Business Class Code
+      // Link Property Class <-> Property Class Code
       if (name === 'type' && CLASS_TO_FIRST_CODE[updated.type]) {
         updated.businessClassCode = CLASS_TO_FIRST_CODE[updated.type];
       }
@@ -687,9 +687,9 @@ export function PropertiesPage() {
                 <label className={`${labelClass} block`}>Property TIN</label>
                 <input type="text" name="tin" value={form.tin} onChange={handleFormChange} placeholder="e.g. TIN-1234567890" className={inputClass} />
               </div>
-              {/* Row 3: Business Class Code, Business Class, Category */}
+              {/* Row 3: Property Class Code, Property Class, Category */}
               <div>
-                <label className={`${labelClass} block`}>Business Class Code</label>
+                <label className={`${labelClass} block`}>Property Class Code</label>
                 <Combobox
                   name="businessClassCode"
                   value={form.businessClassCode}
@@ -701,7 +701,7 @@ export function PropertiesPage() {
                 />
               </div>
               <div>
-                <label className={`${labelClass} block`}>Business Class</label>
+                <label className={`${labelClass} block`}>Property Class</label>
                 <Combobox
                   name="type"
                   value={form.type}
@@ -715,7 +715,7 @@ export function PropertiesPage() {
               <div>
                 <label className={`${labelClass} block`}>Category</label>
                 <select name="category" value={form.category} onChange={handleFormChange} className={inputClass}>
-                  <option value="">Select Business Class first...</option>
+                  <option value="">Select Property Class first...</option>
                   {availableCategories.map((c) => (
                     <option key={c.name} value={c.name}>{c.name}</option>
                   ))}
@@ -833,18 +833,6 @@ export function PropertiesPage() {
               <div className="sm:col-span-2 lg:col-span-3">
                 <label className={`${labelClass} block`}>Owner Address</label>
                 <input type="text" name="ownerAddress" value={form.ownerAddress} onChange={handleFormChange} placeholder="Enter owner address" className={inputClass} />
-              </div>
-              {/* Owner GPS Coordinates */}
-              <div className="sm:col-span-2 lg:col-span-3">
-                <label className={`${labelClass} block`}>Owner GPS Coordinates</label>
-                <div className="flex gap-2">
-                  <input type="text" name="ownerLatitude" value={form.ownerLatitude} onChange={handleFormChange} placeholder="Latitude" className={`${inputClass} flex-1`} />
-                  <input type="text" name="ownerLongitude" value={form.ownerLongitude} onChange={handleFormChange} placeholder="Longitude" className={`${inputClass} flex-1`} />
-                  <button type="button" onClick={fetchOwnerGps} disabled={locatingOwner} className="inline-flex items-center gap-1.5 px-2.5 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors text-xs font-medium whitespace-nowrap">
-                    {locatingOwner ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Crosshair className="w-3.5 h-3.5" />}
-                    {locatingOwner ? '...' : 'GPS'}
-                  </button>
-                </div>
               </div>
               {/* Comments - full width */}
               <div className="sm:col-span-2 lg:col-span-3">
