@@ -53,7 +53,6 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', page: 'dashboard', icon: LayoutDashboard },
   { label: 'Businesses', page: 'businesses', icon: Building2 },
   { label: 'Properties', page: 'properties', icon: Home },
-  { label: 'Rent', page: 'rent', icon: Key },
   { label: 'Rate Config', page: 'rates', icon: Settings2 },
   { label: 'Billing', page: 'billing', icon: FileText },
   { label: 'Payments', page: 'payments', icon: CreditCard },
