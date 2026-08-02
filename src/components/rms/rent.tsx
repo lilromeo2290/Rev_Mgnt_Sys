@@ -346,15 +346,11 @@ export function RentPage() {
   };
 
   // ── Shared classes ──────────────────────────────────────────────────────
-  const inputClass =
-    'w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-colors placeholder:text-slate-400 dark:placeholder:text-slate-500';
-  const labelClass =
-    'block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5';
-  const cardClass =
-    'bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-4 sm:p-6 mb-4';
-  const cardHeaderClass =
-    'flex items-center gap-3 mb-4 pb-3 border-b border-slate-100 dark:border-slate-700';
-  const cardBodyClass = 'space-y-4';
+  const inputClass =     'w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition';
+  const labelClass =     'block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5';
+  const cardClass =     'bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden';
+  const cardHeaderClass =     'flex items-center gap-2.5 px-5 py-3 bg-slate-50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-700';
+  const cardBodyClass = 'p-5';
 
   // ── List View ─────────────────────────────────────────────────────────────
   if (view === 'list') {
@@ -507,51 +503,46 @@ export function RentPage() {
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto px-6 py-6">
+      <div className="max-w-6xl mx-auto px-6 py-6 space-y-4">
         {/* CARD 1: LOCATION */}
         <div className={cardClass}>
           <div className={cardHeaderClass}>
-            <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-              <MapPin className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            </div>
-            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Location</h2>
+            <MapPin className="w-4.5 h-4.5 text-slate-600 dark:text-slate-400" />
+            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Location</h2>
           </div>
           <div className={cardBodyClass}>
             {/* UPN — full width */}
-            <div>
-              <label className={labelClass}>UPN <span className="text-red-500">*</span></label>
-              <input type="text" name="upn" value={form.upn} onChange={handleFormChange} placeholder="e.g. 865-0775-0553" className={inputClass} />
-            </div>
-            {/* Street Name | House No. — 2-column */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
               <div>
-                <label className={labelClass}>Street Name</label>
+                <label className={`${labelClass} block`}>UPN <span className="text-red-500">*</span></label>
+                <input type="text" name="upn" value={form.upn} onChange={handleFormChange} placeholder="e.g. 865-0775-0553" className={inputClass} />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4 mt-1">
+              <div>
+                <label className={`${labelClass} block`}>Street Name</label>
                 <input type="text" name="streetName" value={form.streetName} onChange={handleFormChange} placeholder="Enter street name" className={inputClass} />
               </div>
               <div>
-                <label className={labelClass}>House No.</label>
+                <label className={`${labelClass} block`}>House No.</label>
                 <input type="text" name="houseNo" value={form.houseNo} onChange={handleFormChange} placeholder="e.g. 26" className={inputClass} />
               </div>
-            </div>
-            {/* Street Code | Neighbourhood — 2-column */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className={labelClass}>Street Code</label>
+                <label className={`${labelClass} block`}>Street Code</label>
                 <input type="text" name="streetCode" value={form.streetCode} onChange={handleFormChange} placeholder="Enter street code" className={inputClass} />
               </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
               <div>
-                <label className={labelClass}>Neighbourhood</label>
+                <label className={`${labelClass} block`}>Neighbourhood</label>
                 <input type="text" name="neighbourhood" value={form.neighbourhood} onChange={handleFormChange} placeholder="Enter neighbourhood" className={inputClass} />
               </div>
-            </div>
-            {/* Floor | Door No. — 2-column */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className={labelClass}>Floor</label>
+                <label className={`${labelClass} block`}>Floor</label>
                 <input type="text" name="floor" value={form.floor} onChange={handleFormChange} placeholder="e.g. 2nd" className={inputClass} />
               </div>
               <div>
-                <label className={labelClass}>Door No.</label>
+                <label className={`${labelClass} block`}>Door No.</label>
                 <input type="text" name="doorNo" value={form.doorNo} onChange={handleFormChange} placeholder="e.g. A1" className={inputClass} />
               </div>
             </div>
@@ -561,21 +552,17 @@ export function RentPage() {
         {/* CARD 2: RENT OBJECT */}
         <div className={cardClass}>
           <div className={cardHeaderClass}>
-            <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-              <Building2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-            </div>
-            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Rent Object</h2>
+            <Building2 className="w-4.5 h-4.5 text-slate-600 dark:text-slate-400" />
+            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Rent Object</h2>
           </div>
           <div className={cardBodyClass}>
-            {/* Rent Object Name — full width */}
-            <div>
-              <label className={labelClass}>Rent Object Name</label>
-              <input type="text" name="rentObjectName" value={form.rentObjectName} onChange={handleFormChange} placeholder="Enter rent object name" className={inputClass} />
-            </div>
-            {/* Rent Class | Category — 2-column */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
+              <div className="sm:col-span-2 lg:col-span-3">
+                <label className={`${labelClass} block`}>Rent Object Name</label>
+                <input type="text" name="rentObjectName" value={form.rentObjectName} onChange={handleFormChange} placeholder="Enter rent object name" className={inputClass} />
+              </div>
               <div>
-                <label className={labelClass}>Rent Class</label>
+                <label className={`${labelClass} block`}>Rent Class</label>
                 <select name="rentClass" value={form.rentClass} onChange={handleFormChange} className={inputClass}>
                   <option value="">Select rent class</option>
                   {RENT_CLASSES.map((c) => (
@@ -584,19 +571,7 @@ export function RentPage() {
                 </select>
               </div>
               <div>
-                <label className={labelClass}>Category</label>
-                <select name="rentCategory" value={form.rentCategory} onChange={handleFormChange} disabled={!form.rentClass} className={inputClass}>
-                  <option value="">{form.rentClass ? (RENT_CLASS_CATEGORIES[form.rentClass]?.length === 1 ? RENT_CLASS_CATEGORIES[form.rentClass][0] : 'Select category') : 'Select class first'}</option>
-                  {(RENT_CLASS_CATEGORIES[form.rentClass] || []).map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-            {/* Rent Unit | Code — 2-column */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass}>Rent Unit</label>
+                <label className={`${labelClass} block`}>Rent Unit</label>
                 <select name="rentUnit" value={form.rentUnit} onChange={handleFormChange} className={inputClass}>
                   <option value="">Select unit</option>
                   {RENT_UNITS.map((u) => (
@@ -605,23 +580,29 @@ export function RentPage() {
                 </select>
               </div>
               <div>
-                <label className={labelClass}>Code</label>
-                <input type="text" name="rentCode" value={form.rentCode} readOnly className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed`} placeholder="Auto-filled" />
-              </div>
-            </div>
-            {/* Rent Value | Vacant — 2-column */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass}>Rent Value (GHS)</label>
-                <input type="number" name="rentValue" value={form.rentValue} onChange={handleFormChange} placeholder="0.00" min="0" className={inputClass} />
-              </div>
-              <div>
-                <label className={labelClass}>Vacant</label>
+                <label className={`${labelClass} block`}>Vacant</label>
                 <select name="vacant" value={form.vacant} onChange={handleFormChange} className={inputClass}>
                   {VACANT_OPTIONS.map((v) => (
                     <option key={v} value={v}>{v}</option>
                   ))}
                 </select>
+              </div>
+              <div>
+                <label className={`${labelClass} block`}>Rent Value (GHS)</label>
+                <input type="number" name="rentValue" value={form.rentValue} onChange={handleFormChange} placeholder="0.00" min="0" className={inputClass} />
+              </div>
+              <div>
+                <label className={`${labelClass} block`}>Category</label>
+                <select name="rentCategory" value={form.rentCategory} onChange={handleFormChange} disabled={!form.rentClass} className={inputClass}>
+                  <option value="">{form.rentClass ? 'Select category' : 'Select class first'}</option>
+                  {(RENT_CLASS_CATEGORIES[form.rentClass] || []).map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className={`${labelClass} block`}>Code</label>
+                <input type="text" name="rentCode" value={form.rentCode} readOnly className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed`} placeholder="Auto-filled" />
               </div>
             </div>
           </div>
@@ -630,38 +611,29 @@ export function RentPage() {
         {/* CARD 3: CONTRACT */}
         <div className={cardClass}>
           <div className={cardHeaderClass}>
-            <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-              <FileText className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-            </div>
-            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Contract</h2>
+            <FileText className="w-4.5 h-4.5 text-slate-600 dark:text-slate-400" />
+            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Contract</h2>
           </div>
           <div className={cardBodyClass}>
-            {/* Start Date | End Date — 2-column */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
               <div>
-                <label className={labelClass}>Start Date</label>
+                <label className={`${labelClass} block`}>Start Date</label>
                 <input type="date" name="startDate" value={form.startDate} onChange={handleFormChange} className={inputClass} />
               </div>
               <div>
-                <label className={labelClass}>End Date</label>
+                <label className={`${labelClass} block`}>End Date</label>
                 <input type="date" name="endDate" value={form.endDate} onChange={handleFormChange} className={inputClass} />
               </div>
-            </div>
-            {/* Contract ID | Contract Value — 2-column */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className={labelClass}>Contract ID</label>
+                <label className={`${labelClass} block`}>Contract ID</label>
                 <input type="text" name="contractId" value={form.contractId} onChange={handleFormChange} placeholder="Enter contract ID" className={inputClass} />
               </div>
               <div>
-                <label className={labelClass}>Contract Value (GHS)</label>
+                <label className={`${labelClass} block`}>Contract Value (GHS)</label>
                 <input type="number" name="contractValue" value={form.contractValue} onChange={handleFormChange} placeholder="0.00" min="0" className={inputClass} />
               </div>
-            </div>
-            {/* Area — full width */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className={labelClass}>Area (m²)</label>
+                <label className={`${labelClass} block`}>Area (m²)</label>
                 <input type="number" name="area" value={form.area} onChange={handleFormChange} placeholder="0.00" min="0" step="0.01" className={inputClass} />
               </div>
             </div>
@@ -671,58 +643,41 @@ export function RentPage() {
         {/* CARD 4: RENTER INFORMATION */}
         <div className={cardClass}>
           <div className={cardHeaderClass}>
-            <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-              <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-            </div>
-            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Renter Information</h2>
+            <User className="w-4.5 h-4.5 text-slate-600 dark:text-slate-400" />
+            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Renter Information</h2>
           </div>
           <div className={cardBodyClass}>
-            {/* Renter Name — full width */}
-            <div>
-              <label className={labelClass}>Renter Name <span className="text-red-500">*</span></label>
-              <input type="text" name="renterName" value={form.renterName} onChange={handleFormChange} placeholder="Enter full name of renter" className={inputClass} />
-            </div>
-            {/* Renter Address | Renter GhanaPost GPS — 2-column */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass}>Renter Address</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
+              {/* Renter Name — full width */}
+              <div className="sm:col-span-2 lg:col-span-3">
+                <label className={`${labelClass} block`}>Renter Name <span className="text-red-500">*</span></label>
+                <input type="text" name="renterName" value={form.renterName} onChange={handleFormChange} placeholder="Enter full name of renter" className={inputClass} />
+              </div>
+              {/* Renter Address | Renter GhanaPost GPS */}
+              <div className="sm:col-span-2">
+                <label className={`${labelClass} block`}>Renter Address</label>
                 <input type="text" name="renterAddress" value={form.renterAddress} onChange={handleFormChange} placeholder="Enter renter address" className={inputClass} />
               </div>
               <div>
-                <label className={labelClass}>Renter Ghana Post GPS</label>
-                <input type="text" name="renterGhanaPostGPS" value={form.renterGhanaPostGPS} onChange={handleFormChange} placeholder="e.g. AK-034-5521" className={inputClass} />
+                <label className={`${labelClass} block`}>Renter GhanaPost GPS</label>
+                <input type="text" name="renterGhanaPostGPS" value={form.renterGhanaPostGPS} onChange={handleFormChange} placeholder="XX-XXX-XXXX" className={inputClass} />
               </div>
+              {/* Phone | Email | TIN */}
               <div>
-                <label className={labelClass}>Renter GPS Coordinates</label>
-                <div className="flex gap-2">
-                  <input type="text" name="renterLatitude" value={form.renterLatitude} onChange={handleFormChange} placeholder="Latitude" className={`${inputClass} flex-1`} />
-                  <input type="text" name="renterLongitude" value={form.renterLongitude} onChange={handleFormChange} placeholder="Longitude" className={`${inputClass} flex-1`} />
-                  <button type="button" onClick={fetchGps} disabled={locating} className="inline-flex items-center gap-1.5 px-2.5 py-2.5 rounded-lg border border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 disabled:opacity-50 transition-colors text-xs font-medium whitespace-nowrap">
-                    {locating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Crosshair className="w-3.5 h-3.5" />}
-                    {locating ? '...' : 'GPS'}
-                  </button>
-                </div>
-              </div>
-            </div>
-            {/* Phone | Email | TIN — 3-column */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div>
-                <label className={labelClass}>Phone</label>
+                <label className={`${labelClass} block`}>Phone</label>
                 <input type="text" name="phone" value={form.phone} onChange={handleFormChange} placeholder="e.g. 024 XXX XXXX" className={inputClass} />
               </div>
               <div>
-                <label className={labelClass}>Email</label>
+                <label className={`${labelClass} block`}>Email</label>
                 <input type="email" name="email" value={form.email} onChange={handleFormChange} placeholder="email@example.com" className={inputClass} />
               </div>
               <div>
-                <label className={labelClass}>TIN</label>
+                <label className={`${labelClass} block`}>TIN</label>
                 <input type="text" name="tin" value={form.tin} onChange={handleFormChange} placeholder="Tax Identification Number" className={inputClass} />
               </div>
-            </div>
-            {/* National ID */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className={labelClass}>National ID</label>
+              {/* National ID — full width */}
+              <div className="sm:col-span-2 lg:col-span-3">
+                <label className={`${labelClass} block`}>National ID</label>
                 <input type="text" name="nationalId" value={form.nationalId} onChange={handleFormChange} placeholder="e.g. GHA-XXXXXXXXX" className={inputClass} />
               </div>
             </div>
@@ -732,23 +687,32 @@ export function RentPage() {
         {/* CARD 5: OTHER */}
         <div className={cardClass}>
           <div className={cardHeaderClass}>
-            <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-700/30 flex items-center justify-center">
-              <FileText className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-            </div>
-            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Other</h2>
+            <FileText className="w-4.5 h-4.5 text-slate-600 dark:text-slate-400" />
+            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Other</h2>
           </div>
           <div className={cardBodyClass}>
-            {/* Excluded from renting */}
-            <label className="inline-flex items-center gap-3 cursor-pointer">
-              <input type="checkbox" name="excludedFromRenting" checked={form.excludedFromRenting} onChange={handleFormChange} className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
-              <span className="text-sm text-slate-700 dark:text-slate-300">Excluded from renting</span>
-            </label>
-            {/* Comments */}
-            <div>
-              <label className={labelClass}>Comments</label>
-              <textarea name="comments" value={form.comments} onChange={handleFormChange} rows={3} placeholder="Additional notes or comments" className={inputClass} />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
+              <label className="flex items-center gap-2 pb-2.5 cursor-pointer select-none">
+                <input type="checkbox" name="excludedFromRenting" checked={form.excludedFromRenting} onChange={handleFormChange} className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                <span className="text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">Excluded from renting</span>
+              </label>
+            </div>
+            <div className="sm:col-span-2 lg:col-span-3">
+              <label className={`${labelClass} block`}>Comments</label>
+              <textarea name="comments" value={form.comments} onChange={handleFormChange} rows={3} placeholder="Additional notes or comments" className={`${inputClass} resize-none`} />
             </div>
           </div>
+        </div>
+        {/* ─── Action Buttons ──────────────────────────────────────────── */}
+        <div className="flex items-center justify-end gap-3 pt-2">
+          <button onClick={handleCancel} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-slate-500 hover:bg-slate-600 text-white text-sm font-medium transition-colors">
+            <X className="w-4 h-4" />
+            Cancel
+          </button>
+          <button onClick={handleSave} disabled={!form.upn || !form.renterName} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            <Save className="w-4 h-4" />
+            {editingId ? 'Update' : 'Save'}
+          </button>
         </div>
       </div>
     </div>
