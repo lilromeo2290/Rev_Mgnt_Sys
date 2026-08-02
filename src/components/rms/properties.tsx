@@ -35,6 +35,7 @@ import {
   PROPERTY_CLASS_NAMES,
 } from '@/lib/property-class-code-map';
 import { Combobox } from '@/components/ui/combobox';
+import { AutoSuggestInput } from '@/components/ui/auto-suggest-input';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -239,6 +240,16 @@ export function PropertiesPage() {
   };
 
   // ── Derived categories for class-based filtering ────────────────────────
+  // ── Autocomplete suggestion sources from existing properties ────────────
+  const daAssignmentSuggestions = [...new Set(properties.map((p) => (p as any).daAssignmentNo).filter(Boolean))];
+  const propertyUniqueNoSuggestions = [...new Set(properties.map((p) => (p as any).propertyUniqueNumber).filter(Boolean))];
+  const propertyUseTypeOptions = propertyUseTypes.map((t) => ({ value: t, label: t }));
+
+  // Wrapper to handle Combobox's select-like onChange for AutoSuggestInput
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleFormChange(e as unknown as React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>);
+  };
+
   const classCodes = form.type ? (PROP_CLASS_TO_CODES[form.type] || []) : [];
   const classCategories = classCodes
     .map((code) => PROP_CODE_TO_CATEGORY[code])
@@ -637,22 +648,39 @@ export function PropertiesPage() {
               {/* DA Assignment No. / Property Permit */}
               <div>
                 <label className={`${labelClass} block`}>DA Assignment No. / Property Permit</label>
-                <input type="text" name="daAssignmentNo" value={form.daAssignmentNo} readOnly placeholder="Auto-generated" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
+                <AutoSuggestInput
+                  name="daAssignmentNo"
+                  value={form.daAssignmentNo}
+                  onChange={handleInputChange}
+                  suggestions={daAssignmentSuggestions}
+                  placeholder="Type to search existing or enter new..."
+                  className={inputClass}
+                />
               </div>
               {/* Property Unique Number */}
               <div>
                 <label className={`${labelClass} block`}>Property Unique Number</label>
-                <input type="text" name="propertyUniqueNumber" value={form.propertyUniqueNumber} readOnly placeholder="Auto-generated" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
+                <AutoSuggestInput
+                  name="propertyUniqueNumber"
+                  value={form.propertyUniqueNumber}
+                  onChange={handleInputChange}
+                  suggestions={propertyUniqueNoSuggestions}
+                  placeholder="Type to search existing or enter new..."
+                  className={inputClass}
+                />
               </div>
               {/* Property Use Type */}
               <div>
                 <label className={`${labelClass} block`}>Property Use Type <span className="text-red-500">*</span></label>
-                <select name="propertyUseType" value={form.propertyUseType} onChange={handleFormChange} className={inputClass}>
-                  <option value="">Select use type</option>
-                  {propertyUseTypes.map((t) => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
+                <Combobox
+                  name="propertyUseType"
+                  value={form.propertyUseType}
+                  onChange={handleFormChange}
+                  options={propertyUseTypeOptions}
+                  placeholder="Type to search use types..."
+                  emptyMessage="No matching use type"
+                  className={inputClass}
+                />
               </div>
               {/* Value */}
               <div>
