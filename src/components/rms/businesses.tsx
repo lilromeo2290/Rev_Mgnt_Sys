@@ -1098,7 +1098,7 @@ export function BusinessesPage() {
                   name="businessClassCode"
                   value={form.businessClassCode}
                   onChange={handleFormChange}
-                  options={(CLASS_TO_CODES[form.type] || BUSINESS_CLASS_CODES).map((c) => ({ value: c, label: `${c} - ${CODE_TO_CLASS[c] || ''}` }))}
+                  options={(CLASS_TO_CODES[form.type] || BUSINESS_CLASS_CODES).map((c) => ({ value: c, label: c }))}
                   placeholder="Type or search code..."
                   emptyMessage="No matching codes"
                   className={inputClass}
