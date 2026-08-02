@@ -85,6 +85,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   canAccess: (page) => {
     const { currentUser } = get();
     if (!currentUser) return false;
+    // Administrator always has full access to everything
+    if (currentUser.role === 'Administrator') return true;
     // If accessiblePages is empty, grant all access (safety fallback)
     if (currentUser.accessiblePages.length === 0) return true;
     return currentUser.accessiblePages.includes(page);
