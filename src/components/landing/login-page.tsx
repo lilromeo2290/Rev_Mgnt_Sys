@@ -21,7 +21,7 @@ import {
 const USERS_STORAGE_KEY = 'rms-users';
 
 // Must match ALL_RMS_PAGES in app-store.ts exactly
-const ALL_PAGES = ['dashboard','businesses','properties','rent','rates','billing','payments','payment-history','receipts','reports','users','settings','search','audit-trail'];
+const ALL_PAGES = ['dashboard','businesses','rates','billing','payments','payment-history','receipts','reports','users','settings','search','audit-trail'];
 
 interface StoredUser {
   id: string;

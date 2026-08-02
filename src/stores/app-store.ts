@@ -4,8 +4,6 @@ type AppView = 'landing' | 'login' | 'rms';
 type RMSPage =
   | 'dashboard'
   | 'businesses'
-  | 'properties'
-  | 'rent'
   | 'rates'
   | 'billing'
   | 'payments'
@@ -21,8 +19,6 @@ type RMSPage =
 const ALL_RMS_PAGES: { page: RMSPage; label: string }[] = [
   { page: 'dashboard', label: 'Dashboard' },
   { page: 'businesses', label: 'Business Registration' },
-  { page: 'properties', label: 'Properties' },
-  { page: 'rent', label: 'Rent' },
   { page: 'rates', label: 'Rate Configuration' },
   { page: 'billing', label: 'Bill Management' },
   { page: 'payments', label: 'Payments' },

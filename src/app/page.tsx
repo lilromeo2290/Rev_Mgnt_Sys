@@ -8,8 +8,7 @@ import { LoginPage } from '@/components/landing/login-page';
 import { RmsLayout } from '@/components/rms/rms-layout';
 import { DashboardPage } from '@/components/rms/dashboard';
 import { BusinessesPage } from '@/components/rms/businesses';
-import { PropertiesPage } from '@/components/rms/properties';
-import { RentPage } from '@/components/rms/rent';
+
 import { RateConfigPage } from '@/components/rms/rate-config';
 import { BillingPage } from '@/components/rms/billing';
 import { PaymentsPage } from '@/components/rms/payments';
@@ -29,8 +28,7 @@ function RMSView() {
     switch (rmsPage) {
       case 'dashboard': return <DashboardPage />;
       case 'businesses': return <BusinessesPage />;
-      case 'properties': return <PropertiesPage />;
-      case 'rent': return <RentPage />;
+
       case 'rates': return <RateConfigPage />;
       case 'billing': return <BillingPage />;
       case 'payments': return <PaymentsPage />;
