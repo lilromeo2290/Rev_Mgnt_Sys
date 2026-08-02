@@ -644,6 +644,52 @@ export function PropertiesPage() {
                 <label className={`${labelClass} block`}>Property Unique Number</label>
                 <input type="text" name="propertyUniqueNumber" value={form.propertyUniqueNumber} readOnly placeholder="Auto-generated" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
               </div>
+              {/* Property Use Type */}
+              <div>
+                <label className={`${labelClass} block`}>Property Use Type <span className="text-red-500">*</span></label>
+                <select name="propertyUseType" value={form.propertyUseType} onChange={handleFormChange} className={inputClass}>
+                  <option value="">Select use type</option>
+                  {propertyUseTypes.map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+              {/* Value */}
+              <div>
+                <label className={`${labelClass} block`}>Value (GHS)</label>
+                <input type="number" name="value" value={form.value} onChange={handleFormChange} placeholder="0.00" min="0" className={inputClass} />
+              </div>
+              {/* Rooms */}
+              <div>
+                <label className={`${labelClass} block`}>Rooms</label>
+                <input type="number" name="rooms" value={form.rooms} onChange={handleFormChange} placeholder="e.g. 3" min="0" className={inputClass} />
+              </div>
+              {/* Building Permit */}
+              <div>
+                <label className={`${labelClass} block`}>Building Permit</label>
+                <div className="flex items-center gap-6 mt-1">
+                  <label className="inline-flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="hasBuildingPermit" value="Yes" checked={form.hasBuildingPermit === 'Yes'} onChange={handleFormChange} className="accent-emerald-600 w-4 h-4" />
+                    <span className="text-sm text-slate-700 dark:text-slate-300">Yes</span>
+                  </label>
+                  <label className="inline-flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="hasBuildingPermit" value="No" checked={form.hasBuildingPermit === 'No'} onChange={handleFormChange} className="accent-emerald-600 w-4 h-4" />
+                    <span className="text-sm text-slate-700 dark:text-slate-300">No</span>
+                  </label>
+                </div>
+              </div>
+              {/* Permit Number */}
+              <div>
+                <label className={`${labelClass} block`}>Permit Number</label>
+                <input type="text" name="permitNumber" value={form.permitNumber} onChange={handleFormChange} placeholder="Enter permit number" disabled={form.hasBuildingPermit === 'No'} className={`${inputClass} ${form.hasBuildingPermit === 'No' ? 'opacity-50 cursor-not-allowed' : ''}`} />
+              </div>
+              {/* Excluded from rating */}
+              <div className="flex items-end">
+                <label className="flex items-center gap-2 pb-2.5 cursor-pointer select-none">
+                  <input type="checkbox" name="excludedFromRating" checked={form.excludedFromRating} onChange={handleFormChange} className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
+                  <span className="text-sm text-slate-700 dark:text-slate-300">Excluded from rating</span>
+                </label>
+              </div>
             </div>
           </div>
         </div>
