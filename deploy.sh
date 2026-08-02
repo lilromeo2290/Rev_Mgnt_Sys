@@ -1,139 +1,183 @@
 #!/bin/bash
-# ============================================================
-#  Deploy Script — Consult RMS on Webuzo VPS
-#  Usage: chmod +x deploy.sh && ./deploy.sh
-# ============================================================
+# ══════════════════════════════════════════════════════════════════════
+#  RMS VPS Deployment Script
+#  Run this on your VPS:  bash deploy.sh
+# ══════════════════════════════════════════════════════════════════════
+
 set -e
 
-APP_DIR="/home/consult-rms"
-DATA_DIR="/home/consult-rms/data"
-REPO="https://github.com/lilromeo2290/consult-.git"
-BRANCH="main"
-PORT=3001
+APP_DIR="/opt/rms"
+REPO_URL=""  # ← Set your Git repo URL here (e.g. git@github.com:user/rms.git)
+NODE_VERSION="24"
+PORT="3000"
+DOMAIN=""  # ← Set your domain here (e.g. rms.yourdomain.com)
 
-echo ""
-echo "============================================"
-echo "  Consult RMS — VPS Deployment"
-echo "============================================"
-echo ""
+# ── Colors ──────────────────────────────────────────────────────────
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+RED='\033[0;31m'
+NC='\033[0m'
 
-# ── 0. Ensure persistent data directory exists ────────────
-echo "[0/8] Ensuring persistent data directory..."
-mkdir -p "$DATA_DIR"
-if [ ! -f "$DATA_DIR/rms.db" ]; then
-  echo "  No existing database found. A fresh one will be created on first run."
-else
-  echo "  Existing database preserved: $DATA_DIR/rms.db"
-  DB_SIZE=$(du -h "$DATA_DIR/rms.db" | cut -f1)
-  echo "  Database size: $DB_SIZE"
-fi
+log()  { echo -e "${GREEN}[✓]${NC} $1"; }
+warn() { echo -e "${YELLOW}[!]${NC} $1"; }
+err()  { echo -e "${RED}[✗]${NC} $1"; exit 1; }
 
-# ── 1. Install system dependencies if missing ──────────────
+# ════════════════════════════════════════════════════════════════════
+#  STEP 1: System Dependencies
+# ════════════════════════════════════════════════════════════════════
 echo ""
-echo "[1/8] Checking system dependencies..."
-if ! command -v git &> /dev/null; then
-  echo "  Installing git..."
-  sudo apt-get update -qq && sudo apt-get install -y -qq git
-fi
+echo "═══ Installing system dependencies ═══"
+apt-get update -qq
+apt-get install -y -qq curl git nginx certbot python3-certbot-nginx ufw > /dev/null 2>&1
+log "System packages installed"
+
+# ── Install Node.js via NodeSource ────────────────────────────────
 if ! command -v node &> /dev/null; then
-  echo "  Installing Node.js 20.x..."
-  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-  sudo apt-get install -y -qq nodejs
+  curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash -
+  apt-get install -y -qq nodejs
+  log "Node.js $(node -v) installed"
+else
+  log "Node.js $(node -v) already installed"
 fi
+
+# ── Install Bun (fast JS runtime used by start script) ────────────
 if ! command -v bun &> /dev/null; then
-  echo "  Installing Bun..."
   curl -fsSL https://bun.sh/install | bash
   export PATH="$HOME/.bun/bin:$PATH"
+  log "Bun installed"
+else
+  log "Bun already installed"
 fi
+
+# ── Install PM2 (process manager) ────────────────────────────────
 if ! command -v pm2 &> /dev/null; then
-  echo "  Installing PM2 globally..."
-  sudo npm install -g pm2
-fi
-echo "  Done."
-
-# ── 2. Check if port is available ──────────────────────────
-echo ""
-echo "[2/8] Checking port $PORT..."
-if lsof -i :$PORT &> /dev/null; then
-  echo "  WARNING: Port $PORT is already in use by:"
-  lsof -i :$PORT
-  echo ""
-  echo "  Stopping existing process to free port..."
-  pm2 stop consult-rms 2>/dev/null || true
-  sleep 2
-  if lsof -i :$PORT &> /dev/null; then
-    echo "  Port $PORT still in use. Killing remaining process..."
-    sudo kill $(lsof -t -i:$PORT) 2>/dev/null || true
-    sleep 1
-  fi
+  npm install -g pm2
+  log "PM2 installed"
 else
-  echo "  Port $PORT is available."
+  log "PM2 already installed"
 fi
 
-# ── 3. Clone or pull repository ─────────────────────────────
+# ════════════════════════════════════════════════════════════════════
+#  STEP 2: Clone / Pull Code
+# ════════════════════════════════════════════════════════════════════
 echo ""
-echo "[3/8] Setting up project directory..."
+echo "═══ Setting up application ═══"
+mkdir -p /opt
+
 if [ -d "$APP_DIR" ]; then
-  echo "  Directory exists. Pulling latest changes..."
+  echo "  Pulling latest code..."
   cd "$APP_DIR"
-  git fetch origin "$BRANCH"
-  git reset --hard "origin/$BRANCH"
+  git pull origin main || warn "Git pull failed — using existing code"
 else
+  if [ -z "$REPO_URL" ]; then
+    err "Set REPO_URL in this script or upload code manually to $APP_DIR"
+  fi
   echo "  Cloning repository..."
-  git clone -b "$BRANCH" "$REPO" "$APP_DIR"
+  git clone "$REPO_URL" "$APP_DIR"
   cd "$APP_DIR"
 fi
 
-# ── 4. Install dependencies ─────────────────────────────────
+# ════════════════════════════════════════════════════════════════════
+#  STEP 3: Install Dependencies & Build
+# ════════════════════════════════════════════════════════════════════
 echo ""
-echo "[4/8] Installing dependencies..."
-bun install --frozen-lockfile 2>/dev/null || bun install
+echo "═══ Building application ═══"
+npm ci --production=false 2>&1 | tail -1
+log "Dependencies installed"
 
-# ── 5. Create .env with persistent DATABASE_URL ─────────────
-echo ""
-echo "[5/8] Configuring environment..."
-cat > "$APP_DIR/.env" << EOF
-DATABASE_URL=file:$DATA_DIR/rms.db
-EOF
-echo "  DATABASE_URL set to: file:$DATA_DIR/rms.db"
+# Prisma
+if [ -f "prisma/schema.prisma" ]; then
+  npx prisma generate 2>&1 | tail -1
+  mkdir -p db
+  [ ! -f "db/custom.db" ] && npx prisma db push --accept-data-loss 2>&1 | tail -1
+  log "Database initialized"
+fi
 
-# ── 6. Build the application ─────────────────────────────────
-echo ""
-echo "[6/8] Building Next.js application..."
-bun run build
+# Build
+npm run build 2>&1 | tail -3
+log "Application built"
 
-# ── 7. Copy static assets (required for standalone) ─────────
+# ════════════════════════════════════════════════════════════════════
+#  STEP 4: Start with PM2
+# ════════════════════════════════════════════════════════════════════
 echo ""
-echo "[7/8] Copying static assets..."
-cp -r .next/static .next/standalone/.next/ 2>/dev/null || true
-cp -r public .next/standalone/ 2>/dev/null || true
-cp -r prisma .next/standalone/ 2>/dev/null || true
-
-# ── 8. Start/restart with PM2 ───────────────────────────────
-echo ""
-echo "[8/8] Starting application with PM2..."
-# Create logs directory
-mkdir -p "$APP_DIR/logs"
+echo "═══ Starting application with PM2 ═══"
+cd "$APP_DIR"
 
 # Stop existing if running
-pm2 stop consult-rms 2>/dev/null || true
-pm2 delete consult-rms 2>/dev/null || true
+pm2 delete rms 2>/dev/null || true
 
-# Start fresh
-pm2 start ecosystem.config.cjs
-
-# Save PM2 config for auto-restart on reboot
+# Start
+PORT=$PORT pm2 start "bun .next/standalone/server.js" --name rms
 pm2 save
-pm2 startup 2>/dev/null || true
+pm2 startup systemd -u root --hp /root 2>/dev/null | tail -1
+log "PM2 process 'rms' started on port $PORT"
 
+# ════════════════════════════════════════════════════════════════════
+#  STEP 5: Nginx Reverse Proxy
+# ════════════════════════════════════════════════════════════════════
 echo ""
-echo "============================================"
-echo "  Deployment Complete!"
-echo "============================================"
+echo "═══ Configuring Nginx ═══"
+
+cat > /etc/nginx/sites-available/rms << EOF
+server {
+    listen 80;
+    server_name ${DOMAIN} _;  # _ = match any domain when DOMAIN is empty
+
+    location / {
+        proxy_pass http://127.0.0.1:${PORT};
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \\\$t_http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \\\$host;
+        proxy_set_header X-Real-IP \\\$remote_addr;
+        proxy_set_header X-Forwarded-For \\\$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \\\$scheme;
+        proxy_cache_bypass \\\$http_upgrade;
+    }
+}
+EOF
+
+ln -sf /etc/nginx/sites-available/rms /etc/nginx/sites-enabled/rms
+rm -f /etc/nginx/sites-enabled/default
+nginx -t 2>&1 && systemctl reload nginx
+log "Nginx configured"
+
+# ════════════════════════════════════════════════════════════════════
+#  STEP 6: SSL (optional — only if domain is set)
+# ════════════════════════════════════════════════════════════════════
+if [ -n "$DOMAIN" ]; then
+  echo ""
+  echo "═══ Setting up SSL with Certbot ═══"
+  certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos --register-unsafely-without-email 2>&1 | tail -3
+  log "SSL certificate obtained for $DOMAIN"
+fi
+
+# ════════════════════════════════════════════════════════════════════
+#  STEP 7: Firewall
+# ════════════════════════════════════════════════════════════════════
 echo ""
-echo "  App URL:  http://YOUR_SERVER_IP:$PORT"
-echo "  Database: $DATA_DIR/rms.db (PERSISTENT)"
-echo "  PM2 cmds: pm2 logs consult-rms"
-echo "            pm2 restart consult-rms"
-echo "            pm2 stop consult-rms"
+echo "═══ Configuring firewall (UFW) ═══"
+ufw allow OpenSSH
+ufw allow 'Nginx Full'
+echo "y" | ufw enable 2>/dev/null
+log "Firewall configured (SSH + HTTP/HTTPS open)"
+
+# ════════════════════════════════════════════════════════════════════
+#  DONE
+# ════════════════════════════════════════════════════════════════════
 echo ""
+echo "════════════════════════════════════════════════════════════════"
+echo -e "${GREEN}  Deployment complete!${NC}"
+echo ""
+if [ -n "$DOMAIN" ]; then
+  echo "  URL:      https://$DOMAIN"
+else
+  IP=$(curl -s ifconfig.me 2>/dev/null || hostname -I | awk '{print $1}')
+  echo "  URL:      http://$IP"
+fi
+echo "  App Dir:  $APP_DIR"
+echo "  PM2:      pm2 logs rms"
+echo "  Restart:  pm2 restart rms"
+echo "  Update:   cd $APP_DIR && git pull && npm ci && npm run build && pm2 restart rms"
+echo "════════════════════════════════════════════════════════════════"
