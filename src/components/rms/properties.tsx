@@ -22,16 +22,18 @@ import {
   Upload,
   Briefcase,
 } from 'lucide-react';
-import { BUSINESS_CLASSES } from '@/lib/fee-schedule';
-import { USER_CATEGORIES } from '@/lib/user-categories';
-import type { UserCategory } from '@/lib/user-categories';
 import { exportToExcel, importFromExcel, PROPERTY_FIELDS } from '@/lib/import-export';
 import { LOCALITIES, LOCALITY_AREA_CODE_MAP } from '@/lib/localities';
 import { REVENUE_DESCRIPTIONS } from '@/lib/revenue-descriptions';
 import { REVENUE_CODE_MAP, DESCRIPTION_TO_CODE, CODE_TO_DESCRIPTION } from '@/lib/revenue-code-map';
-import { CLASS_TO_FIRST_CODE, CLASS_TO_CODES, CODE_TO_CLASS } from '@/lib/business-class-code-map';
-import { BUSINESS_CLASS_CODES } from '@/lib/business-class-codes';
-import { FEE_CODE_LOOKUP } from '@/lib/fee-code-lookup';
+import {
+  PROP_CODE_TO_CLASS,
+  PROP_CLASS_TO_FIRST_CODE,
+  PROP_CLASS_TO_CODES,
+  PROP_CODE_TO_CATEGORY,
+  PROPERTY_CLASS_CODES,
+  PROPERTY_CLASS_NAMES,
+} from '@/lib/property-class-code-map';
 import { Combobox } from '@/components/ui/combobox';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -124,8 +126,6 @@ export function PropertiesPage() {
   const [properties, setProperties] = useSyncedStorage<Property[]>('rms-properties', mockProperties);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const itemsPerPage = 10;
-
-  const propertyBusinessTypes = BUSINESS_CLASSES;
 
   // ── Import / Export ───────────────────────────────────────────────────────
   const handleExport = () => {
@@ -238,18 +238,11 @@ export function PropertiesPage() {
     );
   };
 
-  // ── Derived categories based on selected business type ───────────────────
-  const availableCategories: UserCategory[] = form.type
-    ? (USER_CATEGORIES[form.type] || [])
-    : [];
-
-  // ── Get fee details for selected category ──────────────────────────────
-  const selectedCategoryFee = availableCategories.find(
-    (c) => c.name === form.category
-  );
-  // Use FEE_CODE_LOOKUP amount when available (from code selection), fallback to USER_CATEGORIES
-  const codeLookupEntry = form.businessClassCode ? FEE_CODE_LOOKUP[form.businessClassCode] : null;
-  const displayAmount = codeLookupEntry ? codeLookupEntry.amount : (selectedCategoryFee ? selectedCategoryFee.amount : null);
+  // ── Derived categories for class-based filtering ────────────────────────
+  const classCodes = form.type ? (PROP_CLASS_TO_CODES[form.type] || []) : [];
+  const classCategories = classCodes
+    .map((code) => PROP_CODE_TO_CATEGORY[code])
+    .filter(Boolean);
 
   // ── Filtering ─────────────────────────────────────────────────────────────
   const filtered = properties.filter((p) => {
@@ -303,31 +296,23 @@ export function PropertiesPage() {
         updated.revenueDescription = CODE_TO_DESCRIPTION[updated.revenueCode];
       }
       // Link Property Class <-> Property Class Code
-      if (name === 'type' && CLASS_TO_FIRST_CODE[updated.type]) {
-        updated.businessClassCode = CLASS_TO_FIRST_CODE[updated.type];
+      if (name === 'type' && PROP_CLASS_TO_FIRST_CODE[updated.type]) {
+        updated.businessClassCode = PROP_CLASS_TO_FIRST_CODE[updated.type];
+        // Also auto-fill category from the default code
+        const defaultCode = PROP_CLASS_TO_FIRST_CODE[updated.type];
+        if (PROP_CODE_TO_CATEGORY[defaultCode]) {
+          updated.category = PROP_CODE_TO_CATEGORY[defaultCode];
+        }
       }
       if (name === 'businessClassCode') {
         const code = updated.businessClassCode;
-        // Auto-fill class from code mapping
-        if (CODE_TO_CLASS[code]) {
-          updated.type = CODE_TO_CLASS[code];
+        // Auto-fill Property Class from code mapping
+        if (PROP_CODE_TO_CLASS[code]) {
+          updated.type = PROP_CODE_TO_CLASS[code];
         }
-        // Auto-fill category and amount from fee code lookup
-        if (FEE_CODE_LOOKUP[code]) {
-          updated.category = FEE_CODE_LOOKUP[code].category;
-        }
-      }
-      // Reset category when type changes (but not when triggered by code change)
-      if (name === 'type') {
-        updated.category = '';
-      }
-      // Property use type → category auto-fill (preserves existing behavior)
-      if (name === 'propertyUseType') {
-        const cat = updated.propertyUseType ? updated.propertyUseType.split(':')[1]?.trim() || '' : '';
-        // Don't overwrite category if it was set by business class code
-        // Only auto-fill if businessClassCode is empty
-        if (!updated.businessClassCode) {
-          updated.category = cat;
+        // Auto-fill category from property code mapping
+        if (PROP_CODE_TO_CATEGORY[code]) {
+          updated.category = PROP_CODE_TO_CATEGORY[code];
         }
       }
       return updated;
@@ -694,7 +679,7 @@ export function PropertiesPage() {
                   name="businessClassCode"
                   value={form.businessClassCode}
                   onChange={handleFormChange}
-                  options={(CLASS_TO_CODES[form.type] || BUSINESS_CLASS_CODES).map((c) => ({ value: c, label: c }))}
+                  options={(PROP_CLASS_TO_CODES[form.type] || PROPERTY_CLASS_CODES).map((c) => ({ value: c, label: c }))}
                   placeholder="Type or search code..."
                   emptyMessage="No matching codes"
                   className={inputClass}
@@ -706,8 +691,8 @@ export function PropertiesPage() {
                   name="type"
                   value={form.type}
                   onChange={handleFormChange}
-                  options={propertyBusinessTypes.map((t) => ({ value: t, label: t }))}
-                  placeholder="Type or search business class..."
+                  options={PROPERTY_CLASS_NAMES.map((t) => ({ value: t, label: t }))}
+                  placeholder="Type or search property class..."
                   emptyMessage="No matching classes"
                   className={inputClass}
                 />
@@ -716,15 +701,10 @@ export function PropertiesPage() {
                 <label className={`${labelClass} block`}>Category</label>
                 <select name="category" value={form.category} onChange={handleFormChange} className={inputClass}>
                   <option value="">Select Property Class first...</option>
-                  {availableCategories.map((c) => (
-                    <option key={c.name} value={c.name}>{c.name}</option>
+                  {classCategories.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
                   ))}
                 </select>
-              </div>
-              {/* Amount (read-only) */}
-              <div>
-                <label className={`${labelClass} block`}>Amount</label>
-                <input type="text" value={displayAmount !== null ? `GH\u20b5 ${displayAmount.toLocaleString()}` : ''} readOnly placeholder="Select a category" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-emerald-700 dark:text-emerald-400 font-semibold`} />
               </div>
               {/* Employees, Year Established */}
               <div>
