@@ -359,7 +359,7 @@ export function BillingPage() {
 
   // ── Barcode helpers ──────────────────────────────────────────────
   const getBillBarcodeSvg = (bill: Bill): string => {
-    const _aName = (() => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kumasi Metropolitan Assembly'; } catch { return 'Kumasi Metropolitan Assembly'; } })();
+    const _aName = (() => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kpando Municipal Assembly'; } catch { return 'Kpando Municipal Assembly'; } })();
     const encoded = encodeBarcodeData({
       type: 'INVOICE',
       refNo: bill.billNumber,
@@ -388,7 +388,7 @@ export function BillingPage() {
   };
 
   const getBillBarcodeData = (bill: Bill): string => {
-    const _aName = (() => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kumasi Metropolitan Assembly'; } catch { return 'Kumasi Metropolitan Assembly'; } })();
+    const _aName = (() => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kpando Municipal Assembly'; } catch { return 'Kpando Municipal Assembly'; } })();
     return encodeBarcodeData({
       type: 'INVOICE',
       refNo: bill.billNumber,
@@ -422,7 +422,7 @@ export function BillingPage() {
 
   // ── Print bill ─────────────────────────────────────────────────────────
 
-  const _asmName = () => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kumasi Metropolitan Assembly'; } catch { return 'Kumasi Metropolitan Assembly'; } };
+  const _asmName = () => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kpando Municipal Assembly'; } catch { return 'Kpando Municipal Assembly'; } };
   const handlePrintBill = (bill: Bill) => {
     const barcodeSvg = getBillBarcodeSvg(bill);
     setViewingBill(bill);

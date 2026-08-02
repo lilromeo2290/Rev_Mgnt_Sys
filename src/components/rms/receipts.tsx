@@ -118,7 +118,7 @@ export function ReceiptsPage() {
 
   // ── Generate Barcode SVG as string ─────────────────────────────────
   const getBarcodeSvg = (r: Receipt): string => {
-    const _aName = (() => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kumasi Metropolitan Assembly'; } catch { return 'Kumasi Metropolitan Assembly'; } })();
+    const _aName = (() => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kpando Municipal Assembly'; } catch { return 'Kpando Municipal Assembly'; } })();
     const encoded = encodeBarcodeData({
       type: 'RECEIPT',
       refNo: r.receiptNo,
@@ -148,7 +148,7 @@ export function ReceiptsPage() {
   };
 
   const getBarcodeData = (r: Receipt): string => {
-    const _aName = (() => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kumasi Metropolitan Assembly'; } catch { return 'Kumasi Metropolitan Assembly'; } })();
+    const _aName = (() => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kpando Municipal Assembly'; } catch { return 'Kpando Municipal Assembly'; } })();
     return encodeBarcodeData({
       type: 'RECEIPT',
       refNo: r.receiptNo,
@@ -181,7 +181,7 @@ export function ReceiptsPage() {
     }
   }, [selectedReceipt]);
 
-  const _asmName = () => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kumasi Metropolitan Assembly'; } catch { return 'Kumasi Metropolitan Assembly'; } };
+  const _asmName = () => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kpando Municipal Assembly'; } catch { return 'Kpando Municipal Assembly'; } };
   const handlePrintReceipt = (r: Receipt) => {
     const barcodeSvg = getBarcodeSvg(r);
     const itemsRows = r.items.map((item) => `

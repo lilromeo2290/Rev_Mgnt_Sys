@@ -98,7 +98,7 @@ const mockPayments: Payment[] = [];
 export function PaymentsPage() {
   const [payments, setPayments] = useSyncedStorage<Payment[]>('rms-payments', mockPayments);
   const [realBills, setRealBills] = useSyncedStorage<RealBill[]>('rms-bills', []);
-  const asmName = useMemo(() => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kumasi Metropolitan Assembly'; } catch { return 'Kumasi Metropolitan Assembly'; } }, []);
+  const asmName = useMemo(() => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kpando Municipal Assembly'; } catch { return 'Kpando Municipal Assembly'; } }, []);
   const [search, setSearch] = useState('');
   const [methodFilter, setMethodFilter] = useState<string>('All');
   const [statusFilter, setStatusFilter] = useState<string>('All');
@@ -291,7 +291,7 @@ export function PaymentsPage() {
   }, [viewingPayment, asmName]);
 
   const handlePrintPayment = (p: Payment) => {
-    const _asmName = (() => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kumasi Metropolitan Assembly'; } catch { return 'Kumasi Metropolitan Assembly'; } })();
+    const _asmName = (() => { try { const r = JSON.parse(localStorage.getItem('rms-settings-assembly') || '{}'); return r.name || 'Kpando Municipal Assembly'; } catch { return 'Kpando Municipal Assembly'; } })();
     const printWin = window.open('', '_blank', 'width=800,height=600');
     if (!printWin) return;
     const barcodeSvg = getPayBarcodeSvg(p, _asmName);

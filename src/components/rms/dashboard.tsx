@@ -268,7 +268,7 @@ function EmptyState({ icon, message }: { icon: React.ReactNode; message: string 
 export function DashboardPage() {
   // Assembly info from synced storage
   const [assemblyInfo] = useSyncedStorage<{ name: string; code: string; address: string }>('rms-settings-assembly', { name: '', code: '', address: '' });
-  const assemblyName = assemblyInfo.name || 'Kumasi Metropolitan Assembly';
+  const assemblyName = assemblyInfo.name || 'Kpando Municipal Assembly';
 
   // Read all data from localStorage on mount + listen for changes
   const [businesses, setBusinesses] = useState<LSBusiness[]>([]);
