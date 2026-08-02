@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useSyncedStorage } from '@/hooks/use-synced-storage';
 import {
   Search,
   Plus,
@@ -116,43 +117,21 @@ const defaultUsers: User[] = [
   { id: 'USR-001', staffId: 'STF-001', username: 'admin', password: 'admin123', firstName: 'System', lastName: 'Administrator', email: 'admin@kpma.gov.gh', phone: '', role: 'Administrator', zone: 'Zone A', ward: '', status: 'Active', lastLogin: new Date().toISOString().split('T')[0], dateCreated: new Date().toISOString().split('T')[0], ghanaCard: '', accessiblePages: ALL_PAGES },
 ];
 
-function loadUsers(): User[] {
-  if (typeof window === 'undefined') return defaultUsers;
-  try {
-    const stored = localStorage.getItem(USERS_STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        // Migrate: ensure every user has required fields AND all current pages
-        let migrated = false;
-        const updated = parsed.map((u: Partial<User>) => {
-          const base = {
-            ...defaultUsers[0],
-            ...u,
-            lastLogin: u.lastLogin || 'Never',
-            dateCreated: u.dateCreated || new Date().toISOString().split('T')[0],
-          } as User;
-          // Ensure user has any pages added after their creation (e.g. 'rent')
-          const missing = ALL_PAGES.filter((p) => !base.accessiblePages.includes(p));
-          if (missing.length > 0) {
-            migrated = true;
-            base.accessiblePages = [...base.accessiblePages, ...missing];
-          }
-          return base;
-        });
-        if (migrated) {
-          try { localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updated)); } catch { /* ignore */ }
-        }
-        return updated;
-      }
+function migrateUsers(raw: unknown): User[] {
+  if (!Array.isArray(raw) || raw.length === 0) return defaultUsers;
+  return raw.map((u: Partial<User>) => {
+    const base = {
+      ...defaultUsers[0],
+      ...u,
+      lastLogin: u.lastLogin || 'Never',
+      dateCreated: u.dateCreated || new Date().toISOString().split('T')[0],
+    } as User;
+    const missing = ALL_PAGES.filter((p) => !base.accessiblePages.includes(p));
+    if (missing.length > 0) {
+      base.accessiblePages = [...base.accessiblePages, ...missing];
     }
-  } catch { /* ignore */ }
-  return defaultUsers;
-}
-
-function saveUsers(users: User[]) {
-  if (typeof window === 'undefined') return;
-  try { localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users)); } catch { /* ignore */ }
+    return base;
+  });
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -160,22 +139,19 @@ function saveUsers(users: User[]) {
 const ITEMS_PER_PAGE = 8;
 
 export function UsersPage() {
-  const [users, setUsers] = useState<User[]>(defaultUsers);
+  const [serverUsers, setServerUsers] = useSyncedStorage<User[]>(USERS_STORAGE_KEY, defaultUsers);
   const loginSuccess = useAppStore((s) => s.loginSuccess);
 
-  // Load from localStorage on mount
-  useEffect(() => {
-    setUsers(loadUsers());
-  }, []);
+  // Migrate users from server data (ensure all fields + pages present)
+  const users = useMemo(() => migrateUsers(serverUsers), [serverUsers]);
 
-  // Persist to localStorage on every change
+  // Persist to server + localStorage on every change
   const updateUsers = useCallback((updater: (prev: User[]) => User[]) => {
-    setUsers((prev) => {
+    setServerUsers((prev) => {
       const next = updater(prev);
-      saveUsers(next);
       return next;
     });
-  }, []);
+  }, [setServerUsers]);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState<'All' | UserRole>('All');
   const [statusFilter, setStatusFilter] = useState<'All' | UserStatus>('All');

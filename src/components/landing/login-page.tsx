@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { useAppStore, type AppUser } from '@/stores/app-store';
@@ -35,46 +35,39 @@ interface StoredUser {
   accessiblePages: string[];
 }
 
-function loadStoredUsers(): StoredUser[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    const raw = localStorage.getItem(USERS_STORAGE_KEY);
-    if (raw) {
-      const parsed: StoredUser[] = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        // MIGRATION: ensure every user has all pages in accessiblePages
-        // (handles new pages like 'rent' added after initial user creation)
-        let migrated = false;
-        const updated = parsed.map((u) => {
-          const missing = ALL_PAGES.filter((p) => !u.accessiblePages.includes(p));
-          if (missing.length > 0) {
-            migrated = true;
-            return { ...u, accessiblePages: [...u.accessiblePages, ...missing] };
-          }
-          return u;
-        });
-        if (migrated) {
-          try { localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updated)); } catch { /* ignore */ }
-        }
-        return updated;
-      }
+function migrateStoredUsers(raw: unknown): StoredUser[] {
+  if (!Array.isArray(raw) || raw.length === 0) return [];
+  return raw.map((u: Partial<StoredUser>) => {
+    const base: StoredUser = {
+      id: u.id || 'USR-001',
+      staffId: u.staffId || 'STF-001',
+      username: u.username || '',
+      password: u.password || '',
+      firstName: u.firstName || '',
+      lastName: u.lastName || '',
+      role: u.role || 'Revenue Officer',
+      status: u.status || 'Active',
+      accessiblePages: u.accessiblePages || [...ALL_PAGES],
+    };
+    const missing = ALL_PAGES.filter((p) => !base.accessiblePages.includes(p));
+    if (missing.length > 0) {
+      base.accessiblePages = [...base.accessiblePages, ...missing];
     }
-  } catch { /* ignore */ }
-  // Seed the default admin if nothing is stored
-  const defaultAdmin: StoredUser = {
-    id: 'USR-001',
-    staffId: 'STF-001',
-    username: 'admin',
-    password: 'admin123',
-    firstName: 'System',
-    lastName: 'Administrator',
-    role: 'Administrator',
-    status: 'Active',
-    accessiblePages: ALL_PAGES,
-  };
-  try { localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify([defaultAdmin])); } catch { /* ignore */ }
-  return [defaultAdmin];
+    return base;
+  });
 }
+
+const defaultAdmin: StoredUser = {
+  id: 'USR-001',
+  staffId: 'STF-001',
+  username: 'admin',
+  password: 'admin123',
+  firstName: 'System',
+  lastName: 'Administrator',
+  role: 'Administrator',
+  status: 'Active',
+  accessiblePages: ALL_PAGES,
+};
 
 export function LoginPage() {
   const { resolvedTheme } = useTheme();
@@ -86,9 +79,64 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [storedUsers, setStoredUsers] = useState<StoredUser[]>([]);
+  const [usersReady, setUsersReady] = useState(false);
+
+  // Load users from server first, then localStorage fallback
+  useEffect(() => {
+    const initUsers = async () => {
+      try {
+        const res = await fetch(`/api/rms-data?key=${encodeURIComponent(USERS_STORAGE_KEY)}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.data !== null && json.data !== undefined) {
+            const migrated = migrateStoredUsers(json.data);
+            if (migrated.length > 0) {
+              setStoredUsers(migrated);
+              setUsersReady(true);
+              return;
+            }
+          }
+        }
+      } catch { /* fallback to localStorage */ }
+
+      // Fallback: localStorage
+      try {
+        const raw = localStorage.getItem(USERS_STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          const migrated = migrateStoredUsers(parsed);
+          if (migrated.length > 0) {
+            setStoredUsers(migrated);
+            // Sync to server
+            fetch('/api/rms-data', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ key: USERS_STORAGE_KEY, data: migrated }),
+            }).catch(() => {});
+          }
+        }
+      } catch { /* ignore */ }
+
+      // If still no users, seed default admin
+      if (storedUsers.length === 0) {
+        const seed = [defaultAdmin];
+        setStoredUsers(seed);
+        localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(seed));
+        fetch('/api/rms-data', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: USERS_STORAGE_KEY, data: seed }),
+        }).catch(() => {});
+      }
+      setUsersReady(true);
+    };
+    initUsers();
+  }, []);
 
   const isDark = resolvedTheme === 'dark';
-  const mounted = resolvedTheme !== undefined;
+  // Don't render login form until users are loaded from server
+  if (!usersReady || !mounted) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,8 +151,7 @@ export function LoginPage() {
 
     // Simulate authentication delay
     setTimeout(() => {
-      // Try to find the user in stored users first
-      const storedUsers = loadStoredUsers();
+      // Try to find the user in stored users
       const matched = storedUsers.find(
         (u) => u.username === username.trim() && u.password === password
       );
