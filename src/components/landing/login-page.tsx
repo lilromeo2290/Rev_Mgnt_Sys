@@ -135,6 +135,7 @@ export function LoginPage() {
   }, []);
 
   const isDark = resolvedTheme === 'dark';
+  const mounted = resolvedTheme !== undefined;
   // Don't render login form until users are loaded from server
   if (!usersReady || !mounted) return null;
 
