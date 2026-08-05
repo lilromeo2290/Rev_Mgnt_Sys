@@ -728,13 +728,13 @@ export function RentPage() {
           </div>
           <div className={cardBodyClass}>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
-              <div className="sm:col-span-2 lg:col-span-3">
-                <label className={`${labelClass} block`}>Occupant's Name <span className="text-red-500">*</span></label>
-                <input type="text" name="renterName" value={form.renterName} onChange={handleFormChange} placeholder="Enter full name of occupant" className={inputClass} />
-              </div>
               <div>
                 <label className={`${labelClass} block`}>Unique ID</label>
                 <input type="text" value={editingId || 'Auto-generated on save'} readOnly className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed font-mono text-xs`} />
+              </div>
+              <div className="sm:col-span-2 lg:col-span-2">
+                <label className={`${labelClass} block`}>Occupant's Name <span className="text-red-500">*</span></label>
+                <input type="text" name="renterName" value={form.renterName} onChange={handleFormChange} placeholder="Enter full name of occupant" className={inputClass} />
               </div>
               <div>
                 <label className={`${labelClass} block`}>National ID Number</label>
