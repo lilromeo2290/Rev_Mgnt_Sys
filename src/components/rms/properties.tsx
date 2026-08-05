@@ -77,6 +77,8 @@ interface Property {
   revenueDescription2: string;
   revenueCode: string;
   businessClassCode: string;
+  propertyRevenueCode: string;
+  propertyRevenueDescription: string;
   type: string;
   employees: string;
   yearEstablished: string;
@@ -212,6 +214,8 @@ export function PropertiesPage() {
     revenueDescription2: '',
     revenueCode: '',
     businessClassCode: '',
+    propertyRevenueCode: '',
+    propertyRevenueDescription: '',
     type: '',
     employees: '',
     yearEstablished: '',
@@ -303,6 +307,13 @@ export function PropertiesPage() {
       }
       if (name === 'revenueCode' && CODE_TO_DESCRIPTION[updated.revenueCode]) {
         updated.revenueDescription = CODE_TO_DESCRIPTION[updated.revenueCode];
+      }
+      // Link Property Revenue Description <-> Property Revenue Code
+      if (name === 'propertyRevenueDescription' && DESCRIPTION_TO_CODE[updated.propertyRevenueDescription]) {
+        updated.propertyRevenueCode = DESCRIPTION_TO_CODE[updated.propertyRevenueDescription];
+      }
+      if (name === 'propertyRevenueCode' && CODE_TO_DESCRIPTION[updated.propertyRevenueCode]) {
+        updated.propertyRevenueDescription = CODE_TO_DESCRIPTION[updated.propertyRevenueCode];
       }
       // Link Property Class <-> Property Class Code
       if (name === 'type' && PROP_CLASS_TO_FIRST_CODE[updated.type]) {
@@ -398,6 +409,8 @@ export function PropertiesPage() {
       revenueDescription2: (prop as any).revenueDescription2 || '',
       revenueCode: (prop as any).revenueCode || '',
       businessClassCode: (prop as any).businessClassCode || '',
+      propertyRevenueCode: (prop as any).propertyRevenueCode || '',
+      propertyRevenueDescription: (prop as any).propertyRevenueDescription || '',
       type: (prop as any).type || '',
       employees: (prop as any).employees || '',
       yearEstablished: (prop as any).yearEstablished || '',
@@ -778,6 +791,32 @@ export function PropertiesPage() {
               <div>
                 <label className={`${labelClass} block`}>Owner TIN</label>
                 <input type="text" name="ownerTin" value={form.ownerTin} onChange={handleFormChange} placeholder="Owner's TIN" className={inputClass} />
+              </div>
+              {/* Property Revenue Code */}
+              <div>
+                <label className={`${labelClass} block`}>Property Revenue Code</label>
+                <Combobox
+                  name="propertyRevenueCode"
+                  value={form.propertyRevenueCode}
+                  onChange={handleFormChange}
+                  options={REVENUE_CODE_MAP.filter(m => m.code).map(m => ({ value: m.code, label: m.code }))}
+                  placeholder="Type to search revenue code..."
+                  emptyMessage="No matching code"
+                  className={inputClass}
+                />
+              </div>
+              {/* Property Revenue Description */}
+              <div>
+                <label className={`${labelClass} block`}>Property Revenue Description</label>
+                <Combobox
+                  name="propertyRevenueDescription"
+                  value={form.propertyRevenueDescription}
+                  onChange={handleFormChange}
+                  options={REVENUE_CODE_MAP.filter(m => m.code).map(m => ({ value: m.description, label: m.description }))}
+                  placeholder="Type to search description..."
+                  emptyMessage="No matching description"
+                  className={inputClass}
+                />
               </div>
               {/* Owner Address - full width */}
               <div className="sm:col-span-2 lg:col-span-3">
