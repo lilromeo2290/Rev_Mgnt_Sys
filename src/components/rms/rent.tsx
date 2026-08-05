@@ -229,16 +229,30 @@ export function RentPage() {
 
   const reverseGeocode = async (lat: number, lon: number): Promise<{ placeName: string; streetCode: string; ghanaPostGPS: string }> => {
     try {
-      // Try Nominatim (OpenStreetMap) reverse geocoding
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1&zoom=18`);
-      const data = await res.json();
-      const addr = data.address || {};
-      const placeName = addr.road || addr.suburb || addr.city || addr.town || addr.village || data.display_name?.split(',')[0] || '';
-      // Build street code from available address components
-      const streetParts = [addr.road, addr.suburb, addr.neighbourhood].filter(Boolean);
-      const streetCode = streetParts.length > 0 ? streetParts.join(', ') : placeName;
-      // Try to derive Ghana Post GPS format from coordinates
-      const ghanaPostGPS = data.display_name?.match(/[A-Z]{2}-\d{3}-\d{4}/)?.[0] || '';
+      // Run Nominatim reverse geocoding and Ghana Post GPS lookup in parallel
+      const [nominatimPromise, ghanaPostPromise] = [
+        // Nominatim (OpenStreetMap) for place name
+        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1&zoom=18`)
+          .then((r) => r.json())
+          .then((data) => {
+            const addr = data.address || {};
+            const placeName = addr.road || addr.suburb || addr.city || addr.town || addr.village || data.display_name?.split(',')[0] || '';
+            const streetParts = [addr.road, addr.suburb, addr.neighbourhood].filter(Boolean);
+            const streetCode = streetParts.length > 0 ? streetParts.join(', ') : placeName;
+            return { placeName, streetCode };
+          })
+          .catch(() => ({ placeName: '', streetCode: '' })),
+        // Ghana Post GPS API for digital address
+        fetch(`https://ghanapostgps.com/api/coordinates?lat=${lat}&long=${lon}`)
+          .then((r) => r.json())
+          .then((data) => {
+            // Ghana Post GPS API returns { data: { address: "VO-012-3456" } } or similar
+            const addr = data?.data?.address || data?.address || data?.Address || '';
+            return addr;
+          })
+          .catch(() => ''),
+      ];
+      const [{ placeName, streetCode }, ghanaPostGPS] = await Promise.all([nominatimPromise, ghanaPostPromise]);
       return { placeName, streetCode, ghanaPostGPS };
     } catch {
       return { placeName: '', streetCode: '', ghanaPostGPS: '' };
@@ -257,14 +271,27 @@ export function RentPage() {
       setForm((p) => ({ ...p, propertyLatitude: lat.toFixed(6), propertyLongitude: lon.toFixed(6) }));
       // Reverse geocode to auto-fill Exact Location and Location Code
       const { placeName, streetCode, ghanaPostGPS } = await reverseGeocode(lat, lon);
-      if (placeName || streetCode || ghanaPostGPS) {
-        setForm((p) => ({
-          ...p,
-          exactLocation: placeName || p.exactLocation,
-          locationCode: streetCode || p.locationCode,
-          propertyGhanaPostGPS: ghanaPostGPS || p.propertyGhanaPostGPS,
-        }));
-      }
+      // Try to match the geocoded place name against known LOCALITIES for the correct area code
+      const geocodedLocationCode = (() => {
+        const normalizedPlace = (placeName || '').toLowerCase();
+        const normalizedStreet = (streetCode || '').toLowerCase();
+        // Direct match on locality name
+        const directMatch = LOCALITIES.find((loc) => normalizedPlace.includes(loc.toLowerCase()) || loc.toLowerCase().includes(normalizedPlace));
+        if (directMatch) return LOCALITY_AREA_CODE_MAP[directMatch] || '';
+        // Match on street code parts
+        const streetMatch = LOCALITIES.find((loc) => {
+          const locLower = loc.toLowerCase();
+          return streetCode.split(',').some((part) => locLower.includes(part.trim().toLowerCase()) || part.trim().toLowerCase().includes(locLower));
+        });
+        if (streetMatch) return LOCALITY_AREA_CODE_MAP[streetMatch] || '';
+        return '';
+      })();
+      setForm((p) => ({
+        ...p,
+        exactLocation: placeName || p.exactLocation,
+        locationCode: geocodedLocationCode || p.locationCode,
+        propertyGhanaPostGPS: ghanaPostGPS || p.propertyGhanaPostGPS,
+      }));
     } catch (err) {
       alert('Unable to retrieve location: ' + (err instanceof GeolocationPositionError ? err.message : String(err)));
     } finally {
@@ -576,9 +603,27 @@ export function RentPage() {
                 <label className={`${labelClass} block`}>Exact Location</label>
                 <input type="text" name="exactLocation" value={form.exactLocation} onChange={handleFormChange} placeholder="Enter exact location description" className={inputClass} />
               </div>
-              <div>
+              <div className="sm:col-span-2">
                 <label className={`${labelClass} block`}>Ghana Post GPS / Digital Address</label>
-                <input type="text" name="propertyGhanaPostGPS" value={form.propertyGhanaPostGPS} onChange={handleFormChange} placeholder="XX-XXX-XXXX" className={inputClass} />
+                <div className="flex gap-1.5">
+                  <input type="text" name="propertyGhanaPostGPS" value={form.propertyGhanaPostGPS} onChange={handleFormChange} placeholder="XX-XXX-XXXX" className={inputClass} />
+                  <button type="button" onClick={async () => {
+                    const lat = parseFloat(form.propertyLatitude);
+                    const lon = parseFloat(form.propertyLongitude);
+                    if (!lat || !lon) { alert('Enter GPS coordinates first, or use the detect button.'); return; }
+                    setLocating(true);
+                    try {
+                      const { ghanaPostGPS } = await reverseGeocode(lat, lon);
+                      if (ghanaPostGPS) {
+                        setForm((p) => ({ ...p, propertyGhanaPostGPS: ghanaPostGPS }));
+                      } else {
+                        alert('Could not determine Ghana Post GPS address for these coordinates. Please enter it manually.');
+                      }
+                    } finally { setLocating(false); }
+                  }} disabled={locating || !form.propertyLatitude || !form.propertyLongitude} className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-medium transition-colors" title="Lookup Ghana Post GPS from coordinates">
+                    {locating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
               </div>
               <div className="sm:col-span-2">
                 <label className={`${labelClass} block`}>GPS Coordinates (Lat/Long)</label>
