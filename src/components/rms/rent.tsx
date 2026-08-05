@@ -225,14 +225,49 @@ export function RentPage() {
   const [form, setForm] = useState(defaultForm);
   const [locating, setLocating] = useState(false);
 
-  const fetchGps = () => {
+  const reverseGeocode = async (lat: number, lon: number): Promise<{ placeName: string; streetCode: string; ghanaPostGPS: string }> => {
+    try {
+      // Try Nominatim (OpenStreetMap) reverse geocoding
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1&zoom=18`);
+      const data = await res.json();
+      const addr = data.address || {};
+      const placeName = addr.road || addr.suburb || addr.city || addr.town || addr.village || data.display_name?.split(',')[0] || '';
+      // Build street code from available address components
+      const streetParts = [addr.road, addr.suburb, addr.neighbourhood].filter(Boolean);
+      const streetCode = streetParts.length > 0 ? streetParts.join(', ') : placeName;
+      // Try to derive Ghana Post GPS format from coordinates
+      const ghanaPostGPS = data.display_name?.match(/[A-Z]{2}-\d{3}-\d{4}/)?.[0] || '';
+      return { placeName, streetCode, ghanaPostGPS };
+    } catch {
+      return { placeName: '', streetCode: '', ghanaPostGPS: '' };
+    }
+  };
+
+  const fetchGps = async () => {
     if (!navigator.geolocation) { alert('Geolocation is not supported.'); return; }
     setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => { setForm((p) => ({ ...p, propertyLatitude: pos.coords.latitude.toFixed(6), propertyLongitude: pos.coords.longitude.toFixed(6) })); setLocating(false); },
-      (err) => { alert('Unable to retrieve location: ' + err.message); setLocating(false); },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
-    );
+    try {
+      const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+      });
+      const lat = pos.coords.latitude;
+      const lon = pos.coords.longitude;
+      setForm((p) => ({ ...p, propertyLatitude: lat.toFixed(6), propertyLongitude: lon.toFixed(6) }));
+      // Reverse geocode to auto-fill Exact Location and Location Code
+      const { placeName, streetCode, ghanaPostGPS } = await reverseGeocode(lat, lon);
+      if (placeName || streetCode || ghanaPostGPS) {
+        setForm((p) => ({
+          ...p,
+          exactLocation: placeName || p.exactLocation,
+          locationCode: streetCode || p.locationCode,
+          propertyGhanaPostGPS: ghanaPostGPS || p.propertyGhanaPostGPS,
+        }));
+      }
+    } catch (err) {
+      alert('Unable to retrieve location: ' + (err instanceof GeolocationPositionError ? err.message : String(err)));
+    } finally {
+      setLocating(false);
+    }
   };
 
   // ── Filtering ─────────────────────────────────────────────────────────────
