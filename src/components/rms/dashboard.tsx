@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useSyncedStorage } from '@/hooks/use-synced-storage';
+const FINANCIAL_KEY = 'rms-settings-financial';
+const defaultFY = { currentFinancialYear: '2026' };
 import {
   AreaChart,
   Area,
@@ -268,6 +270,7 @@ function EmptyState({ icon, message }: { icon: React.ReactNode; message: string 
 export function DashboardPage() {
   // Assembly info from synced storage
   const [assemblyInfo] = useSyncedStorage<{ name: string; code: string; address: string }>('rms-settings-assembly', { name: '', code: '', address: '' });
+  const [financial] = useSyncedStorage<{ currentFinancialYear: string }>(FINANCIAL_KEY, defaultFY);
   const assemblyName = assemblyInfo.name || 'Kpando Municipal Assembly';
 
   // Read all data from localStorage on mount + listen for changes
@@ -463,7 +466,7 @@ export function DashboardPage() {
               </p>
             </div>
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              Fiscal Year 2024
+              {`Fiscal Year ${financial.currentFinancialYear || '2026'}`}
             </p>
           </div>
         </div>

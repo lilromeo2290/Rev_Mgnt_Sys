@@ -13,7 +13,9 @@ type RMSPage =
   | 'users'
   | 'settings'
   | 'search'
-  | 'audit-trail';
+  | 'audit-trail'
+  | 'property-register'
+  | 'lease-management';
 
 /** All available RMS pages for the permission picker */
 const ALL_RMS_PAGES: { page: RMSPage; label: string }[] = [
@@ -29,6 +31,8 @@ const ALL_RMS_PAGES: { page: RMSPage; label: string }[] = [
   { page: 'settings', label: 'Settings' },
   { page: 'audit-trail', label: 'Audit Trail' },
   { page: 'search', label: 'Search' },
+  { page: 'property-register', label: 'Property Register' },
+  { page: 'lease-management', label: 'Lease Management' },
 ];
 
 interface AppUser {

@@ -50,6 +50,7 @@ interface Property {
   locality: string;
   areaCode: string;
   code: string;
+  exactPropertyLocation: string;
   ownerName: string;
   ownerAddress: string;
   ownerLatitude: string;
@@ -184,6 +185,7 @@ export function PropertiesPage() {
     locality: '',
     areaCode: '',
     code: '',
+    exactPropertyLocation: '',
     ownerName: '',
     ownerAddress: '',
     ownerLatitude: '',
@@ -374,6 +376,7 @@ export function PropertiesPage() {
       locality: prop.locality,
       areaCode: (prop as any).areaCode || '',
       code: prop.code,
+      exactPropertyLocation: (prop as any).exactPropertyLocation || '',
       ownerName: prop.ownerName,
       ownerAddress: prop.ownerAddress,
       ownerLatitude: prop.ownerLatitude,
@@ -621,16 +624,13 @@ export function PropertiesPage() {
                 <label className={`${labelClass} block`}>House Number</label>
                 <input type="text" name="houseNo" value={form.houseNo} onChange={handleFormChange} placeholder="e.g. 26" className={inputClass} />
               </div>
-              {/* Street Code */}
-              <div>
-                <label className={`${labelClass} block`}>Street Code</label>
-                <input type="text" name="streetCode" value={form.streetCode} onChange={handleFormChange} placeholder="Enter code" className={inputClass} />
+              {/* Exact Property Location */}
+              <div className="sm:col-span-2 lg:col-span-3">
+                <label className={`${labelClass} block`}>Exact Property Location</label>
+                <input type="text" name="exactPropertyLocation" value={form.exactPropertyLocation} onChange={handleFormChange} placeholder="Full property address / description" className={inputClass} />
               </div>
-              {/* Code (auto from locality) */}
-              <div>
-                <label className={`${labelClass} block`}>Code</label>
-                <input type="text" name="code" value={form.code} readOnly placeholder="Auto-generated from locality" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400`} />
-              </div>
+
+
             </div>
           </div>
         </div>

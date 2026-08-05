@@ -251,9 +251,12 @@ export function BusinessesPage() {
   const selectedCategoryFee = availableCategories.find(
     (c) => c.name === form.category
   );
-  // Use FEE_CODE_LOOKUP amount when available (from code selection), fallback to USER_CATEGORIES
+  // Amount from FEE_CODE_LOOKUP (primary) or USER_CATEGORIES (fallback)
   const codeLookupEntry = form.businessClassCode ? FEE_CODE_LOOKUP[form.businessClassCode] : null;
-  const displayAmount = codeLookupEntry ? codeLookupEntry.amount : (selectedCategoryFee ? selectedCategoryFee.amount : null);
+  const categoryLookupEntry = form.type && form.category
+    ? Object.values(FEE_CODE_LOOKUP).find(e => e.businessClass === form.type && e.category === form.category)
+    : null;
+  const displayAmount = codeLookupEntry?.amount ?? categoryLookupEntry?.amount ?? selectedCategoryFee?.amount ?? null;
 
   // ── Filtering & Pagination ───────────────────────────────────────────────
   const filtered = businesses.filter((b) => {
@@ -312,6 +315,16 @@ export function BusinessesPage() {
         // Auto-fill category and amount from fee code lookup
         if (FEE_CODE_LOOKUP[code]) {
           updated.category = FEE_CODE_LOOKUP[code].category;
+          updated.subCategory = '';
+        }
+      }
+      // Auto-fill businessClassCode and amount when category changes
+      if (name === 'category' && updated.type && updated.category) {
+        const match = Object.entries(FEE_CODE_LOOKUP).find(
+          ([_, entry]) => entry.businessClass === updated.type && entry.category === updated.category
+        );
+        if (match) {
+          updated.businessClassCode = match[0];
         }
       }
       // Reset category and sub-category when type changes (but not when triggered by code change)
@@ -1071,21 +1084,11 @@ export function BusinessesPage() {
               {/* Row 2: Revenue Code, Revenue Description, Business TIN */}
               <div>
                 <label className={`${labelClass} block`}>Revenue Code</label>
-                <select name="code" value={form.code} onChange={handleFormChange} className={inputClass}>
-                  <option value="">Select Revenue Code</option>
-                  {REVENUE_CODE_MAP.filter(m => m.code).map((m) => (
-                    <option key={m.code} value={m.code}>{m.code}</option>
-                  ))}
-                </select>
+                <Combobox name="code" value={form.code} onChange={handleFormChange} options={REVENUE_CODE_MAP.filter(m => m.code).map(m => ({ value: m.code, label: m.code }))} placeholder="Type to search revenue code..." emptyMessage="No matching code" className={inputClass} />
               </div>
               <div>
                 <label className={`${labelClass} block`}>Revenue Description</label>
-                <select name="revenueDescription" value={form.revenueDescription} onChange={handleFormChange} className={inputClass}>
-                  <option value="">Select revenue description...</option>
-                  {REVENUE_CODE_MAP.filter(m => m.code).map((m) => (
-                    <option key={m.code} value={m.description}>{m.description}</option>
-                  ))}
-                </select>
+                <Combobox name="revenueDescription" value={form.revenueDescription} onChange={handleFormChange} options={REVENUE_CODE_MAP.filter(m => m.code).map(m => ({ value: m.description, label: m.description }))} placeholder="Type to search description..." emptyMessage="No matching description" className={inputClass} />
               </div>
               <div>
                 <label className={`${labelClass} block`}>Business TIN</label>
@@ -1118,12 +1121,7 @@ export function BusinessesPage() {
               </div>
               <div>
                 <label className={`${labelClass} block`}>Category</label>
-                <select name="category" value={form.category} onChange={handleFormChange} className={inputClass}>
-                  <option value="">Select Business Class first...</option>
-                  {availableCategories.map((c) => (
-                    <option key={c.name} value={c.name}>{c.name}</option>
-                  ))}
-                </select>
+                <Combobox name="category" value={form.category} onChange={handleFormChange} options={availableCategories.map((c) => ({ value: c.name, label: c.name }))} placeholder={form.type ? "Type or search category..." : "Select Business Class first..."} emptyMessage="No matching category" disabled={!form.type} className={inputClass} />
               </div>
               {/* Amount (read-only) */}
               <div>

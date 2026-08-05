@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import {
+  ClipboardList,
   LayoutDashboard,
   Building2,
   Home,
@@ -52,6 +53,8 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', page: 'dashboard', icon: LayoutDashboard },
   { label: 'Businesses', page: 'businesses', icon: Building2 },
+  { label: 'Property Register', page: 'property-register', icon: ClipboardList },
+  { label: 'Lease Management', page: 'lease-management', icon: Key },
   { label: 'Rate Config', page: 'rates', icon: Settings2 },
   { label: 'Billing', page: 'billing', icon: FileText },
   { label: 'Payments', page: 'payments', icon: CreditCard },
@@ -67,6 +70,8 @@ const NAV_ITEMS: NavItem[] = [
 const PAGE_TITLES: Record<RMSPage, string> = {
   dashboard: 'Dashboard',
   businesses: 'Businesses',
+  'property-register': 'Property Register',
+  'lease-management': 'Lease Management',
   rates: 'Rate Configuration',
   billing: 'Billing',
   payments: 'Payments',
