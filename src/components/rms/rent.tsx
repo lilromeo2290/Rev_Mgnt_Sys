@@ -670,7 +670,21 @@ export function RentPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
               <div>
                 <label className={`${labelClass} block`}>Rent Property Number <span className="text-red-500">*</span></label>
-                <input type="text" name="upn" value={form.upn} onChange={handleFormChange} placeholder="e.g. 865-0775-0553" className={inputClass} />
+                <Combobox
+                  name="upn"
+                  value={form.upn}
+                  onChange={(e) => {
+                    setForm((p) => ({ ...p, upn: e.target.value }));
+                  }}
+                  options={
+                    // Deduplicate existing UPNs as suggestions
+                    [...new Set(rents.map((r) => r.upn).filter(Boolean))]
+                      .map((u) => ({ value: u, label: u }))
+                  }
+                  placeholder="Type or search property number..."
+                  emptyMessage="No matching property number"
+                  className={inputClass}
+                />
               </div>
               <div>
                 <label className={`${labelClass} block`}>Rent Property Type Code</label>
@@ -678,12 +692,19 @@ export function RentPage() {
               </div>
               <div>
                 <label className={`${labelClass} block`}>Rent Property Type</label>
-                <select name="rentClass" value={form.rentClass} onChange={handleFormChange} className={inputClass}>
-                  <option value="">Select type</option>
-                  {RENT_TYPES.map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
+                <Combobox
+                  name="rentClass"
+                  value={form.rentClass}
+                  onChange={(e) => {
+                    handleFormChange({
+                      target: { name: 'rentClass', value: e.target.value },
+                    } as React.ChangeEvent<HTMLInputElement>);
+                  }}
+                  options={RENT_TYPES.map((t) => ({ value: t, label: t }))}
+                  placeholder="Type to search property type..."
+                  emptyMessage="No property type found"
+                  className={inputClass}
+                />
               </div>
               <div>
                 <label className={`${labelClass} block`}>Rent Property Category</label>
