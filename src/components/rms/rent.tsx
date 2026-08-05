@@ -28,6 +28,8 @@ import {
   Upload,
 } from 'lucide-react';
 import { exportToExcel, importFromExcel, RENT_FIELDS } from '@/lib/import-export';
+import { Combobox } from '@/components/ui/combobox';
+import { LOCALITIES, LOCALITY_AREA_CODE_MAP } from '@/lib/localities';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -549,7 +551,22 @@ export function RentPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
               <div className="sm:col-span-2 lg:col-span-3">
                 <label className={`${labelClass} block`}>Rent Property Location</label>
-                <input type="text" name="rentPropertyLocation" value={form.rentPropertyLocation} onChange={handleFormChange} placeholder="Enter rent property location" className={inputClass} />
+                <Combobox
+                  name="rentPropertyLocation"
+                  value={form.rentPropertyLocation}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setForm((p) => ({
+                      ...p,
+                      rentPropertyLocation: val,
+                      locationCode: val ? (LOCALITY_AREA_CODE_MAP[val] || '') : '',
+                    }));
+                  }}
+                  options={LOCALITIES.map((loc) => ({ value: loc, label: loc }))}
+                  placeholder="Type to search location..."
+                  emptyMessage="No location found"
+                  className={inputClass}
+                />
               </div>
               <div>
                 <label className={`${labelClass} block`}>Location Code</label>
