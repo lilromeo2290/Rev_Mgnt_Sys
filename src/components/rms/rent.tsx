@@ -39,7 +39,6 @@ interface Rent {
   upn: string;
   // Location
   rentPropertyLocation: string;
-  locationCode: string;
   exactLocation: string;
   propertyGhanaPostGPS: string;
   propertyLatitude: string;
@@ -189,7 +188,6 @@ export function RentPage() {
   const defaultForm = {
     upn: '',
     rentPropertyLocation: '',
-    locationCode: '',
     exactLocation: '',
     propertyGhanaPostGPS: '',
     propertyLatitude: '',
@@ -235,26 +233,13 @@ export function RentPage() {
     }
   };
 
-  /** Call our server-side proxy to get what3words address (avoids CORS) */
-  const fetchWhat3Words = async (lat: number, lon: number): Promise<string> => {
-    try {
-      const res = await fetch(`/api/what3words?lat=${lat}&lon=${lon}`);
-      const data = await res.json();
-      const words = data?.words || '';
-      return words ? `///${words}` : '';
-    } catch {
-      return '';
-    }
-  };
-
   const reverseGeocode = async (lat: number, lon: number): Promise<{
     placeName: string;
-    locationCode: string;
     ghanaPostGPS: string;
   }> => {
     try {
-      // Run Nominatim, Ghana Post GPS, and what3words in parallel
-      const [nominatimResult, ghanaPostGPS, w3w] = await Promise.all([
+      // Run Nominatim and Ghana Post GPS in parallel
+      const [nominatimResult, ghanaPostGPS] = await Promise.all([
         // Nominatim (OpenStreetMap) for place name
         fetch(
           `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1&zoom=18&extratags=1&namedetails=1`,
@@ -280,16 +265,14 @@ export function RentPage() {
           })
           .catch(() => ({ placeName: '', addr: {} as Record<string, string>, display_name: '' })),
         fetchGhanaPostGPS(lat, lon),
-        fetchWhat3Words(lat, lon),
       ]);
 
       return {
         placeName: nominatimResult.placeName,
-        locationCode: w3w,
         ghanaPostGPS,
       };
     } catch {
-      return { placeName: '', locationCode: '', ghanaPostGPS: '' };
+      return { placeName: '', ghanaPostGPS: '' };
     }
   };
 
@@ -303,8 +286,8 @@ export function RentPage() {
       const lat = pos.coords.latitude;
       const lon = pos.coords.longitude;
       setForm((p) => ({ ...p, propertyLatitude: lat.toFixed(6), propertyLongitude: lon.toFixed(6) }));
-      // Reverse geocode to auto-fill Exact Location, Location Code, and Ghana Post GPS
-      const { placeName, locationCode: w3wCode, ghanaPostGPS } = await reverseGeocode(lat, lon);
+      // Reverse geocode to auto-fill Rent Property Location and Ghana Post GPS
+      const { placeName, ghanaPostGPS } = await reverseGeocode(lat, lon);
       // Also try to match the Rent Property Location combobox
       const matchedLocality = (() => {
         const allText = `${placeName}`.toLowerCase();
@@ -323,7 +306,7 @@ export function RentPage() {
       setForm((p) => ({
         ...p,
         rentPropertyLocation: matchedLocality || p.rentPropertyLocation,
-        locationCode: w3wCode || p.locationCode,
+
         propertyGhanaPostGPS: ghanaPostGPS || p.propertyGhanaPostGPS,
       }));
     } catch (err) {
@@ -405,7 +388,7 @@ export function RentPage() {
     setForm({
       upn: rent.upn,
       rentPropertyLocation: rent.rentPropertyLocation,
-      locationCode: rent.locationCode,
+
       exactLocation: rent.exactLocation,
       propertyGhanaPostGPS: rent.propertyGhanaPostGPS,
       propertyLatitude: rent.propertyLatitude,
@@ -636,28 +619,7 @@ export function RentPage() {
                   className={inputClass}
                 />
               </div>
-              <div className="sm:col-span-2">
-                <label className={`${labelClass} block`}>Location Code (what3words)</label>
-                <div className="flex gap-1.5">
-                  <input type="text" name="locationCode" value={form.locationCode} onChange={handleFormChange} placeholder="///word.word.word" className={inputClass} />
-                  <button type="button" onClick={async () => {
-                    const lat = parseFloat(form.propertyLatitude);
-                    const lon = parseFloat(form.propertyLongitude);
-                    if (!lat || !lon) { alert('Enter GPS coordinates first, or use the detect button.'); return; }
-                    setLocating(true);
-                    try {
-                      const w3w = await fetchWhat3Words(lat, lon);
-                      if (w3w) {
-                        setForm((p) => ({ ...p, locationCode: w3w }));
-                      } else {
-                        alert('Could not determine what3words address. Ensure WHAT3WORDS_API_KEY is set in Vercel environment variables.');
-                      }
-                    } finally { setLocating(false); }
-                  }} disabled={locating || !form.propertyLatitude || !form.propertyLongitude} className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-medium transition-colors" title="Lookup what3words from coordinates">
-                    {locating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
-              </div>
+
               <div className="sm:col-span-2">
                 <label className={`${labelClass} block`}>Exact Location</label>
                 <input type="text" name="exactLocation" value={form.exactLocation} onChange={handleFormChange} placeholder="Enter exact location description" className={inputClass} />
