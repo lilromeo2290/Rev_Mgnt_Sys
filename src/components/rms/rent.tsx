@@ -603,30 +603,34 @@ export function RentPage() {
           <div className={cardBodyClass}>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
               <div>
-                <label className={`${labelClass} block`}>UPN <span className="text-red-500">*</span></label>
+                <label className={`${labelClass} block`}>Rent Property Number <span className="text-red-500">*</span></label>
                 <input type="text" name="upn" value={form.upn} onChange={handleFormChange} placeholder="e.g. 865-0775-0553" className={inputClass} />
               </div>
-              <div className="sm:col-span-2 lg:col-span-3">
-                <label className={`${labelClass} block`}>Rent Object Name</label>
-                <input type="text" name="rentObjectName" value={form.rentObjectName} onChange={handleFormChange} placeholder="Enter rent object name" className={inputClass} />
+              <div>
+                <label className={`${labelClass} block`}>Rent Property Type Code</label>
+                <input type="text" name="rentCode" value={form.rentCode} readOnly className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed`} placeholder="Auto-filled" />
               </div>
               <div>
-                <label className={`${labelClass} block`}>Rent Class</label>
+                <label className={`${labelClass} block`}>Rent Property Type</label>
                 <select name="rentClass" value={form.rentClass} onChange={handleFormChange} className={inputClass}>
-                  <option value="">Select rent class</option>
+                  <option value="">Select type</option>
                   {RENT_CLASSES.map((c) => (
                     <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className={`${labelClass} block`}>Rent Unit</label>
-                <select name="rentUnit" value={form.rentUnit} onChange={handleFormChange} className={inputClass}>
-                  <option value="">Select unit</option>
-                  {RENT_UNITS.map((u) => (
-                    <option key={u} value={u}>{u}</option>
+                <label className={`${labelClass} block`}>Rent Property Category</label>
+                <select name="rentCategory" value={form.rentCategory} onChange={handleFormChange} disabled={!form.rentClass} className={inputClass}>
+                  <option value="">{form.rentClass ? 'Select category' : 'Select type first'}</option>
+                  {(RENT_CLASS_CATEGORIES[form.rentClass] || []).map((c) => (
+                    <option key={c} value={c}>{c}</option>
                   ))}
                 </select>
+              </div>
+              <div>
+                <label className={`${labelClass} block`}>Amount (GHS)</label>
+                <input type="number" name="rentValue" value={form.rentValue} onChange={handleFormChange} placeholder="0.00" min="0" className={inputClass} />
               </div>
               <div>
                 <label className={`${labelClass} block`}>Vacant</label>
@@ -636,60 +640,11 @@ export function RentPage() {
                   ))}
                 </select>
               </div>
-              <div>
-                <label className={`${labelClass} block`}>Rent Value (GHS)</label>
-                <input type="number" name="rentValue" value={form.rentValue} onChange={handleFormChange} placeholder="0.00" min="0" className={inputClass} />
-              </div>
-              <div>
-                <label className={`${labelClass} block`}>Category</label>
-                <select name="rentCategory" value={form.rentCategory} onChange={handleFormChange} disabled={!form.rentClass} className={inputClass}>
-                  <option value="">{form.rentClass ? 'Select category' : 'Select class first'}</option>
-                  {(RENT_CLASS_CATEGORIES[form.rentClass] || []).map((c) => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className={`${labelClass} block`}>Code</label>
-                <input type="text" name="rentCode" value={form.rentCode} readOnly className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed`} placeholder="Auto-filled" />
-              </div>
             </div>
           </div>
         </div>
 
-        {/* CARD 3: CONTRACT */}
-        <div className={cardClass}>
-          <div className={cardHeaderClass}>
-            <FileText className="w-4.5 h-4.5 text-slate-600 dark:text-slate-400" />
-            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Contract</h2>
-          </div>
-          <div className={cardBodyClass}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
-              <div>
-                <label className={`${labelClass} block`}>Start Date</label>
-                <input type="date" name="startDate" value={form.startDate} onChange={handleFormChange} className={inputClass} />
-              </div>
-              <div>
-                <label className={`${labelClass} block`}>End Date</label>
-                <input type="date" name="endDate" value={form.endDate} onChange={handleFormChange} className={inputClass} />
-              </div>
-              <div>
-                <label className={`${labelClass} block`}>Contract ID</label>
-                <input type="text" name="contractId" value={form.contractId} onChange={handleFormChange} placeholder="Enter contract ID" className={inputClass} />
-              </div>
-              <div>
-                <label className={`${labelClass} block`}>Contract Value (GHS)</label>
-                <input type="number" name="contractValue" value={form.contractValue} onChange={handleFormChange} placeholder="0.00" min="0" className={inputClass} />
-              </div>
-              <div>
-                <label className={`${labelClass} block`}>Area (m²)</label>
-                <input type="number" name="area" value={form.area} onChange={handleFormChange} placeholder="0.00" min="0" step="0.01" className={inputClass} />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* CARD 4: RENTER INFORMATION */}
+        {/* CARD 3: RENTER INFORMATION */}
         <div className={cardClass}>
           <div className={cardHeaderClass}>
             <User className="w-4.5 h-4.5 text-slate-600 dark:text-slate-400" />
@@ -697,58 +652,30 @@ export function RentPage() {
           </div>
           <div className={cardBodyClass}>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
-              {/* Renter Name — full width */}
               <div className="sm:col-span-2 lg:col-span-3">
-                <label className={`${labelClass} block`}>Renter Name <span className="text-red-500">*</span></label>
-                <input type="text" name="renterName" value={form.renterName} onChange={handleFormChange} placeholder="Enter full name of renter" className={inputClass} />
+                <label className={`${labelClass} block`}>Occupant's Name <span className="text-red-500">*</span></label>
+                <input type="text" name="renterName" value={form.renterName} onChange={handleFormChange} placeholder="Enter full name of occupant" className={inputClass} />
               </div>
-              {/* Renter Address | Renter GhanaPost GPS */}
+              <div>
+                <label className={`${labelClass} block`}>Unique ID</label>
+                <input type="text" value={editingId || 'Auto-generated on save'} readOnly className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed font-mono text-xs`} />
+              </div>
+              <div>
+                <label className={`${labelClass} block`}>National ID Number</label>
+                <input type="text" name="nationalId" value={form.nationalId} onChange={handleFormChange} placeholder="e.g. GHA-XXXXXXXXX" className={inputClass} />
+              </div>
               <div className="sm:col-span-2">
-                <label className={`${labelClass} block`}>Renter Address</label>
-                <input type="text" name="renterAddress" value={form.renterAddress} onChange={handleFormChange} placeholder="Enter renter address" className={inputClass} />
+                <label className={`${labelClass} block`}>Address</label>
+                <input type="text" name="renterAddress" value={form.renterAddress} onChange={handleFormChange} placeholder="Enter occupant address" className={inputClass} />
               </div>
               <div>
-                <label className={`${labelClass} block`}>Renter GhanaPost GPS</label>
-                <input type="text" name="renterGhanaPostGPS" value={form.renterGhanaPostGPS} onChange={handleFormChange} placeholder="XX-XXX-XXXX" className={inputClass} />
-              </div>
-              {/* Phone | Email | TIN */}
-              <div>
-                <label className={`${labelClass} block`}>Phone</label>
+                <label className={`${labelClass} block`}>Phone Number</label>
                 <input type="text" name="phone" value={form.phone} onChange={handleFormChange} placeholder="e.g. 024 XXX XXXX" className={inputClass} />
               </div>
               <div>
-                <label className={`${labelClass} block`}>Email</label>
+                <label className={`${labelClass} block`}>Email Address</label>
                 <input type="email" name="email" value={form.email} onChange={handleFormChange} placeholder="email@example.com" className={inputClass} />
               </div>
-              <div>
-                <label className={`${labelClass} block`}>TIN</label>
-                <input type="text" name="tin" value={form.tin} onChange={handleFormChange} placeholder="Tax Identification Number" className={inputClass} />
-              </div>
-              {/* National ID — full width */}
-              <div className="sm:col-span-2 lg:col-span-3">
-                <label className={`${labelClass} block`}>National ID</label>
-                <input type="text" name="nationalId" value={form.nationalId} onChange={handleFormChange} placeholder="e.g. GHA-XXXXXXXXX" className={inputClass} />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* CARD 5: OTHER */}
-        <div className={cardClass}>
-          <div className={cardHeaderClass}>
-            <FileText className="w-4.5 h-4.5 text-slate-600 dark:text-slate-400" />
-            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Other</h2>
-          </div>
-          <div className={cardBodyClass}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
-              <label className="flex items-center gap-2 pb-2.5 cursor-pointer select-none">
-                <input type="checkbox" name="excludedFromRenting" checked={form.excludedFromRenting} onChange={handleFormChange} className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500" />
-                <span className="text-sm text-slate-700 dark:text-slate-300 whitespace-nowrap">Excluded from renting</span>
-              </label>
-            </div>
-            <div className="sm:col-span-2 lg:col-span-3">
-              <label className={`${labelClass} block`}>Comments</label>
-              <textarea name="comments" value={form.comments} onChange={handleFormChange} rows={3} placeholder="Additional notes or comments" className={`${inputClass} resize-none`} />
             </div>
           </div>
         </div>
