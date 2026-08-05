@@ -222,57 +222,28 @@ export function RentPage() {
   const [form, setForm] = useState(defaultForm);
   const [locating, setLocating] = useState(false);
 
-  /** Call our server-side proxy to get Ghana Post GPS address (avoids CORS) */
-  const fetchGhanaPostGPS = async (lat: number, lon: number): Promise<string> => {
+  const reverseGeocode = async (lat: number, lon: number): Promise<string> => {
     try {
-      const res = await fetch(`/api/ghana-post-gps?lat=${lat}&lon=${lon}`);
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1&zoom=18&extratags=1&namedetails=1`,
+        { headers: { 'User-Agent': 'RevMgmtSys/1.0' } }
+      );
       const data = await res.json();
-      return data?.address || '';
+      const addr = data.address || {};
+      const parts = [
+        addr.road,
+        addr.neighbourhood,
+        addr.suburb,
+        addr.hamlet,
+        addr.village,
+        addr.town,
+        addr.city,
+      ].filter(Boolean);
+      return parts.length > 0
+        ? parts.slice(0, 3).join(', ')
+        : (data.display_name?.split(',').slice(0, 2).join(',').trim() || '');
     } catch {
       return '';
-    }
-  };
-
-  const reverseGeocode = async (lat: number, lon: number): Promise<{
-    placeName: string;
-    ghanaPostGPS: string;
-  }> => {
-    try {
-      // Run Nominatim and Ghana Post GPS in parallel
-      const [nominatimResult, ghanaPostGPS] = await Promise.all([
-        // Nominatim (OpenStreetMap) for place name
-        fetch(
-          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1&zoom=18&extratags=1&namedetails=1`,
-          { headers: { 'User-Agent': 'RevMgmtSys/1.0' } }
-        )
-          .then((r) => r.json())
-          .then((data) => {
-            const addr = data.address || {};
-            // Build a rich place name from best available parts
-            const parts = [
-              addr.road,
-              addr.neighbourhood,
-              addr.suburb,
-              addr.hamlet,
-              addr.village,
-              addr.town,
-              addr.city,
-            ].filter(Boolean);
-            const placeName = parts.length > 0
-              ? parts.slice(0, 3).join(', ')
-              : (data.display_name?.split(',').slice(0, 2).join(',').trim() || '');
-            return { placeName, addr, display_name: data.display_name || '' };
-          })
-          .catch(() => ({ placeName: '', addr: {} as Record<string, string>, display_name: '' })),
-        fetchGhanaPostGPS(lat, lon),
-      ]);
-
-      return {
-        placeName: nominatimResult.placeName,
-        ghanaPostGPS,
-      };
-    } catch {
-      return { placeName: '', ghanaPostGPS: '' };
     }
   };
 
@@ -286,8 +257,8 @@ export function RentPage() {
       const lat = pos.coords.latitude;
       const lon = pos.coords.longitude;
       setForm((p) => ({ ...p, propertyLatitude: lat.toFixed(6), propertyLongitude: lon.toFixed(6) }));
-      // Reverse geocode to auto-fill Rent Property Location and Ghana Post GPS
-      const { placeName, ghanaPostGPS } = await reverseGeocode(lat, lon);
+      // Reverse geocode to auto-fill Rent Property Location
+      const placeName = await reverseGeocode(lat, lon);
       // Also try to match the Rent Property Location combobox
       const matchedLocality = (() => {
         const allText = `${placeName}`.toLowerCase();
@@ -306,8 +277,6 @@ export function RentPage() {
       setForm((p) => ({
         ...p,
         rentPropertyLocation: matchedLocality || p.rentPropertyLocation,
-
-        propertyGhanaPostGPS: ghanaPostGPS || p.propertyGhanaPostGPS,
       }));
     } catch (err) {
       alert('Unable to retrieve location: ' + (err instanceof GeolocationPositionError ? err.message : String(err)));
@@ -626,25 +595,7 @@ export function RentPage() {
               </div>
               <div className="sm:col-span-2">
                 <label className={`${labelClass} block`}>Ghana Post GPS / Digital Address</label>
-                <div className="flex gap-1.5">
-                  <input type="text" name="propertyGhanaPostGPS" value={form.propertyGhanaPostGPS} onChange={handleFormChange} placeholder="XX-XXX-XXXX" className={inputClass} />
-                  <button type="button" onClick={async () => {
-                    const lat = parseFloat(form.propertyLatitude);
-                    const lon = parseFloat(form.propertyLongitude);
-                    if (!lat || !lon) { alert('Enter GPS coordinates first, or use the detect button.'); return; }
-                    setLocating(true);
-                    try {
-                      const gps = await fetchGhanaPostGPS(lat, lon);
-                      if (gps) {
-                        setForm((p) => ({ ...p, propertyGhanaPostGPS: gps }));
-                      } else {
-                        alert('Could not determine Ghana Post GPS address for these coordinates. Please enter it manually (e.g. VO-123-4567).');
-                      }
-                    } finally { setLocating(false); }
-                  }} disabled={locating || !form.propertyLatitude || !form.propertyLongitude} className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-medium transition-colors" title="Lookup Ghana Post GPS from coordinates">
-                    {locating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />}
-                  </button>
-                </div>
+                <input type="text" name="propertyGhanaPostGPS" value={form.propertyGhanaPostGPS} onChange={handleFormChange} placeholder="Enter digital address (e.g. VR-0012-3456)" className={inputClass} />
               </div>
               <div className="sm:col-span-2">
                 <label className={`${labelClass} block`}>GPS Coordinates (Lat/Long)</label>
