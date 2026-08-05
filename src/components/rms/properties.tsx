@@ -678,6 +678,32 @@ export function PropertiesPage() {
                   className={inputClass}
                 />
               </div>
+              {/* Property Revenue Code */}
+              <div>
+                <label className={`${labelClass} block`}>Property Revenue Code</label>
+                <Combobox
+                  name="revenueCode"
+                  value={form.revenueCode}
+                  onChange={handleFormChange}
+                  options={REVENUE_CODE_MAP.filter(m => m.code).map(m => ({ value: m.code, label: m.code }))}
+                  placeholder="Type to search revenue code..."
+                  emptyMessage="No matching code"
+                  className={inputClass}
+                />
+              </div>
+              {/* Property Revenue Description */}
+              <div>
+                <label className={`${labelClass} block`}>Property Revenue Description</label>
+                <Combobox
+                  name="revenueDescription"
+                  value={form.revenueDescription}
+                  onChange={handleFormChange}
+                  options={REVENUE_CODE_MAP.filter(m => m.code).map(m => ({ value: m.description, label: m.description }))}
+                  placeholder="Type to search description..."
+                  emptyMessage="No matching description"
+                  className={inputClass}
+                />
+              </div>
               {/* Property Use Type */}
               <div>
                 <label className={`${labelClass} block`}>Property Use Type <span className="text-red-500">*</span></label>
@@ -719,32 +745,6 @@ export function PropertiesPage() {
               <div>
                 <label className={`${labelClass} block`}>Permit Number</label>
                 <input type="text" name="permitNumber" value={form.permitNumber} onChange={handleFormChange} placeholder="Enter permit number" disabled={form.hasBuildingPermit === 'No'} className={`${inputClass} ${form.hasBuildingPermit === 'No' ? 'opacity-50 cursor-not-allowed' : ''}`} />
-              </div>
-              {/* Property Revenue Code */}
-              <div>
-                <label className={`${labelClass} block`}>Property Revenue Code</label>
-                <Combobox
-                  name="revenueCode"
-                  value={form.revenueCode}
-                  onChange={handleFormChange}
-                  options={REVENUE_CODE_MAP.filter(m => m.code).map(m => ({ value: m.code, label: m.code }))}
-                  placeholder="Type to search revenue code..."
-                  emptyMessage="No matching code"
-                  className={inputClass}
-                />
-              </div>
-              {/* Property Revenue Description */}
-              <div>
-                <label className={`${labelClass} block`}>Property Revenue Description</label>
-                <Combobox
-                  name="revenueDescription"
-                  value={form.revenueDescription}
-                  onChange={handleFormChange}
-                  options={REVENUE_CODE_MAP.filter(m => m.code).map(m => ({ value: m.description, label: m.description }))}
-                  placeholder="Type to search description..."
-                  emptyMessage="No matching description"
-                  className={inputClass}
-                />
               </div>
               {/* Excluded from rating */}
               <div className="flex items-end">

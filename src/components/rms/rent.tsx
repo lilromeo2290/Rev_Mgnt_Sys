@@ -649,6 +649,30 @@ export function RentPage() {
                 />
               </div>
               <div>
+                <label className={`${labelClass} block`}>Rent Revenue Code</label>
+                <Combobox
+                  name="rentRevenueCode"
+                  value={form.rentRevenueCode}
+                  onChange={handleFormChange}
+                  options={REVENUE_CODE_MAP.filter(m => m.code).map(m => ({ value: m.code, label: m.code }))}
+                  placeholder="Type to search revenue code..."
+                  emptyMessage="No matching code"
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <label className={`${labelClass} block`}>Rent Revenue Description</label>
+                <Combobox
+                  name="rentRevenueDescription"
+                  value={form.rentRevenueDescription}
+                  onChange={handleFormChange}
+                  options={REVENUE_CODE_MAP.filter(m => m.code).map(m => ({ value: m.description, label: m.description }))}
+                  placeholder="Type to search description..."
+                  emptyMessage="No matching description"
+                  className={inputClass}
+                />
+              </div>
+              <div>
                 <label className={`${labelClass} block`}>Rent Property Type Code</label>
                 <input type="text" name="rentCode" value={form.rentCode} readOnly className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed`} placeholder="Auto-filled" />
               </div>
@@ -688,30 +712,6 @@ export function RentPage() {
                     <option key={v} value={v}>{v}</option>
                   ))}
                 </select>
-              </div>
-              <div>
-                <label className={`${labelClass} block`}>Rent Revenue Code</label>
-                <Combobox
-                  name="rentRevenueCode"
-                  value={form.rentRevenueCode}
-                  onChange={handleFormChange}
-                  options={REVENUE_CODE_MAP.filter(m => m.code).map(m => ({ value: m.code, label: m.code }))}
-                  placeholder="Type to search revenue code..."
-                  emptyMessage="No matching code"
-                  className={inputClass}
-                />
-              </div>
-              <div>
-                <label className={`${labelClass} block`}>Rent Revenue Description</label>
-                <Combobox
-                  name="rentRevenueDescription"
-                  value={form.rentRevenueDescription}
-                  onChange={handleFormChange}
-                  options={REVENUE_CODE_MAP.filter(m => m.code).map(m => ({ value: m.description, label: m.description }))}
-                  placeholder="Type to search description..."
-                  emptyMessage="No matching description"
-                  className={inputClass}
-                />
               </div>
             </div>
           </div>
