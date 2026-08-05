@@ -720,9 +720,9 @@ export function PropertiesPage() {
                 <label className={`${labelClass} block`}>Permit Number</label>
                 <input type="text" name="permitNumber" value={form.permitNumber} onChange={handleFormChange} placeholder="Enter permit number" disabled={form.hasBuildingPermit === 'No'} className={`${inputClass} ${form.hasBuildingPermit === 'No' ? 'opacity-50 cursor-not-allowed' : ''}`} />
               </div>
-              {/* Revenue Code */}
+              {/* Property Revenue Code */}
               <div>
-                <label className={`${labelClass} block`}>Revenue Code</label>
+                <label className={`${labelClass} block`}>Property Revenue Code</label>
                 <Combobox
                   name="revenueCode"
                   value={form.revenueCode}
@@ -733,9 +733,9 @@ export function PropertiesPage() {
                   className={inputClass}
                 />
               </div>
-              {/* Revenue Description */}
+              {/* Property Revenue Description */}
               <div>
-                <label className={`${labelClass} block`}>Revenue Description</label>
+                <label className={`${labelClass} block`}>Property Revenue Description</label>
                 <Combobox
                   name="revenueDescription"
                   value={form.revenueDescription}

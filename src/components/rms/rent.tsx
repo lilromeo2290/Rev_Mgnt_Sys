@@ -31,6 +31,7 @@ import { exportToExcel, importFromExcel, RENT_FIELDS } from '@/lib/import-export
 import { Combobox } from '@/components/ui/combobox';
 import { LOCALITIES } from '@/lib/localities';
 import { RENT_PT_OPTIONS, RENT_PT_CODE_MAP } from '@/lib/rent-pt-codes';
+import { REVENUE_CODE_MAP, DESCRIPTION_TO_CODE, CODE_TO_DESCRIPTION } from '@/lib/revenue-code-map';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -51,6 +52,8 @@ interface Rent {
   rentUnit: string;
   rentValue: string;
   vacant: string;
+  rentRevenueCode: string;
+  rentRevenueDescription: string;
   // Contract
   startDate: string;
   endDate: string;
@@ -199,6 +202,8 @@ export function RentPage() {
     rentUnit: '',
     rentValue: '',
     vacant: 'No',
+    rentRevenueCode: '',
+    rentRevenueDescription: '',
     startDate: '',
     endDate: '',
     contractId: '',
@@ -323,6 +328,10 @@ export function RentPage() {
       // Auto-fill code when category is selected
       const code = RENT_TYPE_CODE_MAP[`${form.rentClass}|${value}`] || '';
       setForm((prev) => ({ ...prev, rentCategory: value, rentCode: code }));
+    } else if (name === 'rentRevenueDescription' && DESCRIPTION_TO_CODE[value]) {
+      setForm((prev) => ({ ...prev, rentRevenueDescription: value, rentRevenueCode: DESCRIPTION_TO_CODE[value] }));
+    } else if (name === 'rentRevenueCode' && CODE_TO_DESCRIPTION[value]) {
+      setForm((prev) => ({ ...prev, rentRevenueCode: value, rentRevenueDescription: CODE_TO_DESCRIPTION[value] }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
     }
@@ -385,6 +394,8 @@ export function RentPage() {
       nationalId: rent.nationalId,
       rentPT: (rent as any).rentPT || '',
       rentPTCode: (rent as any).rentPTCode || '',
+      rentRevenueCode: (rent as any).rentRevenueCode || '',
+      rentRevenueDescription: (rent as any).rentRevenueDescription || '',
       excludedFromRenting: rent.excludedFromRenting,
       comments: rent.comments,
     });
@@ -677,6 +688,30 @@ export function RentPage() {
                     <option key={v} value={v}>{v}</option>
                   ))}
                 </select>
+              </div>
+              <div>
+                <label className={`${labelClass} block`}>Rent Revenue Code</label>
+                <Combobox
+                  name="rentRevenueCode"
+                  value={form.rentRevenueCode}
+                  onChange={handleFormChange}
+                  options={REVENUE_CODE_MAP.filter(m => m.code).map(m => ({ value: m.code, label: m.code }))}
+                  placeholder="Type to search revenue code..."
+                  emptyMessage="No matching code"
+                  className={inputClass}
+                />
+              </div>
+              <div>
+                <label className={`${labelClass} block`}>Rent Revenue Description</label>
+                <Combobox
+                  name="rentRevenueDescription"
+                  value={form.rentRevenueDescription}
+                  onChange={handleFormChange}
+                  options={REVENUE_CODE_MAP.filter(m => m.code).map(m => ({ value: m.description, label: m.description }))}
+                  placeholder="Type to search description..."
+                  emptyMessage="No matching description"
+                  className={inputClass}
+                />
               </div>
             </div>
           </div>
