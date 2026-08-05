@@ -690,7 +690,7 @@ export function RentPage() {
         <div className={cardClass}>
           <div className={cardHeaderClass}>
             <Building2 className="w-4.5 h-4.5 text-slate-600 dark:text-slate-400" />
-            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Rent Object</h2>
+            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Rent Property Information</h2>
           </div>
           <div className={cardBodyClass}>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
@@ -740,7 +740,7 @@ export function RentPage() {
         <div className={cardClass}>
           <div className={cardHeaderClass}>
             <User className="w-4.5 h-4.5 text-slate-600 dark:text-slate-400" />
-            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Renter Information</h2>
+            <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Occupant's Information</h2>
           </div>
           <div className={cardBodyClass}>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-4">
