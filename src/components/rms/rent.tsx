@@ -30,6 +30,7 @@ import {
 import { exportToExcel, importFromExcel, RENT_FIELDS } from '@/lib/import-export';
 import { Combobox } from '@/components/ui/combobox';
 import { LOCALITIES } from '@/lib/localities';
+import { RENT_PT_OPTIONS, RENT_PT_CODE_MAP } from '@/lib/rent-pt-codes';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -356,7 +357,10 @@ export function RentPage() {
   };
 
   const handleSave = () => {
-    if (!form.upn || !form.renterName) return;
+    if (!form.upn || !form.renterName || !form.rentPT || !form.rentPTCode) {
+      alert('Please fill in all compulsory fields (UPN, Occupant\'s Name, Rent PT, Rent PT Code).');
+      return;
+    }
     if (editingId) {
       setRents((prev) =>
         prev.map((r) => (r.id === editingId ? { ...r, ...form } : r))
@@ -575,7 +579,7 @@ export function RentPage() {
             <button onClick={handleCancel} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-medium transition-colors">
               <X className="w-4 h-4" /> Cancel
             </button>
-            <button onClick={handleSave} disabled={!form.upn || !form.renterName} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            <button onClick={handleSave} disabled={!form.upn || !form.renterName || !form.rentPT || !form.rentPTCode} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
               <Save className="w-4 h-4" /> Save
             </button>
           </div>
@@ -753,12 +757,26 @@ export function RentPage() {
                 <input type="email" name="email" value={form.email} onChange={handleFormChange} placeholder="email@example.com" className={inputClass} />
               </div>
               <div>
-                <label className={`${labelClass} block`}>Rent PT</label>
-                <input type="text" name="rentPT" value={form.rentPT} onChange={handleFormChange} placeholder="Enter Rent PT" className={inputClass} />
+                <label className={`${labelClass} block`}>Rent PT <span className="text-red-500">*</span></label>
+                <Combobox
+                  name="rentPT"
+                  value={form.rentPT}
+                  onChange={(e) => {
+                    setForm((p) => ({
+                      ...p,
+                      rentPT: e.target.value,
+                      rentPTCode: RENT_PT_CODE_MAP[e.target.value] || '',
+                    }));
+                  }}
+                  options={RENT_PT_OPTIONS.map((pt) => ({ value: pt, label: pt }))}
+                  placeholder="Select Property Type..."
+                  emptyMessage="No Property Type found"
+                  className={inputClass}
+                />
               </div>
               <div>
-                <label className={`${labelClass} block`}>Rent PT Code</label>
-                <input type="text" name="rentPTCode" value={form.rentPTCode} onChange={handleFormChange} placeholder="Enter Rent PT Code" className={inputClass} />
+                <label className={`${labelClass} block`}>Rent PT Code <span className="text-red-500">*</span></label>
+                <input type="text" value={form.rentPTCode} readOnly placeholder="Auto-fills from Rent PT" className={`${inputClass} bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed font-mono text-xs`} />
               </div>
             </div>
           </div>
@@ -769,7 +787,7 @@ export function RentPage() {
             <X className="w-4 h-4" />
             Cancel
           </button>
-          <button onClick={handleSave} disabled={!form.upn || !form.renterName} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          <button onClick={handleSave} disabled={!form.upn || !form.renterName || !form.rentPT || !form.rentPTCode} className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
             <Save className="w-4 h-4" />
             {editingId ? 'Update' : 'Save'}
           </button>
