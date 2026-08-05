@@ -34,6 +34,7 @@ import { REVENUE_CODE_MAP, DESCRIPTION_TO_CODE, CODE_TO_DESCRIPTION } from '@/li
 import { CLASS_TO_FIRST_CODE, CLASS_TO_CODES, CODE_TO_CLASS } from '@/lib/business-class-code-map';
 import { BUSINESS_CLASS_CODES } from '@/lib/business-class-codes';
 import { FEE_CODE_LOOKUP } from '@/lib/fee-code-lookup';
+import { getRateOverride, getCeilingOverride } from '@/lib/rate-overrides';
 import { Combobox } from '@/components/ui/combobox';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -251,12 +252,24 @@ export function BusinessesPage() {
   const selectedCategoryFee = availableCategories.find(
     (c) => c.name === form.category
   );
-  // Amount from FEE_CODE_LOOKUP (primary) or USER_CATEGORIES (fallback)
+  // Amount: Rate Configuration override takes priority, then FEE_CODE_LOOKUP, then USER_CATEGORIES
+  const resolveAmount = (code: string, fallbackAmt: number | undefined): number | null => {
+    const override = getRateOverride(code);
+    const base = override !== undefined ? override : (fallbackAmt ?? null);
+    if (base === null) return null;
+    const ceiling = getCeilingOverride(code);
+    if (ceiling !== undefined && ceiling > 0) return Math.min(base, ceiling);
+    return base;
+  };
   const codeLookupEntry = form.businessClassCode ? FEE_CODE_LOOKUP[form.businessClassCode] : null;
   const categoryLookupEntry = form.type && form.category
-    ? Object.values(FEE_CODE_LOOKUP).find(e => e.businessClass === form.type && e.category === form.category)
+    ? Object.entries(FEE_CODE_LOOKUP).find(([_, e]) => e.businessClass === form.type && e.category === form.category)
     : null;
-  const displayAmount = codeLookupEntry?.amount ?? categoryLookupEntry?.amount ?? selectedCategoryFee?.amount ?? null;
+  const displayAmount =
+    (form.businessClassCode ? resolveAmount(form.businessClassCode, codeLookupEntry?.amount) : null)
+    ?? (categoryLookupEntry ? resolveAmount(categoryLookupEntry[0], categoryLookupEntry[1].amount) : null)
+    ?? selectedCategoryFee?.amount
+    ?? null;
 
   // ── Filtering & Pagination ───────────────────────────────────────────────
   const filtered = businesses.filter((b) => {
