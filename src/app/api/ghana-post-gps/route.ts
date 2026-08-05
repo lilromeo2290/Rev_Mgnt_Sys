@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
- * Proxy route for Ghana Post GPS lookup.
- * Avoids browser CORS issues by calling the Ghana Post GPS API server-side.
+ * Proxy route for Ghana Post GPS (Digital Address) lookup.
+ * Tries multiple endpoint variations to maximize success.
+ * Avoids browser CORS by calling server-side.
  */
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -13,43 +14,80 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'lat and lon are required' }, { status: 400 });
   }
 
-  try {
-    // Try the Ghana Post GPS API server-side (no CORS on server)
-    const res = await fetch(
-      `https://ghanapostgps.com/api/coordinates?lat=${lat}&long=${lon}`,
-      {
+  // Multiple endpoint strategies to try
+  const endpoints = [
+    // Strategy 1: ghanapostgps.com with /api/coordinates
+    {
+      url: `https://ghanapostgps.com/api/coordinates?lat=${lat}&long=${lon}`,
+      extract: (data: any) =>
+        data?.data?.address ||
+        data?.address ||
+        data?.Address ||
+        data?.data?.Address ||
+        '',
+    },
+    // Strategy 2: ghanapostgps.com with /api/address
+    {
+      url: `https://ghanapostgps.com/api/address?lat=${lat}&long=${lon}`,
+      extract: (data: any) =>
+        data?.data?.address ||
+        data?.address ||
+        data?.data?.Address ||
+        data?.Address ||
+        '',
+    },
+    // Strategy 3: ghanapostgps.com with JSON body POST
+    {
+      url: `https://ghanapostgps.com/api/coordinates`,
+      method: 'POST' as const,
+      body: JSON.stringify({ lat: parseFloat(lat), long: parseFloat(lon) }),
+      extract: (data: any) =>
+        data?.data?.address ||
+        data?.address ||
+        data?.data?.Address ||
+        data?.Address ||
+        '',
+    },
+    // Strategy 4: Alternative domain with GET
+    {
+      url: `https://digitaladdressgh.com/api/coordinates?lat=${lat}&long=${lon}`,
+      extract: (data: any) =>
+        data?.data?.address ||
+        data?.address ||
+        data?.Address ||
+        '',
+    },
+  ];
+
+  for (const ep of endpoints) {
+    try {
+      const fetchOpts: RequestInit = {
         headers: {
           'Accept': 'application/json',
+          'Content-Type': 'application/json',
           'User-Agent': 'RevMgmtSys/1.0',
         },
-        signal: AbortSignal.timeout(8000),
+        signal: AbortSignal.timeout(6000),
+      };
+      if (ep.method === 'POST' && ep.body) {
+        fetchOpts.method = 'POST';
+        fetchOpts.body = ep.body;
       }
-    );
 
-    if (!res.ok) {
-      return NextResponse.json({ address: '', source: 'ghanapostgps', status: res.status });
+      const res = await fetch(ep.url, fetchOpts);
+      if (!res.ok) continue;
+
+      const data = await res.json();
+      const address = ep.extract(data);
+
+      if (address && address.trim()) {
+        return NextResponse.json({ address: address.trim(), source: 'ghanapostgps' });
+      }
+    } catch {
+      // Try next endpoint
+      continue;
     }
-
-    const data = await res.json();
-    // Try multiple possible response shapes
-    const address =
-      data?.data?.address ||
-      data?.address ||
-      data?.Address ||
-      data?.data?.Address ||
-      '';
-
-    if (address) {
-      return NextResponse.json({ address, source: 'ghanapostgps' });
-    }
-
-    return NextResponse.json({ address: '', source: 'ghanapostgps-empty' });
-  } catch (err) {
-    // Ghana Post GPS API failed — return empty so client can show helpful message
-    return NextResponse.json({
-      address: '',
-      source: 'error',
-      message: err instanceof Error ? err.message : 'Unknown error',
-    });
   }
+
+  return NextResponse.json({ address: '', source: 'all-failed' });
 }
