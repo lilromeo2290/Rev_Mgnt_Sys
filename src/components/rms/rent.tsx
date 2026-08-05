@@ -297,7 +297,6 @@ export function RentPage() {
       })();
       setForm((p) => ({
         ...p,
-        exactLocation: placeName || p.exactLocation,
         rentPropertyLocation: matchedLocality || p.rentPropertyLocation,
         locationCode: w3wCode || p.locationCode,
         propertyGhanaPostGPS: ghanaPostGPS || p.propertyGhanaPostGPS,
