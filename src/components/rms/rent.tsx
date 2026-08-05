@@ -227,36 +227,110 @@ export function RentPage() {
   const [form, setForm] = useState(defaultForm);
   const [locating, setLocating] = useState(false);
 
-  const reverseGeocode = async (lat: number, lon: number): Promise<{ placeName: string; streetCode: string; ghanaPostGPS: string }> => {
+  /** Call our server-side proxy to get Ghana Post GPS address (avoids CORS) */
+  const fetchGhanaPostGPS = async (lat: number, lon: number): Promise<string> => {
     try {
-      // Run Nominatim reverse geocoding and Ghana Post GPS lookup in parallel
-      const [nominatimPromise, ghanaPostPromise] = [
+      const res = await fetch(`/api/ghana-post-gps?lat=${lat}&lon=${lon}`);
+      const data = await res.json();
+      return data?.address || '';
+    } catch {
+      return '';
+    }
+  };
+
+  const reverseGeocode = async (lat: number, lon: number): Promise<{
+    placeName: string;
+    locationCode: string;
+    ghanaPostGPS: string;
+  }> => {
+    try {
+      // Run Nominatim and Ghana Post GPS proxy in parallel
+      const [nominatimResult, ghanaPostGPS] = await Promise.all([
         // Nominatim (OpenStreetMap) for place name
-        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1&zoom=18`)
+        fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1&zoom=18&extratags=1&namedetails=1`,
+          { headers: { 'User-Agent': 'RevMgmtSys/1.0' } }
+        )
           .then((r) => r.json())
           .then((data) => {
             const addr = data.address || {};
-            const placeName = addr.road || addr.suburb || addr.city || addr.town || addr.village || data.display_name?.split(',')[0] || '';
-            const streetParts = [addr.road, addr.suburb, addr.neighbourhood].filter(Boolean);
-            const streetCode = streetParts.length > 0 ? streetParts.join(', ') : placeName;
-            return { placeName, streetCode };
+            // Build a rich place name from best available parts
+            const parts = [
+              addr.road,
+              addr.neighbourhood,
+              addr.suburb,
+              addr.hamlet,
+              addr.village,
+              addr.town,
+              addr.city,
+            ].filter(Boolean);
+            const placeName = parts.length > 0
+              ? parts.slice(0, 3).join(', ')
+              : (data.display_name?.split(',').slice(0, 2).join(',').trim() || '');
+            return { placeName, addr, display_name: data.display_name || '' };
           })
-          .catch(() => ({ placeName: '', streetCode: '' })),
-        // Ghana Post GPS API for digital address
-        fetch(`https://ghanapostgps.com/api/coordinates?lat=${lat}&long=${lon}`)
-          .then((r) => r.json())
-          .then((data) => {
-            // Ghana Post GPS API returns { data: { address: "VO-012-3456" } } or similar
-            const addr = data?.data?.address || data?.address || data?.Address || '';
-            return addr;
-          })
-          .catch(() => ''),
-      ];
-      const [{ placeName, streetCode }, ghanaPostGPS] = await Promise.all([nominatimPromise, ghanaPostPromise]);
-      return { placeName, streetCode, ghanaPostGPS };
+          .catch(() => ({ placeName: '', addr: {} as Record<string, string>, display_name: '' })),
+        fetchGhanaPostGPS(lat, lon),
+      ]);
+
+      // ── Smart Location Code matching ──────────────────────────────
+      const locationCode = matchLocationCode(nominatimResult.addr, nominatimResult.placeName, nominatimResult.display_name);
+
+      return {
+        placeName: nominatimResult.placeName,
+        locationCode,
+        ghanaPostGPS,
+      };
     } catch {
-      return { placeName: '', streetCode: '', ghanaPostGPS: '' };
+      return { placeName: '', locationCode: '', ghanaPostGPS: '' };
     }
+  };
+
+  /** Match Nominatim address components against known LOCALITIES to find the area code */
+  const matchLocationCode = (
+    addr: Record<string, string>,
+    placeName: string,
+    displayName: string
+  ): string => {
+    const allText = `${placeName} ${displayName}`.toLowerCase();
+
+    // Strategy 1: Exact locality name found anywhere in the address
+    for (const loc of LOCALITIES) {
+      if (allText.includes(loc.toLowerCase())) {
+        return LOCALITY_AREA_CODE_MAP[loc] || '';
+      }
+    }
+
+    // Strategy 2: Extract keywords and match against locality key parts
+    // e.g. Nominatim returns suburb="Abanu" → matches "Kpando Abanu (Main)"
+    const keywords = [
+      addr.suburb, addr.neighbourhood, addr.hamlet, addr.village,
+      addr.city, addr.town, addr.road,
+    ].filter(Boolean);
+
+    for (const keyword of keywords) {
+      const kw = keyword.toLowerCase();
+      for (const loc of LOCALITIES) {
+        const locLower = loc.toLowerCase();
+        // Check if the keyword is a significant part of the locality name
+        // e.g. "abanu" appears in "kpando abanu (main)"
+        if (kw.length >= 3 && (locLower.includes(kw) || kw.includes(locLower.split('(')[0].trim()))) {
+          return LOCALITY_AREA_CODE_MAP[loc] || '';
+        }
+      }
+    }
+
+    // Strategy 3: Match the broader area (Kpando, Gbefi, Sovie) and pick first code
+    const areaPrefixes = ['kpando', 'gbefi', 'sovie'];
+    for (const prefix of areaPrefixes) {
+      if (allText.includes(prefix)) {
+        // Find the first locality with this prefix as a reasonable default
+        const match = LOCALITIES.find((loc) => loc.toLowerCase().startsWith(prefix));
+        if (match) return LOCALITY_AREA_CODE_MAP[match] || '';
+      }
+    }
+
+    return '';
   };
 
   const fetchGps = async () => {
@@ -269,26 +343,27 @@ export function RentPage() {
       const lat = pos.coords.latitude;
       const lon = pos.coords.longitude;
       setForm((p) => ({ ...p, propertyLatitude: lat.toFixed(6), propertyLongitude: lon.toFixed(6) }));
-      // Reverse geocode to auto-fill Exact Location and Location Code
-      const { placeName, streetCode, ghanaPostGPS } = await reverseGeocode(lat, lon);
-      // Try to match the geocoded place name against known LOCALITIES for the correct area code
-      const geocodedLocationCode = (() => {
-        const normalizedPlace = (placeName || '').toLowerCase();
-        const normalizedStreet = (streetCode || '').toLowerCase();
-        // Direct match on locality name
-        const directMatch = LOCALITIES.find((loc) => normalizedPlace.includes(loc.toLowerCase()) || loc.toLowerCase().includes(normalizedPlace));
-        if (directMatch) return LOCALITY_AREA_CODE_MAP[directMatch] || '';
-        // Match on street code parts
-        const streetMatch = LOCALITIES.find((loc) => {
-          const locLower = loc.toLowerCase();
-          return streetCode.split(',').some((part) => locLower.includes(part.trim().toLowerCase()) || part.trim().toLowerCase().includes(locLower));
-        });
-        if (streetMatch) return LOCALITY_AREA_CODE_MAP[streetMatch] || '';
+      // Reverse geocode to auto-fill Exact Location, Location Code, and Ghana Post GPS
+      const { placeName, locationCode: geocodedLocationCode, ghanaPostGPS } = await reverseGeocode(lat, lon);
+      // Also try to match the Rent Property Location combobox
+      const matchedLocality = (() => {
+        const allText = `${placeName}`.toLowerCase();
+        for (const loc of LOCALITIES) {
+          if (allText.includes(loc.toLowerCase()) || loc.toLowerCase().includes(allText.split(',')[0].trim())) {
+            return loc;
+          }
+        }
+        // Try broader area match for the combobox
+        for (const loc of LOCALITIES) {
+          const areaWord = loc.split(' ')[0].toLowerCase(); // "kpando", "gbefi", "sovie"
+          if (allText.includes(areaWord)) return loc;
+        }
         return '';
       })();
       setForm((p) => ({
         ...p,
         exactLocation: placeName || p.exactLocation,
+        rentPropertyLocation: matchedLocality || p.rentPropertyLocation,
         locationCode: geocodedLocationCode || p.locationCode,
         propertyGhanaPostGPS: ghanaPostGPS || p.propertyGhanaPostGPS,
       }));
@@ -613,11 +688,11 @@ export function RentPage() {
                     if (!lat || !lon) { alert('Enter GPS coordinates first, or use the detect button.'); return; }
                     setLocating(true);
                     try {
-                      const { ghanaPostGPS } = await reverseGeocode(lat, lon);
-                      if (ghanaPostGPS) {
-                        setForm((p) => ({ ...p, propertyGhanaPostGPS: ghanaPostGPS }));
+                      const gps = await fetchGhanaPostGPS(lat, lon);
+                      if (gps) {
+                        setForm((p) => ({ ...p, propertyGhanaPostGPS: gps }));
                       } else {
-                        alert('Could not determine Ghana Post GPS address for these coordinates. Please enter it manually.');
+                        alert('Could not determine Ghana Post GPS address for these coordinates. Please enter it manually (e.g. VO-123-4567).');
                       }
                     } finally { setLocating(false); }
                   }} disabled={locating || !form.propertyLatitude || !form.propertyLongitude} className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-medium transition-colors" title="Lookup Ghana Post GPS from coordinates">
