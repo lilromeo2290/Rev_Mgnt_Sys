@@ -11,11 +11,11 @@ import {
 import { FEE_CODE_LOOKUP } from '@/lib/fee-code-lookup';
 import { BUSINESS_CLASS_CODES } from '@/lib/business-class-codes';
 import { CODE_TO_CLASS } from '@/lib/business-class-code-map';
-import { getRateOverride, setRateOverride } from '@/lib/rate-overrides';
+import { getRateOverride, setRateOverride, getCeilingOverride, setCeilingOverride } from '@/lib/rate-overrides';
 import { Combobox } from '@/components/ui/combobox';
 
 type RateTab = 'Business' | 'Property' | 'Fines' | 'Fees' | 'Rent';
-type SortColumn = 'code' | 'class' | 'category' | 'amount';
+type SortColumn = 'code' | 'class' | 'category' | 'amount' | 'ceiling';
 type SortDir = 'asc' | 'desc';
 
 interface RateRow {
@@ -24,6 +24,8 @@ interface RateRow {
   category: string;
   amount: number;
   originalAmount: number;
+  ceiling: number;
+  originalCeiling: number;
   selected: boolean;
 }
 
@@ -33,12 +35,16 @@ const PAGE_SIZE = 25;
 function buildBusinessRows(): RateRow[] {
   return BUSINESS_CLASS_CODES.map((code) => {
     const entry = FEE_CODE_LOOKUP[code];
+    const savedAmt = getRateOverride(code);
+    const savedCel = getCeilingOverride(code);
     return {
       code,
       businessClass: entry ? entry.businessClass : '',
       category: entry ? entry.category : '',
-      amount: 0,
-      originalAmount: 0,
+      amount: savedAmt ?? 0,
+      originalAmount: savedAmt ?? 0,
+      ceiling: savedCel ?? 0,
+      originalCeiling: savedCel ?? 0,
       selected: false,
     };
   });
@@ -57,6 +63,7 @@ export function RateConfigPage() {
   const [newClass, setNewClass] = useState('');
   const [newCategory, setNewCategory] = useState('');
   const [newAmount, setNewAmount] = useState('');
+  const [newCeiling, setNewCeiling] = useState('');
 
   // When a code is selected, auto-fill class and category
   const handleCodeSelect = (code: string) => {
@@ -85,6 +92,7 @@ export function RateConfigPage() {
         case 'class': return a.businessClass.localeCompare(b.businessClass) * dir;
         case 'category': return a.category.localeCompare(b.category) * dir;
         case 'amount': return (a.amount - b.amount) * dir;
+        case 'ceiling': return (a.ceiling - b.ceiling) * dir;
         default: return 0;
       }
     });
@@ -107,8 +115,24 @@ export function RateConfigPage() {
 
   const handleAmountEdit = (code: string, val: string) => {
     const num = parseFloat(val) || 0;
-    setRows((prev) => prev.map((r) => (r.code === code ? { ...r, amount: num } : r)));
-    setRateOverride(code, num);
+    const row = rows.find((r) => r.code === code);
+    // Enforce ceiling: amount cannot exceed ceiling
+    const capped = row && row.ceiling > 0 ? Math.min(num, row.ceiling) : num;
+    setRows((prev) => prev.map((r) => (r.code === code ? { ...r, amount: capped } : r)));
+    setRateOverride(code, capped);
+  };
+
+  const handleCeilingEdit = (code: string, val: string) => {
+    const num = parseFloat(val) || 0;
+    const row = rows.find((r) => r.code === code);
+    // If ceiling is reduced below current amount, cap the amount
+    let adjustedAmount = row ? row.amount : 0;
+    if (num > 0 && adjustedAmount > num) {
+      adjustedAmount = num;
+      setRateOverride(code, adjustedAmount);
+    }
+    setRows((prev) => prev.map((r) => (r.code === code ? { ...r, ceiling: num, amount: adjustedAmount } : r)));
+    setCeilingOverride(code, num);
   };
 
   const handleRadio = (code: string) => setRadioCode(code);
@@ -116,18 +140,22 @@ export function RateConfigPage() {
     setRows((prev) => prev.map((r) => (r.code === code ? { ...r, selected: !r.selected } : r)));
   };
 
-  const isMod = (r: RateRow) => r.amount !== r.originalAmount;
+  const isMod = (r: RateRow) => r.amount !== r.originalAmount || r.ceiling !== r.originalCeiling;
 
   const handleAddRate = () => {
     const trimmedCode = newCode.trim();
     if (!trimmedCode || !newAmount.trim()) return;
     const amt = parseFloat(newAmount) || 0;
-    setRateOverride(trimmedCode, amt);
-    setRows((prev) => prev.map((r) => (r.code === trimmedCode ? { ...r, amount: amt } : r)));
+    const cel = parseFloat(newCeiling) || 0;
+    const finalAmt = cel > 0 ? Math.min(amt, cel) : amt;
+    setRateOverride(trimmedCode, finalAmt);
+    if (cel > 0) setCeilingOverride(trimmedCode, cel);
+    setRows((prev) => prev.map((r) => (r.code === trimmedCode ? { ...r, amount: finalAmt, ceiling: cel } : r)));
     setNewCode('');
     setNewClass('');
     setNewCategory('');
     setNewAmount('');
+    setNewCeiling('');
     setShowAddForm(false);
   };
 
@@ -233,6 +261,18 @@ export function RateConfigPage() {
                         min="0"
                       />
                     </div>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-0.5">Ceiling (Optional)</label>
+                      <input
+                        type="number"
+                        value={newCeiling}
+                        onChange={(e) => setNewCeiling(e.target.value)}
+                        className="w-full rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-xs focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition"
+                        placeholder="No limit"
+                        step="0.01"
+                        min="0"
+                      />
+                    </div>
                     <button
                       onClick={handleAddRate}
                       disabled={!newCode.trim() || !newAmount.trim()}
@@ -267,19 +307,22 @@ export function RateConfigPage() {
                 <th onClick={() => handleSort('amount')} className="px-3 py-2.5 text-right font-semibold text-slate-700 dark:text-slate-300 cursor-pointer select-none hover:bg-slate-200 dark:hover:bg-slate-700 whitespace-nowrap">
                   Amount <SortIcon col="amount" />
                 </th>
+                <th onClick={() => handleSort('ceiling')} className="px-3 py-2.5 text-right font-semibold text-slate-700 dark:text-slate-300 cursor-pointer select-none hover:bg-slate-200 dark:hover:bg-slate-700 whitespace-nowrap">
+                  Ceiling <SortIcon col="ceiling" />
+                </th>
               </tr>
             </thead>
 
             <tbody className="divide-y divide-slate-100 dark:divide-slate-700/50">
               {activeTab !== 'Business' ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-16 text-slate-400 dark:text-slate-500">
+                  <td colSpan={7} className="text-center py-16 text-slate-400 dark:text-slate-500">
                     No rates loaded for {activeTab}.
                   </td>
                 </tr>
               ) : paged.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-16 text-slate-400 dark:text-slate-500">
+                  <td colSpan={7} className="text-center py-16 text-slate-400 dark:text-slate-500">
                     No rates found matching your search.
                   </td>
                 </tr>
@@ -297,6 +340,9 @@ export function RateConfigPage() {
                     <td className="px-3 py-1.5 text-slate-800 dark:text-slate-200 max-w-[300px] truncate">{row.category}</td>
                     <td className={`px-1 py-0.5 ${isMod(row) ? 'bg-red-100 dark:bg-red-900/30' : ''}`}>
                       <input type="number" value={row.amount || ''} onChange={(e) => handleAmountEdit(row.code, e.target.value)} className="w-full text-right px-2 py-1.5 bg-transparent border-0 outline-none text-slate-800 dark:text-slate-200 font-mono text-xs focus:ring-1 focus:ring-inset focus:ring-emerald-500 rounded" step="0.01" min="0" />
+                    </td>
+                    <td className={`px-1 py-0.5 ${row.ceiling !== row.originalCeiling ? 'bg-red-100 dark:bg-red-900/30' : ''}`}>
+                      <input type="number" value={row.ceiling || ''} onChange={(e) => handleCeilingEdit(row.code, e.target.value)} className="w-full text-right px-2 py-1.5 bg-transparent border-0 outline-none text-slate-800 dark:text-slate-200 font-mono text-xs focus:ring-1 focus:ring-inset focus:ring-emerald-500 rounded" step="0.01" min="0" placeholder="—" />
                     </td>
                   </tr>
                 ))
