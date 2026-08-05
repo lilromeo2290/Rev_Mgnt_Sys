@@ -29,7 +29,7 @@ import {
 } from 'lucide-react';
 import { exportToExcel, importFromExcel, RENT_FIELDS } from '@/lib/import-export';
 import { Combobox } from '@/components/ui/combobox';
-import { LOCALITIES, LOCALITY_AREA_CODE_MAP } from '@/lib/localities';
+import { LOCALITIES } from '@/lib/localities';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -210,14 +210,26 @@ export function RentPage() {
     }
   };
 
+  /** Call our server-side proxy to get what3words address (avoids CORS) */
+  const fetchWhat3Words = async (lat: number, lon: number): Promise<string> => {
+    try {
+      const res = await fetch(`/api/what3words?lat=${lat}&lon=${lon}`);
+      const data = await res.json();
+      const words = data?.words || '';
+      return words ? `///${words}` : '';
+    } catch {
+      return '';
+    }
+  };
+
   const reverseGeocode = async (lat: number, lon: number): Promise<{
     placeName: string;
     locationCode: string;
     ghanaPostGPS: string;
   }> => {
     try {
-      // Run Nominatim and Ghana Post GPS proxy in parallel
-      const [nominatimResult, ghanaPostGPS] = await Promise.all([
+      // Run Nominatim, Ghana Post GPS, and what3words in parallel
+      const [nominatimResult, ghanaPostGPS, w3w] = await Promise.all([
         // Nominatim (OpenStreetMap) for place name
         fetch(
           `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1&zoom=18&extratags=1&namedetails=1`,
@@ -243,66 +255,17 @@ export function RentPage() {
           })
           .catch(() => ({ placeName: '', addr: {} as Record<string, string>, display_name: '' })),
         fetchGhanaPostGPS(lat, lon),
+        fetchWhat3Words(lat, lon),
       ]);
-
-      // ── Smart Location Code matching ──────────────────────────────
-      const locationCode = matchLocationCode(nominatimResult.addr, nominatimResult.placeName, nominatimResult.display_name);
 
       return {
         placeName: nominatimResult.placeName,
-        locationCode,
+        locationCode: w3w,
         ghanaPostGPS,
       };
     } catch {
       return { placeName: '', locationCode: '', ghanaPostGPS: '' };
     }
-  };
-
-  /** Match Nominatim address components against known LOCALITIES to find the area code */
-  const matchLocationCode = (
-    addr: Record<string, string>,
-    placeName: string,
-    displayName: string
-  ): string => {
-    const allText = `${placeName} ${displayName}`.toLowerCase();
-
-    // Strategy 1: Exact locality name found anywhere in the address
-    for (const loc of LOCALITIES) {
-      if (allText.includes(loc.toLowerCase())) {
-        return LOCALITY_AREA_CODE_MAP[loc] || '';
-      }
-    }
-
-    // Strategy 2: Extract keywords and match against locality key parts
-    // e.g. Nominatim returns suburb="Abanu" → matches "Kpando Abanu (Main)"
-    const keywords = [
-      addr.suburb, addr.neighbourhood, addr.hamlet, addr.village,
-      addr.city, addr.town, addr.road,
-    ].filter(Boolean);
-
-    for (const keyword of keywords) {
-      const kw = keyword.toLowerCase();
-      for (const loc of LOCALITIES) {
-        const locLower = loc.toLowerCase();
-        // Check if the keyword is a significant part of the locality name
-        // e.g. "abanu" appears in "kpando abanu (main)"
-        if (kw.length >= 3 && (locLower.includes(kw) || kw.includes(locLower.split('(')[0].trim()))) {
-          return LOCALITY_AREA_CODE_MAP[loc] || '';
-        }
-      }
-    }
-
-    // Strategy 3: Match the broader area (Kpando, Gbefi, Sovie) and pick first code
-    const areaPrefixes = ['kpando', 'gbefi', 'sovie'];
-    for (const prefix of areaPrefixes) {
-      if (allText.includes(prefix)) {
-        // Find the first locality with this prefix as a reasonable default
-        const match = LOCALITIES.find((loc) => loc.toLowerCase().startsWith(prefix));
-        if (match) return LOCALITY_AREA_CODE_MAP[match] || '';
-      }
-    }
-
-    return '';
   };
 
   const fetchGps = async () => {
@@ -316,7 +279,7 @@ export function RentPage() {
       const lon = pos.coords.longitude;
       setForm((p) => ({ ...p, propertyLatitude: lat.toFixed(6), propertyLongitude: lon.toFixed(6) }));
       // Reverse geocode to auto-fill Exact Location, Location Code, and Ghana Post GPS
-      const { placeName, locationCode: geocodedLocationCode, ghanaPostGPS } = await reverseGeocode(lat, lon);
+      const { placeName, locationCode: w3wCode, ghanaPostGPS } = await reverseGeocode(lat, lon);
       // Also try to match the Rent Property Location combobox
       const matchedLocality = (() => {
         const allText = `${placeName}`.toLowerCase();
@@ -327,7 +290,7 @@ export function RentPage() {
         }
         // Try broader area match for the combobox
         for (const loc of LOCALITIES) {
-          const areaWord = loc.split(' ')[0].toLowerCase(); // "kpando", "gbefi", "sovie"
+          const areaWord = loc.split(' ')[0].toLowerCase();
           if (allText.includes(areaWord)) return loc;
         }
         return '';
@@ -336,7 +299,7 @@ export function RentPage() {
         ...p,
         exactLocation: placeName || p.exactLocation,
         rentPropertyLocation: matchedLocality || p.rentPropertyLocation,
-        locationCode: geocodedLocationCode || p.locationCode,
+        locationCode: w3wCode || p.locationCode,
         propertyGhanaPostGPS: ghanaPostGPS || p.propertyGhanaPostGPS,
       }));
     } catch (err) {
@@ -629,11 +592,9 @@ export function RentPage() {
                   name="rentPropertyLocation"
                   value={form.rentPropertyLocation}
                   onChange={(e) => {
-                    const val = e.target.value;
                     setForm((p) => ({
                       ...p,
-                      rentPropertyLocation: val,
-                      locationCode: val ? (LOCALITY_AREA_CODE_MAP[val] || '') : '',
+                      rentPropertyLocation: e.target.value,
                     }));
                   }}
                   options={LOCALITIES.map((loc) => ({ value: loc, label: loc }))}
@@ -642,9 +603,27 @@ export function RentPage() {
                   className={inputClass}
                 />
               </div>
-              <div>
-                <label className={`${labelClass} block`}>Location Code</label>
-                <input type="text" name="locationCode" value={form.locationCode} onChange={handleFormChange} placeholder="Enter location code" className={inputClass} />
+              <div className="sm:col-span-2">
+                <label className={`${labelClass} block`}>Location Code (what3words)</label>
+                <div className="flex gap-1.5">
+                  <input type="text" name="locationCode" value={form.locationCode} onChange={handleFormChange} placeholder="///word.word.word" className={inputClass} />
+                  <button type="button" onClick={async () => {
+                    const lat = parseFloat(form.propertyLatitude);
+                    const lon = parseFloat(form.propertyLongitude);
+                    if (!lat || !lon) { alert('Enter GPS coordinates first, or use the detect button.'); return; }
+                    setLocating(true);
+                    try {
+                      const w3w = await fetchWhat3Words(lat, lon);
+                      if (w3w) {
+                        setForm((p) => ({ ...p, locationCode: w3w }));
+                      } else {
+                        alert('Could not determine what3words address. Ensure WHAT3WORDS_API_KEY is set in Vercel environment variables.');
+                      }
+                    } finally { setLocating(false); }
+                  }} disabled={locating || !form.propertyLatitude || !form.propertyLongitude} className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-medium transition-colors" title="Lookup what3words from coordinates">
+                    {locating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Search className="w-3.5 h-3.5" />}
+                  </button>
+                </div>
               </div>
               <div className="sm:col-span-2">
                 <label className={`${labelClass} block`}>Exact Location</label>
