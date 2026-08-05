@@ -23,7 +23,7 @@ import {
   Briefcase,
 } from 'lucide-react';
 import { exportToExcel, importFromExcel, PROPERTY_FIELDS } from '@/lib/import-export';
-import { LOCALITIES, LOCALITY_AREA_CODE_MAP } from '@/lib/localities';
+import { LOCALITIES } from '@/lib/localities';
 import { REVENUE_DESCRIPTIONS } from '@/lib/revenue-descriptions';
 import { REVENUE_CODE_MAP, DESCRIPTION_TO_CODE, CODE_TO_DESCRIPTION } from '@/lib/revenue-code-map';
 import {
@@ -292,11 +292,7 @@ export function PropertiesPage() {
     const { name, type } = e.target;
     setForm((prev) => {
       const updated = { ...prev, [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : (e.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement).value };
-      // Auto-fill area code when locality changes
-      if (name === 'locality' && LOCALITY_AREA_CODE_MAP[updated.locality]) {
-        updated.areaCode = LOCALITY_AREA_CODE_MAP[updated.locality];
-      }
-      // Update property unique number whenever area code changes
+      // Note: area code auto-fill removed (LOCALITY_AREA_CODE_MAP no longer available)
       if ((name === 'locality' || name === 'areaCode') && updated.areaCode) {
         const nextNum = properties.length + 1;
         updated.propertyUniqueNumber = `${updated.areaCode}/PR/${String(nextNum).padStart(4, '0')}`;

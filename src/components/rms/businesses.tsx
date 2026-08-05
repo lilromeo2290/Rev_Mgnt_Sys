@@ -28,7 +28,7 @@ import { BUSINESS_CLASSES } from '@/lib/fee-schedule';
 import { USER_CATEGORIES } from '@/lib/user-categories';
 import type { UserCategory } from '@/lib/user-categories';
 import { exportToExcel, importFromExcel, BUSINESS_FIELDS } from '@/lib/import-export';
-import { LOCALITIES, LOCALITY_AREA_CODE_MAP } from '@/lib/localities';
+import { LOCALITIES } from '@/lib/localities';
 import { REVENUE_DESCRIPTIONS } from '@/lib/revenue-descriptions';
 import { REVENUE_CODE_MAP, DESCRIPTION_TO_CODE, CODE_TO_DESCRIPTION } from '@/lib/revenue-code-map';
 import { CLASS_TO_FIRST_CODE, CLASS_TO_CODES, CODE_TO_CLASS } from '@/lib/business-class-code-map';
@@ -286,11 +286,7 @@ export function BusinessesPage() {
     const { name, type } = e.target;
     setForm((prev) => {
       const updated = { ...prev, [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : (e.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement).value };
-      // Auto-fill area code when locality changes
-      if (name === 'locality' && LOCALITY_AREA_CODE_MAP[updated.locality]) {
-        updated.areaCode = LOCALITY_AREA_CODE_MAP[updated.locality];
-      }
-      // Update business unique number whenever area code changes
+      // Note: area code auto-fill removed (LOCALITY_AREA_CODE_MAP no longer available)
       if ((name === 'locality' || name === 'areaCode') && updated.areaCode) {
         const nextNum = businesses.length + 1;
         updated.businessUniqueNumber = `${updated.areaCode}/BP/${String(nextNum).padStart(4, '0')}`;
