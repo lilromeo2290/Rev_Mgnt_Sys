@@ -68,6 +68,8 @@ interface Rent {
   tin: string;
   nationalId: string;
   // Other
+  rentPT: string;
+  rentPTCode: string;
   excludedFromRenting: boolean;
   comments: string;
 }
@@ -192,6 +194,8 @@ export function RentPage() {
     email: '',
     tin: '',
     nationalId: '',
+    rentPT: '',
+    rentPTCode: '',
     excludedFromRenting: false,
     comments: '',
   };
@@ -399,6 +403,8 @@ export function RentPage() {
       email: rent.email,
       tin: rent.tin,
       nationalId: rent.nationalId,
+      rentPT: (rent as any).rentPT || '',
+      rentPTCode: (rent as any).rentPTCode || '',
       excludedFromRenting: rent.excludedFromRenting,
       comments: rent.comments,
     });
@@ -745,6 +751,14 @@ export function RentPage() {
               <div>
                 <label className={`${labelClass} block`}>Email Address</label>
                 <input type="email" name="email" value={form.email} onChange={handleFormChange} placeholder="email@example.com" className={inputClass} />
+              </div>
+              <div>
+                <label className={`${labelClass} block`}>Rent PT</label>
+                <input type="text" name="rentPT" value={form.rentPT} onChange={handleFormChange} placeholder="Enter Rent PT" className={inputClass} />
+              </div>
+              <div>
+                <label className={`${labelClass} block`}>Rent PT Code</label>
+                <input type="text" name="rentPTCode" value={form.rentPTCode} onChange={handleFormChange} placeholder="Enter Rent PT Code" className={inputClass} />
               </div>
             </div>
           </div>
