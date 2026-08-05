@@ -707,6 +707,32 @@ export function PropertiesPage() {
                 <label className={`${labelClass} block`}>Permit Number</label>
                 <input type="text" name="permitNumber" value={form.permitNumber} onChange={handleFormChange} placeholder="Enter permit number" disabled={form.hasBuildingPermit === 'No'} className={`${inputClass} ${form.hasBuildingPermit === 'No' ? 'opacity-50 cursor-not-allowed' : ''}`} />
               </div>
+              {/* Revenue Code */}
+              <div>
+                <label className={`${labelClass} block`}>Revenue Code</label>
+                <Combobox
+                  name="revenueCode"
+                  value={form.revenueCode}
+                  onChange={handleFormChange}
+                  options={REVENUE_CODE_MAP.filter(m => m.code).map(m => ({ value: m.code, label: m.code }))}
+                  placeholder="Type to search revenue code..."
+                  emptyMessage="No matching code"
+                  className={inputClass}
+                />
+              </div>
+              {/* Revenue Description */}
+              <div>
+                <label className={`${labelClass} block`}>Revenue Description</label>
+                <Combobox
+                  name="revenueDescription"
+                  value={form.revenueDescription}
+                  onChange={handleFormChange}
+                  options={REVENUE_CODE_MAP.filter(m => m.code).map(m => ({ value: m.description, label: m.description }))}
+                  placeholder="Type to search description..."
+                  emptyMessage="No matching description"
+                  className={inputClass}
+                />
+              </div>
               {/* Excluded from rating */}
               <div className="flex items-end">
                 <label className="flex items-center gap-2 pb-2.5 cursor-pointer select-none">
